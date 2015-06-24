@@ -4,6 +4,12 @@ Monitoring in the FLP prototype is handled by MonALISA.
 Monitoring values are sent via ApMon library.
 A class DataCollector provides an abstraction layer.
 
+Dependencies
+====================
+To build the project, the following dependencies must be installed:
+
+- ApMon_cpp
+
 Service Installation and configuration
 ====================
 The MonALISA service runs on aidrefsrv101.
