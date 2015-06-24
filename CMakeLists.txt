@@ -47,6 +47,10 @@ endif()
 set(Boost_NO_BOOST_CMAKE ON) #  Don't do a find_package in config mode before searching for a regular boost install.
 find_package(Boost COMPONENTS unit_test_framework program_options REQUIRED)
 
+find_package(APMON REQUIRED)
+include_directories(${APMON_INCLUDE_DIRS})
+set(LIBS ${LIBS} ${APMON_LIBRARIES})
+
 # This sets the include directory for the reference project. This is
 # the -I flag in gcc. All the includes should be in this variable To
 # add new directories to the include path, just add them in this list
