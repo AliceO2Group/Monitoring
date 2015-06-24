@@ -20,8 +20,8 @@ in a proper non-minimalistic way.
     * The cmake way *
     
     The commands to build the project would be:
-      mkdir build_dir
-      cd build_dir
+      mkdir build
+      cd build
       cmake .. 
       make 
       make install
