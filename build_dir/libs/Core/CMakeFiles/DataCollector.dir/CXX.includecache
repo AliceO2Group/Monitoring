@@ -1,0 +1,32 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../libs/Core/DataCollector.h
+string
+-
+ApMon.h
+-
+utils.h
+-
+
+../libs/Core/FileNotFoundException.h
+stdexcept
+-
+
+/opt/devel/flp_prototype/hackathon/Monitoring/libs/Core/DataCollector.cxx
+Core/DataCollector.h
+-
+Core/FileNotFoundException.h
+-
+boost/lexical_cast.hpp
+-
+string
+-
+iostream
+-
+

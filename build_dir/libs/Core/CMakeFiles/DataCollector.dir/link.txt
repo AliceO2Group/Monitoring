@@ -1,0 +1,1 @@
+/opt/rh/devtoolset-3/root/usr/bin/c++  -fPIC  -std=c++11   -shared -Wl,-soname,libDataCollector.so.0.0.0 -o ../../lib/libDataCollector.so.0.0.0 CMakeFiles/DataCollector.dir/Version.cxx.o CMakeFiles/DataCollector.dir/DataCollector.cxx.o 

@@ -1,0 +1,72 @@
+# REFERENCE PROJECT CMAKELISTS.TXT
+#
+# @author  bvonhall
+
+cmake_minimum_required(VERSION 2.6)
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake")
+
+# CMake 2.6+ specific
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib") 
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+
+# Set the name of your project here
+project("Monitoring" CXX)
+
+# Set the version number of your project here (format is MAJOR.MINOR.PATCHLEVEL - e.g. 1.0.0)
+set(VERSION_MAJOR "0")
+set(VERSION_MINOR "0")
+set(VERSION_PATCH "0")
+set(VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
+
+## Git (and its revision)
+find_package(Git)
+# GetGitRevisionDescription module to retreive branch and revision information from Git
+# Starting with Git 1.9 the module will be part of official cMake distribution, until then it has to be
+# part of the application
+# The Git module will trigger a reconfiguration for each pull that will bring a new revision on the local repository
+set (VCS_REVISION "-1")
+if(GIT_FOUND)
+    include(GetGitRevisionDescription)
+    get_git_head_revision(GIT_REFSPEC GIT_SHA1)
+    message(STATUS "GIT branch ${GIT_REFSPEC}")
+    message(STATUS "GIT revision ${GIT_SHA1}")
+    set (VCS_REVISION ${GIT_SHA1})
+endif()
+
+# C++11 needed
+include(CheckCXXCompilerFlag)
+CHECK_CXX_COMPILER_FLAG(-std=c++11 COMPILER_SUPPORTS_CXX11)
+if(COMPILER_SUPPORTS_CXX11)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+else()
+  message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
+endif()
+
+# This line finds the boost lib and headers. 
+set(Boost_NO_BOOST_CMAKE ON) #  Don't do a find_package in config mode before searching for a regular boost install.
+find_package(Boost COMPONENTS unit_test_framework program_options REQUIRED)
+
+# This sets the include directory for the reference project. This is
+# the -I flag in gcc. All the includes should be in this variable To
+# add new directories to the include path, just add them in this list
+# (after a space), or add an include_directories statement in a
+# subdirectory's CMakeLists.
+include_directories(
+    ${CMAKE_SOURCE_DIR}/libs
+    ${CMAKE_BINARY_DIR}/libs   # in general shouldn't be needed, but here we generate Version.h there
+    ${Boost_INCLUDE_DIRS}
+)
+
+enable_testing() # needed on top-level CMakeLists.txt
+add_subdirectory(libs)
+add_subdirectory(apps)
+add_subdirectory(doc)
+add_subdirectory(test)
+
+
+# PACKAGING
+# _____________________________________________________________________________
+
+include(CPackConfig)
+

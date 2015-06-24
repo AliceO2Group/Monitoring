@@ -1,0 +1,18 @@
+Introduction
+====================
+Monitoring in the FLP prototype is handled by MonALISA.
+Monitoring values are sent via ApMon library.
+A class DataCollector provides an abstraction layer.
+
+Service Installation and configuration
+====================
+The MonALISA service runs on aidrefsrv101.
+
+1) yum install monalisa-service
+2) Copy config/ml_env to /opt/monalisa-service/Service/CMD/
+3) Copy config/ml.properties to /opt/monalisa-service/Service/myFarm/
+4) Copy config/myFarm.conf to /opt/monalisa-service/Service/myFarm/
+5) /sbin/service MLD start
+
+
+ 
