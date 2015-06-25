@@ -18,7 +18,11 @@ The MonALISA service runs on aidrefsrv101.
 2) Copy config/ml_env to /opt/monalisa-service/Service/CMD/
 3) Copy config/ml.properties to /opt/monalisa-service/Service/myFarm/
 4) Copy config/myFarm.conf to /opt/monalisa-service/Service/myFarm/
-5) /sbin/service MLD start
+5) Add following line to iptables and restart it 
+
+-A INPUT -p udp -m state --state NEW -m udp --dport 8884 -m comment --comment "MonALISA UDP packets" -j ACCEPT
+
+6) /sbin/service MLD start
 
 
  
