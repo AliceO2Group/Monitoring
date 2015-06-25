@@ -10,6 +10,7 @@
 #include <iostream>
 
 namespace program_options = boost::program_options;
+namespace core = AliceO2::Monitoring::Core;
 
 int main(int argc, char* argv[])
 {
@@ -37,13 +38,13 @@ int main(int argc, char* argv[])
 
     // check for version
     if (optionsValues.count("version")) {
-      std::cout << "samplecollector version " << AliceO2::Monitoring::Core::Version::getString() << std::endl;
+      std::cout << "samplecollector version " << core::Version::getString() << std::endl;
       return EXIT_SUCCESS;
     }
 
     // check for revision
     if (optionsValues.count("revision")) {
-      std::cout << "git revision : " << AliceO2::Monitoring::Core::Version::getRevision() << std::endl;
+      std::cout << "git revision : " << core::Version::getRevision() << std::endl;
       return EXIT_SUCCESS;
     }
 
@@ -62,12 +63,15 @@ int main(int argc, char* argv[])
 
   try {
     // create monitoring object
-    AliceO2::Monitoring::Core::DataCollector *collector = new AliceO2::Monitoring::Core::DataCollector(configFile);
+    core::DataCollector *collector = new core::DataCollector(configFile, "FLPs");
 
-    // we can pause this thread since work is done by thread
-    pause();
+    // send an application specific value every 10 seconds
+    while (true) {
+      collector->sendValue("FLPs", "FLP01", "myCrazyMetrig", 10);
+      sleep(10);
+    }
   }
-  catch (AliceO2::Monitoring::Core::FileNotFoundException& e) {
+  catch (core::FileNotFoundException& e) {
     std::cerr << "Error opening ApMon configuration file: '" << e.getFilePath() << "'" << std::endl;
     return EXIT_FAILURE;
   }
