@@ -15,9 +15,10 @@ namespace AliceO2 {
 namespace Monitoring {
 namespace Core {
 
-DataCollector::DataCollector(const std::string configurationFile, const std::string defaultCluster)
+DataCollector::DataCollector(const std::string configurationFile, const std::string defaultCluster, const std::string defaultNode)
     : mConfigurationFile(configurationFile),
-      mDefaultCluster(defaultCluster)
+      mDefaultCluster(defaultCluster),
+      mDefaultNode(defaultNode)
 {
   try {
     // create ApMon object
@@ -41,14 +42,23 @@ ApMon* DataCollector::getApMon() const
   return mApMon;
 }
 
-const string& DataCollector::getConfigurationFile() const
+const std::string& DataCollector::getConfigurationFile() const
 {
   return mConfigurationFile;
 }
 
-const string& DataCollector::getDefaultCluster() const
+std::string DataCollector::getDefaultCluster() const
 {
   return mDefaultCluster;
+}
+
+std::string DataCollector::getDefaultNode()
+{
+  if (mDefaultNode.empty()) {
+    return getHostname();
+  }
+
+  return mDefaultNode;
 }
 
 void DataCollector::sendValue(std::string cluster, std::string node, std::string metric, int value)
@@ -89,7 +99,7 @@ void DataCollector::sendTimedValue(std::string cluster, std::string node, std::s
       const_cast<char *>(metric.c_str()), XDR_STRING, const_cast<char *>(value.c_str()), timestamp);
 }
 
-std::string DataCollector::getHostname()
+std::string& DataCollector::getHostname()
 {
   if (mHostname.empty()) {
     setHostname();
@@ -108,7 +118,7 @@ void DataCollector::setHostname()
   mHostname = std::string(hostname);
 }
 
-std::string DataCollector::getProcessUniqueId()
+std::string& DataCollector::getProcessUniqueId()
 {
   if (mProcessUniqueId.empty()) {
     setProcessUniqueId();
@@ -119,7 +129,7 @@ std::string DataCollector::getProcessUniqueId()
 
 void DataCollector::setProcessUniqueId()
 {
-  mProcessUniqueId = getHostname() + "." + boost::lexical_cast<std::string>(getpid());
+  mProcessUniqueId = getDefaultNode() + "." + boost::lexical_cast<std::string>(getpid());
 }
 
 void DataCollector::configureProcessMonitoring()

@@ -63,11 +63,11 @@ int main(int argc, char* argv[])
 
   try {
     // create monitoring object
-    core::DataCollector *collector = new core::DataCollector(configFile, "FLPs");
+    core::DataCollector *collector = new core::DataCollector(configFile, "FLPs", "FLP-TPC-01");
 
     // send an application specific value every 10 seconds
     while (true) {
-      collector->sendValue("FLPs", "FLP01", "myCrazyMetrig", 10);
+      collector->sendValue("FLPs", "FLP-TPC-01", "myCrazyMetric", 10);
       sleep(10);
     }
   }

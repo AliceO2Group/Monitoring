@@ -25,7 +25,13 @@ class DataCollector
     /// Standard constructor
     /// \param  configurationFile  Path to configuration file
     /// \param  defaultCluster     Default cluster (e.g. FLP, EPN)
-    DataCollector(const std::string configurationFile, const std::string defaultCluster);
+    //DataCollector(const std::string configurationFile, const std::string defaultCluster);
+
+    /// Standard constructor
+    /// \param  configurationFile  Path to configuration file
+    /// \param  defaultCluster     Default cluster (e.g. FLP, EPN)
+    /// \param  defaultNode        Default node (e.g. FLP-TPC-01)
+    DataCollector(const std::string configurationFile, const std::string defaultCluster, const std::string defaultNode = "");
 
     /// Destructor
     virtual ~DataCollector();
@@ -36,11 +42,11 @@ class DataCollector
 
     /// Get default Cluster name
     /// \return  Return Cluster name
-    const std::string& getDefaultCluster() const;
+    std::string getDefaultCluster() const;
 
     /// Get default Node name
     /// \return  Return Node name
-    const std::string& getDefaultNode() const;
+    std::string getDefaultNode();
 
     /// Send integer value
     /// \param  cluster  Cluster name
@@ -104,13 +110,13 @@ class DataCollector
     ApMon* getApMon() const;
 
     /// get hostname
-    std::string getHostname();
+    std::string& getHostname();
 
     /// Set hostname
     void setHostname();
 
     /// Get process unique identifier
-    std::string getProcessUniqueId();
+    std::string& getProcessUniqueId();
 
     /// Set process unique identifier
     ///
@@ -122,6 +128,7 @@ class DataCollector
 
     const std::string mConfigurationFile; ///< Path to configuration file
     std::string mDefaultCluster;          ///< Default Cluster name
+    std::string mDefaultNode;             ///< Default Node name
     std::string mHostname;                ///< Hostname where process is running
     std::string mProcessName;             ///< Process name
     std::string mProcessUniqueId;         ///< Identifier for process metrics (hostname + pid)
