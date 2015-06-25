@@ -29,14 +29,16 @@
 	
 		@subsection Overview Overview
 		
-			- Explain in general terms the tool and the purpose for which it is intended. The description shall include:
-				- Architecture of the tool in non-technical terms, (e.g., library, client/server, web-based, etc.)
-				- Major functions performed by the tool
-				- Status (Operational, Under Development, Undergoing a major modification, etc...)
+		    The Monitoring package is a library that allows for O2 processes to:
+		        - monitor process metrics such as CPU, memory, etc.
+		        - monitor application-specific metrics (e.g. internal buffers usage, # of processed events, etc)  
+		        
+		    This library currently uses ApMon to push data into a MonALISA Service.
+		    In the future, other server-side tools might be used.
 			
 		@subsection Acronyms_and_Abbreviations Acronyms and Abbreviations
 		
-			- Provide a list of the acronyms and abbreviations used in this document and the meaning of each.
+			- MonALISA: Monitoring Agents using a Large Integrated Services Architecture
 
 	@htmlonly
 	<hr>
@@ -45,20 +47,51 @@
 	
 		@subsection Setup Setup
 		
-			- Briefly describe and depict graphically the setup (computers, servers, databases, etc...) used by the tool.
-			
-		@subsection Data_Flows Data Flows
+		    Each process sends its own list of monitoring values to a MonALISA Service running on the same or on a remote host.
+		    The values are sent over UDP using the ApMon library.
+		    For the FLP prototype development, the setup is the following
 		
-			- Briefly describe the overall flow of data in the system (data inputs and outputs).
-							
 			@dot
 				digraph Data {
-					node [shape=box];
-					Input1 -> Process;
-					Input2 -> Process;
-					Process -> Output1;
-					Process -> Output2;
+					node [shape=record];
+					monalisa [label="MonALISA Service\n(aidrefsrv101)"];
+					aidrefflp01 [label="{<f0> aidrefflp01\n\n|{<f1> P1|<f2> P2|<f3> P3| ...}}"];
+					aidrefflp02 [label="{<f0> aidrefflp02\n\n|{<f1> P1|<f2> P2|<f3> P3| ...}}"];
+					aidrefflp01:f1 -> monalisa;
+					aidrefflp01:f2 -> monalisa;
+					aidrefflp01:f3 -> monalisa;
+					aidrefflp02:f1 -> monalisa;
+					aidrefflp02:f2 -> monalisa;
+					aidrefflp02:f3 -> monalisa;
 			  }
+			@enddot
+
+            The system monitoring is performed by the MonALISA Service via pull.
+			
+		@subsection Data_Flows Data Flows
+							
+			Inside a process, 2 types of monitoring values exist:
+			
+			  - Process monitoring: metrics like CPU usage, memory, etc. Done automatically by ApMon in a dedicated thread if the xApMon_job_monitoring option is set to On in the ApMon configuration file.
+			  - Application monitoring: application specific metrics, must be sent explicitly by the process via a call to sendValue(...).
+			  
+			@dot  
+			  digraph DataFlow{
+			    splines=false;
+			    node[shape=record]
+			    subgraph level0{
+			      monalisa [label="MonALISA Service" shape=box];
+			      udp1 [label="UDP" shape=ellipse];
+			      udp2 [label="UDP" shape=ellipse];
+			    }
+			    subgraph cluster_level1{
+			      label ="O2 Process";
+			      process_mon [label="{<f0> ApMon Thread|<f1> \nProcess\nMonitoring\n}" shape=Mrecord];
+			      application_mon [label="{<f0> Main Thread |<f1> \nApplication\nMonitoring\n}" shape=Mrecord];
+                }
+			    process_mon -> udp1 -> monalisa  
+			    application_mon -> udp2 -> monalisa
+		 	  }
 			@enddot
 				
 	@htmlonly
@@ -68,17 +101,31 @@
 	
 		@subsection Requirements Requirements
 		
-			- List prerequisites (if any) here
+		    - MonALISA Service
+		    - MonALISA Client (for visualization)
+			- ApMon library			
 			
 		@subsection Supported_Platforms Supported Platforms
 		
-			- List supported platforms here
+			- SLC6
 		
 		@subsection Installation Installation
 		
 			- Linux
-			- Mac OS X
-			- Windows
+			  - To install and configure the MonALISA service (1 central server):
+                - yum install monalisa-service
+                - copy config/ml_env to /opt/monalisa-service/Service/CMD/
+                - copy config/ml.properties to /opt/monalisa-service/Service/myFarm/
+                - copy config/myFarm.conf to /opt/monalisa-service/Service/myFarm/
+                - add following line to iptables and restart it: -A INPUT -p udp -m state --state NEW -m udp --dport 8884 -m comment --comment "MonALISA UDP packets" -j ACCEPT
+                - /sbin/service MLD start
+                
+              - To install the MonALISA Client
+                - yum install monalisa-client
+ 
+              - To use the library (on each node that runs O2 processes):
+                - yum install ApMon_cpp
+                - add /usr/local/lib to LD_LIBRARY_PATH (e.g. export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib)
 					
 		@subsection Upgrading Upgrading
 		
@@ -87,32 +134,63 @@
 			
 		@subsection Important_Files Important Directories and Files
 		
-			- List all important files and directories here
-		
+			- MonALISA Service
+			  - Log file: /opt/monalisa-service/Service/myFarm/ML0.log
+			  - Log file: /opt/monalisa-service/Service/myFarm/ML.log
+			  - Config file: /opt/monalisa-service/Service/myFarm/ml.properties
+			  - Config file: /opt/monalisa-service/Service/myFarm/myFarm.conf
+			  			  		
 		@subsection  Tips_And_Tricks Tips, Tricks, and Best Practices
 		
-			- Add tips and tricks here (if any))
+			- The MonALISA Service only keeps values in memory. Therefore:
+			  - Everytime we restart the MonALISA Service we will loose the historical record.
+			  - The values available are limited to a few hours. 
+			  - If you want to keep the plots for future reference, use the MonALISA Client and save the plots as images. 
+			  - The MonALISA Repository provides the historical record feature. For the time being it will NOT be installed.			
 	
 	@htmlonly
 	<hr>
 	@endhtmlonly
 	@section GETTING_STARTED GETTING STARTED
-		
-		- This section should provide a general walkthrough from tool initiation through exit. The logical arrangement of the information should enable others to understand the sequence and flow of the system.
-		
+				
 		@subsection Starting Starting
 		
-			- Describe the procedures necessary to access the tool.
+			A working example is available in apps/samplecollector.
+			In a nutshell:
+			
+			\code
+			   ...
+			   namespace Monitoring = AliceO2::Monitoring;
+			   ... 
+			   // configFile is path to config file
+			   // FLPs is the name of the cluster
+			   // FLP-TPC-01 is the node name to be used for the process monitoring metrics (if option xApMon_job_monitoring=On in the config file)
+			   //
+			   // This call will start the process monitoring 
+               Monitoring::Core::DataCollector *collector = new Monitoring::Core::DataCollector(configFile, "FLPs", "FLP-TPC-01");
+               ...
+               ...
+               // now I send an application specific metric
+               collector->sendValue("FLPs", "FLP-TPC-01", "myCrazyMetric", 10);
+               ...
+			\endcode
 		
 		@subsection Running Running
 		
-			- Describe the procedures necessary to run the tool.
-		
+		    - Library
+			  - Make sure that your LD_LIBRARY_PATH includes /usr/local/lib (location of ApMon)
+			- MonALISA Service
+			  - /sbin/service MLD start/stop/restart
+			- MonALISA Client
+			  - Execute /usr/bin/javaws /opt/monalisa-client/MonaLisaNo3D.jnlp
+			  - Say next->next->next...
+			  - Once the GUI is launched:
+			    - Top menu: Groups->Unselect all
+                - Top menu: Groups->alice-o2
+                - Side menu: Groups, then expand alice-o2 and then expand flp-prototype
+                - In the Clusters section, select the cluster and node you want to see
+			    		
 		@subsection Exiting Exiting
-		
-			- Describe the actions necessary to properly exit the tool.
-		
-		@subsection Exceptions Caveats and Exceptions
-		
-				- If there are special actions the user must take to insure that data is properly saved or that some other function executes properly, describe those actions here.  
+				
+		@subsection Exceptions Caveats and Exceptions		  
 */
