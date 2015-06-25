@@ -24,7 +24,8 @@ class DataCollector
   public:
     /// Standard constructor
     /// \param  configurationFile  Path to configuration file
-    DataCollector(std::string configurationFile);
+    /// \param  defaultCluster     Default cluster (e.g. FLP, EPN)
+    DataCollector(const std::string configurationFile, const std::string defaultCluster);
 
     /// Destructor
     virtual ~DataCollector();
@@ -32,6 +33,14 @@ class DataCollector
     /// Get full path to configuration file
     /// \return  Return full path to configuration file
     const std::string& getConfigurationFile() const;
+
+    /// Get default Cluster name
+    /// \return  Return Cluster name
+    const std::string& getDefaultCluster() const;
+
+    /// Get default Node name
+    /// \return  Return Node name
+    const std::string& getDefaultNode() const;
 
     /// Send integer value
     /// \param  cluster  Cluster name
@@ -94,11 +103,29 @@ class DataCollector
     /// \return  Return ApMon object
     ApMon* getApMon() const;
 
+    /// get hostname
+    std::string getHostname();
+
+    /// Set hostname
+    void setHostname();
+
+    /// Get process unique identifier
+    std::string getProcessUniqueId();
+
+    /// Set process unique identifier
+    ///
+    /// Concatenation of hostname and process id
+    void setProcessUniqueId();
+
+    /// Configure automatic monitoring of process metrics (CPU, mem, etc.)
+    void configureProcessMonitoring();
+
     const std::string mConfigurationFile; ///< Path to configuration file
-    std::string mCluster; ///< Cluster name
-    std::string mNode;    ///< Node name
-    std::string mMetric;  ///< Metric name
-    ApMon* mApMon;        ///< ApMon object
+    std::string mDefaultCluster;          ///< Default Cluster name
+    std::string mHostname;                ///< Hostname where process is running
+    std::string mProcessName;             ///< Process name
+    std::string mProcessUniqueId;         ///< Identifier for process metrics (hostname + pid)
+    ApMon* mApMon;                        ///< ApMon object
 };
 
 } // namespace Core

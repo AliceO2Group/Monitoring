@@ -9,17 +9,23 @@
 #include <boost/lexical_cast.hpp>
 #include <string>
 #include <iostream>
+#include <stdio.h>
 
 namespace AliceO2 {
 namespace Monitoring {
 namespace Core {
 
-DataCollector::DataCollector(std::string configurationFile)
-    : mConfigurationFile(configurationFile)
+DataCollector::DataCollector(const std::string configurationFile, const std::string defaultCluster)
+    : mConfigurationFile(configurationFile),
+      mDefaultCluster(defaultCluster)
 {
-  // create ApMon object
   try {
+    // create ApMon object
     mApMon = new ApMon(const_cast<char *>(configurationFile.c_str()));
+
+    // configure process monitoring
+    configureProcessMonitoring();
+
   } catch (std::runtime_error& e) {
     throw FileNotFoundException(configurationFile);
   }
@@ -33,6 +39,16 @@ DataCollector::~DataCollector()
 ApMon* DataCollector::getApMon() const
 {
   return mApMon;
+}
+
+const string& DataCollector::getConfigurationFile() const
+{
+  return mConfigurationFile;
+}
+
+const string& DataCollector::getDefaultCluster() const
+{
+  return mDefaultCluster;
 }
 
 void DataCollector::sendValue(std::string cluster, std::string node, std::string metric, int value)
@@ -73,10 +89,60 @@ void DataCollector::sendTimedValue(std::string cluster, std::string node, std::s
       const_cast<char *>(metric.c_str()), XDR_STRING, const_cast<char *>(value.c_str()), timestamp);
 }
 
+std::string DataCollector::getHostname()
+{
+  if (mHostname.empty()) {
+    setHostname();
+  }
+
+  return mHostname;
+}
+
+void DataCollector::setHostname()
+{
+  // get hostname
+  char hostname[255];
+  gethostname(hostname, 255);
+
+  // set hostname
+  mHostname = std::string(hostname);
+}
+
+std::string DataCollector::getProcessUniqueId()
+{
+  if (mProcessUniqueId.empty()) {
+    setProcessUniqueId();
+  }
+
+  return mProcessUniqueId;
+}
+
+void DataCollector::setProcessUniqueId()
+{
+  mProcessUniqueId = getHostname() + "." + boost::lexical_cast<std::string>(getpid());
+}
+
+void DataCollector::configureProcessMonitoring()
+{
+  // get current working dir
+  char *currentWorkingDir;
+  currentWorkingDir = get_current_dir_name();
+
+  log(INFO, "Setting default Cluster to '" + getDefaultCluster() + "'");
+  log(INFO, "Setting process unique ID to '" + getProcessUniqueId() + "'");
+  log(INFO, "Setting working dir to '" + std::string(currentWorkingDir) + "'");
+
+  // add process monitoring
+  mApMon->addJobToMonitor(getpid(), currentWorkingDir, const_cast<char *>(getDefaultCluster().c_str()), const_cast<char *>(getProcessUniqueId().c_str()));
+
+  free(currentWorkingDir);
+
+}
+
 void DataCollector::log(int logLevel, std::string message)
 {
   apmon_utils::logger(logLevel, message.c_str());
-  std::fflush(stdout);
+  fflush(stdout);
 }
 
 } // namespace Core
