@@ -3,8 +3,8 @@
 ///
 /// \author  Vasco Barroso, CERN
 
-#include <Core/DataCollector.h>
-#include <Core/FileNotFoundException.h>
+#include "Monitoring/DataCollector.h"
+#include "Monitoring/FileNotFoundException.h"
 
 #include <boost/lexical_cast.hpp>
 #include <string>
