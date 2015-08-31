@@ -72,11 +72,12 @@ set(CMAKE_MACOSX_RPATH ON)
 #set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 #set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
+add_subdirectory(doc)
+
 if(APMON_FOUND) # TODO remove this once we have our own repo and we ensure that APMON is available
     enable_testing() # needed on top-level CMakeLists.txt
     add_subdirectory(include)
     add_subdirectory(src)
-    add_subdirectory(doc)
     add_subdirectory(test)
 
     # PACKAGING
