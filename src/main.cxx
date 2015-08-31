@@ -3,9 +3,9 @@
 ///
 /// \author  Vasco Barroso, CERN
 
-#include <Core/DataCollector.h>
-#include <Core/FileNotFoundException.h>
-#include <Core/Version.h>
+#include "Monitoring/DataCollector.h"
+#include "Monitoring/FileNotFoundException.h"
+#include "Monitoring/Version.h"
 #include <boost/program_options.hpp>
 #include <iostream>
 

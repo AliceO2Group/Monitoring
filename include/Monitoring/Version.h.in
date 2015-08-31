@@ -7,6 +7,7 @@
 #define ALICEO2_MONITORING_CORE_DATA_COLLECTOR_VERSION_H
 
 #include <string>
+#include <sstream>
 
 namespace AliceO2 {
 namespace Monitoring {
@@ -53,40 +54,40 @@ class Version {
     /// @return the current major version of Monitoring.
     static int getMajor()
     {
-    return MONITORING_VERSION_MAJOR;
+    return DATA_COLLECTOR_VERSION_MAJOR;
     }
 
     /// @return the current minor version of Monitoring.
     static int getMinor()
     {
-    return MONITORING_VERSION_MINOR;
+    return DATA_COLLECTOR_VERSION_MINOR;
     }
 
     /// @return the current patch level of Monitoring.
     static int getPatch()
     {
-    return MONITORING_VERSION_PATCH;
+    return DATA_COLLECTOR_VERSION_PATCH;
     }
 
     /// @return the current Monitoring version (MM.mm.pp).
     static std::string getString()
     {
     std::ostringstream version;
-    version << MONITORING_VERSION_MAJOR << '.' << MONITORING_VERSION_MINOR << '.' << MONITORING_VERSION_PATCH;
+    version << DATA_COLLECTOR_VERSION_MAJOR << '.' << DATA_COLLECTOR_VERSION_MINOR << '.' << DATA_COLLECTOR_VERSION_PATCH;
     return version.str();
     }
 
     /// @return the SVN revision.
     static std::string getRevision()
     {
-    return MONITORING_VCS_REVISION;
+    return DATA_COLLECTOR_VCS_REVISION;
     }
 
     /// @return the current Monitoring version plus the SVN revision (MM.mm.pp.rev).
     static std::string getRevString()
     {
     std::ostringstream version;
-    version << getString() << '.' << MONITORING_VCS_REVISION;
+    version << getString() << '.' << DATA_COLLECTOR_VCS_REVISION;
     return version.str();
     }
 };
