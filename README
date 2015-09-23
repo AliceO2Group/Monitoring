@@ -73,7 +73,7 @@ in a proper non-minimalistic way.
     to help getting options for your binaries. See apps/hellorunner/main.cxx 
     for an example. 
     
-6. SVN and Git
+6. Git
 
     The project shows how to use Git or SVN revision number. In the main 
     CMakeLists.txt we include one or the other by commenting and uncommenting
