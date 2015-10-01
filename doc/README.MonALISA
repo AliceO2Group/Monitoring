@@ -24,5 +24,26 @@ The MonALISA service runs on aidrefsrv101.
 
 6) /sbin/service MLD start
 
+Repository Installation and configuration
+====================
+1) download from website
+2) unpack
+3) execute ./install.sh
+4) add to iptables: -A INPUT -m state --state NEW -m tcp -p tcp --dport 8080 -m comment --comment "Tomcat" -j ACCEPT
+5) edit JStoreClient/conf/App.properties and change:
+
+   - lia.Monitor.group
+   - lia.Monitor.JiniClient.Store.predicates
+   - lia.Monitor.JiniClient.Store.global_params
+   
+6) add to /etc/hosts
+
+131.215.207.129 monalisa.cacr.caltech.edu
+131.215.207.35 monalisa.caltech.edu
+
+7) Execute ./start.sh
+
+8) Edit tomcat/webapps/ROOT/WEB-INF/conf/ to get the views we want
+
 
  
