@@ -53,6 +53,7 @@ if(APMON_FOUND)
     list(APPEND LIBS ${APMON_LIBRARIES})
 else()
     message(WARNING "APMON not found, we won't compile the Monitoring module (skip, no error)")
+    return()
 endif()
 
 # This sets the include directory for the reference project. This is
@@ -75,20 +76,18 @@ set(CMAKE_MACOSX_RPATH ON)
 
 add_subdirectory(doc)
 
-if(APMON_FOUND) # TODO remove this once we have our own repo and we ensure that APMON is available
-    enable_testing() # needed on top-level CMakeLists.txt
-    add_subdirectory(include)
-    add_subdirectory(src)
-    add_subdirectory(test)
+enable_testing() # needed on top-level CMakeLists.txt
+add_subdirectory(include)
+add_subdirectory(src)
+add_subdirectory(test)
 
-    # PACKAGING
-    # _____________________________________________________________________________
+# PACKAGING
+# _____________________________________________________________________________
 
-    include(CPackConfig)
+include(CPackConfig)
 
-    #
-    # CMAKE PACKAGING (for other CMake projects to use this one easily)
-    # _____________________________________________________________________________
+#
+# CMAKE PACKAGING (for other CMake projects to use this one easily)
+# _____________________________________________________________________________
 
-    include(PackageConfigurator)
-endif()
+include(PackageConfigurator)
