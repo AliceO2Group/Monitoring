@@ -3,100 +3,53 @@
 ///
 /// \author  Vasco Barroso, CERN
 
-#include "Monitoring/DataCollector.h"
-#include "Monitoring/FileNotFoundException.h"
-
 #include <boost/lexical_cast.hpp>
 #include <string>
 #include <iostream>
 #include <stdio.h>
+#include "Monitoring/DataCollector.h"
 
 namespace AliceO2 {
 namespace Monitoring {
 namespace Core {
 
-DataCollector::DataCollector(const std::string configurationFile, const std::string defaultCluster, const std::string defaultNode)
-    : mConfigurationFile(configurationFile),
-      mDefaultCluster(defaultCluster),
-      mDefaultNode(defaultNode)
-{
-  try {
-    // create ApMon object
-    mApMon = new ApMon(const_cast<char *>(configurationFile.c_str()));
-
-    // configure process monitoring
-    configureProcessMonitoring();
-
-  } catch (std::runtime_error& e) {
-    throw FileNotFoundException(configurationFile);
-  }
+DataCollector::DataCollector() {
+  setHostname();
+  setProcessUniqueId();
 }
 
-DataCollector::~DataCollector()
-{
-  delete mApMon;
-}
-
-ApMon* DataCollector::getApMon() const
-{
-  return mApMon;
-}
-
-const std::string& DataCollector::getConfigurationFile() const
-{
-  return mConfigurationFile;
-}
-
-std::string DataCollector::getDefaultCluster() const
-{
-  return mDefaultCluster;
-}
-
-std::string DataCollector::getDefaultNode()
-{
-  if (mDefaultNode.empty()) {
-    return getHostname();
-  }
-
-  return mDefaultNode;
-}
+DataCollector::~DataCollector() {}
 
 void DataCollector::sendValue(std::string cluster, std::string node, std::string metric, int value)
 {
-  getApMon()->sendParameter(const_cast<char *>(cluster.c_str()), const_cast<char *>(node.c_str()),
-      const_cast<char *>(metric.c_str()), value);
+  std::cout << cluster << "\t" << node << "\t" << metric << "\t" << value << std::endl;
 }
 
 void DataCollector::sendValue(std::string cluster, std::string node, std::string metric, double value)
 {
-  getApMon()->sendParameter(const_cast<char *>(cluster.c_str()), const_cast<char *>(node.c_str()),
-      const_cast<char *>(metric.c_str()), value);
+	std::cout << cluster << "\t" << node << "\t" << metric << "\t" << value << std::endl;
 }
 
 void DataCollector::sendValue(std::string cluster, std::string node, std::string metric, std::string value)
 {
-  getApMon()->sendParameter(const_cast<char *>(cluster.c_str()), const_cast<char *>(node.c_str()),
-      const_cast<char *>(metric.c_str()), const_cast<char *>(value.c_str()));
+	std::cout << cluster << "\t" << node << "\t" << metric << "\t" << value << std::endl;
 }
 
 void DataCollector::sendTimedValue(std::string cluster, std::string node, std::string metric, int value, int timestamp)
 {
-  getApMon()->sendTimedParameter(const_cast<char *>(cluster.c_str()), const_cast<char *>(node.c_str()),
-      const_cast<char *>(metric.c_str()), XDR_INT32, (char *) &value, timestamp);
+	std::cout << timestamp << "\t" << cluster << "\t" << node << "\t" << metric << "\t" << value << std::endl;
 }
 
 void DataCollector::sendTimedValue(std::string cluster, std::string node, std::string metric, double value,
     int timestamp)
 {
-  getApMon()->sendTimedParameter(const_cast<char *>(cluster.c_str()), const_cast<char *>(node.c_str()),
-      const_cast<char *>(metric.c_str()), XDR_REAL64, (char *) &value, timestamp);
+	std::cout << timestamp << "\t" << cluster << "\t" << node << "\t" << metric << "\t" << value << std::endl;
 }
 
 void DataCollector::sendTimedValue(std::string cluster, std::string node, std::string metric, std::string value,
     int timestamp)
 {
-  getApMon()->sendTimedParameter(const_cast<char *>(cluster.c_str()), const_cast<char *>(node.c_str()),
-      const_cast<char *>(metric.c_str()), XDR_STRING, const_cast<char *>(value.c_str()), timestamp);
+	std::cout << timestamp << "\t" << cluster << "\t" << node << "\t" << metric << "\t" << value << std::endl;
 }
 
 std::string& DataCollector::getHostname()
@@ -129,31 +82,10 @@ std::string& DataCollector::getProcessUniqueId()
 
 void DataCollector::setProcessUniqueId()
 {
-  mProcessUniqueId = getDefaultNode() + "." + boost::lexical_cast<std::string>(getpid());
+  mProcessUniqueId = getHostname() + "." + boost::lexical_cast<std::string>(getpid());
 }
 
-void DataCollector::configureProcessMonitoring()
-{
-  // get current working dir
-  char *currentWorkingDir;
-  currentWorkingDir = get_current_dir_name();
 
-  log(INFO, "Setting default Cluster to '" + getDefaultCluster() + "'");
-  log(INFO, "Setting process unique ID to '" + getProcessUniqueId() + "'");
-  log(INFO, "Setting working dir to '" + std::string(currentWorkingDir) + "'");
-
-  // add process monitoring
-  mApMon->addJobToMonitor(getpid(), currentWorkingDir, const_cast<char *>(getDefaultCluster().c_str()), const_cast<char *>(getProcessUniqueId().c_str()));
-
-  free(currentWorkingDir);
-
-}
-
-void DataCollector::log(int logLevel, std::string message)
-{
-  apmon_utils::logger(logLevel, message.c_str());
-  fflush(stdout);
-}
 
 } // namespace Core
 } // namespace Monitoring

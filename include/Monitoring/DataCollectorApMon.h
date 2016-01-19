@@ -3,11 +3,13 @@
 ///
 /// \author  Vasco Barroso, CERN
 
-#ifndef ALICEO2_MONITORING_CORE_DATA_COLLECTOR_H
-#define ALICEO2_MONITORING_CORE_DATA_COLLECTOR_H
+#ifndef ALICEO2_MONITORING_CORE_DATA_COLLECTOR_APMON_H
+#define ALICEO2_MONITORING_CORE_DATA_COLLECTOR_APMON_H
 
 #include <string>
-#include "Monitoring/DataCollectorInterface.h"
+#include <ApMon.h>
+#include <utils.h>
+#include "DataCollector.h"
 
 namespace AliceO2 {
 /// ALICE O2 Monitoring system
@@ -16,37 +18,42 @@ namespace Monitoring {
 namespace Core {
 /// Interface to Monitoring system
 ///
-/// Base class of Monitoring system, allowing any process
+/// Interface to Monitoring system, allowing any process
 /// to send application-specific values
-class DataCollector : public DataCollectorInterface
+class DataCollectorApMon : public DataCollector
 {
   public:
     /// Standard constructor
-    DataCollector();
+    /// \param  configurationFile  Path to configuration file
+    DataCollectorApMon(const std::string configurationFile);
 
     /// Destructor
-    virtual ~DataCollector();
+    virtual ~DataCollectorApMon();
+
+    /// Get full path to configuration file
+    /// \return  Return full path to configuration file
+    const std::string& getConfigurationFile() const;
 
     /// Send integer value
     /// \param  cluster  Cluster name
     /// \param  node     Node name
     /// \param  metric   Metric name
     /// \param  value    Metric value
-    virtual void sendValue(std::string cluster, std::string node, std::string metric, int value);
+    void sendValue(std::string cluster, std::string node, std::string metric, int value);
 
     /// Send double value
     /// \param  cluster  Cluster name
     /// \param  node     Node name
     /// \param  metric   Metric name
     /// \param  value    Metric value
-    virtual void sendValue(std::string cluster, std::string node, std::string metric, double value);
+    void sendValue(std::string cluster, std::string node, std::string metric, double value);
 
     /// Send string value
     /// \param  cluster  Cluster name
     /// \param  node     Node name
     /// \param  metric   Metric name
     /// \param  value    Metric value
-    virtual void sendValue(std::string cluster, std::string node, std::string metric, std::string value);
+    void sendValue(std::string cluster, std::string node, std::string metric, std::string value);
 
     /// Send timed integer value
     ///
@@ -56,7 +63,7 @@ class DataCollector : public DataCollectorInterface
     /// \param  metric     Metric name
     /// \param  value      Metric value
     /// \param  timestamp  Timestamp of measurement in seconds
-    virtual void sendTimedValue(std::string cluster, std::string node, std::string metric, int value, int timestamp);
+    void sendTimedValue(std::string cluster, std::string node, std::string metric, int value, int timestamp);
 
     /// Send timed double value
     ///
@@ -66,7 +73,7 @@ class DataCollector : public DataCollectorInterface
     /// \param  metric     Metric name
     /// \param  value      Metric value
     /// \param  timestamp  Timestamp of measurement in seconds
-    virtual void sendTimedValue(std::string cluster, std::string node, std::string metric, double value, int timestamp);
+    void sendTimedValue(std::string cluster, std::string node, std::string metric, double value, int timestamp);
 
     /// Send timed string value
     ///
@@ -76,25 +83,26 @@ class DataCollector : public DataCollectorInterface
     /// \param  metric     Metric name
     /// \param  value      Metric value
     /// \param  timestamp  Timestamp of measurement in seconds
-    virtual void sendTimedValue(std::string cluster, std::string node, std::string metric, std::string value, int timestamp);
+    void sendTimedValue(std::string cluster, std::string node, std::string metric, std::string value, int timestamp);
 
-  protected:
-    /// get hostname
-    std::string& getHostname();
+    /// Log message
+    /// \param  logLevel    Log level
+    /// \param  message     Log message
+    void log(int logLevel, std::string message);
 
-    /// Set hostname
-    void setHostname();
+  private:
+    /// Get ApMon
+    /// \return  Return ApMon object
+    ApMon* getApMon() const;
 
-    /// Get process unique identifier
-    std::string& getProcessUniqueId();
+    /// Configure automatic monitoring of process metrics (CPU, mem, etc.)
+    void configureProcessMonitoring();
 
-    /// Set process unique identifier
-    ///
-    /// Concatenation of hostname and process id
-    void setProcessUniqueId();
+    /// Get default cluster name
+    std::string getDefaultCluster() const;
 
-    std::string mHostname;                ///< Hostname where process is running
-    std::string mProcessUniqueId;         ///< Identifier for process metrics (hostname + pid)
+    const std::string mConfigurationFile; ///< Path to configuration file
+    ApMon* mApMon;                        ///< ApMon object
 };
 
 } // namespace Core

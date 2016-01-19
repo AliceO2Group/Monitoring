@@ -3,7 +3,7 @@
 ///
 /// \author  Vasco Barroso, CERN
 
-#include "Monitoring/DataCollector.h"
+#include "Monitoring/DataCollectorApMon.h"
 #include "Monitoring/FileNotFoundException.h"
 #include "Monitoring/Version.h"
 #include <boost/program_options.hpp>
@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
   commandLineOptions.add_options()
     ("help,h", "Print help message")
     ("version,v", "Show program name/version banner and exit.")
-    ("revision", "Print the SVN revision number")
+    ("revision", "Print the revision number")
     ("config-file,c", program_options::value<std::string>(&configFile), "Configuration file path");
 
   try {
@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
 
     // check for revision
     if (optionsValues.count("revision")) {
-      std::cout << "git revision : " << Monitoring::Core::Version::getRevision() << std::endl;
+      std::cout << "revision : " << Monitoring::Core::Version::getRevision() << std::endl;
       return EXIT_SUCCESS;
     }
 
@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
 
   try {
     // create monitoring object
-    Monitoring::Core::DataCollector *collector = new Monitoring::Core::DataCollector(configFile, "FLPs", "FLP-TPC-01");
+    Monitoring::Core::DataCollectorApMon *collector = new Monitoring::Core::DataCollectorApMon(configFile);
 
     // send an application specific value every 10 seconds
     while (true) {
@@ -83,7 +83,6 @@ int main(int argc, char* argv[])
     std::cerr << "Logic error: " << e.what() << std::endl;
     return EXIT_FAILURE;
   }
-
 
   return EXIT_SUCCESS;
 }
