@@ -93,6 +93,9 @@ class DataCollector : public DataCollectorInterface
     /// Concatenation of hostname and process id
     void setProcessUniqueId();
 
+    /// Get the current system timestamp in milliseconds
+    long getCurrentTimestampMilliseconds();
+
     std::string mHostname;                ///< Hostname where process is running
     std::string mProcessUniqueId;         ///< Identifier for process metrics (hostname + pid)
 };

@@ -6,6 +6,7 @@
 #include <boost/lexical_cast.hpp>
 #include <string>
 #include <iostream>
+#include <chrono>
 #include <stdio.h>
 #include "Monitoring/DataCollector.h"
 
@@ -22,17 +23,17 @@ DataCollector::~DataCollector() {}
 
 void DataCollector::sendValue(std::string cluster, std::string node, std::string metric, int value)
 {
-  std::cout << cluster << "\t" << node << "\t" << metric << "\t" << value << std::endl;
+  std::cout << getCurrentTimestampMilliseconds() << "\t" << cluster << "\t" << node << "\t" << metric << "\t" << value << std::endl;
 }
 
 void DataCollector::sendValue(std::string cluster, std::string node, std::string metric, double value)
 {
-	std::cout << cluster << "\t" << node << "\t" << metric << "\t" << value << std::endl;
+	std::cout << getCurrentTimestampMilliseconds() << "\t" << cluster << "\t" << node << "\t" << metric << "\t" << value << std::endl;
 }
 
 void DataCollector::sendValue(std::string cluster, std::string node, std::string metric, std::string value)
 {
-	std::cout << cluster << "\t" << node << "\t" << metric << "\t" << value << std::endl;
+	std::cout << getCurrentTimestampMilliseconds() << "\t" << cluster << "\t" << node << "\t" << metric << "\t" << value << std::endl;
 }
 
 void DataCollector::sendTimedValue(std::string cluster, std::string node, std::string metric, int value, int timestamp)
@@ -85,6 +86,15 @@ void DataCollector::setProcessUniqueId()
   mProcessUniqueId = getHostname() + "." + boost::lexical_cast<std::string>(getpid());
 }
 
+/// Get the current system timestamp in milliseconds
+long DataCollector::getCurrentTimestampMilliseconds()
+{
+  return std::chrono::duration_cast <std::chrono::milliseconds>(
+      std::chrono::system_clock::now().time_since_epoch()
+  ).count();
+
+  //return ms.count();
+}
 
 
 } // namespace Core
