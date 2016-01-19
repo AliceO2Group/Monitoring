@@ -1,10 +1,13 @@
 # @author  Barthélémy von Haller
 set(LIB_HEADERS
-  "${CMAKE_CURRENT_BINARY_DIR}/../include/Monitoring/Version.h" # Generated header
+  "${CMAKE_CURRENT_BINARY_DIR}/../include/Monitoring/Version.h" # Generated header  
+  ../include/Monitoring/DataCollectorInterface.h
   ../include/Monitoring/DataCollector.h
+  ../include/Monitoring/DataCollectorApMon.h
 )
 
 set(LIB_SOURCES
+  DataCollectorApMon.cxx
   DataCollector.cxx
 )
 
