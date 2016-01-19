@@ -3,8 +3,7 @@
 ///
 /// \author  Vasco Barroso, CERN
 
-#include "Monitoring/DataCollectorApMon.h"
-#include "Monitoring/FileNotFoundException.h"
+#include "Monitoring/DataCollector.h"
 #include "Monitoring/Version.h"
 #include <boost/program_options.hpp>
 #include <iostream>
@@ -22,8 +21,7 @@ int main(int argc, char* argv[])
   commandLineOptions.add_options()
     ("help,h", "Print help message")
     ("version,v", "Show program name/version banner and exit.")
-    ("revision", "Print the revision number")
-    ("config-file,c", program_options::value<std::string>(&configFile), "Configuration file path");
+    ("revision", "Print the revision number");
 
   try {
     // parse command line options
@@ -38,7 +36,7 @@ int main(int argc, char* argv[])
 
     // check for version
     if (optionsValues.count("version")) {
-      std::cout << "samplecollector version " << Monitoring::Core::Version::getString() << std::endl;
+      std::cout << "sampleCollectorStdout version " << Monitoring::Core::Version::getString() << std::endl;
       return EXIT_SUCCESS;
     }
 
@@ -46,11 +44,6 @@ int main(int argc, char* argv[])
     if (optionsValues.count("revision")) {
       std::cout << "revision : " << Monitoring::Core::Version::getRevision() << std::endl;
       return EXIT_SUCCESS;
-    }
-
-    // check ApMon config file
-    if (!optionsValues.count("config-file")) {
-      throw program_options::error("missing mandatory option --config-file");
     }
   }
   catch(program_options::error& e)
@@ -63,17 +56,13 @@ int main(int argc, char* argv[])
 
   try {
     // create monitoring object
-    Monitoring::Core::DataCollectorApMon *collector = new Monitoring::Core::DataCollectorApMon(configFile);
+    Monitoring::Core::DataCollector *collector = new Monitoring::Core::DataCollector();
 
     // send an application specific value every 10 seconds
     while (true) {
       collector->sendValue("FLPs", "FLP-TPC-01", "myCrazyMetric", 10);
       sleep(10);
     }
-  }
-  catch (Monitoring::Core::FileNotFoundException& e) {
-    std::cerr << "Error opening ApMon configuration file: '" << e.getFilePath() << "'" << std::endl;
-    return EXIT_FAILURE;
   }
   catch (std::runtime_error& e) {
     std::cerr << "Runtime error: " << e.what() << std::endl;

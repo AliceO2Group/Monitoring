@@ -1,4 +1,5 @@
 # @author  Barthélémy von Haller
+# @author  Vasco Barroso
 set(LIB_HEADERS
   "${CMAKE_CURRENT_BINARY_DIR}/../include/Monitoring/Version.h" # Generated header  
   ../include/Monitoring/DataCollectorInterface.h
@@ -15,7 +16,6 @@ set(APP_HEADERS
 )
 
 set(APP_SOURCES
-  main.cxx
 )
 
 # LIBRARIES
@@ -34,16 +34,22 @@ set_target_properties(${LIBRARY_NAME_DATACOLLECTOR} PROPERTIES
 
 # BINARIES
 
-# Main application
-set(APPLICATION samplecollector)
-add_executable(${APPLICATION} ${APP_SOURCES})
-target_link_libraries(${APPLICATION} ${LIBRARY_NAME_DATACOLLECTOR} apmoncpp ${Boost_PROGRAM_OPTIONS_LIBRARY})
-install(TARGETS ${APPLICATION} DESTINATION bin COMPONENT apps)
+# example writing to stdout
+set(APPLICATION_STDOUT_SAMPLE sampleCollectorStdout)
+add_executable(${APPLICATION_STDOUT_SAMPLE} sampleCollectorStdout)
+target_link_libraries(${APPLICATION_STDOUT_SAMPLE} ${LIBRARY_NAME_DATACOLLECTOR} apmoncpp ${Boost_PROGRAM_OPTIONS_LIBRARY})
+install(TARGETS ${APPLICATION_STDOUT_SAMPLE} DESTINATION bin COMPONENT apps)
+
+# example with ApMon
+set(APPLICATION_APMON_SAMPLE sampleCollectorApMon)
+add_executable(${APPLICATION_APMON_SAMPLE} sampleCollectorApMon)
+target_link_libraries(${APPLICATION_APMON_SAMPLE} ${LIBRARY_NAME_DATACOLLECTOR} apmoncpp ${Boost_PROGRAM_OPTIONS_LIBRARY})
+install(TARGETS ${APPLICATION_APMON_SAMPLE} DESTINATION bin COMPONENT apps)
 
 
 
 # Says how and where to install software
-install(TARGETS ${LIBRARY} ${APPLICATION}
+install(TARGETS ${LIBRARY_NAME_DATACOLLECTOR} ${APPLICATION_STDOUT_SAMPLE} ${APPLICATION_APMON_SAMPLE}
   EXPORT ${PROJECT_NAME}Targets            # for downstream dependencies
   ARCHIVE DESTINATION lib COMPONENT libs   # static lib
   RUNTIME DESTINATION bin COMPONENT libs   # binaries
