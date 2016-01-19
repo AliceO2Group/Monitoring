@@ -3,12 +3,12 @@
 ///
 /// \author  Vasco Barroso, CERN
 
-#include <boost/lexical_cast.hpp>
-#include <string>
-#include <iostream>
-#include <stdio.h>
 #include "Monitoring/DataCollectorApMon.h"
 #include "Monitoring/FileNotFoundException.h"
+#include <boost/lexical_cast.hpp>
+#include <iostream>
+#include <stdio.h>
+#include <string>
 
 namespace AliceO2 {
 namespace Monitoring {

@@ -6,10 +6,10 @@
 #ifndef ALICEO2_MONITORING_CORE_DATA_COLLECTOR_APMON_H
 #define ALICEO2_MONITORING_CORE_DATA_COLLECTOR_APMON_H
 
-#include <string>
+#include "DataCollector.h"
 #include <ApMon.h>
 #include <utils.h>
-#include "DataCollector.h"
+#include <string>
 
 namespace AliceO2 {
 /// ALICE O2 Monitoring system

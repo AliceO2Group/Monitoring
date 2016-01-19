@@ -6,8 +6,8 @@
 #ifndef ALICEO2_MONITORING_CORE_DATA_COLLECTOR_H
 #define ALICEO2_MONITORING_CORE_DATA_COLLECTOR_H
 
-#include <string>
 #include "Monitoring/DataCollectorInterface.h"
+#include <string>
 
 namespace AliceO2 {
 /// ALICE O2 Monitoring system
