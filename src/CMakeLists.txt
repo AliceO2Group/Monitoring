@@ -21,10 +21,10 @@ set(APP_SOURCES
 # LIBRARIES
 
 # libDataCollector
-set(LIBRARY DataCollector)
-set(INCLUDE include/${LIBRARY})
-add_library(${LIBRARY} SHARED ${LIB_HEADERS} ${LIB_SOURCES})
-set_target_properties(${LIBRARY} PROPERTIES
+set(LIBRARY_NAME_DATACOLLECTOR DataCollector)
+set(INCLUDE include/${LIBRARY_NAME_DATACOLLECTOR})
+add_library(${LIBRARY_NAME_DATACOLLECTOR} SHARED ${LIB_HEADERS} ${LIB_SOURCES})
+set_target_properties(${LIBRARY_NAME_DATACOLLECTOR} PROPERTIES
         VERSION ${VERSION}  # ${VERSION} was defined in the main CMakeLists.
         FRAMEWORK FALSE
         PUBLIC_HEADER "${LIB_HEADERS}"
@@ -37,7 +37,7 @@ set_target_properties(${LIBRARY} PROPERTIES
 # Main application
 set(APPLICATION samplecollector)
 add_executable(${APPLICATION} ${APP_SOURCES})
-target_link_libraries(${APPLICATION} DataCollector apmoncpp ${Boost_PROGRAM_OPTIONS_LIBRARY})
+target_link_libraries(${APPLICATION} ${LIBRARY_NAME_DATACOLLECTOR} apmoncpp ${Boost_PROGRAM_OPTIONS_LIBRARY})
 install(TARGETS ${APPLICATION} DESTINATION bin COMPONENT apps)
 
 
