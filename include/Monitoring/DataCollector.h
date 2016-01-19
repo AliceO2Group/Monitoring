@@ -101,4 +101,4 @@ class DataCollector : public DataCollectorInterface
 } // namespace Monitoring
 } // namespace AliceO2
 
-#endif // ALICEO2_MONITORING_CORE_DATA_COLLECTOR_APMON_H
+#endif // ALICEO2_MONITORING_CORE_DATA_COLLECTOR_H
