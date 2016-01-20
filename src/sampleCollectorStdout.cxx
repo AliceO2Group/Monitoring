@@ -1,5 +1,5 @@
 /// \file    sampleCollectorStdout.cxx
-/// \brief   Example of a data collector process
+/// \brief   Example of a data collector process using the DataCollector class
 ///
 /// \author  Vasco Barroso, CERN
 

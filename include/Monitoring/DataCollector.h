@@ -1,5 +1,5 @@
 /// \file    DataCollector.h
-/// \brief   Definition of the DataCollector class.
+/// \brief   Definition of DataCollector class
 ///
 /// \author  Vasco Barroso, CERN
 
@@ -14,10 +14,10 @@ namespace AliceO2 {
 namespace Monitoring {
 /// Core features of ALICE O2 Monitoring system
 namespace Core {
-/// Interface to Monitoring system
+/// Simple data collector class that allows processes to send application-specific values to stdout
 ///
-/// Base class of Monitoring system, allowing any process
-/// to send application-specific values
+/// Simple data collector class that allows processes to send application-specific values to stdout.
+/// Values can be sent for the present (sendValue(...)) or for the past (sendTimedValue(...)).
 class DataCollector : public DataCollectorInterface
 {
   public:

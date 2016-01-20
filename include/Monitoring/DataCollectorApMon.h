@@ -1,5 +1,5 @@
-/// \file    DataCollector.h
-/// \brief   Definition of the DataCollector class.
+/// \file    DataCollectorApMon.h
+/// \brief   Definition of DataCollectorApMon class
 ///
 /// \author  Vasco Barroso, CERN
 
@@ -16,10 +16,13 @@ namespace AliceO2 {
 namespace Monitoring {
 /// Core features of ALICE O2 Monitoring system
 namespace Core {
-/// Interface to Monitoring system
+/// ApMon based data collector class that allows processes to push Monitoring values to a MonALISA Service.
 ///
-/// Interface to Monitoring system, allowing any process
-/// to send application-specific values
+/// ApMon based data collector class that allows processes to push Monitoring values to a MonALISA Service.
+/// Similar to DataCollectorApMon but sends values to a MonALISA Service instead of stdout.
+///
+/// Additionally, it also allows for process monitoring. Processes are identified by the string "hostname:pid".
+/// Available metrics are listed at http://monalisa.cern.ch/monalisa__Documentation__ApMon_User_Guide.htm
 class DataCollectorApMon : public DataCollector
 {
   public:

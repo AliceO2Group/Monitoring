@@ -1,5 +1,5 @@
-/// \file    DataCollector.cxx
-/// \brief   Implementation of the DataCollector class.
+/// \file    DataCollectorApMon.cxx
+/// \brief   Implementation of the DataCollectorApMon class.
 ///
 /// \author  Vasco Barroso, CERN
 
@@ -96,7 +96,6 @@ void DataCollectorApMon::configureProcessMonitoring()
   mApMon->addJobToMonitor(getpid(), currentWorkingDir, const_cast<char *>(getDefaultCluster().c_str()), const_cast<char *>(getProcessUniqueId().c_str()));
 
   free(currentWorkingDir);
-
 }
 
 std::string DataCollectorApMon::getDefaultCluster() const

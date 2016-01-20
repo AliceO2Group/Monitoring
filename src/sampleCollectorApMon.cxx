@@ -1,5 +1,5 @@
 /// \file    sampleCollectorApMon.cxx
-/// \brief   Example of a data collector process
+/// \brief   Example of a data collector process using the DataCollectorApMon class
 ///
 /// \author  Vasco Barroso, CERN
 

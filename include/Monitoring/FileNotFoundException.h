@@ -1,9 +1,7 @@
-/*
- * FileNotFoundException.h
- *
- *  Created on: Jan 17, 2014
- *      Author: vmcb
- */
+/// \file    FileNotFoundException.h
+/// \brief   File not found exception
+///
+/// \author  Vasco Barroso, CERN
 
 #ifndef ALICEO2_MONITORING_CORE_FILENOTFOUNDEXCEPTION_H
 #define ALICEO2_MONITORING_CORE_FILENOTFOUNDEXCEPTION_H

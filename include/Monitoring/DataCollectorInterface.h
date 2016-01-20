@@ -1,4 +1,4 @@
-/// \file    DataCollector.h
+/// \file    DataCollectorInterface.h
 /// \brief   Definition of the DataCollector interface.
 ///
 /// \author  Vasco Barroso, CERN
