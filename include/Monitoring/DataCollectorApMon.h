@@ -88,11 +88,6 @@ class DataCollectorApMon : public DataCollector
     /// \param  timestamp  Timestamp of measurement in seconds
     void sendTimedValue(std::string cluster, std::string node, std::string metric, std::string value, int timestamp);
 
-    /// Log message
-    /// \param  logLevel    Log level
-    /// \param  message     Log message
-    void log(int logLevel, std::string message);
-
   private:
     /// Get ApMon
     /// \return  Return ApMon object

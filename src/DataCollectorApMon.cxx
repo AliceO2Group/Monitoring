@@ -14,6 +14,8 @@ namespace AliceO2 {
 namespace Monitoring {
 namespace Core {
 
+using AliceO2::InfoLogger::InfoLogger;
+
 DataCollectorApMon::DataCollectorApMon(const std::string configurationFile)
   : mConfigurationFile(configurationFile)
 {
@@ -88,9 +90,9 @@ void DataCollectorApMon::configureProcessMonitoring()
   char *currentWorkingDir;
   currentWorkingDir = get_current_dir_name();
 
-  log(INFO, "Setting default Cluster to '" + getDefaultCluster() + "'");
-  log(INFO, "Setting process unique ID to '" + getProcessUniqueId() + "'");
-  log(INFO, "Setting working dir to '" + std::string(currentWorkingDir) + "'");
+  getLogger() << "Setting default Cluster to '" << getDefaultCluster() << "'" << InfoLogger::endm;
+  getLogger() << "Setting process unique ID to '" << getProcessUniqueId() << "'" << InfoLogger::endm;
+  getLogger() << "Setting working dir to '" << std::string(currentWorkingDir) << "'" << InfoLogger::endm;
 
   // add process monitoring
   mApMon->addJobToMonitor(getpid(), currentWorkingDir, const_cast<char *>(getDefaultCluster().c_str()), const_cast<char *>(getProcessUniqueId().c_str()));
@@ -101,13 +103,6 @@ void DataCollectorApMon::configureProcessMonitoring()
 std::string DataCollectorApMon::getDefaultCluster() const
 {
   return std::string("defaultCluster");
-}
-
-
-void DataCollectorApMon::log(int logLevel, std::string message)
-{
-  apmon_utils::logger(logLevel, message.c_str());
-  fflush(stdout);
 }
 
 } // namespace Core

@@ -7,6 +7,7 @@
 #define ALICEO2_MONITORING_CORE_DATA_COLLECTOR_H
 
 #include "Monitoring/DataCollectorInterface.h"
+#include "InfoLogger/InfoLogger.hxx"
 #include <string>
 
 namespace AliceO2 {
@@ -96,8 +97,12 @@ class DataCollector : public DataCollectorInterface
     /// Get the current system timestamp in milliseconds
     long getCurrentTimestampMilliseconds();
 
+    /// Get logger object
+    InfoLogger::InfoLogger& getLogger();
+
     std::string mHostname;                ///< Hostname where process is running
     std::string mProcessUniqueId;         ///< Identifier for process metrics (hostname + pid)
+    InfoLogger::InfoLogger mLogger;       ///< Logger object
 };
 
 } // namespace Core

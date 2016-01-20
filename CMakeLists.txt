@@ -42,6 +42,9 @@ endif()
 set(Boost_NO_BOOST_CMAKE ON) #  Don't do a find_package in config mode before searching for a regular boost install.
 find_package(Boost COMPONENTS unit_test_framework program_options REQUIRED)
 
+# Dependency on another subproject (InfoLogger)
+link_o2_subproject(InfoLogger)
+
 find_package(APMON)
 if(APMON_FOUND)
     message(STATUS "APMON ${APMON_VERSION} found")

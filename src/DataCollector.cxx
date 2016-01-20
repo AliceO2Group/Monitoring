@@ -14,6 +14,8 @@ namespace AliceO2 {
 namespace Monitoring {
 namespace Core {
 
+using AliceO2::InfoLogger::InfoLogger;
+
 DataCollector::DataCollector() {
   setHostname();
   setProcessUniqueId();
@@ -23,34 +25,34 @@ DataCollector::~DataCollector() {}
 
 void DataCollector::sendValue(std::string cluster, std::string node, std::string metric, int value)
 {
-  std::cout << getCurrentTimestampMilliseconds() << "\t" << cluster << "\t" << node << "\t" << metric << "\t" << value << std::endl;
+  getLogger() << getCurrentTimestampMilliseconds() << "\t" << cluster << "\t" << node << "\t" << metric << "\t" << value << InfoLogger::endm;
 }
 
 void DataCollector::sendValue(std::string cluster, std::string node, std::string metric, double value)
 {
-	std::cout << getCurrentTimestampMilliseconds() << "\t" << cluster << "\t" << node << "\t" << metric << "\t" << value << std::endl;
+  getLogger() << getCurrentTimestampMilliseconds() << "\t" << cluster << "\t" << node << "\t" << metric << "\t" << value << InfoLogger::endm;
 }
 
 void DataCollector::sendValue(std::string cluster, std::string node, std::string metric, std::string value)
 {
-	std::cout << getCurrentTimestampMilliseconds() << "\t" << cluster << "\t" << node << "\t" << metric << "\t" << value << std::endl;
+  getLogger() << getCurrentTimestampMilliseconds() << "\t" << cluster << "\t" << node << "\t" << metric << "\t" << value << InfoLogger::endm;
 }
 
 void DataCollector::sendTimedValue(std::string cluster, std::string node, std::string metric, int value, int timestamp)
 {
-	std::cout << timestamp << "\t" << cluster << "\t" << node << "\t" << metric << "\t" << value << std::endl;
+  getLogger() << timestamp << "\t" << cluster << "\t" << node << "\t" << metric << "\t" << value << InfoLogger::endm;
 }
 
 void DataCollector::sendTimedValue(std::string cluster, std::string node, std::string metric, double value,
     int timestamp)
 {
-	std::cout << timestamp << "\t" << cluster << "\t" << node << "\t" << metric << "\t" << value << std::endl;
+  getLogger() << timestamp << "\t" << cluster << "\t" << node << "\t" << metric << "\t" << value << InfoLogger::endm;
 }
 
 void DataCollector::sendTimedValue(std::string cluster, std::string node, std::string metric, std::string value,
     int timestamp)
 {
-	std::cout << timestamp << "\t" << cluster << "\t" << node << "\t" << metric << "\t" << value << std::endl;
+  getLogger() << timestamp << "\t" << cluster << "\t" << node << "\t" << metric << "\t" << value << InfoLogger::endm;
 }
 
 std::string& DataCollector::getHostname()
@@ -86,7 +88,6 @@ void DataCollector::setProcessUniqueId()
   mProcessUniqueId = getHostname() + "." + boost::lexical_cast<std::string>(getpid());
 }
 
-/// Get the current system timestamp in milliseconds
 long DataCollector::getCurrentTimestampMilliseconds()
 {
   return std::chrono::duration_cast <std::chrono::milliseconds>(
@@ -96,6 +97,10 @@ long DataCollector::getCurrentTimestampMilliseconds()
   //return ms.count();
 }
 
+InfoLogger& DataCollector::getLogger()
+{
+  return mLogger;
+}
 
 } // namespace Core
 } // namespace Monitoring
