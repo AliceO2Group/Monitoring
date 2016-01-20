@@ -33,7 +33,14 @@
 		        - monitor process metrics such as CPU, memory, etc.
 		        - monitor application-specific metrics (e.g. internal buffers usage, # of processed events, etc)  
 		        
-		    This library currently uses ApMon to push data into a MonALISA Service.
+		    This library currently provides the following classes:
+		    
+		        - DataCollector: simple class that allows applications to print application-specific values to stdout
+		        - DataCollectorApMon: uses ApMon to push application-specific data into a MonALISA Service. 
+		                              Additionally, it allows process monitoring of several key system metrics. 
+
+            2 examples (sampleCollectorStdout.cxx and sampleCollectorApMon.cxx) in src show how to use these classes.
+		    
 		    In the future, other server-side tools might be used.
 			
 		@subsection Acronyms_and_Abbreviations Acronyms and Abbreviations
@@ -47,14 +54,16 @@
 	
 		@subsection Setup Setup
 		
-		    Each process sends its own list of monitoring values to a MonALISA Service running on the same or on a remote host.
-		    The values are sent over UDP using the ApMon library.
+		    For the simple DataCollector class, no setup is needed.
+		    
+		    For the MonALISA/ApMon based class, each process sends its own list of monitoring values to a MonALISA 
+		    Service running on the same or on a remote host. The values are sent over UDP using the ApMon library.
 		    For the FLP prototype development, the setup is the following
 		
 			@dot
 				digraph Data {
 					node [shape=record];
-					monalisa [label="MonALISA Service\n(aidrefsrv101)"];
+					monalisa [label="MonALISA Service\n(aidrefflp01)"];
 					aidrefflp01 [label="{<f0> aidrefflp01\n\n|{<f1> P1|<f2> P2|<f3> P3| ...}}"];
 					aidrefflp02 [label="{<f0> aidrefflp02\n\n|{<f1> P1|<f2> P2|<f3> P3| ...}}"];
 					aidrefflp01:f1 -> monalisa;

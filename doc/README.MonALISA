@@ -1,5 +1,10 @@
 Introduction
 ====================
+The following classes are available for monitoring:
+
+- DataCollector: allows processes to prints monitoring values to stdout
+- DataCollectorApmon: sends values via ApMon to MonALISA Service, 
+
 Monitoring in the FLP prototype is handled by MonALISA.
 Monitoring values are sent via ApMon library.
 A class DataCollector provides an abstraction layer.
@@ -12,7 +17,7 @@ To build the project, the following dependencies must be installed:
 
 Service Installation and configuration
 ====================
-The MonALISA service runs on aidrefsrv101.
+The MonALISA service runs on aidrefflp01.
 
 1) yum install monalisa-service
 2) Copy config/ml_env to /opt/monalisa-service/Service/CMD/
