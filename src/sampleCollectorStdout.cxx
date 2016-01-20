@@ -1,4 +1,4 @@
-/// \file    main.cxx
+/// \file    sampleCollectorStdout.cxx
 /// \brief   Example of a data collector process
 ///
 /// \author  Vasco Barroso, CERN
