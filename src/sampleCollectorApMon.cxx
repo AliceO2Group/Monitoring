@@ -12,11 +12,14 @@
 namespace program_options = boost::program_options;
 namespace Monitoring = AliceO2::Monitoring;
 
+using AliceO2::InfoLogger::InfoLogger;
+
 int main(int argc, char* argv[])
 {
   std::string configFile;
   program_options::options_description commandLineOptions("Allowed Options");
   program_options::variables_map optionsValues;
+  InfoLogger logger;
 
   // define options from command line
   commandLineOptions.add_options()
@@ -32,19 +35,19 @@ int main(int argc, char* argv[])
 
     // check for help
     if (optionsValues.count("help")) {
-      std::cout << commandLineOptions << std::endl;
+      logger << commandLineOptions << InfoLogger::endm;
       return EXIT_SUCCESS;
     }
 
     // check for version
     if (optionsValues.count("version")) {
-      std::cout << "sampleCollectorApMon version " << Monitoring::Core::Version::getString() << std::endl;
+      logger << "sampleCollectorApMon version " << Monitoring::Core::Version::getString() << InfoLogger::endm;
       return EXIT_SUCCESS;
     }
 
     // check for revision
     if (optionsValues.count("revision")) {
-      std::cout << "revision : " << Monitoring::Core::Version::getRevision() << std::endl;
+      logger << "revision : " << Monitoring::Core::Version::getRevision() << InfoLogger::endm;
       return EXIT_SUCCESS;
     }
 
@@ -56,8 +59,8 @@ int main(int argc, char* argv[])
   catch(program_options::error& e)
   {
     // error with a configuration option
-    std::cerr << "ERROR: " << e.what() << std::endl;
-    std::cerr << commandLineOptions << std::endl;
+    std::cerr << "ERROR: " << e.what() << InfoLogger::endm;
+    std::cerr << commandLineOptions << InfoLogger::endm;
     return EXIT_FAILURE;
   }
 
@@ -72,15 +75,15 @@ int main(int argc, char* argv[])
     }
   }
   catch (Monitoring::Core::FileNotFoundException& e) {
-    std::cerr << "Error opening ApMon configuration file: '" << e.getFilePath() << "'" << std::endl;
+    std::cerr << "Error opening ApMon configuration file: '" << e.getFilePath() << "'" << InfoLogger::endm;
     return EXIT_FAILURE;
   }
   catch (std::runtime_error& e) {
-    std::cerr << "Runtime error: " << e.what() << std::endl;
+    std::cerr << "Runtime error: " << e.what() << InfoLogger::endm;
     return EXIT_FAILURE;
   }
   catch (std::logic_error& e) {
-    std::cerr << "Logic error: " << e.what() << std::endl;
+    std::cerr << "Logic error: " << e.what() << InfoLogger::endm;
     return EXIT_FAILURE;
   }
 

@@ -31,8 +31,6 @@ set_target_properties(${LIBRARY_NAME_DATACOLLECTOR} PROPERTIES
         PUBLIC_HEADER "${LIB_HEADERS}"
 )
 
-
-
 # BINARIES
 
 # example writing to stdout
