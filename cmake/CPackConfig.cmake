@@ -1,4 +1,5 @@
 # @author  Barthélémy von Haller
+# @author  Vasco Barroso
 
 # General CPack configuration 
 # Info: http://www.itk.org/Wiki/CMake:Component_Install_With_CPack
@@ -12,8 +13,8 @@ else()
   set(CPACK_PACKAGE_VENDOR "http://aliceinfo.cern.ch") # deb lintian insists on URL
 endif()
 
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Example project")
-set(CPACK_PACKAGE_CONTACT "Barthelemy von Haller <barthelemy.von.haller@cern.ch>")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Monitoring")
+set(CPACK_PACKAGE_CONTACT "Vasco Barroso <Vasco.Chibante.Barroso@cern.ch>")
 set(CPACK_PACKAGE_VERSION ${VERSION})
 set(CPACK_PACKAGE_VERSION_MAJOR ${VERSION_MAJOR})
 set(CPACK_PACKAGE_VERSION_MINOR ${VERSION_MINOR})
