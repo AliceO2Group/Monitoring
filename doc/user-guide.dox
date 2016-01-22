@@ -176,7 +176,7 @@
 			   // FLP-TPC-01 is the node name to be used for the process monitoring metrics (if option xApMon_job_monitoring=On in the config file)
 			   //
 			   // This call will start the process monitoring 
-               Monitoring::Core::DataCollector *collector = new Monitoring::Core::DataCollector(configFile);
+               Monitoring::Core::DataCollector *collector = new Monitoring::Core::DataCollector(configFile, "FLPs", "FLP-TPC-01");
                ...
                ...
                // now I send an application specific metric
