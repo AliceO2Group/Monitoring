@@ -17,7 +17,8 @@
 		-# @ref Important_Files
 		-# @ref Tips_And_Tricks
 	-# @ref GETTING_STARTED
-		-# @ref Starting
+		-# @ref StartingStdout
+		-# @ref StartingApMon
 		-# @ref Running
 		-# @ref Exiting
 		-# @ref Exceptions
@@ -162,27 +163,53 @@
 	@endhtmlonly
 	@section GETTING_STARTED GETTING STARTED
 				
-		@subsection Starting Starting
+		@subsection StartingStdout Starting with DataCollector
 		
-			A working example is available in apps/samplecollector.
+			A working example is available in src/samplecollectorStdout.cxx.
 			In a nutshell:
 			
 			\code
 			   ...
 			   namespace Monitoring = AliceO2::Monitoring;
 			   ... 
-			   // configFile is path to config file
-			   // FLPs is the name of the cluster
-			   // FLP-TPC-01 is the node name to be used for the process monitoring metrics (if option xApMon_job_monitoring=On in the config file)
-			   //
-			   // This call will start the process monitoring 
-               Monitoring::Core::DataCollector *collector = new Monitoring::Core::DataCollector(configFile, "FLPs", "FLP-TPC-01");
+               // create monitoring object
+               Monitoring::Core::DataCollector *collector = new Monitoring::Core::DataCollector();
                ...
                ...
                // now I send an application specific metric
+               // FLPs is the name of the cluster
+               // FLP-TPC-01 is the name of the node
+               // myCrazyMetric is the name of the metric
+               // 10 is the value
                collector->sendValue("FLPs", "FLP-TPC-01", "myCrazyMetric", 10);
                ...
 			\endcode
+
+		@subsection StartingApMon Starting with DataCollectorApMon
+		
+			A working example is available in src/samplecollectorApMon.cxx.
+			A sample config file is available in config/apmon.conf.
+			In a nutshell:
+			
+			\code
+			   ...
+			   namespace Monitoring = AliceO2::Monitoring;
+			   ... 
+               // create monitoring object			   
+			   // configFile is path to config file 
+			   // This call will start the process monitoring (if option xApMon_job_monitoring=On in the config file) 
+               Monitoring::Core::DataCollectorApMon *collector = new Monitoring::Core::DataCollectorApMon(configFile);
+               ...
+               ...
+               // now I send an application specific metric
+               // FLPs is the name of the cluster
+               // FLP-TPC-01 is the name of the node
+               // myCrazyMetric is the name of the metric
+               // 10 is the value               
+               collector->sendValue("FLPs", "FLP-TPC-01", "myCrazyMetric", 10);
+               ...
+			\endcode
+
 		
 		@subsection Running Running
 		
