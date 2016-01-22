@@ -22,7 +22,7 @@ set(APP_SOURCES
 
 # libDataCollector
 set(LIBRARY_NAME_DATACOLLECTOR DataCollector)
-set(INCLUDE include/${LIBRARY_NAME_DATACOLLECTOR})
+set(INCLUDE include/Monitoring)
 add_library(${LIBRARY_NAME_DATACOLLECTOR} SHARED ${LIB_HEADERS} ${LIB_SOURCES})
 target_link_libraries(${LIBRARY_NAME_DATACOLLECTOR} InfoLogger-static)
 set_target_properties(${LIBRARY_NAME_DATACOLLECTOR} PROPERTIES
