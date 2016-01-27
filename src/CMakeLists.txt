@@ -24,7 +24,7 @@ set(APP_SOURCES
 set(LIBRARY_NAME_DATACOLLECTOR DataCollector)
 set(INCLUDE include/Monitoring)
 add_library(${LIBRARY_NAME_DATACOLLECTOR} SHARED ${LIB_HEADERS} ${LIB_SOURCES})
-target_link_libraries(${LIBRARY_NAME_DATACOLLECTOR} InfoLogger-static)
+target_link_libraries(${LIBRARY_NAME_DATACOLLECTOR} InfoLogger-static apmoncpp)
 set_target_properties(${LIBRARY_NAME_DATACOLLECTOR} PROPERTIES
         VERSION ${VERSION}  # ${VERSION} was defined in the main CMakeLists.
         FRAMEWORK FALSE
@@ -36,13 +36,13 @@ set_target_properties(${LIBRARY_NAME_DATACOLLECTOR} PROPERTIES
 # example writing to stdout
 set(APPLICATION_STDOUT_SAMPLE sampleCollectorStdout)
 add_executable(${APPLICATION_STDOUT_SAMPLE} sampleCollectorStdout)
-target_link_libraries(${APPLICATION_STDOUT_SAMPLE} ${LIBRARY_NAME_DATACOLLECTOR} apmoncpp ${Boost_PROGRAM_OPTIONS_LIBRARY})
+target_link_libraries(${APPLICATION_STDOUT_SAMPLE} ${LIBRARY_NAME_DATACOLLECTOR} ${Boost_PROGRAM_OPTIONS_LIBRARY})
 install(TARGETS ${APPLICATION_STDOUT_SAMPLE} DESTINATION bin COMPONENT apps)
 
 # example with ApMon
 set(APPLICATION_APMON_SAMPLE sampleCollectorApMon)
 add_executable(${APPLICATION_APMON_SAMPLE} sampleCollectorApMon)
-target_link_libraries(${APPLICATION_APMON_SAMPLE} ${LIBRARY_NAME_DATACOLLECTOR} apmoncpp ${Boost_PROGRAM_OPTIONS_LIBRARY})
+target_link_libraries(${APPLICATION_APMON_SAMPLE} ${LIBRARY_NAME_DATACOLLECTOR} ${Boost_PROGRAM_OPTIONS_LIBRARY})
 install(TARGETS ${APPLICATION_APMON_SAMPLE} DESTINATION bin COMPONENT apps)
 
 
