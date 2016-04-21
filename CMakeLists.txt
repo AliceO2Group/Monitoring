@@ -43,13 +43,14 @@ set(Boost_NO_BOOST_CMAKE ON) #  Don't do a find_package in config mode before se
 find_package(Boost COMPONENTS unit_test_framework program_options REQUIRED)
 
 # Dependency on another subproject (InfoLogger)
-link_o2_subproject(InfoLogger)
+# link_o2_subproject(InfoLogger)
 
 find_package(APMON)
 if(APMON_FOUND)
     message(STATUS "APMON ${APMON_VERSION} found")
     include_directories(${APMON_INCLUDE_DIRS})
     list(APPEND LIBS ${APMON_LIBRARIES})
+    add_definitions(-D_WITH_APPMON)
 else()
     message(WARNING "APMON not found, we won't compile the Monitoring module (skip, no error)")
     return()
@@ -73,12 +74,13 @@ set(CMAKE_MACOSX_RPATH ON)
 #set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 #set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-add_subdirectory(doc)
+# add_subdirectory(doc)
 
 enable_testing() # needed on top-level CMakeLists.txt
 add_subdirectory(include)
 add_subdirectory(src)
 add_subdirectory(test)
+add_subdirectory(examples)
 
 # PACKAGING
 # _____________________________________________________________________________
