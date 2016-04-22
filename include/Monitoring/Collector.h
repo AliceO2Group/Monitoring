@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include "Configuration/Configuration.h"
 #include "Monitoring/Backend.h"
 #include "Monitoring/Metric.h"
 
@@ -16,7 +17,8 @@ namespace Core {
 class Collector {
 
 private:
-        std::vector <Backend*> backends;
+        ConfigFile mConfigFile;
+	std::vector <Backend*> backends;
         std::map <std::string, std::vector<Metric*>> cache;
 public:
         Collector();

@@ -16,11 +16,13 @@ namespace AliceO2 {
 namespace Monitoring {
 namespace Core {
 
-Collector::Collector()
+Collector::Collector(/*std::string configSource*/)
 {
+	//mConfigFile.load(configSource);
+	//mConfigFile.getValue<string>("ExampleTask.moduleName");
 	backends.emplace_back(new StdoutBackend());
 	#ifdef _WITH_APPMON
-	backends.emplace_back(new ApMonBackend(std::string("/home/awegrzyn/monitoring/pointer/config/apmon.conf")));
+	backends.emplace_back(new ApMonBackend(std::string("/home/awegrzyn/apmon.conf")));
 	#endif
 }
 

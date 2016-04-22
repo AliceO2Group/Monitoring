@@ -2,6 +2,7 @@
 # @author  Vasco Barroso
 set(LIB_HEADERS
   "${CMAKE_CURRENT_BINARY_DIR}/../include/Monitoring/Version.h" # Generated header  
+  ../include/Monitoring/MonInfoLogger.h
   ../include/Monitoring/ApMonBackend.h
   ../include/Monitoring/Backend.h
   ../include/Monitoring/Collector.h
@@ -30,7 +31,7 @@ set(APP_SOURCES
 set(LIBRARY_NAME_DATACOLLECTOR DataCollector)
 set(INCLUDE include/Monitoring)
 add_library(${LIBRARY_NAME_DATACOLLECTOR} SHARED ${LIB_HEADERS} ${LIB_SOURCES})
-target_link_libraries(${LIBRARY_NAME_DATACOLLECTOR} apmoncpp) #InfoLogger-static removed
+target_link_libraries(${LIBRARY_NAME_DATACOLLECTOR} InfoLogger-static Configuration-static apmoncpp)
 set_target_properties(${LIBRARY_NAME_DATACOLLECTOR} PROPERTIES
         VERSION ${VERSION}  # ${VERSION} was defined in the main CMakeLists.
         FRAMEWORK FALSE

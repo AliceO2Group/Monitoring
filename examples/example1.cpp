@@ -22,7 +22,7 @@ int main() {
 		c->sendProcessed(testInt, std::string("Int Metric Processed"), std::string("entity 1"));
                 c->sendProcessed(testDouble, std::string("Double Metric Processed"), std::string("entity 1"));
                 c->sendProcessed(testString, std::string("String Metric Processed"), std::string("entity 1"));
-                c->sendProcessed(testUint32, std::string("Uint32_t Metric Processed"), std::string("entity 1")); 
+                c->sendProcessed(testUint32, std::string("Uint32_t Metric Processed"), std::string("entity 1"));
         }
 
         auto end = std::chrono::system_clock::now();
