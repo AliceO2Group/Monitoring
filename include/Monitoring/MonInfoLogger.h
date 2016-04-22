@@ -16,6 +16,7 @@ using namespace std;
 /// Independent InfoLogger instance can still be created when and if needed.
 ///
 /// \author Barthelemy von Haller
+/// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 class MonInfoLogger : public AliceO2::InfoLogger::InfoLogger
 {
 
