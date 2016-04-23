@@ -5,6 +5,7 @@
 #include <vector>
 #include <map>
 #include "Configuration/Configuration.h"
+#include "Monitoring/MonInfoLogger.h"
 #include "Monitoring/Backend.h"
 #include "Monitoring/Metric.h"
 
@@ -13,6 +14,8 @@ namespace AliceO2 {
 namespace Monitoring {
 /// Core features of ALICE O2 Monitoring system
 namespace Core {
+	const int REGISTER_RATE = 1;
+        const int REGISTER_AVERAGE = 2;
 
 class Collector {
 
@@ -22,8 +25,11 @@ private:
 	/// Vector of backends, values are sent to all of them
 	std::vector <Backend*> backends;
 
-	/// Storage of metrics to be processed
+	/// Cache of registered metrics
         std::map <std::string, std::vector<Metric*>> cache;
+
+	/// Registered metrics with their modes
+	std::map <std::string, int> registered;
 public:
         Collector();
 	
@@ -37,16 +43,23 @@ public:
 	/// param name name of the metric
 	/// param entity where the metric come from
 	/// param tiemstamp timestamp in miliseconds; by default output of getCurrentTimestamp is assigned
-	template<typename T> void sendProcessed(T value, std::string name, std::string entity, unsigned long timestamp = Collector::getCurrentTimestamp());
-        
-	/// Passes metric to all avaliable backends
-	/// 
 	template<typename T> void send(T value, std::string name, std::string entity, unsigned long timestamp = Collector::getCurrentTimestamp());
-        void injectRate(std::string name);
+        
+	/// Calculates rate bansed on values and timestamps of current and previous metric
+	/// not aplicable for strings
+	void injectRate(std::string name);
+
+	/// Register metric to be processed
+	/// Following processing modes are supported: REGISTER_RATE, REGISTER_AVERAGE
+	void registerMetric(std::string name, int mode);
+
+	/// Handles metric processing, switches over processing modes
+	void processMetric(int mode, Metric* metric);
 
 	/// Inserts metric into std::map cache
 	/// param metric pointer to metric object
 	void insert(Metric* metric);
+	void injectAverage(std::string name);
         ~Collector();
 
 };

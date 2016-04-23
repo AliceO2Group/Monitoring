@@ -22,16 +22,22 @@ TemplatedMetric<T>::TemplatedMetric(T value, std::string name, std::string entit
         value ( value )
         {}
 
-template <class T>
+template<class T>
 T TemplatedMetric<T>::getValue()
 {
 	return value;
 }
+/*template <class T>
+double TemplatedMetric<T>::add(Metric *m)
+{
+	
+}
+*/
 template <class T>
 Metric* TemplatedMetric<T>::substract(Metric *m)
 {
-	T substract = (value - static_cast<TemplatedMetric<T>*>(m)->getValue());
-	return new TemplatedMetric<T>(substract, name + "Rate", entity, timestamp - m->getTimestamp());
+	double substract = 1000*((value - static_cast<TemplatedMetric<T>*>(m)->getValue()) / (timestamp - m->getTimestamp()));
+	return new TemplatedMetric<double>(substract, name + "Rate", entity, timestamp);
 }
 template <>
 Metric* TemplatedMetric<std::string>::substract(Metric *m)

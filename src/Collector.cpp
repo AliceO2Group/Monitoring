@@ -48,6 +48,12 @@ unsigned long Collector::getCurrentTimestamp()
         ).count();
 }
 
+void Collector::registerMetric(std::string name, int mode)
+{
+        registered.insert(std::pair<std::string, int>(name, mode));
+	MonInfoLogger::GetInstance() << "Monitoring : Metric " << name << " register to be processed in mode " << mode << AliceO2::InfoLogger::InfoLogger::endm;
+}
+
 void Collector::injectRate(std::string name)
 {
 	auto search = cache.find(name);
@@ -66,7 +72,17 @@ void Collector::injectRate(std::string name)
 		}
 	}
 }
-
+void Collector::injectAverage(std::string name)
+{
+	auto search = cache.find(name);
+        if (search != cache.end())
+        {
+		for (auto metric : search->second)
+		{
+			std::cout << metric->getName() << std::endl;
+		}
+	}
+}
 void Collector::insert(Metric* metric)
 {
 	auto search = cache.find(metric->getName());
@@ -76,22 +92,29 @@ void Collector::insert(Metric* metric)
 	}
 	cache[metric->getName()].push_back(metric);
 }
-
-template<typename T>
-void Collector::sendProcessed(T value, std::string name, std::string entity, unsigned long timestamp)
+void Collector::processMetric(int mode, Metric* metric)
 {
-	Metric *metric = new TemplatedMetric<T>(value, name, entity, timestamp);
-	for (auto const b: backends)
-	{
-		 metric->sendViaBackend(b);
-	}
 	insert(metric);
-	injectRate(metric->getName());
+	if (mode == REGISTER_RATE)
+	{
+		injectRate(metric->getName());
+	}
+	else if (mode == REGISTER_AVERAGE)
+	{
+		injectAverage(metric->getName());
+	}
+	else 
+	{
+		MonInfoLogger::GetInstance() << "Monitoring : Processing mode incorrect for metric " << metric->getName() << AliceO2::InfoLogger::InfoLogger::endm;
+	}
 }
 
 template<typename T>
 void Collector::send(T value, std::string name, std::string entity, unsigned long timestamp)
 {
+	auto search = registered.find(name);
+	if (search != registered.end()) processMetric(search->second, new TemplatedMetric<T>(value, name, entity, timestamp));
+	
 	for (auto const b: backends)
 	{
 		b->send(value, name, entity, timestamp);
@@ -102,11 +125,6 @@ template void Collector::send(int, std::string, std::string, unsigned long);
 template void Collector::send(double, std::string, std::string, unsigned long);
 template void Collector::send(std::string, std::string, std::string, unsigned long);
 template void Collector::send(uint32_t, std::string, std::string, unsigned long);
-
-template void Collector::sendProcessed(int, std::string, std::string, unsigned long);
-template void Collector::sendProcessed(double, std::string, std::string, unsigned long);
-template void Collector::sendProcessed(std::string, std::string, std::string, unsigned long);
-template void Collector::sendProcessed(uint32_t, std::string, std::string, unsigned long);
 
 } // namespace Core
 } // namespace Monitoring
