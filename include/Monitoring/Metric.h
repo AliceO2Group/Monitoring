@@ -2,6 +2,7 @@
 #define ALICEO2_MONITORING_CORE_METRIC_H
 
 #include <string>
+#include <vector>
 #include "Monitoring/Backend.h"
 
 namespace AliceO2 {
@@ -24,7 +25,7 @@ public:
         virtual void sendViaBackend(Backend * b) = 0;
         virtual ~Metric() = default;
         virtual Metric* substract(Metric* lhs) = 0;
-
+	virtual Metric* average(const std::vector<Metric*> &metrics) = 0;
 };
 
 } // namespace Core

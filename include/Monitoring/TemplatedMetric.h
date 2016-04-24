@@ -2,6 +2,7 @@
 #define ALICEO2_MONITORING_CORE_TEMPLATED_METRIC_H
 
 #include <string>
+#include <vector>
 #include "Monitoring/Metric.h"
 
 namespace AliceO2 {
@@ -22,7 +23,7 @@ public:
 	
 	T getValue();
         Metric* substract(Metric* m);
-
+	Metric* average(const std::vector<Metric*> &metrics);
 };
 
 } // namespace Core

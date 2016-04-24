@@ -72,15 +72,18 @@ void Collector::injectRate(std::string name)
 		}
 	}
 }
+
 void Collector::injectAverage(std::string name)
 {
 	auto search = cache.find(name);
         if (search != cache.end())
         {
-		for (auto metric : search->second)
-		{
-			std::cout << metric->getName() << std::endl;
+		Metric* average = search->second.back()->average(search->second);
+		for (auto const b: backends)
+		{	
+			average->sendViaBackend(b);
 		}
+		delete(average);
 	}
 }
 void Collector::insert(Metric* metric)

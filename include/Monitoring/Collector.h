@@ -14,8 +14,11 @@ namespace AliceO2 {
 namespace Monitoring {
 /// Core features of ALICE O2 Monitoring system
 namespace Core {
+	/// Avaliable modes
+	/// Rate
 	const int REGISTER_RATE = 1;
-        const int REGISTER_AVERAGE = 2;
+	/// Average value
+	const int REGISTER_AVERAGE = 2;
 
 class Collector {
 
@@ -25,14 +28,14 @@ private:
 	/// Vector of backends, values are sent to all of them
 	std::vector <Backend*> backends;
 
-	/// Cache of registered metrics
+	/// Cache of registered metrics (metric name / vector of metric pointers)
         std::map <std::string, std::vector<Metric*>> cache;
 
-	/// Registered metrics with their modes
+	/// Registered metrics with their modes (metric name, registered mode)
 	std::map <std::string, int> registered;
 public:
         Collector();
-	
+
 	/// Generates timestamp in microseconds
 	/// \return timestamp as unsigned long
 	static unsigned long getCurrentTimestamp();
@@ -44,7 +47,7 @@ public:
 	/// param entity where the metric come from
 	/// param tiemstamp timestamp in miliseconds; by default output of getCurrentTimestamp is assigned
 	template<typename T> void send(T value, std::string name, std::string entity, unsigned long timestamp = Collector::getCurrentTimestamp());
-        
+  
 	/// Calculates rate bansed on values and timestamps of current and previous metric
 	/// not aplicable for strings
 	void injectRate(std::string name);

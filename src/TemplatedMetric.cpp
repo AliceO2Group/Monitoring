@@ -27,12 +27,17 @@ T TemplatedMetric<T>::getValue()
 {
 	return value;
 }
-/*template <class T>
-double TemplatedMetric<T>::add(Metric *m)
+template <class T>
+Metric* TemplatedMetric<T>::average(const std::vector<Metric*> &metrics)
 {
-	
+        T average = 0;
+        for (auto const metric : metrics)
+        {
+                average += static_cast<TemplatedMetric<T>*>(metric)->getValue();
+        }
+	return new TemplatedMetric<T>(average, name + "Average", entity, timestamp);
 }
-*/
+
 template <class T>
 Metric* TemplatedMetric<T>::substract(Metric *m)
 {
@@ -44,7 +49,6 @@ Metric* TemplatedMetric<std::string>::substract(Metric *m)
 {
         return nullptr;
 }
-
 
 template class TemplatedMetric<int>;
 template class TemplatedMetric<double>;
