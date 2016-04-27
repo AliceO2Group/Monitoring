@@ -1,5 +1,6 @@
 # @author  Barthélémy von Haller
-# @author  Vasco Barroso
+# @author  Adam Wegrzynek
+
 set(LIB_HEADERS
   "${CMAKE_CURRENT_BINARY_DIR}/../include/Monitoring/Version.h" # Generated header  
   ../include/Monitoring/MonInfoLogger.h
@@ -19,6 +20,11 @@ set(LIB_SOURCES
   TemplatedMetric.cpp
 )
 
+if(APMON_FOUND)
+	message(STATUS "  Adding ApMon classes...")
+	list(APPEND LIB_HEADERS ../include/Monitoring/ApMonBackend.h)
+	list(APPEND LIB_SOURCES ApMonBackend.cpp)
+endif()
 set(APP_HEADERS
 )
 
