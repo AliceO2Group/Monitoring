@@ -4,7 +4,6 @@
 set(LIB_HEADERS
   "${CMAKE_CURRENT_BINARY_DIR}/../include/Monitoring/Version.h" # Generated header  
   ../include/Monitoring/MonInfoLogger.h
-  ../include/Monitoring/ApMonBackend.h
   ../include/Monitoring/Backend.h
   ../include/Monitoring/Collector.h
   ../include/Monitoring/Metric.h
@@ -13,7 +12,6 @@ set(LIB_HEADERS
 )
 
 set(LIB_SOURCES
-  ApMonBackend.cpp
   Collector.cpp
   Metric.cpp
   StdoutBackend.cpp
@@ -21,7 +19,7 @@ set(LIB_SOURCES
 )
 
 if(APMON_FOUND)
-	message(STATUS "  Adding ApMon classes...")
+	message(STATUS "  Adding ApMon backend classes...")
 	list(APPEND LIB_HEADERS ../include/Monitoring/ApMonBackend.h)
 	list(APPEND LIB_SOURCES ApMonBackend.cpp)
 endif()
