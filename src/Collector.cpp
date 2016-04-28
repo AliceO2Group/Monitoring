@@ -29,13 +29,6 @@ Collector::Collector(/*std::string configSource*/)
 }
 
 Collector::~Collector() {
-	for (auto const vec: cache)
-        {
-                for (auto metric: vec.second)
-		{
-			delete (metric);
-		}
-        }
 	for (auto const b: backends)
         {
 		delete(b);
@@ -75,7 +68,6 @@ void Collector::sendMetric(Metric* metric)
 	{
         	metric->sendViaBackend(b);
         }
-        delete(metric);
 }
 
 template<typename T>
@@ -85,6 +77,7 @@ void Collector::send(T value, std::string name, std::chrono::time_point<std::chr
 	{
 		Metric* derived = derivedHandler->processMetric(new TemplatedMetric<T>(value, name, uniqueEntity, timestamp));
 		if (derived != nullptr) sendMetric(derived);
+		delete(derived);
 	}
 
 	for (auto const b: backends)

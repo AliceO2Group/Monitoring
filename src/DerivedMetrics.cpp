@@ -17,6 +17,18 @@ namespace AliceO2 {
 namespace Monitoring {
 namespace Core {
 
+DerivedMetrics::~DerivedMetrics()
+{
+	for (auto const vec: cache)
+        {
+                for (auto metric: vec.second)
+                {
+                        delete (metric);
+                }
+        }
+
+}
+
 void DerivedMetrics::registerMetric(DerivedMetricMode mode, std::string name)
 {
         registered.insert(std::pair<std::string, DerivedMetricMode>(name, mode));

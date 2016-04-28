@@ -29,13 +29,6 @@ private:
 	/// Vector of backends (where the values are send to).
 	std::vector <Backend*> backends;
 
-	/// Cache of registered metrics (metric name / vector of metric pointers).
-        std::map <std::string, std::vector<Metric*>> cache;
-
-	/// Registered metrics with their modes (metric name, registered mode).
-	/// See list of modes in begiing of the file.
-	std::map <std::string, DerivedMetricMode> registered;
-
 	/// Default entity value, see setUniqueEntity method
 	std::string uniqueEntity;
 

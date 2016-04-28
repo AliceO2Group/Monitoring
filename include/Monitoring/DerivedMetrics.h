@@ -27,7 +27,7 @@ private:
 
 public:
         DerivedMetrics()  = default;
-	~DerivedMetrics() = default;
+	~DerivedMetrics();
 	/// States whether metric has been registered or not
 	/// \return yes or no
 	bool isRegistered(std::string name);
