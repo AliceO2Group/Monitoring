@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <chrono>
 #include "Monitoring/Backend.h"
 
 namespace AliceO2 {
@@ -13,15 +14,14 @@ namespace Core {
 
 class Metric {
 protected:
-        const unsigned long timestamp;
+        const std::chrono::time_point<std::chrono::system_clock> timestamp;
         const std::string name;
         const std::string entity;
 
 public:
-        Metric(std::string&& _name, std::string&& _entity, unsigned long _timestamp);
+        Metric(std::string&& _name, std::string&& _entity, std::chrono::time_point<std::chrono::system_clock> _timestamp);
         std::string getName();
-        unsigned long getTimestamp();
-        virtual void print() = 0;
+        std::chrono::time_point<std::chrono::system_clock> getTimestamp();
         virtual void sendViaBackend(Backend * b) = 0;
         virtual ~Metric() = default;
         virtual Metric* substract(Metric* lhs) = 0;

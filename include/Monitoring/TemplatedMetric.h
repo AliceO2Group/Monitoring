@@ -17,8 +17,7 @@ class TemplatedMetric : public Metric
         const T value;
 
 public:
-        TemplatedMetric(T value, std::string name, std::string entity, unsigned long timestamp);
-        void print();
+        TemplatedMetric(T value, std::string name, std::string entity, std::chrono::time_point<std::chrono::system_clock> timestamp);
         void sendViaBackend(Backend * b);
 	
 	T getValue();

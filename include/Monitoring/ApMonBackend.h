@@ -2,6 +2,7 @@
 #define ALICEO2_MONITORING_CORE_APMON_BACKEND_H
 
 #include <string>
+#include <chrono>
 #include <ApMon.h>
 #include "Monitoring/Backend.h"
 
@@ -14,10 +15,11 @@ namespace Core {
 class ApMonBackend : public Backend {
 public:
 	ApMonBackend(const std::string configurationFile);
-	void send(int value, std::string name, std::string entity, unsigned long timestamp) override;
-        void send(double value, std::string name, const std::string entity, unsigned long timestamp) override;
-        void send(std::string value, std::string name, const std::string entity, unsigned long timestamp) override;
-        void send(uint32_t value, std::string name, const std::string entity, unsigned long timestamp) override;
+	void send(int value, std::string name, std::string entity, std::chrono::time_point<std::chrono::system_clock> timestamp) override;
+        void send(double value, std::string name, const std::string entity, std::chrono::time_point<std::chrono::system_clock> timestamp) override;
+        void send(std::string value, std::string name, const std::string entity, std::chrono::time_point<std::chrono::system_clock> timestamp) override;
+        void send(uint32_t value, std::string name, const std::string entity, std::chrono::time_point<std::chrono::system_clock> timestamp) override;
+	int convertTimestamp(const std::chrono::time_point<std::chrono::system_clock> timestamp);
 	~ApMonBackend();
 private:
 	ApMon* getApMon() const;

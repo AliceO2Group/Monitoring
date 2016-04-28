@@ -12,12 +12,7 @@ void TemplatedMetric<T>::sendViaBackend(Backend * b)
 }
 
 template <class T>
-void TemplatedMetric<T>::print()
-{
-	std::cout << value << name << entity << timestamp << std::endl;
-}
-template <class T>
-TemplatedMetric<T>::TemplatedMetric(T value, std::string name, std::string entity, unsigned long timestamp):
+TemplatedMetric<T>::TemplatedMetric(T value, std::string name, std::string entity, std::chrono::time_point<std::chrono::system_clock> timestamp):
         Metric( std::move(name), std::move(entity), timestamp ),
         value ( value )
         {}
@@ -41,7 +36,8 @@ Metric* TemplatedMetric<T>::average(const std::vector<Metric*> &metrics)
 template <class T>
 Metric* TemplatedMetric<T>::substract(Metric *m)
 {
-	double substract = 1000*((value - static_cast<TemplatedMetric<T>*>(m)->getValue()) / (timestamp - m->getTimestamp()));
+	std::chrono::duration<double> timestampDifferenct = timestamp - m->getTimestamp();
+	double substract = 1000*((value - static_cast<TemplatedMetric<T>*>(m)->getValue()) / timestampDifferenct.count());
 	return new TemplatedMetric<double>(substract, name + "Rate", entity, timestamp);
 }
 template <>

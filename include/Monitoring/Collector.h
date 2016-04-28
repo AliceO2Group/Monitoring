@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <chrono>
 #include "Configuration/Configuration.h"
 #include "Monitoring/MonInfoLogger.h"
 #include "Monitoring/Backend.h"
@@ -14,11 +15,8 @@ namespace AliceO2 {
 namespace Monitoring {
 /// Core features of ALICE O2 Monitoring system
 namespace Core {
-	/// Avaliable registration modes
-	/// 1. Rate
-	const int REGISTER_RATE = 1;
-	/// 2. Average value
-	const int REGISTER_AVERAGE = 2;
+	/// Avaliable derived metric modes : RATE and AVERAGE values
+	enum class DerivedMetricMode { RATE, AVERAGE };
 
 class Collector {
 
@@ -34,15 +32,15 @@ private:
 
 	/// Registered metrics with their modes (metric name, registered mode).
 	/// See list of modes in begiing of the file.
-	std::map <std::string, int> registered;
+	std::map <std::string, DerivedMetricMode> registered;
 public:
 	/// Reads configuration file and based on it loaded backends.
         Collector();
 
 	/// Generates timestamp in miliseconds
 	/// \return timestamp as unsigned long
-	static unsigned long getCurrentTimestamp();
-
+	static std::chrono::time_point<std::chrono::system_clock> getCurrentTimestamp();
+	
 	/// Stores past metrics in container in order to allow create new metrics based on them
 	/// (eg. metric rate, average value).
 	/// Then, it sends the metric to all of backends (stored in "backends" vector)
@@ -51,14 +49,14 @@ public:
 	/// param name of the metric
 	/// param entity where the metric come from
 	/// param tiemstamp in miliseconds, if not provided output of getCurrentTimestamp as default value is assigned
-	template<typename T> void send(T value, std::string name, std::string entity, unsigned long timestamp = Collector::getCurrentTimestamp());
+	template<typename T> void send(T value, std::string name, std::string entity, std::chrono::time_point<std::chrono::system_clock> timestamp = Collector::getCurrentTimestamp());
   
 	/// Registers metric - to be processed in one of the modes
 	/// Following processing modes are supported: REGISTER_RATE, REGISTER_AVERAGE
-	void registerMetric(std::string name, int mode);
+	void addDerivedMetric(DerivedMetricMode mode, std::string name);
 
 	/// Handles metric processing, switches over processing modes
-	void processMetric(int mode, Metric* metric);
+	void processMetric(DerivedMetricMode mode, Metric* metric);
 
 	/// Inserts metric into std::map cache
 	/// param metric pointer to metric object

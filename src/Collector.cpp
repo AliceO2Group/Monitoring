@@ -40,18 +40,15 @@ Collector::~Collector() {
         }
 
 }
-
-unsigned long Collector::getCurrentTimestamp()
+std::chrono::time_point<std::chrono::system_clock> Collector::getCurrentTimestamp()
 {
-        return std::chrono::duration_cast <std::chrono::milliseconds>(
-                std::chrono::system_clock::now().time_since_epoch()
-        ).count();
+	return std::chrono::system_clock::now();
 }
 
-void Collector::registerMetric(std::string name, int mode)
+void Collector::addDerivedMetric(DerivedMetricMode mode, std::string name)
 {
-        registered.insert(std::pair<std::string, int>(name, mode));
-	MonInfoLogger::GetInstance() << "Monitoring : Metric " << name << " register to be processed in mode " << mode << AliceO2::InfoLogger::InfoLogger::endm;
+        registered.insert(std::pair<std::string, DerivedMetricMode>(name, mode));
+	MonInfoLogger::GetInstance() << "Monitoring : Metric " << name << " added to derived metrics" << AliceO2::InfoLogger::InfoLogger::endm;
 }
 
 void Collector::injectRate(std::string name)
@@ -95,14 +92,14 @@ void Collector::insert(Metric* metric)
 	}
 	cache[metric->getName()].push_back(metric);
 }
-void Collector::processMetric(int mode, Metric* metric)
+void Collector::processMetric(DerivedMetricMode mode, Metric* metric)
 {
 	insert(metric);
-	if (mode == REGISTER_RATE)
+	if (mode == DerivedMetricMode::RATE)
 	{
 		injectRate(metric->getName());
 	}
-	else if (mode == REGISTER_AVERAGE)
+	else if (mode == DerivedMetricMode::AVERAGE)
 	{
 		injectAverage(metric->getName());
 	}
@@ -113,7 +110,7 @@ void Collector::processMetric(int mode, Metric* metric)
 }
 
 template<typename T>
-void Collector::send(T value, std::string name, std::string entity, unsigned long timestamp)
+void Collector::send(T value, std::string name, std::string entity, std::chrono::time_point<std::chrono::system_clock> timestamp)
 {
 	auto search = registered.find(name);
 	if (search != registered.end()) processMetric(search->second, new TemplatedMetric<T>(value, name, entity, timestamp));
@@ -124,10 +121,10 @@ void Collector::send(T value, std::string name, std::string entity, unsigned lon
 	}
 }
 
-template void Collector::send(int, std::string, std::string, unsigned long);
-template void Collector::send(double, std::string, std::string, unsigned long);
-template void Collector::send(std::string, std::string, std::string, unsigned long);
-template void Collector::send(uint32_t, std::string, std::string, unsigned long);
+template void Collector::send(int, std::string, std::string, std::chrono::time_point<std::chrono::system_clock>);
+template void Collector::send(double, std::string, std::string, std::chrono::time_point<std::chrono::system_clock>);
+template void Collector::send(std::string, std::string, std::string, std::chrono::time_point<std::chrono::system_clock>);
+template void Collector::send(uint32_t, std::string, std::string, std::chrono::time_point<std::chrono::system_clock>);
 
 } // namespace Core
 } // namespace Monitoring

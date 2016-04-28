@@ -13,8 +13,8 @@ int main() {
 	uint32_t testUint32 = 555;
 	std::string name = std::string("Int Metric");
 	std::string entity = std::string("entity 1");
-        c->registerMetric(std::string("Double Metric"), Monitoring::Core::REGISTER_RATE);
-	c->registerMetric(std::string("Uint32_t Metric"), Monitoring::Core::REGISTER_AVERAGE);
+        c->addDerivedMetric(Monitoring::Core::DerivedMetricMode::RATE, std::string("Double Metric"));
+	c->addDerivedMetric(Monitoring::Core::DerivedMetricMode::AVERAGE, std::string("Uint32_t Metric"));
 	for (int i = 0; i < 3; i++) {
                 int testInt = std::rand();
 		c->send(testInt, name, entity);
