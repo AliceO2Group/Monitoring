@@ -21,7 +21,7 @@ public:
         void sendViaBackend(Backend * b);
 	
 	T getValue();
-        Metric* substract(Metric* m);
+        Metric* subtract(Metric* m);
 	Metric* average(const std::vector<Metric*> &metrics);
 };
 

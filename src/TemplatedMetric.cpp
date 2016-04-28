@@ -34,14 +34,14 @@ Metric* TemplatedMetric<T>::average(const std::vector<Metric*> &metrics)
 }
 
 template <class T>
-Metric* TemplatedMetric<T>::substract(Metric *m)
+Metric* TemplatedMetric<T>::subtract(Metric *m)
 {
 	std::chrono::duration<double> timestampDifferenct = timestamp - m->getTimestamp();
-	double substract = 1000*((value - static_cast<TemplatedMetric<T>*>(m)->getValue()) / timestampDifferenct.count());
-	return new TemplatedMetric<double>(substract, name + "Rate", entity, timestamp);
+	double subtract = 1000*((value - static_cast<TemplatedMetric<T>*>(m)->getValue()) / timestampDifferenct.count());
+	return new TemplatedMetric<double>(subtract, name + "Rate", entity, timestamp);
 }
 template <>
-Metric* TemplatedMetric<std::string>::substract(Metric *m)
+Metric* TemplatedMetric<std::string>::subtract(Metric *m)
 {
         return nullptr;
 }

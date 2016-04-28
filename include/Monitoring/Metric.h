@@ -24,7 +24,7 @@ public:
         std::chrono::time_point<std::chrono::system_clock> getTimestamp();
         virtual void sendViaBackend(Backend * b) = 0;
         virtual ~Metric() = default;
-        virtual Metric* substract(Metric* lhs) = 0;
+        virtual Metric* subtract(Metric* lhs) = 0;
 	virtual Metric* average(const std::vector<Metric*> &metrics) = 0;
 };
 

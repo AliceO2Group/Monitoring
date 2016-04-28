@@ -9,6 +9,7 @@ set(LIB_HEADERS
   ../include/Monitoring/Metric.h
   ../include/Monitoring/StdoutBackend.h
   ../include/Monitoring/TemplatedMetric.h
+  ../include/Monitoring/DerivedMetrics.h
 )
 
 set(LIB_SOURCES
@@ -16,6 +17,7 @@ set(LIB_SOURCES
   Metric.cpp
   StdoutBackend.cpp
   TemplatedMetric.cpp
+  DerivedMetrics.cpp
 )
 
 if(APMON_FOUND)
