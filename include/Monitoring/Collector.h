@@ -40,7 +40,8 @@ private:
 
 public:
 	/// Reads configuration file and based on it loaded backends.
-        Collector();
+	/// \param filepath to configuration file
+        Collector(std::string configurationPath);
 
 	/// Generates timestamp in miliseconds
 	/// \return timestamp as unsigned long
