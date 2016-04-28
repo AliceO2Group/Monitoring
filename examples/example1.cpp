@@ -6,29 +6,32 @@
 namespace Monitoring = AliceO2::Monitoring;
 
 int main() {
-        Monitoring::Core::Collector *c = new Monitoring::Core::Collector();
+        Monitoring::Core::Collector *monitoring = new Monitoring::Core::Collector();
         auto start = std::chrono::system_clock::now();
+	
+	/// sample string, double uint32 values
 	std::string testString("monitoring string");
 	double testDouble = static_cast <double> (rand()) / static_cast <double> (RAND_MAX);
 	uint32_t testUint32 = 555;
-	std::string name = std::string("Int Metric");
-	std::string entity = std::string("entity 1");
-        c->addDerivedMetric(Monitoring::Core::DerivedMetricMode::RATE, std::string("Double Metric"));
-	c->addDerivedMetric(Monitoring::Core::DerivedMetricMode::AVERAGE, std::string("Uint32_t Metric"));
+	
+	// automaric derived metrics
+        monitoring->addDerivedMetric(Monitoring::Core::DerivedMetricMode::RATE, std::string("Double Metric"));
+	monitoring->addDerivedMetric(Monitoring::Core::DerivedMetricMode::AVERAGE, std::string("Uint32_t Metric"));
 	for (int i = 0; i < 3; i++) {
                 int testInt = std::rand();
-		c->send(testInt, name, entity);
-                c->send(testDouble, std::string("Double Metric"), std::string("entity 1"));
-                c->send(testString, std::string("String Metric"), std::string("entity 1"));
-                c->send(testUint32, std::string("Uint32_t Metric"), std::string("entity 1"));
+		monitoring->send(testInt, std::string("Int Metric"));
+                monitoring->send(testDouble, std::string("Double Metric"));
+                monitoring->send(testString, std::string("String Metric"));
+                monitoring->send(testUint32, std::string("Uint32_t Metric"));
 
 		testDouble += 10.0;
 		testUint32 *= 2;
 		std::this_thread::sleep_for(std::chrono::seconds(2));
         }
-
+	
+	// calculate execution time
         auto end = std::chrono::system_clock::now();
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 	std::cout << "Execution (ms): " << elapsed.count() << '\n';
-        delete c;
+        delete monitoring;
 }
