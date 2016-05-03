@@ -71,7 +71,7 @@ public:
 	/// \param mode
 	/// \param name
 	void addDerivedMetric(DerivedMetricMode mode, std::string name);
-
+	
 	/// Deallocates all the memory (metrics and backends)
 	/// \todo : move to smart pointers
         ~Collector();

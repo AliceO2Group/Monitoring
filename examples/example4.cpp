@@ -10,7 +10,7 @@ int main() {
 	Monitoring::Core::Collector *collector = new Monitoring::Core::Collector("../config/apmon.conf");
 
 	// derived metric :  rate
-	collector->addDerivedMetric(Monitoring::Core::DerivedMetricMode::RATE, "myCrazyMetirc");
+	collector->addDerivedMetric(Monitoring::Core::DerivedMetricMode::RATE, "myCrazyMetric");
 
 	// now send at least two metrics to see the result
 	collector->send(10, "myCrazyMetric");
