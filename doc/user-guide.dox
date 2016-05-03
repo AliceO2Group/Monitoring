@@ -203,12 +203,12 @@
                Monitoring::Core::DataCollectorApMon *collector = new Monitoring::Core::DataCollectorApMon("config/apmon.conf");
                ...
                // set user specific entity value, eg.:
-               collector->setEntity("testEntity")
+               collector->setEntity("testEntity");
 
                // now send an application specific metric
                // 10 is the value
                // myCrazyMetric is the name of the metric
-               collector->sendValue(10, "myCrazyMetric");
+               collector->send(10, "myCrazyMetric");
                ...
 			\endcode
 
@@ -234,7 +234,7 @@
                // now send an application specific metric
                // 10 is the value 
                // myCrazyMetric is the name of the metric
-               collector->sendValue(10, "myCrazyMetric", timestamp);
+               collector->send(10, "myCrazyMetric", timestamp);
                ...
                         \endcode
 
@@ -258,8 +258,8 @@
                collector->addDerivedMetric(Monitoring::Core::DerivedMetricMode::AVERAGE, "myCrazyMetirc");
 
                // now send at least two metrics to see the result
-               collector->sendValue(10, "myCrazyMetric");
-               collector->sendValue(20, "myCrazyMetric");
+               collector->send(10, "myCrazyMetric");
+               collector->send(20, "myCrazyMetric");
                ...
                         \endcode
 
