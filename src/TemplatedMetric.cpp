@@ -13,7 +13,7 @@ void TemplatedMetric<T>::sendViaBackend(Backend * b)
 
 template <class T>
 TemplatedMetric<T>::TemplatedMetric(T value, std::string name, std::string entity, std::chrono::time_point<std::chrono::system_clock> timestamp):
-        Metric( std::move(name), std::move(entity), timestamp ),
+        Metric( std::move(name), std::move(entity), std::move(timestamp) ),
         value ( value )
         {}
 

@@ -18,11 +18,12 @@ namespace Core {
 
 Collector::Collector(std::string configurationPath)
 {
-	mConfigFile.load(configurationPath);
+	//mConfigFile.load(configurationPath);
 
 	backends.emplace_back(new StdoutBackend());
 	#ifdef _WITH_APPMON
-	backends.emplace_back(new ApMonBackend(mConfigFile.getValue<string>("AppMon.pathToConfig")));
+	//backends.emplace_back(new ApMonBackend(mConfigFile.getValue<string>("AppMon.pathToConfig")));
+	backends.emplace_back(new ApMonBackend(configurationPath));
 	#endif
 	derivedHandler = new DerivedMetrics();
 	setUniqueEntity();

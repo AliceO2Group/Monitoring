@@ -39,8 +39,8 @@ private:
 	void sendMetric(Metric* metric);
 
 public:
-	/// Reads configuration file and based on it loaded backends.
-	/// \param filepath to configuration file
+	/// Initialaze backends and instance of "derived metric processor" (DerivedMetrics class)
+	/// \param filepath to AppMon configuration file
         Collector(std::string configurationPath);
 
 	/// Generates timestamp in miliseconds
@@ -48,19 +48,20 @@ public:
 	static std::chrono::time_point<std::chrono::system_clock> getCurrentTimestamp();
 
 	/// Overwrites default entity value
-	/// \param entity
+	/// \param new entity
 	void setEntity(std::string entity);
 
-	/// Stores past metrics in container in order to allow create new metrics based on them
-	/// (eg. metric rate, average value).
-	/// Then, it sends the metric to all of backends (stored in "backends" vector)
+	/// Sends the metric to all avaliabes backends
+	/// If metric has been added to "derived metric processor" the derived metric is calculated (see addDerivedMetric method)
 	/// \param value of the metric
 	/// \param name of the metric
 	/// \param tiemstamp in miliseconds, if not provided output of getCurrentTimestamp as default value is assigned
 	template<typename T> void send(T value, std::string name, std::chrono::time_point<std::chrono::system_clock> timestamp = Collector::getCurrentTimestamp());
   
-	/// Registers metric - to be processed in one of the modes
-	/// Following processing modes are supported: REGISTER_RATE, REGISTER_AVERAGE
+	/// Adds derived metric - each time the metric arrives the derived metric is calculated and set to all backends
+	/// Following processing modes are supported: DerivedMetricMode::RATE, DerivedMetricMode::AVERAGE
+	/// \param mode
+	/// \param name
 	void addDerivedMetric(DerivedMetricMode mode, std::string name);
 
 	/// Deallocates all the memory (metrics and backends)

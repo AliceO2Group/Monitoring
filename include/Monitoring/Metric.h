@@ -19,7 +19,7 @@ protected:
         const std::string entity;
 
 public:
-        Metric(std::string&& _name, std::string&& _entity, std::chrono::time_point<std::chrono::system_clock> _timestamp);
+        Metric(std::string&& _name, std::string&& _entity, std::chrono::time_point<std::chrono::system_clock>&& _timestamp);
         std::string getName();
         std::chrono::time_point<std::chrono::system_clock> getTimestamp();
         virtual void sendViaBackend(Backend * b) = 0;

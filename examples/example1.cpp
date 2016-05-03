@@ -6,7 +6,7 @@
 namespace Monitoring = AliceO2::Monitoring;
 
 int main() {
-        Monitoring::Core::Collector *monitoring = new Monitoring::Core::Collector("file:/home/awegrzyn/hackathon/Monitoring/examples/example.ini");
+        Monitoring::Core::Collector *monitoring = new Monitoring::Core::Collector("../config/apmon.conf");
         auto start = std::chrono::system_clock::now();
 	
 	/// sample string, double uint32 values
