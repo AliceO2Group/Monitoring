@@ -14,6 +14,13 @@ namespace Core {
 	/// Avaliable derived metric modes : RATE and AVERAGE values
 	enum class DerivedMetricMode { RATE, AVERAGE };
 
+/// \brief Calculates derived metrics (rate, average...)
+///
+/// Allows to calcualte derived metrics such as rate and average values... (avaliable modes in DerivedMetricMode class)
+/// For this reason stores past values in std::map.
+/// It applies only to metrics registered via #registerMetric method (see where Collector invokes this method)
+///
+/// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 class DerivedMetrics {
 
 private:
@@ -26,32 +33,40 @@ private:
 	std::map <std::string, DerivedMetricMode> registered;
 
 public:
-        DerivedMetrics()  = default;
+        /// Default constructor
+	DerivedMetrics()  = default;
+
+	/// Deallocates pointers from std::maps
 	~DerivedMetrics();
+
 	/// States whether metric has been registered or not
-	/// \return yes or no
+	/// \param name metric name
+	/// \return 	yes or no
 	bool isRegistered(std::string name);
 
 	/// Registers metric - to be processed in one of the modes
 	/// Following processing modes are supported: REGISTER_RATE, REGISTER_AVERAGE
+	/// \param mode 	mode, see DerivedMetricMode
+	/// \param name 	name, metrics name
 	void registerMetric(DerivedMetricMode mode, std::string name);
 
 	/// Handles metric processing, switches over processing modes
-	/// \return derived metric
+	/// \param metric 	pointer to metric object
+	/// \return 		derived metric
 	Metric* processMetric(Metric* metric);
 
 	/// Inserts metric into std::map cache
-	/// param metric pointer to metric object
+	/// \param metric 	pointer to metric object
 	void insert(Metric* metric);
 
 	/// Calculates rate based on past and curret value and timestamp      
-	/// \param name
-	/// \return derived metric
+	/// \param name 	metric name
+	/// \return 		metric obejct with rate
 	Metric* calculateRate(std::string name);
 
 	/// Calculates average value based on all past values
-	/// \param name
-	/// \return derived metric
+	/// \param name 	metric name
+	/// \return  		metric object with average value
 	Metric* calculateAverage(std::string name);
 
 };

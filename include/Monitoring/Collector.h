@@ -16,6 +16,14 @@ namespace Monitoring {
 /// Core features of ALICE O2 Monitoring system
 namespace Core {
 
+
+/// \brief Collects metrics - public interface
+///
+/// Collects metrics and pushes them through all avaliable backends. Supported types: int, double, string, uint32_t.
+/// Supports feature of calculating derived metrics, such as rate and average value (see #addDerivedMetric method).
+/// Generates default entity (origin) as concatanated hostname and process ID.
+///
+/// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 class Collector {
 
 private:
@@ -40,7 +48,7 @@ private:
 
 public:
 	/// Initialaze backends and instance of "derived metric processor" (DerivedMetrics class)
-	/// \param filepath to AppMon configuration file
+	/// \param configurationPath 	filepath to AppMon configuration file
         Collector(std::string configurationPath);
 
 	/// Generates timestamp in miliseconds
@@ -48,14 +56,14 @@ public:
 	static std::chrono::time_point<std::chrono::system_clock> getCurrentTimestamp();
 
 	/// Overwrites default entity value
-	/// \param new entity
+	/// \param entity 	new entity value
 	void setEntity(std::string entity);
 
 	/// Sends the metric to all avaliabes backends
 	/// If metric has been added to "derived metric processor" the derived metric is calculated (see addDerivedMetric method)
 	/// \param value of the metric
 	/// \param name of the metric
-	/// \param tiemstamp in miliseconds, if not provided output of getCurrentTimestamp as default value is assigned
+	/// \param timestamp in miliseconds, if not provided output of getCurrentTimestamp as default value is assigned
 	template<typename T> void send(T value, std::string name, std::chrono::time_point<std::chrono::system_clock> timestamp = Collector::getCurrentTimestamp());
   
 	/// Adds derived metric - each time the metric arrives the derived metric is calculated and set to all backends
