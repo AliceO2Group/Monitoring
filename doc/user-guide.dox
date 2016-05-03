@@ -253,9 +253,8 @@
                // pass filepath to ApMon configuration as argument
                Monitoring::Core::DataCollectorApMon *collector = new Monitoring::Core::DataCollectorApMon("config/apmon.conf");
                ...
-               // Request average and rate values to be calculated
+               // Request rate values to be calculated
                collector->addDerivedMetric(Monitoring::Core::DerivedMetricMode::RATE, "myCrazyMetirc");
-               collector->addDerivedMetric(Monitoring::Core::DerivedMetricMode::AVERAGE, "myCrazyMetirc");
 
                // now send at least two metrics to see the result
                collector->send(10, "myCrazyMetric");
