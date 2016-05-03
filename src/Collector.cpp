@@ -5,7 +5,7 @@
 #include <chrono>
 #include <map>
 #include "Monitoring/Collector.h"
-#include "Monitoring/StdoutBackend.h"
+#include "Monitoring/InfoLoggerBackend.h"
 #include "Monitoring/TemplatedMetric.h"
 
 #ifdef _WITH_APPMON
@@ -20,7 +20,7 @@ Collector::Collector(std::string configurationPath)
 {
 	//mConfigFile.load(configurationPath);
 
-	backends.emplace_back(new StdoutBackend());
+	backends.emplace_back(new InfoLoggerBackend());
 	#ifdef _WITH_APPMON
 	//backends.emplace_back(new ApMonBackend(mConfigFile.getValue<string>("AppMon.pathToConfig")));
 	backends.emplace_back(new ApMonBackend(configurationPath));

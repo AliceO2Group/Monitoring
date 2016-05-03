@@ -5,7 +5,7 @@
 #include <chrono>
 #include <map>
 #include "Monitoring/DerivedMetrics.h"
-#include "Monitoring/StdoutBackend.h"
+#include "Monitoring/InfoLoggerBackend.h"
 #include "Monitoring/TemplatedMetric.h"
 #include "Monitoring/MonInfoLogger.h"
 
