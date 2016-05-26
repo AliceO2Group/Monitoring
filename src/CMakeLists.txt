@@ -25,6 +25,16 @@ if(APMON_FOUND)
 	list(APPEND LIB_HEADERS ../include/Monitoring/ApMonBackend.h)
 	list(APPEND LIB_SOURCES ApMonBackend.cpp)
 endif()
+FIND_PACKAGE(CURL)
+if(CURL_FOUND)
+        message(STATUS "libcurl found")
+	message(STATUS "  Compiling InfluxDB Backend")
+	add_definitions(-D_WITH_INFLUX)
+        list(APPEND LIB_HEADERS ../include/Monitoring/InfluxBackend.h)
+        list(APPEND LIB_SOURCES InfluxBackend.cpp)
+endif()
+
+
 set(APP_HEADERS
 )
 
@@ -37,7 +47,7 @@ set(APP_SOURCES
 set(LIBRARY_NAME_DATACOLLECTOR DataCollector)
 set(INCLUDE include/Monitoring)
 add_library(${LIBRARY_NAME_DATACOLLECTOR} SHARED ${LIB_HEADERS} ${LIB_SOURCES})
-target_link_libraries(${LIBRARY_NAME_DATACOLLECTOR} InfoLogger-static Configuration-static apmoncpp)
+target_link_libraries(${LIBRARY_NAME_DATACOLLECTOR} InfoLogger-static Configuration-static apmoncpp curl)
 set_target_properties(${LIBRARY_NAME_DATACOLLECTOR} PROPERTIES
         VERSION ${VERSION}  # ${VERSION} was defined in the main CMakeLists.
         FRAMEWORK FALSE

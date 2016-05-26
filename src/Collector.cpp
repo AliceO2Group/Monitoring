@@ -12,6 +12,10 @@
 #include "Monitoring/ApMonBackend.h"
 #endif
 
+#ifdef _WITH_INFLUX
+#include "Monitoring/InfluxBackend.h"
+#endif
+
 namespace AliceO2 {
 namespace Monitoring {
 namespace Core {
@@ -22,9 +26,12 @@ Collector::Collector(std::string configurationPath)
 
 	backends.emplace_back(new InfoLoggerBackend());
 	#ifdef _WITH_APPMON
-	//backends.emplace_back(new ApMonBackend(mConfigFile.getValue<string>("AppMon.pathToConfig")));
 	backends.emplace_back(new ApMonBackend(configurationPath));
 	#endif
+	#ifdef _WITH_INFLUX
+        backends.emplace_back(new InfluxBackend());
+        #endif
+
 	derivedHandler = new DerivedMetrics();
 	setUniqueEntity();
 }
