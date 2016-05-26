@@ -14,9 +14,9 @@ inline unsigned long InfluxBackend::convertTimestamp(std::chrono::time_point<std
 		timestamp.time_since_epoch()
         ).count();
 }
-InfluxBackend::InfluxBackend()
+InfluxBackend::InfluxBackend(string _url)
 {
-	url = "http://pcald03.cern.ch:8086/write?db=o2";
+	url = _url;
 }
 
 void InfluxBackend::send(const int value, const std::string name, const std::string entity, const std::chrono::time_point<std::chrono::system_clock> timestamp)
@@ -38,13 +38,15 @@ void InfluxBackend::send(const uint32_t value, const std::string name, const std
 
 int InfluxBackend::curlWrite(const std::string value, const std::string name, const std::string entity, const unsigned long timestamp)
 {
-	/// preparing post data
 	stringstream convert;
+	CURL *curl;
+        CURLcode response;
+
+	/// preparing post data
         convert << name << ",entity=" << entity << " value=" << value << " " << timestamp;
         string post = convert.str();
 	
-	CURL *curl;
-        CURLcode response;
+	/// cURL..
         curl = curl_easy_init();
         long responseCode;
         if(curl) {

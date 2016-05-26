@@ -29,7 +29,7 @@ Collector::Collector(std::string configurationPath)
 	backends.emplace_back(new ApMonBackend(configurationPath));
 	#endif
 	#ifdef _WITH_INFLUX
-        backends.emplace_back(new InfluxBackend());
+        backends.emplace_back(new InfluxBackend("http://pcald03.cern.ch:8086/write?db=o2"));
         #endif
 
 	derivedHandler = new DerivedMetrics();

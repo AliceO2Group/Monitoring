@@ -19,7 +19,7 @@ namespace Core {
 class InfluxBackend : public Backend {
 public:
 	/// Constructor
-	InfluxBackend();
+	InfluxBackend(string _url);
 
 	/// Default destructor
 	~InfluxBackend() = default;
@@ -63,6 +63,7 @@ private:
 	
 	/// Writes metric into InfluxDB using cURL library
 	/// \param value 	metric value converted into string
+	/// \param timestamp	timestamp in nanoseconds
 	/// \return 		0 - success, 1 - wrong response code, 2 - conectivity issues
 	int curlWrite(const std::string value, const std::string name, const std::string entity, const unsigned long timestamp);
 
