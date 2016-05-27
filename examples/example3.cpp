@@ -18,5 +18,6 @@ int main() {
 	// now send an application specific metric
 	// 10 is the value 
 	// myCrazyMetric is the name of the metric
-	collector->send(10, "myCrazyMetric", timestamp);
+	collector->send(10, "myCrazyMetric", timestamp); 
+	collector->send(40, "myCrazyMetric", timestamp);
 }

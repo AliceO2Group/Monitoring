@@ -20,7 +20,7 @@ namespace AliceO2 {
 namespace Monitoring {
 namespace Core {
 
-Collector::Collector(ConfigFile mConfigFile)
+Collector::Collector(ConfigFile &mConfigFile)
 {
 	if (mConfigFile.getValue<int>("InfoLoggerBackend.enable") == 1)
 		backends.emplace_back(new InfoLoggerBackend());
