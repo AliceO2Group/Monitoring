@@ -6,8 +6,13 @@
 namespace Monitoring = AliceO2::Monitoring;
 
 int main() {
-	std::unique_ptr<Monitoring::Core::Collector> monitoring(new Monitoring::Core::Collector("file:/home/awegrzyn/hackathon/Monitoring/examples/example.ini"));
-        auto start = std::chrono::system_clock::now();
+        // parse configuration file
+	ConfigFile mConfigFile;
+        mConfigFile.load("file:/home/awegrzyn/hackathon/Monitoring/examples/example.ini");
+	// create monitoring object and confuguration as parameter to constructor
+        std::unique_ptr<Monitoring::Core::Collector> monitoring(new Monitoring::Core::Collector(mConfigFile));
+
+	auto start = std::chrono::system_clock::now();
 	
 	/// sample string, double uint32 values
 	std::string testString("monitoring string");

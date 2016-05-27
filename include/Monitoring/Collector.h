@@ -27,9 +27,6 @@ namespace Core {
 class Collector {
 
 private:
-	/// Loaded configuration file.
-	ConfigFile mConfigFile;
-
 	/// Object responsible from derived metrics
 	/// \see class DerivedMetrics
 	DerivedMetrics *derivedHandler;
@@ -48,8 +45,8 @@ private:
 
 public:
 	/// Initialaze backends and instance of "derived metric processor" (DerivedMetrics class)
-	/// \param configurationPath 	filepath to AppMon configuration file
-        Collector(std::string configurationPath);
+	/// \param mConfigFile 	configuration object
+        Collector(ConfigFile mConfigFile);
 
 	/// Generates timestamp in miliseconds
 	/// \return timestamp as unsigned long

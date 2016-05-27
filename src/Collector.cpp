@@ -20,9 +20,8 @@ namespace AliceO2 {
 namespace Monitoring {
 namespace Core {
 
-Collector::Collector(std::string configurationPath)
+Collector::Collector(ConfigFile mConfigFile)
 {
-	mConfigFile.load(configurationPath);
 	if (mConfigFile.getValue<int>("InfoLoggerBackend.enable") == 1)
 		backends.emplace_back(new InfoLoggerBackend());
 	#ifdef _WITH_APPMON
