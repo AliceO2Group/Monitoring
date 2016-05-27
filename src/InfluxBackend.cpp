@@ -17,6 +17,7 @@ inline unsigned long InfluxBackend::convertTimestamp(std::chrono::time_point<std
 InfluxBackend::InfluxBackend(string _url)
 {
 	url = _url;
+	MonInfoLogger::GetInstance() << "InfluxDB backend enabled" << AliceO2::InfoLogger::InfoLogger::endm;
 }
 
 void InfluxBackend::send(const int value, const std::string name, const std::string entity, const std::chrono::time_point<std::chrono::system_clock> timestamp)

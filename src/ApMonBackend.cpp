@@ -1,5 +1,6 @@
 #include <iostream>
 #include <sstream>
+#include "Monitoring/MonInfoLogger.h"
 #include "Monitoring/ApMonBackend.h"
 
 namespace AliceO2 {
@@ -13,6 +14,7 @@ ApMonBackend::ApMonBackend(const std::string configurationFile)
 	} catch (std::runtime_error& e) {
 		//throw FileNotFoundException(configurationFile);
 	}
+	MonInfoLogger::GetInstance() << "ApMon backend enabled" << AliceO2::InfoLogger::InfoLogger::endm;
 }
 
 ApMonBackend::~ApMonBackend()

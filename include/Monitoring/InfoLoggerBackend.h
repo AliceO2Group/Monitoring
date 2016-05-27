@@ -19,7 +19,7 @@ namespace Core {
 class InfoLoggerBackend : public Backend {
 public:
 	/// Default constructor
-	InfoLoggerBackend() = default;
+	InfoLoggerBackend();
 
 	/// Default destructor
 	~InfoLoggerBackend() = default;

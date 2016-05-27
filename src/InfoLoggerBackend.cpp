@@ -14,6 +14,11 @@ inline unsigned long InfoLoggerBackend::convertTimestamp(std::chrono::time_point
         ).count();
 }
 
+InfoLoggerBackend::InfoLoggerBackend()
+{
+	MonInfoLogger::GetInstance() << "InfoLogger backend enabled" << AliceO2::InfoLogger::InfoLogger::endm;
+}
+
 void InfoLoggerBackend::send(const int value, const std::string name, const std::string entity, const std::chrono::time_point<std::chrono::system_clock> timestamp)
 {
 	MonInfoLogger::GetInstance() << "Monitoring : Int( " << name << ", " << value << ", " << convertTimestamp(timestamp) << ", " << entity << ")" << AliceO2::InfoLogger::InfoLogger::endm;

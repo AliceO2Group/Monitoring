@@ -23,12 +23,15 @@ namespace Core {
 Collector::Collector(std::string configurationPath)
 {
 	mConfigFile.load(configurationPath);
-	backends.emplace_back(new InfoLoggerBackend());
+	if (mConfigFile.getValue<int>("InfoLoggerBackend.enable") == 1)
+		backends.emplace_back(new InfoLoggerBackend());
 	#ifdef _WITH_APPMON
-	backends.emplace_back(new ApMonBackend(mConfigFile.getValue<string>("AppMon.pathToConfig")));
+	if (mConfigFile.getValue<int>("AppMon.enable") == 1)
+		backends.emplace_back(new ApMonBackend(mConfigFile.getValue<string>("AppMon.pathToConfig")));
 	#endif
 	#ifdef _WITH_INFLUX
-        backends.emplace_back(new InfluxBackend(mConfigFile.getValue<string>("InfluxDB.writeUrl")));
+	if (mConfigFile.getValue<int>("InfluxDB.enable") == 1)
+	        backends.emplace_back(new InfluxBackend(mConfigFile.getValue<string>("InfluxDB.writeUrl")));
         #endif
 
 	derivedHandler = new DerivedMetrics();
