@@ -6,8 +6,8 @@ namespace Monitoring = AliceO2::Monitoring;
 int main() {
        	
 	// create monitoring object
-	// pass filepath to ApMon configuration as argument
-	Monitoring::Core::Collector *collector = new Monitoring::Core::Collector("../config/apmon.conf");
+	// pass filepath to configuration as argument
+        std::unique_ptr<Monitoring::Core::Collector> collector(new Monitoring::Core::Collector("file:/home/awegrzyn/hackathon/Monitoring/examples/example.ini"));
 
 	// set user specific entity value, eg.:
 	collector->setEntity("testEntity");

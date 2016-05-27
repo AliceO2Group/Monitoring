@@ -29,7 +29,7 @@ void InfluxBackend::send(const double value, const std::string name, const std::
 }
 void InfluxBackend::send(const std::string value, const std::string name, const std::string entity, const std::chrono::time_point<std::chrono::system_clock> timestamp)
 {
-	curlWrite(value, name, entity, convertTimestamp(timestamp));
+	MonInfoLogger::GetInstance() << "!!! InfluxDB : string values are not supported; metric " << name << " discarded" << AliceO2::InfoLogger::InfoLogger::endm;
 }
 void InfluxBackend::send(const uint32_t value, const std::string name, const std::string entity, std::chrono::time_point<std::chrono::system_clock> timestamp)
 {
@@ -38,7 +38,7 @@ void InfluxBackend::send(const uint32_t value, const std::string name, const std
 
 int InfluxBackend::curlWrite(const std::string value, const std::string name, const std::string entity, const unsigned long timestamp)
 {
-	stringstream convert;
+	std::stringstream convert;
 	CURL *curl;
         CURLcode response;
 
@@ -47,6 +47,7 @@ int InfluxBackend::curlWrite(const std::string value, const std::string name, co
         string post = convert.str();
 	
 	/// cURL..
+	curl_global_init(CURL_GLOBAL_ALL);
         curl = curl_easy_init();
         long responseCode;
         if(curl) {
@@ -60,16 +61,17 @@ int InfluxBackend::curlWrite(const std::string value, const std::string name, co
                 response = curl_easy_perform(curl);
                 curl_easy_getinfo(curl,CURLINFO_RESPONSE_CODE, &responseCode);
                 if (response != CURLE_OK) {
-                        std::cout << (curl_easy_strerror(response)) << std::endl;
+                        MonInfoLogger::GetInstance() << "!!! InfluxDB : cURL error : " << (curl_easy_strerror(response)) << AliceO2::InfoLogger::InfoLogger::endm;
 			return 2;
                 }
                 if (responseCode != 204) {
-                        std::cout << " \\!!! cURL response code " + to_string(responseCode) << std::endl;
+                        MonInfoLogger::GetInstance() << "!!! InfluxDB : cURL response code " + to_string(responseCode) << AliceO2::InfoLogger::InfoLogger::endm;
 			return 1;
                 }
-                curl_easy_cleanup(curl);
-		MonInfoLogger::GetInstance() << "cURL : metric " <<  name << ", code " << responseCode << AliceO2::InfoLogger::InfoLogger::endm;
+		MonInfoLogger::GetInstance() << "InfluxDB : metric " <<  name << ", code " << responseCode << AliceO2::InfoLogger::InfoLogger::endm;
         }
+	curl_easy_cleanup(curl);
+        curl_global_cleanup();
         return 0;
 }
 

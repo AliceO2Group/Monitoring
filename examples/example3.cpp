@@ -8,7 +8,7 @@ int main() {
        	
 	// create monitoring object
 	// pass filepath to ApMon configuration as argument
-	Monitoring::Core::Collector *collector = new Monitoring::Core::Collector("../config/apmon.conf");
+        std::unique_ptr<Monitoring::Core::Collector> collector(new Monitoring::Core::Collector("file:/home/awegrzyn/hackathon/Monitoring/examples/example.ini"));
 
 	// generate current timestamp
 	std::chrono::time_point<std::chrono::system_clock> timestamp = std::chrono::system_clock::now();

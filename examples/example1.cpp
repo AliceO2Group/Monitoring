@@ -7,10 +7,10 @@ int main() {
        	
 	// create monitoring object
 	// pass filepath to ApMon configuration as argument
-	Monitoring::Core::Collector *collector = new Monitoring::Core::Collector("../config/apmon.conf");
+	std::unique_ptr<Monitoring::Core::Collector> collector(new Monitoring::Core::Collector("file:/home/awegrzyn/hackathon/Monitoring/examples/example.ini"));
 	
 	// now send an application specific metric
 	// 10 is the value
-	// myCrazyMetric is the name of the metri
+	// myCrazyMetric is the name of the metric
 	collector->send(10, "myCrazyMetric");
-}
+}	
