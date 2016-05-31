@@ -73,6 +73,10 @@ void DerivedMetrics::insert(Metric* metric)
         {
         	cache.insert(std::pair<std::string, std::vector<Metric*>>(metric->getName(), std::vector<Metric*>()));
 	}
+	if (cache[metric->getName()].size() > 10)
+	{
+		cache[metric->getName()].erase( cache[metric->getName()].begin() );
+	}
 	cache[metric->getName()].push_back(metric);
 }
 Metric* DerivedMetrics::processMetric(Metric* metric)
