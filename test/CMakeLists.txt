@@ -7,19 +7,10 @@ file(GLOB_RECURSE TEST_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cxx)
 # to the tests list.
 set(ALL_TESTS)
 foreach(FILE ${TEST_FILES})
-    string(REGEX REPLACE "[./]" "_" NAME ${FILE})
-    source_group(\\ FILES ${FILE})
+    string(REGEX REPLACE "[./]" "_" NAME ${FILE}) # create exe name
     add_executable(${NAME} ${FILE})
     target_link_libraries(${NAME} DataCollector ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-    get_target_property(EXECUTABLE ${NAME} LOCATION)
-    STRING(REGEX REPLACE "\\$\\(.*\\)" "\${CTEST_CONFIGURATION_TYPE}"
-      EXECUTABLE "${EXECUTABLE}")
-    add_test(${NAME} ${EXECUTABLE})                              # <-- this is how to add tests to CMake
-    set_target_properties(${NAME} PROPERTIES FOLDER "Tests")
-    list(APPEND ALL_TESTS ${NAME})
+    add_test(NAME ${NAME} COMMAND ${NAME})                              # this is how to add tests to CMake
 endforeach(FILE ${TEST_FILES})
-
-# Add extra test
-add_test(opt_exists /usr/bin/test -d /opt)
 
 include(CTest)

@@ -37,7 +37,7 @@ template <class T>
 Metric* TemplatedMetric<T>::subtract(Metric *m)
 {
 	std::chrono::duration<double> timestampDifferenct = timestamp - m->getTimestamp();
-	double subtract = 1000*((value - static_cast<TemplatedMetric<T>*>(m)->getValue()) / timestampDifferenct.count());
+	double subtract = (value - static_cast<TemplatedMetric<T>*>(m)->getValue()) / timestampDifferenct.count();
 	return new TemplatedMetric<double>(subtract, name + "Rate", entity, timestamp);
 }
 template <>
