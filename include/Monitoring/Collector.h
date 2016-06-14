@@ -25,7 +25,9 @@ namespace Core {
 ///
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 class Collector {
-
+	/// Disable copy constructor
+	Collector & operator=(const Collector&) = delete;
+	Collector(const Collector&) = delete;
 private:
 	/// Object responsible from derived metrics
 	/// \see class DerivedMetrics
