@@ -6,7 +6,6 @@
 #include <map>
 #include "Monitoring/Collector.h"
 #include "Monitoring/InfoLoggerBackend.h"
-#include "Monitoring/TemplatedMetric.h"
 
 #ifdef _WITH_APPMON
 #include "Monitoring/ApMonBackend.h"
@@ -23,26 +22,17 @@ namespace Core {
 Collector::Collector(ConfigFile &mConfigFile)
 {
 	if (mConfigFile.getValue<int>("InfoLoggerBackend.enable") == 1)
-		backends.emplace_back(new InfoLoggerBackend());
+		backends.emplace_back(std::unique_ptr<Backend>(new InfoLoggerBackend()));
 	#ifdef _WITH_APPMON
 	if (mConfigFile.getValue<int>("AppMon.enable") == 1)
-		backends.emplace_back(new ApMonBackend(mConfigFile.getValue<string>("AppMon.pathToConfig")));
+		backends.emplace_back(std::unique_ptr<Backend>(new ApMonBackend(mConfigFile.getValue<string>("AppMon.pathToConfig"))));
 	#endif
 	#ifdef _WITH_INFLUX
 	if (mConfigFile.getValue<int>("InfluxDB.enable") == 1)
-	        backends.emplace_back(new InfluxBackend(mConfigFile.getValue<string>("InfluxDB.writeUrl")));
+	        backends.emplace_back(std::unique_ptr<Backend>(new InfluxBackend(mConfigFile.getValue<string>("InfluxDB.writeUrl"))));
         #endif
 
-	derivedHandler = new DerivedMetrics();
 	setUniqueEntity();
-}
-
-Collector::~Collector() {
-	for (auto const b: backends)
-        {
-		delete(b);
-        }
-	delete(derivedHandler);
 }
 
 void Collector::setUniqueEntity()
@@ -66,30 +56,30 @@ std::chrono::time_point<std::chrono::system_clock> Collector::getCurrentTimestam
 	return std::chrono::system_clock::now();
 }
 
-void Collector::addDerivedMetric(DerivedMetricMode mode, std::string name)
+template<typename T>
+void Collector::sendMetric(std::unique_ptr<Metric> &&metric, T type)
 {
-        derivedHandler->registerMetric(mode, name);
+	for (auto& b: backends)
+        {
+                b->send(boost::get<T>(metric->getValue()), metric->getName(), metric->getEntity(), metric->getTimestamp());
+        }
 }
 
-void Collector::sendMetric(Metric* metric)
+void Collector::addDerivedMetric(DerivedMetricMode mode, std::string name)
 {
-	for (auto const b: backends)
-	{
-        	metric->sendViaBackend(b);
-        }
+        derivedHandler.registerMetric(mode, name);
 }
 
 template<typename T>
 void Collector::send(T value, std::string name, std::chrono::time_point<std::chrono::system_clock> timestamp)
 {
-	if (derivedHandler->isRegistered(name))
+	if (derivedHandler.isRegistered(name))
 	{
-		Metric* derived = derivedHandler->processMetric(new TemplatedMetric<T>(value, name, uniqueEntity, timestamp));
-		if (derived != nullptr) sendMetric(derived);
-		delete(derived);
+		std::unique_ptr<Metric> derived = derivedHandler.processMetric(value, name, uniqueEntity, timestamp);
+		if (derived != nullptr) sendMetric(std::move(derived), value);
 	}
 
-	for (auto const b: backends)
+	for (auto& b: backends)
 	{
 		b->send(value, name, uniqueEntity, timestamp);
 	}

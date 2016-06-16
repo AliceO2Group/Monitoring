@@ -8,19 +8,45 @@ namespace AliceO2 {
 namespace Monitoring {
 namespace Core {
 
-Metric::Metric(std::string&& _name, std::string&& _entity, std::chrono::time_point<std::chrono::system_clock>&& _timestamp) :
-	timestamp ( _timestamp ),
-	name ( _name ),
-	entity ( _entity )
-{}
-
-std::string Metric::getName()
+std::string Metric::getEntity()
 {
-	return name;
+        return entity;
 }
+
 std::chrono::time_point<std::chrono::system_clock> Metric::getTimestamp()
 {
         return timestamp;
+}
+
+int Metric::getType()
+{
+        return value.which();
+}
+
+std::string Metric::getName()
+{
+        return name;
+}
+
+Metric::Metric(int value, std::string name, std::string entity, std::chrono::time_point<std::chrono::system_clock> timestamp) :
+	value(value), name(name), entity(entity), timestamp(timestamp)
+{}
+
+Metric::Metric(std::string value, std::string name, std::string entity, std::chrono::time_point<std::chrono::system_clock> timestamp) :
+	value(value), name(name), entity(entity), timestamp(timestamp)
+{}
+
+Metric::Metric(double value, std::string name, std::string entity, std::chrono::time_point<std::chrono::system_clock> timestamp) :
+	value(value), name(name), entity(entity), timestamp(timestamp)
+{}
+
+Metric::Metric(uint32_t value, std::string name, std::string entity, std::chrono::time_point<std::chrono::system_clock> timestamp) :
+	value(value), name(name), entity(entity), timestamp(timestamp)
+{}
+
+boost::variant< int, std::string, double, uint32_t > Metric::getValue()
+{
+        return value;
 }
 
 } // namespace Core

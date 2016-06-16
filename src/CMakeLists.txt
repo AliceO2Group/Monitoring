@@ -8,7 +8,6 @@ set(LIB_HEADERS
   ../include/Monitoring/Collector.h
   ../include/Monitoring/Metric.h
   ../include/Monitoring/InfoLoggerBackend.h
-  ../include/Monitoring/TemplatedMetric.h
   ../include/Monitoring/DerivedMetrics.h
 )
 
@@ -16,7 +15,6 @@ set(LIB_SOURCES
   Collector.cpp
   Metric.cpp
   InfoLoggerBackend.cpp
-  TemplatedMetric.cpp
   DerivedMetrics.cpp
 )
 

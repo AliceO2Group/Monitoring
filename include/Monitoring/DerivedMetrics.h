@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <memory>
 #include "Monitoring/Metric.h"
 
 namespace AliceO2 {
@@ -24,9 +25,11 @@ namespace Core {
 class DerivedMetrics {
 
 private:
+
+	const int MAX_VECTOR_SIZE = 1000;
 	
 	/// Cache of registered metrics (metric name / vector of metric pointers).
-        std::map <std::string, std::vector<Metric*>> cache;
+        std::map <std::string, std::vector<std::unique_ptr<Metric>>> cache;
 
 	/// Registered metrics with their modes (metric name, registered mode).
 	/// See list of modes in begiing of the file.
@@ -37,7 +40,7 @@ public:
 	DerivedMetrics()  = default;
 
 	/// Deallocates pointers from std::maps
-	~DerivedMetrics();
+	~DerivedMetrics() = default;
 
 	/// States whether metric has been registered or not
 	/// \param name metric name
@@ -51,23 +54,13 @@ public:
 	void registerMetric(DerivedMetricMode mode, std::string name);
 
 	/// Handles metric processing, switches over processing modes
-	/// \param metric 	pointer to metric object
-	/// \return 		derived metric
-	Metric* processMetric(Metric* metric);
-
-	/// Inserts metric into std::map cache
-	/// \param metric 	pointer to metric object
-	void insert(Metric* metric);
+	template<typename T> std::unique_ptr<Metric> processMetric(T value, std::string name, std::string entity, std::chrono::time_point<std::chrono::system_clock> timestamp);	
 
 	/// Calculates rate based on past and curret value and timestamp      
-	/// \param name 	metric name
-	/// \return 		metric obejct with rate
-	Metric* calculateRate(std::string name);
+	template<typename T> std::unique_ptr<Metric> calculateRate(std::string name, T type);
 
 	/// Calculates average value based on all past values
-	/// \param name 	metric name
-	/// \return  		metric object with average value
-	Metric* calculateAverage(std::string name);
+	template<typename T> std::unique_ptr<Metric> calculateAverage(std::string name, T type);
 
 };
 

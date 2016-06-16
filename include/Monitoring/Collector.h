@@ -5,6 +5,7 @@
 #include <vector>
 #include <map>
 #include <chrono>
+#include <memory>
 #include "Configuration/Configuration.h"
 #include "Monitoring/Backend.h"
 #include "Monitoring/Metric.h"
@@ -31,19 +32,16 @@ class Collector {
 private:
 	/// Object responsible from derived metrics
 	/// \see class DerivedMetrics
-	DerivedMetrics *derivedHandler;
+	DerivedMetrics derivedHandler;
 
 	/// Vector of backends (where the values are send to).
-	std::vector <Backend*> backends;
+	std::vector <std::unique_ptr<Backend>> backends;
 
 	/// Default entity value, see setUniqueEntity method
 	std::string uniqueEntity;
 
 	/// Generates entity value as concatenated hostname and process id
 	void setUniqueEntity();
-
-	/// Sends metric object through all backends
-	void sendMetric(Metric* metric);
 
 public:
 	/// Initialaze backends and instance of "derived metric processor" (DerivedMetrics class)
@@ -73,7 +71,12 @@ public:
 	
 	/// Deallocates all the memory (metrics and backends)
 	/// \todo : move to smart pointers
-        ~Collector();
+        ~Collector() = default;
+
+	/// Sends Metric object to backend
+	/// \param metric	 r-value pointer to Metric
+	/// \param type 
+	template<typename T> void sendMetric(std::unique_ptr<Metric> &&metric, T type);
 
 };
 

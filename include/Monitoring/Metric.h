@@ -2,8 +2,8 @@
 #define ALICEO2_MONITORING_CORE_METRIC_H
 
 #include <string>
-#include <vector>
 #include <chrono>
+#include "boost/variant.hpp"
 #include "Monitoring/Backend.h"
 
 namespace AliceO2 {
@@ -17,23 +17,28 @@ namespace Core {
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 class Metric {
 protected:
-
-	/// Metric timestamp
-        const std::chrono::time_point<std::chrono::system_clock> timestamp;
-        
+	/// Metric value
+	const boost::variant< int, std::string, double, uint32_t > value;
+	
 	/// Metric name
 	const std::string name;
 
 	/// Metric entity (origin)
-        const std::string entity;
+	const std::string entity;
 
+	// Metric timestamp
+        const std::chrono::time_point<std::chrono::system_clock> timestamp;
+        
 public:
 
-	/// Initialize class variables (r-value constructor)
-        Metric(std::string&& _name, std::string&& _entity, std::chrono::time_point<std::chrono::system_clock>&& _timestamp);
-
+	/// Initialize class variables : supporting int, double, uint32_t and std::string
+	Metric(int value, std::string name, std::string entity, std::chrono::time_point<std::chrono::system_clock> timestamp);
+        Metric(std::string value, std::string name, std::string entity, std::chrono::time_point<std::chrono::system_clock> timestamp);
+	Metric(double value, std::string name, std::string entity, std::chrono::time_point<std::chrono::system_clock> timestamp);
+	Metric(uint32_t value, std::string name, std::string entity, std::chrono::time_point<std::chrono::system_clock> timestamp);
+	
 	/// Default destructor
-	virtual ~Metric() = default;
+	~Metric() = default;
         
 	/// Name getter
 	/// \return	metric name
@@ -42,19 +47,18 @@ public:
 	/// Timestamp getter
 	/// \return 	metric timestamp
         std::chrono::time_point<std::chrono::system_clock> getTimestamp();
+	
+	/// Value getter
+	/// \return metric value
+	boost::variant< int, std::string, double, uint32_t > getValue();
 
-	/// Sends metric through backends
-	/// \param b	poiner to backend
-        virtual void sendViaBackend(Backend * b) = 0;
+	/// Entity getter
+	/// \return metric entity
+	std::string getEntity();
 
-	/// Subtracts values of two metrics
-	/// \param lhs 	metric that value is subtracted from
-        virtual Metric* subtract(Metric* lhs) = 0;
-
-	/// Calculate average value of metrics vector
-	/// \param metrics 	reference to metrics vector
-	/// \return 		metric with average value calculated
-	virtual Metric* average(const std::vector<Metric*> &metrics) = 0;
+	/// Value type getter
+	// \return type of value stores inside metric : 0 - int, 1 - std::string, 2 - double, 3 - uint32_t
+	int getType();
 };
 
 } // namespace Core
