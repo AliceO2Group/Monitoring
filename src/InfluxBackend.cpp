@@ -17,7 +17,12 @@ inline unsigned long InfluxBackend::convertTimestamp(std::chrono::time_point<std
 InfluxBackend::InfluxBackend(string _url)
 {
 	url = _url;
+	curl_global_init(CURL_GLOBAL_ALL);
 	MonInfoLogger::GetInstance() << "InfluxDB backend enabled" << AliceO2::InfoLogger::InfoLogger::endm;
+}
+InfluxBackend::~InfluxBackend()
+{
+	curl_global_cleanup();
 }
 
 void InfluxBackend::send(const int value, const std::string name, const std::string entity, const std::chrono::time_point<std::chrono::system_clock> timestamp)
@@ -48,7 +53,6 @@ int InfluxBackend::curlWrite(const std::string value, const std::string name, co
         string post = convert.str();
 	
 	/// cURL..
-	curl_global_init(CURL_GLOBAL_ALL);
         curl = curl_easy_init();
         long responseCode;
         if(curl) {
@@ -72,7 +76,6 @@ int InfluxBackend::curlWrite(const std::string value, const std::string name, co
 		MonInfoLogger::GetInstance() << "InfluxDB : metric " <<  name << ", code " << responseCode << AliceO2::InfoLogger::InfoLogger::endm;
         }
 	curl_easy_cleanup(curl);
-        curl_global_cleanup();
         return 0;
 }
 

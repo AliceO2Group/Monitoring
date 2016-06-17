@@ -22,7 +22,7 @@ public:
 	InfluxBackend(string _url);
 
 	/// Default destructor
-	~InfluxBackend() = default;
+	~InfluxBackend();
 	
 	/// Pushes integer metric
 	/// \param value        metric value (integer)
