@@ -56,10 +56,14 @@ public:
 	/// Handles metric processing, switches over processing modes
 	template<typename T> std::unique_ptr<Metric> processMetric(T value, std::string name, std::string entity, std::chrono::time_point<std::chrono::system_clock> timestamp);	
 
-	/// Calculates rate based on past and curret value and timestamp      
+	/// Calculates rate based on past and curret value and timestamp
+	/// \param name 	metric name
+	/// \return 		metric with calculated rate value
 	template<typename T> std::unique_ptr<Metric> calculateRate(std::string name, T type);
 
 	/// Calculates average value based on all past values
+	/// \param name 	metric name
+	/// \return		metric with calculated average value
 	template<typename T> std::unique_ptr<Metric> calculateAverage(std::string name, T type);
 
 };

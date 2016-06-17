@@ -32,6 +32,9 @@ protected:
 public:
 
 	/// Initialize class variables : supporting int, double, uint32_t and std::string
+	/// \param value of the metric
+	/// \param name of the metric
+	/// \param timestamp in miliseconds, if not provided output of getCurrentTimestamp as default value is assigned
 	Metric(int value, std::string name, std::string entity, std::chrono::time_point<std::chrono::system_clock> timestamp);
         Metric(std::string value, std::string name, std::string entity, std::chrono::time_point<std::chrono::system_clock> timestamp);
 	Metric(double value, std::string name, std::string entity, std::chrono::time_point<std::chrono::system_clock> timestamp);
