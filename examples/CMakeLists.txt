@@ -12,3 +12,6 @@ target_link_libraries(Example4 DataCollector)
 
 add_executable(Example5 example5.cpp)
 target_link_libraries(Example5 DataCollector)
+
+add_executable(Example6 example6.cpp)
+target_link_libraries(Example6 DataCollector)

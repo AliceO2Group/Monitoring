@@ -9,6 +9,7 @@ set(LIB_HEADERS
   ../include/Monitoring/Metric.h
   ../include/Monitoring/InfoLoggerBackend.h
   ../include/Monitoring/DerivedMetrics.h
+  ../include/Monitoring/ProcessMonitor.h
 )
 
 set(LIB_SOURCES
@@ -16,6 +17,7 @@ set(LIB_SOURCES
   Metric.cpp
   InfoLoggerBackend.cpp
   DerivedMetrics.cpp
+  ProcessMonitor.cpp
 )
 
 if(APMON_FOUND)
