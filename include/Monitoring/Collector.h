@@ -77,6 +77,9 @@ public:
 	/// \param metric	 r-value pointer to Metric
 	/// \param type 
 	template<typename T> void sendMetric(std::unique_ptr<Metric> &&metric, T type);
+	
+	/// Same as send but totally skips derived metrics logic
+	template<typename ...Args> void sendDirect(Args && ...args);
 
 };
 

@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <thread>
+#include "Collector.h"
 
 namespace AliceO2 {
 /// ALICE O2 Monitoring system
@@ -18,12 +19,14 @@ namespace Core {
 
 class ProcessMonitor {
 public:
-	ProcessMonitor();
-	ProcessMonitor(int pid);
-	ProcessMonitor(std::vector<int> pids);
+	ProcessMonitor(std::shared_ptr<Collector> collector);
+	ProcessMonitor(std::shared_ptr<Collector> collector, int pid);
+	ProcessMonitor(std::shared_ptr<Collector> collector, std::vector<int> pids);
 	~ProcessMonitor();
 	void startMonitor();
 private:
+	std::shared_ptr<Collector> collector;
+
 	/// Vector of PIDs to monitor
 	std::vector<int> pids;
 

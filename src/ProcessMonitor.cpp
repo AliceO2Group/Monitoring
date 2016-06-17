@@ -9,17 +9,20 @@ namespace Monitoring {
 namespace Core {
 
 
-ProcessMonitor::ProcessMonitor()
+ProcessMonitor::ProcessMonitor(std::shared_ptr<Collector> collector):
+collector(collector)
 {
 	pids.push_back((int) ::getpid());
 }
 
-ProcessMonitor::ProcessMonitor(int pid)
+ProcessMonitor::ProcessMonitor(std::shared_ptr<Collector> collector, int pid):
+collector(collector)
 {
         pids.push_back(pid);
 }
 
-ProcessMonitor::ProcessMonitor(std::vector<int> pids) : pids(pids)
+ProcessMonitor::ProcessMonitor(std::shared_ptr<Collector> collector, std::vector<int> pids) : 
+pids(pids), collector(collector)
 {}
 
 
@@ -55,9 +58,11 @@ void ProcessMonitor::threadLoop()
 		{
 			std::vector<std::string> PIDparams = getPIDStatus(pid);
 			for (std::vector<std::string>::const_iterator i = PIDparams.begin(), j = labels.begin(); i != PIDparams.end(); ++i, j++)
-        	                std::cout << *j << " - " <<  *i << std::endl;
+			{
+				 collector->send(*i, *j);
+			}
 		}	
-		std::this_thread::sleep_for (std::chrono::seconds(5));
+		std::this_thread::sleep_for (std::chrono::seconds(1));
 	}
 }
 

@@ -70,6 +70,16 @@ void Collector::addDerivedMetric(DerivedMetricMode mode, std::string name)
         derivedHandler.registerMetric(mode, name);
 }
 
+template<typename ...Args> 
+void Collector::sendDirect(Args && ...args)
+{
+	for (auto& b: backends)
+        {
+                b->send(std::forward<Args>(args)...);
+        }
+
+}
+
 template<typename T>
 void Collector::send(T value, std::string name, std::chrono::time_point<std::chrono::system_clock> timestamp)
 {
@@ -78,11 +88,7 @@ void Collector::send(T value, std::string name, std::chrono::time_point<std::chr
 		std::unique_ptr<Metric> derived = derivedHandler.processMetric(value, name, uniqueEntity, timestamp);
 		if (derived != nullptr) sendMetric(std::move(derived), value);
 	}
-
-	for (auto& b: backends)
-	{
-		b->send(value, name, uniqueEntity, timestamp);
-	}
+	sendDirect(value, name, uniqueEntity, timestamp);
 }
 
 template void Collector::send(int, std::string, std::chrono::time_point<std::chrono::system_clock>);
