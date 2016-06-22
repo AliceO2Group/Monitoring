@@ -79,8 +79,7 @@ public:
 	template<typename T> void sendMetric(std::unique_ptr<Metric> &&metric, T type);
 	
 	/// Same as send but totally skips derived metrics logic
-	template<typename ...Args> void sendDirect(Args && ...args);
-
+	template<typename ...Args> void sendDirect(Args && ...args) const;
 };
 
 } // namespace Core

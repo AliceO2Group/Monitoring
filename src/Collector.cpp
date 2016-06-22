@@ -71,7 +71,7 @@ void Collector::addDerivedMetric(DerivedMetricMode mode, std::string name)
 }
 
 template<typename ...Args> 
-void Collector::sendDirect(Args && ...args)
+void Collector::sendDirect(Args && ...args) const
 {
 	for (auto& b: backends)
         {
