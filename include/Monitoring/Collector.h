@@ -79,7 +79,7 @@ public:
 	template<typename T> void sendMetric(std::unique_ptr<Metric> &&metric, T type);
 	
 	/// Same as send but totally skips derived metrics logic
-	template<typename ...Args> void sendDirect(Args && ...args) const;
+	template<typename T> void sendDirect(T value, std::string name, std::chrono::time_point<std::chrono::system_clock> timestamp = Collector::getCurrentTimestamp()) const;
 };
 
 } // namespace Core

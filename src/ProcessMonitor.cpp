@@ -59,7 +59,7 @@ void ProcessMonitor::threadLoop()
 			std::vector<std::string> PIDparams = getPIDStatus(pid);
 			for (std::vector<std::string>::const_iterator i = PIDparams.begin(), j = labels.begin(); i != PIDparams.end(); ++i, j++)
 			{
-				collector->send(*i, *j);
+				collector->sendDirect(*i, *j);
 			}
 		}	
 		std::this_thread::sleep_for (std::chrono::seconds(1));

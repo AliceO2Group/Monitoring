@@ -70,12 +70,12 @@ void Collector::addDerivedMetric(DerivedMetricMode mode, std::string name)
         derivedHandler.registerMetric(mode, name);
 }
 
-template<typename ...Args> 
-void Collector::sendDirect(Args && ...args) const
+template<typename T> 
+inline void Collector::sendDirect(T value, std::string name, std::chrono::time_point<std::chrono::system_clock> timestamp) const
 {
 	for (auto& b: backends)
         {
-                b->send(std::forward<Args>(args)...);
+                b->send(value, name, uniqueEntity, timestamp);
         }
 
 }
@@ -88,13 +88,19 @@ void Collector::send(T value, std::string name, std::chrono::time_point<std::chr
 		std::unique_ptr<Metric> derived = derivedHandler.processMetric(value, name, uniqueEntity, timestamp);
 		if (derived != nullptr) sendMetric(std::move(derived), value);
 	}
-	sendDirect(value, name, uniqueEntity, timestamp);
+	sendDirect(value, name, timestamp);
+
 }
 
 template void Collector::send(int, std::string, std::chrono::time_point<std::chrono::system_clock>);
 template void Collector::send(double, std::string, std::chrono::time_point<std::chrono::system_clock>);
 template void Collector::send(std::string, std::string, std::chrono::time_point<std::chrono::system_clock>);
 template void Collector::send(uint32_t, std::string, std::chrono::time_point<std::chrono::system_clock>);
+
+template void Collector::sendDirect(int, std::string, std::chrono::time_point<std::chrono::system_clock>) const;
+template void Collector::sendDirect(double, std::string, std::chrono::time_point<std::chrono::system_clock>) const;
+template void Collector::sendDirect(std::string, std::string, std::chrono::time_point<std::chrono::system_clock>) const;
+template void Collector::sendDirect(uint32_t, std::string, std::chrono::time_point<std::chrono::system_clock>) const;
 
 } // namespace Core
 } // namespace Monitoring
