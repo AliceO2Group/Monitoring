@@ -22,17 +22,20 @@ namespace Core {
 
 Collector::Collector(ConfigFile &mConfigFile)
 {
-	if (mConfigFile.getValue<int>("InfoLoggerBackend.enable") == 1)
-		backends.emplace_back(std::unique_ptr<Backend>(new InfoLoggerBackend()));
-	#ifdef _WITH_APPMON
-	if (mConfigFile.getValue<int>("AppMon.enable") == 1)
-		backends.emplace_back(std::unique_ptr<Backend>(new ApMonBackend(mConfigFile.getValue<string>("AppMon.pathToConfig"))));
-	#endif
-	#ifdef _WITH_INFLUX
-	if (mConfigFile.getValue<int>("InfluxDB.enable") == 1)
-	        backends.emplace_back(std::unique_ptr<Backend>(new InfluxBackend(mConfigFile.getValue<string>("InfluxDB.writeUrl"))));
-        #endif
-
+	try {
+		if (mConfigFile.getValue<int>("InfoLoggerBackend.enable") == 1)
+			backends.emplace_back(std::unique_ptr<Backend>(new InfoLoggerBackend()));
+		#ifdef _WITH_APPMON
+		if (mConfigFile.getValue<int>("AppMon.enable") == 1)
+			backends.emplace_back(std::unique_ptr<Backend>(new ApMonBackend(mConfigFile.getValue<string>("AppMon.pathToConfig"))));
+		#endif
+		#ifdef _WITH_INFLUX
+		if (mConfigFile.getValue<int>("InfluxDB.enable") == 1)
+		        backends.emplace_back(std::unique_ptr<Backend>(new InfluxBackend(mConfigFile.getValue<string>("InfluxDB.writeUrl"))));
+	        #endif
+	} catch(std::string &e) {
+		MonInfoLogger::GetInstance() << "Monitoring faild to load configuration : " << e << AliceO2::InfoLogger::InfoLogger::endm;
+	}
 	setUniqueEntity();
 }
 
