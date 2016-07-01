@@ -5,6 +5,7 @@
 #include <chrono>
 #include <map>
 #include "Monitoring/Collector.h"
+#include "Monitoring/MonInfoLogger.h"
 #include "Monitoring/InfoLoggerBackend.h"
 
 #ifdef _WITH_APPMON

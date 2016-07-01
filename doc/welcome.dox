@@ -2,7 +2,7 @@
         CERN - ALICE
         (c) 2015-2020. All rights reserved.
 
-        Responsible authors:    [Vasco Barroso]
+        Responsible authors:    [Adam Wegrzynek]
 */
 
 // doxygen documentation ______________________________________________________
@@ -10,6 +10,10 @@
 /*!
 
 @mainpage Documentation
+
+If you getting familiar with Monitoring library please take a look @subpage User_Guide which is fully updated and contains useful examples.
+
+
 
 This document contains a technical introduction to the Monitoring package. It is designed to help readers with technical skills such as developers, testers or others get a starting point into Monitoring.
 

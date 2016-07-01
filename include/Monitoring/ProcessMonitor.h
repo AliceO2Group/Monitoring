@@ -19,21 +19,35 @@ namespace Core {
 
 class ProcessMonitor {
 public:
+	/// Enables self monitoring
+	/// \param collector	shared pointer to collector, it executes only thread-safe methods of Collector
 	ProcessMonitor(std::shared_ptr<Collector> collector);
+	
+	/// Monitors single process
+	/// \param collector    shared pointer to collector, it executes only thread-safe methods of Collector
+	/// \param pid 		PID number
 	ProcessMonitor(std::shared_ptr<Collector> collector, int pid);
+
+	/// Monitors multiple processes
+	/// \param collector    shared pointer to collector, it executes only thread-safe methods of Collector
+	/// \param pids 	vector of PIDs
 	ProcessMonitor(std::shared_ptr<Collector> collector, std::vector<int> pids);
+	
+	/// Joins parent thread if joinable
 	~ProcessMonitor();
+
+	/// Launches new thread
 	void startMonitor();
 private:
 	std::shared_ptr<Collector> collector;
 
-	/// Vector of PIDs to monitor
+	/// Vector of PIDs that will be monitored
 	std::vector<int> pids;
 
-	/// Executing terminal command
+	/// Executes terminal command
 	std::string exec(const char* cmd);
 
-	/// Vector of PIDs parameters
+	/// Vector of PID's parameters and values
 	std::vector<std::string> getPIDStatus(int pid);
 
 	/// Main loop of monitoring thread
