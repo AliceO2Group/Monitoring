@@ -21,6 +21,7 @@
 		-# @ref UserEntity
 		-# @ref UserTimestamp
 		-# @ref DerivedMetrics
+		-# @ref SelfMonitoring
 		-# @ref Running
 		-# @ref Exiting
 		-# @ref Exceptions
@@ -165,16 +166,18 @@
 	@section GETTING_STARTED GETTING STARTED
 			
 	@subsection SimpleMetric Injecting user specific metric
-		
-		Simple example that allows to send a metric:
-			
+		Simple example that allows to send a metric:	
 			\code
                #include "Monitoring/Collector.h"
                namespace Monitoring = AliceO2::Monitoring;
-               ... 
+               ...
+	       // create configuration
+               ConfigFile mConfigFile;
+               mConfigFile.load("file:/home/awegrzyn/hackathon/Monitoring/examples/example.ini");
+
                // create monitoring object
-               // pass filepath to ApMon configuration as argument
-               Monitoring::Core::DataCollector *collector = new Monitoring::Core::DataCollector("config/apmon.conf");
+               // pass reference of configuration object as argument
+               std::unique_ptr<Monitoring::Core::Collector> collector(new Monitoring::Core::Collector(mConfigFile));
                ...
                // now send an application specific metric
                // 10 is the value
@@ -198,9 +201,13 @@
                #include "Monitoring/Collector.h"
                namespace Monitoring = AliceO2::Monitoring;
                ... 
-               // create monitoring object			 
-               // pass filepath to ApMon configuration as argument
-               Monitoring::Core::DataCollectorApMon *collector = new Monitoring::Core::DataCollectorApMon("config/apmon.conf");
+               // create configuration
+               ConfigFile mConfigFile;
+               mConfigFile.load("file:/home/awegrzyn/hackathon/Monitoring/examples/example.ini");
+
+               // create monitoring object
+               // pass reference of configuration object as argument
+               std::unique_ptr<Monitoring::Core::Collector> collector(new Monitoring::Core::Collector(mConfigFile));
                ...
                // set user specific entity value, eg.:
                collector->setEntity("testEntity");
@@ -224,9 +231,13 @@
                #include "Monitoring/Collector.h"
                namespace Monitoring = AliceO2::Monitoring;
                ...
+               // create configuration
+               ConfigFile mConfigFile;
+               mConfigFile.load("file:/home/awegrzyn/hackathon/Monitoring/examples/example.ini");
+
                // create monitoring object
-               // pass filepath to ApMon configuration as argument
-               Monitoring::Core::DataCollectorApMon *collector = new Monitoring::Core::DataCollectorApMon("config/apmon.conf");
+               // pass reference of configuration object as argument
+               std::unique_ptr<Monitoring::Core::Collector> collector(new Monitoring::Core::Collector(mConfigFile));
                ...
                // generate current timestamp
                std::chrono::time_point<std::chrono::system_clock> timestamp = std::chrono::system_clock::now();
@@ -249,9 +260,13 @@
                #include "Monitoring/Collector.h"
                namespace Monitoring = AliceO2::Monitoring;
                ...
+               // create configuration
+               ConfigFile mConfigFile;
+               mConfigFile.load("file:/home/awegrzyn/hackathon/Monitoring/examples/example.ini");
+
                // create monitoring object
-               // pass filepath to ApMon configuration as argument
-               Monitoring::Core::DataCollectorApMon *collector = new Monitoring::Core::DataCollectorApMon("config/apmon.conf");
+               // pass reference of configuration object as argument
+               std::unique_ptr<Monitoring::Core::Collector> collector(new Monitoring::Core::Collector(mConfigFile));
                ...
                // Request rate values to be calculated
                collector->addDerivedMetric(Monitoring::Core::DerivedMetricMode::RATE, "myCrazyMetirc");
@@ -262,25 +277,50 @@
                ...
                         \endcode
 
-               The full code is available in \a examples/example4.cpp
+               Current avaliable modes are : DerivedMetricMode::RATE and DerivedMetricMode::AVERAGE. The full code is available in \a examples/example4.cpp
 
+@subsection SelfMonitoring Self-monitoring and process monitoring
 
-		@subsection Running Running
+	Library allows to monitor current process or other processes running at the same machine.
+
+        \code
+	#include "Monitoring/Collector.h"
+	namespace Monitoring = AliceO2::Monitoring;
+	...
+	// create configuration
+	ConfigFile mConfigFile;
+	mConfigFile.load("file:/home/awegrzyn/hackathon/Monitoring/examples/example.ini");
+
+	// create monitoring object
+	// pass reference of configuration object as argument
+	std::unique_ptr<Monitoring::Core::Collector> collector(new Monitoring::Core::Collector(mConfigFile));
+	...
+	// create monitoring object and confuguration as parameter to constructor
+	std::unique_ptr<Monitoring::Core::ProcessMonitor> monitor(new Monitoring::Core::ProcessMonitor(collector));
+	monitor->startMonitor();
+	...
+	/// continue execution of main thread
+        \endcode
+
+        ProcessMonitoring can also monitor other process or list of processes. The constructor accepts PID (int) or list of PIDs (std::vector<int>) as its second argument.
+	The full code is available in \a examples/example6.cpp
+
+@subsection Running Running
 		
-		    - Library
-			  - Make sure that your LD_LIBRARY_PATH includes /usr/local/lib (location of ApMon)
-			- MonALISA Service
-			  - /sbin/service MLD start/stop/restart
-			- MonALISA Client
-			  - Execute /usr/bin/javaws /opt/monalisa-client/MonaLisaNo3D.jnlp
-			  - Say next->next->next...
-			  - Once the GUI is launched:
-			    - Top menu: Groups->Unselect all
-                - Top menu: Groups->alice-o2
-                - Side menu: Groups, then expand alice-o2 and then expand flp-prototype
-                - In the Clusters section, select the cluster and node you want to see
+	- Library
+		- Make sure that your LD_LIBRARY_PATH includes /usr/local/lib (location of ApMon)
+	- MonALISA Service
+		 - /sbin/service MLD start/stop/restart
+	- MonALISA Client
+		- Execute /usr/bin/javaws /opt/monalisa-client/MonaLisaNo3D.jnlp
+		- Say next->next->next...
+		- Once the GUI is launched:
+			- Top menu: Groups->Unselect all
+			- Top menu: Groups->alice-o2
+			- Side menu: Groups, then expand alice-o2 and then expand flp-prototype
+			- In the Clusters section, select the cluster and node you want to see
 			    		
-		@subsection Exiting Exiting
-				
-		@subsection Exceptions Caveats and Exceptions		  
+@subsection Exiting Exiting
+			
+@subsection Exceptions Caveats and Exceptions		  
 */
