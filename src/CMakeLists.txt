@@ -47,7 +47,13 @@ set(APP_SOURCES
 set(LIBRARY_NAME_DATACOLLECTOR DataCollector)
 set(INCLUDE include/Monitoring)
 add_library(${LIBRARY_NAME_DATACOLLECTOR} SHARED ${LIB_HEADERS} ${LIB_SOURCES})
-target_link_libraries(${LIBRARY_NAME_DATACOLLECTOR} InfoLogger-static Configuration-static apmoncpp curl)
+target_link_libraries(${LIBRARY_NAME_DATACOLLECTOR} InfoLogger-static Configuration-static)
+if(APMON_FOUND)
+	target_link_libraries(${LIBRARY_NAME_DATACOLLECTOR} apmoncpp)
+endif()
+if(CURL_FOUND)
+	target_link_libraries(${LIBRARY_NAME_DATACOLLECTOR} curl)
+endif()
 set_target_properties(${LIBRARY_NAME_DATACOLLECTOR} PROPERTIES
         VERSION ${VERSION}  # ${VERSION} was defined in the main CMakeLists.
         FRAMEWORK FALSE

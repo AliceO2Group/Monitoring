@@ -53,8 +53,9 @@ if(APMON_FOUND)
     list(APPEND LIBS ${APMON_LIBRARIES})
     add_definitions(-D_WITH_APPMON)
 else()
-    message(WARNING "APMON not found, we won't compile the Monitoring module (skip, no error)")
-    return()
+    message(WARNING "APMON not found, we won't compile the related classes")
+    #add_subdirectory(doc)
+    #return()
 endif()
 
 # This sets the include directory for the reference project. This is
@@ -74,8 +75,6 @@ set(CMAKE_MACOSX_RPATH ON)
 #set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 #set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 #set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-
-# add_subdirectory(doc)
 
 enable_testing() # needed on top-level CMakeLists.txt
 add_subdirectory(include)
