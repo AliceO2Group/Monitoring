@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <thread>
+#include <boost/algorithm/string.hpp>
 #include "Collector.h"
 
 namespace AliceO2 {
@@ -67,8 +68,7 @@ private:
   /// Thread object
   std::thread monitorThread;
 
-  /// List params for PS                 int,    string, string, float,  float,  int,   int,   string
-  const std::vector<std::string> labels {"pid", "etime", "time", "pcpu", "pmem", "rsz", "vsz", "comm"};
+  /// List of PS params with their types: 0 - int, 1 - double, 2 - string
   const std::vector<std::pair<std::string, int>> params { {"pid", 0 }, {"etime", 2}, {"time", 2}, {"pcpu", 1 }, {"pmem", 1}, {"rsz", 0}, {"vsz", 0}, {"comm", 2} };
 
   /// parses above vector of strings into comma seperated string

@@ -33,10 +33,9 @@ collector(collector), interval(interval), pids(pids)
 
 void ProcessMonitor::preparePsOptions()
 {
-  options = std::accumulate(labels.begin(), labels.end(), std::string{},
-                            [](const std::string& a, std::string b) {
-                              return a.empty() ? b : a + ',' + b;
-                            });
+  for (std::vector<std::pair<std::string, int>>::const_iterator i = params.begin(); i != params.end(); ++i) {
+    options = options.empty() ? i->first : options += (',' +  i->first);
+  }
 }
 
 std::vector<std::string> ProcessMonitor::getPIDStatus(int pid)

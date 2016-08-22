@@ -26,60 +26,67 @@ namespace Core {
 ///
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 class Collector {
-	/// Disable copy constructor
-	Collector & operator=(const Collector&) = delete;
-	Collector(const Collector&) = delete;
+
+  /// Disable copy constructor
+  Collector & operator=(const Collector&) = delete;
+  Collector(const Collector&) = delete;
+
 private:
-	/// Object responsible from derived metrics
-	/// \see class DerivedMetrics
-	DerivedMetrics derivedHandler;
 
-	/// Vector of backends (where the values are send to).
-	std::vector <std::unique_ptr<Backend>> backends;
+  /// Object responsible from derived metrics
+  /// \see class DerivedMetrics
+  DerivedMetrics derivedHandler;
 
-	/// Default entity value, see setUniqueEntity method
-	std::string uniqueEntity;
+  /// Vector of backends (where the values are send to).
+  std::vector <std::unique_ptr<Backend>> backends;
+    
+  /// Default entity value, see setUniqueEntity method
+  std::string uniqueEntity;
 
-	/// Generates entity value as concatenated hostname and process id
-	void setUniqueEntity();
+  /// Generates entity value as concatenated hostname and process id
+  void setUniqueEntity();
 
 public:
-	/// Initialaze backends and instance of "derived metric processor" (DerivedMetrics class)
-	/// \param mConfigFile 	configuration object
-        Collector(ConfigFile &mConfigFile);
 
-	/// Generates timestamp in miliseconds
-	/// \return timestamp as unsigned long
-	static std::chrono::time_point<std::chrono::system_clock> getCurrentTimestamp();
+  /// Initialaze backends and instance of "derived metric processor" (DerivedMetrics class)
+  /// \param mConfigFile 	configuration object
+  Collector(ConfigFile &mConfigFile);
 
-	/// Overwrites default entity value
-	/// \param entity 	new entity value
-	void setEntity(std::string entity);
+  /// Generates timestamp in miliseconds
+  /// \return timestamp as unsigned long
+  static std::chrono::time_point<std::chrono::system_clock> getCurrentTimestamp();
 
-	/// Sends the metric to all avaliabes backends
-	/// If metric has been added to "derived metric processor" the derived metric is calculated (see addDerivedMetric method)
-	/// \param value of the metric
-	/// \param name of the metric
-	/// \param timestamp in miliseconds, if not provided output of getCurrentTimestamp as default value is assigned
-	template<typename T> void send(T value, std::string name, std::chrono::time_point<std::chrono::system_clock> timestamp = Collector::getCurrentTimestamp());
+  /// Overwrites default entity value
+  /// \param entity 	new entity value
+  void setEntity(std::string entity);
+
+  /// Sends the metric to all avaliabes backends
+  /// If metric has been added to "derived metric processor" the derived metric is calculated (see addDerivedMetric method)
+  /// \param value of the metric
+  /// \param name of the metric
+  /// \param timestamp in miliseconds, if not provided output of getCurrentTimestamp as default value is assigned
+  template<typename T> 
+  void send(T value, std::string name, 
+            std::chrono::time_point<std::chrono::system_clock> timestamp = Collector::getCurrentTimestamp());
   
-	/// Adds metric to the list - each time the metric arrives the derived metric is calculated and then sent to all backends
-	/// Following processing modes are supported: DerivedMetricMode::RATE, DerivedMetricMode::AVERAGE
-	/// \param mode
-	/// \param name
-	void addDerivedMetric(DerivedMetricMode mode, std::string name);
+  /// Adds metric to the list - each time the metric arrives the derived metric is calculated and then sent to all backends
+  /// Following processing modes are supported: DerivedMetricMode::RATE, DerivedMetricMode::AVERAGE
+  /// \param mode
+  /// \param name
+  void addDerivedMetric(DerivedMetricMode mode, std::string name);
 	
-	/// Default destructor
-        ~Collector() = default;
+  /// Default destructor
+  ~Collector() = default;
 
-	/// Sends Metric object to backend
-	/// \param metric	 r-value pointer to Metric
-	template<typename T> void sendMetric(std::unique_ptr<Metric> &&metric, T);
+  /// Sends Metric object to backend
+  /// \param metric	 r-value pointer to Metric
+  template<typename T> void sendMetric(std::unique_ptr<Metric> &&metric, T);
 	
-	/// Same as send but totally skips derived metrics logic
-	template<typename T> void sendDirect(T value, std::string name, std::chrono::time_point<std::chrono::system_clock> timestamp = Collector::getCurrentTimestamp()) const;
+  /// Same as send but totally skips derived metrics logic
+  template<typename T>
+  void sendDirect(T value, std::string name, 
+                  std::chrono::time_point<std::chrono::system_clock> timestamp = Collector::getCurrentTimestamp()) const;
 };
-
 } // namespace Core
 } // namespace Monitoring
 } // namespace AliceO2

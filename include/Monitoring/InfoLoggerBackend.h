@@ -18,45 +18,50 @@ namespace Core {
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 class InfoLoggerBackend : public Backend {
 public:
-	/// Default constructor
-	InfoLoggerBackend();
 
-	/// Default destructor
-	~InfoLoggerBackend() = default;
+  /// Default constructor
+  InfoLoggerBackend();
+ 
+  /// Default destructor
+  ~InfoLoggerBackend() = default;
 	
-	/// Pushes integer metric
-	/// \param value        metric value (integer)
-	/// \param name         metric name
-	/// \param entity       metric entity - origin
-	/// \param timestamp    metric timestamp (std::chrono::time_point)
-        void send(int value, std::string name, std::string entity, std::chrono::time_point<std::chrono::system_clock> timestamp) override;
+  /// Pushes integer metric
+  /// \param value        metric value (integer)
+  /// \param name         metric name
+  /// \param entity       metric entity - origin
+  /// \param timestamp    metric timestamp (std::chrono::time_point)
+  void send(int value, std::string name, std::string entity, 
+            std::chrono::time_point<std::chrono::system_clock> timestamp) override;
 
-	/// Pushes double metric
-	/// \param value        metric value (double)
-	/// \param name         metric name
-	/// \param entity       metric entity - origin
-	/// \param timestamp    metric timestamp (std::chrono::time_point
-        void send(double value, std::string name, const std::string entity, std::chrono::time_point<std::chrono::system_clock> timestamp) override;
+  /// Pushes double metric
+  /// \param value        metric value (double)
+  /// \param name         metric name
+  /// \param entity       metric entity - origin
+  /// \param timestamp    metric timestamp (std::chrono::time_point
+  void send(double value, std::string name, const std::string entity, 
+            std::chrono::time_point<std::chrono::system_clock> timestamp) override;
 
-	/// Pushes string metric
-	/// \param value        metric value (string)
-	/// \param name         metric name
-	/// \param entity       metric entity - origin
-	/// \param timestamp    metric timestamp (std::chrono::time_point)
-        void send(std::string value, std::string name, const std::string entity, std::chrono::time_point<std::chrono::system_clock> timestamp) override;
+  /// Pushes string metric
+  /// \param value        metric value (string)
+  /// \param name         metric name
+  /// \param entity       metric entity - origin
+  /// \param timestamp    metric timestamp (std::chrono::time_point)
+  void send(std::string value, std::string name, const std::string entity, 
+            std::chrono::time_point<std::chrono::system_clock> timestamp) override;
 
-	/// Pushes uint32_t metric
-	/// \param value        metric value (uint32_t)
-	/// \param name         metric name
-	/// \param entity       metric entity - origin
-	/// \param timestamp    metric timestamp (std::chrono::time_point)
-        void send(uint32_t value, std::string name, const std::string entity, std::chrono::time_point<std::chrono::system_clock> timestamp) override;
+  /// Pushes uint32_t metric
+  /// \param value        metric value (uint32_t)
+  /// \param name         metric name
+  /// \param entity       metric entity - origin
+  /// \param timestamp    metric timestamp (std::chrono::time_point)
+  void send(uint32_t value, std::string name, const std::string entity, 
+            std::chrono::time_point<std::chrono::system_clock> timestamp) override;
 
 private:
-	/// Converts timestamp to unsigned long (miliseconds from epoch)
-	/// \param timestamp    timestamp in std::chrono::time_point format
-	/// \return             timestamp as unsigned long (miliseconds from epoch)
-	unsigned long convertTimestamp(std::chrono::time_point<std::chrono::system_clock> timestamp);
+  /// Converts timestamp to unsigned long (miliseconds from epoch)
+  /// \param timestamp    timestamp in std::chrono::time_point format
+  /// \return             timestamp as unsigned long (miliseconds from epoch)
+  unsigned long convertTimestamp(std::chrono::time_point<std::chrono::system_clock> timestamp);
 };
 
 } // namespace Core
