@@ -63,20 +63,18 @@ public:
 	/// \param timestamp in miliseconds, if not provided output of getCurrentTimestamp as default value is assigned
 	template<typename T> void send(T value, std::string name, std::chrono::time_point<std::chrono::system_clock> timestamp = Collector::getCurrentTimestamp());
   
-	/// Adds derived metric - each time the metric arrives the derived metric is calculated and set to all backends
+	/// Adds metric to the list - each time the metric arrives the derived metric is calculated and then sent to all backends
 	/// Following processing modes are supported: DerivedMetricMode::RATE, DerivedMetricMode::AVERAGE
 	/// \param mode
 	/// \param name
 	void addDerivedMetric(DerivedMetricMode mode, std::string name);
 	
-	/// Deallocates all the memory (metrics and backends)
-	/// \todo : move to smart pointers
+	/// Default destructor
         ~Collector() = default;
 
 	/// Sends Metric object to backend
 	/// \param metric	 r-value pointer to Metric
-	/// \param type 
-	template<typename T> void sendMetric(std::unique_ptr<Metric> &&metric, T type);
+	template<typename T> void sendMetric(std::unique_ptr<Metric> &&metric, T);
 	
 	/// Same as send but totally skips derived metrics logic
 	template<typename T> void sendDirect(T value, std::string name, std::chrono::time_point<std::chrono::system_clock> timestamp = Collector::getCurrentTimestamp()) const;

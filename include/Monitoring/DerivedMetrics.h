@@ -59,12 +59,12 @@ public:
 	/// Calculates rate based on past and curret value and timestamp
 	/// \param name 	metric name
 	/// \return 		metric with calculated rate value
-	template<typename T> std::unique_ptr<Metric> calculateRate(std::string name, T type);
+	template<typename T> std::unique_ptr<Metric> calculateRate(std::string name, T);
 
 	/// Calculates average value based on all past values
 	/// \param name 	metric name
 	/// \return		metric with calculated average value
-	template<typename T> std::unique_ptr<Metric> calculateAverage(std::string name, T type);
+	template<typename T> std::unique_ptr<Metric> calculateAverage(std::string name, T);
 
 };
 

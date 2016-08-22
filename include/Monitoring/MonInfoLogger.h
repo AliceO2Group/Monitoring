@@ -16,7 +16,7 @@ using namespace std;
 /// Independent InfoLogger instance can still be created when and if needed.
 ///
 /// \author Barthelemy von Haller
-/// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
+/// \author modified by Adam Wegrzynek <adam.wegrzynek@cern.ch>
 class MonInfoLogger : public AliceO2::InfoLogger::InfoLogger
 {
 
@@ -33,8 +33,7 @@ class MonInfoLogger : public AliceO2::InfoLogger::InfoLogger
 
     MonInfoLogger()
     {
-      // TODO configure the QC infologger, e.g. proper facility
-      *this << "MON infologger initialized" << AliceO2::InfoLogger::InfoLogger::endm;
+      *this << "Infologger instance initialized" << AliceO2::InfoLogger::InfoLogger::endm;
     }
 
     virtual ~MonInfoLogger()
@@ -42,7 +41,7 @@ class MonInfoLogger : public AliceO2::InfoLogger::InfoLogger
 
     }
 
-    // Disallow copying
+    /// Delete copy constructors
     MonInfoLogger &operator=(const MonInfoLogger &) = delete;
     MonInfoLogger(const MonInfoLogger &) = delete;
 

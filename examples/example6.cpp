@@ -12,7 +12,7 @@ int main() {
         std::shared_ptr<Monitoring::Core::Collector> collector(new Monitoring::Core::Collector(mConfigFile));
 	
 	// create monitoring object and confuguration as parameter to constructor
-	std::unique_ptr<Monitoring::Core::ProcessMonitor> monitor(new Monitoring::Core::ProcessMonitor(collector));
+	std::unique_ptr<Monitoring::Core::ProcessMonitor> monitor(new Monitoring::Core::ProcessMonitor(collector, 5));
 	monitor->startMonitor();
 
 	for (;;)

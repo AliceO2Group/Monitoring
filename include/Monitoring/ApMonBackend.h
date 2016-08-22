@@ -14,7 +14,7 @@ namespace Core {
 
 /// \brief Backend that uses AppMon (MonALISA)
 ///
-/// Uses ApMon library to push values into MonALISA Serivce.
+/// Uses ApMon library to push values to MonALISA Serivce.
 /// ApMon accepts timestamps as integers, therefore cast is needed (see method #convertTimestamp)
 ///
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
@@ -24,7 +24,7 @@ public:
 	/// \param configurationFile 	filepath to ApMon configuration file
 	ApMonBackend(const std::string configurationFile);
 
-	/// Deallocates ApMon object
+	/// Destroys ApMon object
 	 ~ApMonBackend();
 
 	/// Pushes integer metric
