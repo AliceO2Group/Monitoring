@@ -23,19 +23,19 @@ public:
   /// Enables self monitoring
   /// \param collector	shared pointer to collector, it executes only thread-safe methods of Collector
   /// \param interval 	time interval between updates
-  ProcessMonitor(std::shared_ptr<Collector> collector, int interval);
+  ProcessMonitor(std::shared_ptr<Collector> collector, ConfigFile &configFile);
 	
   /// Monitors single process
-  /// \param collector    shared pointer to collector, it executes only thread-safe methods of Collector
-  /// \param interval     time interval between updates
-  /// \param pid 		PID number
-  ProcessMonitor(std::shared_ptr<Collector> collector, int interval, int pid);
+  /// \param collector 	shared pointer to collector, it executes only thread-safe methods of Collector
+  /// \param configFile	constains time interval between updates
+  /// \param pid 	PID number
+  ProcessMonitor(std::shared_ptr<Collector> collector, ConfigFile &configFile, int pid);
 
   /// Monitors multiple processes
-  /// \param collector    shared pointer to collector, it executes only thread-safe methods of Collector
-  /// \param interval     time interval between updates
+  /// \param collector	shared pointer to collector, it executes only thread-safe methods of Collector
+  /// \param configFile	constains time interval between updates
   /// \param pids 	vector of PIDs
-  ProcessMonitor(std::shared_ptr<Collector> collector, int interval, std::vector<int> pids);
+  ProcessMonitor(std::shared_ptr<Collector> collector, ConfigFile &configFile, std::vector<int> pids);
 	
   /// Joins parent thread if joinable
   ~ProcessMonitor();
@@ -48,7 +48,7 @@ private:
   std::shared_ptr<Collector> collector;
   
   /// Time-interval between updates (in seconds)
-  const int interval;
+  int interval;
 
   /// Vector of PIDs that will be monitored
   std::vector<int> pids;

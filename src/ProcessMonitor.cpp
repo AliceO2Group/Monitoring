@@ -10,24 +10,27 @@ namespace Monitoring {
 namespace Core {
 
 
-ProcessMonitor::ProcessMonitor(std::shared_ptr<Collector> collector, int interval):
-collector(collector), interval(interval)
+ProcessMonitor::ProcessMonitor(std::shared_ptr<Collector> collector, ConfigFile &configFile):
+collector(collector)
 {
   pids.push_back((int) ::getpid());
   preparePsOptions();
+  interval = configFile.getValue<int>("ProcessMonitor.interval");
 }
 
-ProcessMonitor::ProcessMonitor(std::shared_ptr<Collector> collector, int interval, int pid):
-collector(collector), interval(interval)
+ProcessMonitor::ProcessMonitor(std::shared_ptr<Collector> collector, ConfigFile &configFile, int pid):
+collector(collector)
 {
   pids.push_back(pid);
   preparePsOptions();
+  interval = configFile.getValue<int>("ProcessMonitor.interval");
 }
 
-ProcessMonitor::ProcessMonitor(std::shared_ptr<Collector> collector, int interval, std::vector<int> pids) : 
-collector(collector), interval(interval), pids(pids)
+ProcessMonitor::ProcessMonitor(std::shared_ptr<Collector> collector, ConfigFile &configFile, std::vector<int> pids) : 
+collector(collector), pids(pids)
 {
   preparePsOptions();
+  interval = configFile.getValue<int>("ProcessMonitor.interval");
 }
 
 
