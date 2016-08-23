@@ -79,8 +79,12 @@ inline void Collector::sendDirect(T value, std::string name, std::chrono::time_p
 template<typename T>
 void Collector::send(T value, std::string name, std::chrono::time_point<std::chrono::system_clock> timestamp) {
   if (derivedHandler.isRegistered(name)) {
-    std::unique_ptr<Metric> derived = derivedHandler.processMetric(value, name, uniqueEntity, timestamp);
-    if (derived != nullptr) sendMetric(std::move(derived), value);
+    try {
+      std::unique_ptr<Metric> derived = derivedHandler.processMetric(value, name, uniqueEntity, timestamp);
+      if (derived != nullptr) sendMetric(std::move(derived), value);
+    } catch(boost::bad_get e) {
+      throw std::runtime_error("Derived metrics failed : metric " + name + " has incorrect type");
+    }
   }
   sendDirect(value, name, timestamp);
 }
