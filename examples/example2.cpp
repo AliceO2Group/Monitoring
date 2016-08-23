@@ -5,11 +5,11 @@ namespace Monitoring = AliceO2::Monitoring;
 
 int main() {
   // parse configuration file
-  ConfigFile mConfigFile;
-  mConfigFile.load("file:/home/awegrzyn/hackathon/Monitoring/examples/example.ini");
+  ConfigFile configFile;
+  configFile.load("file:/home/awegrzyn/hackathon/Monitoring/examples/example.ini");
       	 
   // create monitoring object and confuguration as parameter to constructor
-  std::unique_ptr<Monitoring::Core::Collector> collector(new Monitoring::Core::Collector(mConfigFile));
+  std::unique_ptr<Monitoring::Core::Collector> collector(new Monitoring::Core::Collector(configFile));
        	 
   // set user specific entity value, eg.:
   collector->setEntity("testEntity");

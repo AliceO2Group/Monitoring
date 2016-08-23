@@ -6,18 +6,17 @@ namespace Monitoring = AliceO2::Monitoring;
 int main() {
        	
   // parse configuration file
-  ConfigFile mConfigFile;
-  mConfigFile.load("file:/home/awegrzyn/hackathon/Monitoring/examples/example.ini");
+  ConfigFile configFile;
+  configFile.load("file:/home/awegrzyn/hackathon/Monitoring/examples/example.ini");
 
   // create monitoring object and confuguration as parameter to constructor
-  std::unique_ptr<Monitoring::Core::Collector> collector(new Monitoring::Core::Collector(mConfigFile));
+  std::unique_ptr<Monitoring::Core::Collector> collector(new Monitoring::Core::Collector(configFile));
   // derived metric :  rate
   collector->addDerivedMetric(Monitoring::Core::DerivedMetricMode::RATE, "myCrazyMetric1");
 
   // now send at least two metrics to see the result
-  std::string test = "test";
   collector->send(10, "myCrazyMetric1");
-  collector->send(test, "myCrazyMetric1");
+  collector->send(20, "myCrazyMetric1");
   collector->send(30, "myCrazyMetric1");
   collector->send(50, "myCrazyMetric1");
 }
