@@ -33,7 +33,7 @@ class MonInfoLogger : public AliceO2::InfoLogger::InfoLogger
 
     MonInfoLogger()
     {
-      *this << "Infologger instance initialized" << AliceO2::InfoLogger::InfoLogger::endm;
+      *this << "InfoLogger instance for Monitoring initialized" << AliceO2::InfoLogger::InfoLogger::endm;
     }
 
     virtual ~MonInfoLogger()

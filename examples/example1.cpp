@@ -5,7 +5,7 @@ namespace Monitoring = AliceO2::Monitoring;
 
 int main() {
 
-       	// parse configuration file
+      	// parse configuration file
 	ConfigFile mConfigFile;
 	mConfigFile.load("file:/home/awegrzyn/hackathon/Monitoring/examples/example.ini");	
 	
