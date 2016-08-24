@@ -72,7 +72,6 @@ void ProcessMonitor::threadLoop()
 {
   try {
     for (;;) {
-      if (!running.load()) return;
       for (auto const pid : pids) {
         std::vector<std::string> PIDparams = getPIDStatus(pid);
         std::vector<std::pair<std::string, int>>::const_iterator  j = params.begin();
@@ -97,12 +96,10 @@ void ProcessMonitor::threadLoop()
 
 void ProcessMonitor::startMonitor()
 {
-  running.store(true);
   monitorThread = std::thread(&ProcessMonitor::threadLoop, this);
 }
 ProcessMonitor::~ProcessMonitor()
 {
-  running.store(false);
   if (monitorThread.joinable()) {
     monitorThread.join();
   }

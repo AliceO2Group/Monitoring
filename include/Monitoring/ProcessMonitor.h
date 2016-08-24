@@ -43,8 +43,6 @@ public:
 
 private:
 
-  std::atomic<bool> running;
-
   /// Launches new thread
   void startMonitor();
 
