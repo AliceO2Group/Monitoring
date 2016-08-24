@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <thread>
+#include <atomic>
 #include <boost/algorithm/string.hpp>
 #include "Collector.h"
 
@@ -41,6 +42,8 @@ public:
   ~ProcessMonitor();
 
 private:
+
+  std::atomic<bool> running;
 
   /// Launches new thread
   void startMonitor();

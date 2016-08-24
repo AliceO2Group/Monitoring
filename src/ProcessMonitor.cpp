@@ -13,6 +13,7 @@ namespace Core {
 ProcessMonitor::ProcessMonitor(std::shared_ptr<Collector> collector, ConfigFile &configFile):
 collector(collector)
 {
+  
   pids.push_back((int) ::getpid());
   preparePsOptions();
   interval = configFile.getValue<int>("ProcessMonitor.interval");
@@ -71,6 +72,7 @@ void ProcessMonitor::threadLoop()
 {
   try {
     for (;;) {
+      if (!running.load()) return;
       for (auto const pid : pids) {
         std::vector<std::string> PIDparams = getPIDStatus(pid);
         std::vector<std::pair<std::string, int>>::const_iterator  j = params.begin();
@@ -95,10 +97,12 @@ void ProcessMonitor::threadLoop()
 
 void ProcessMonitor::startMonitor()
 {
+  running.store(true);
   monitorThread = std::thread(&ProcessMonitor::threadLoop, this);
 }
 ProcessMonitor::~ProcessMonitor()
 {
+  running.store(false);
   if (monitorThread.joinable()) {
     monitorThread.join();
   }
