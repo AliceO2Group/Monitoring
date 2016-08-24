@@ -16,6 +16,7 @@ collector(collector)
   pids.push_back((int) ::getpid());
   preparePsOptions();
   interval = configFile.getValue<int>("ProcessMonitor.interval");
+  startMonitor();
 }
 
 ProcessMonitor::ProcessMonitor(std::shared_ptr<Collector> collector, ConfigFile &configFile, int pid):
@@ -24,6 +25,7 @@ collector(collector)
   pids.push_back(pid);
   preparePsOptions();
   interval = configFile.getValue<int>("ProcessMonitor.interval");
+  startMonitor();
 }
 
 ProcessMonitor::ProcessMonitor(std::shared_ptr<Collector> collector, ConfigFile &configFile, std::vector<int> pids) : 
@@ -31,6 +33,7 @@ collector(collector), pids(pids)
 {
   preparePsOptions();
   interval = configFile.getValue<int>("ProcessMonitor.interval");
+  startMonitor();
 }
 
 

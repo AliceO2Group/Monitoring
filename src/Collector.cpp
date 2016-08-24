@@ -20,21 +20,21 @@ namespace AliceO2 {
 namespace Monitoring {
 namespace Core {
 
-Collector::Collector(ConfigFile &mConfigFile) {
-  if (mConfigFile.getValue<int>("InfoLoggerBackend.enable") == 1)
+Collector::Collector(ConfigFile &configFile) {
+  if (configFile.getValue<int>("InfoLoggerBackend.enable") == 1)
     backends.emplace_back(std::unique_ptr<Backend>(new InfoLoggerBackend()));
 
 #ifdef _WITH_APPMON
-  if (mConfigFile.getValue<int>("AppMon.enable") == 1)
+  if (configFile.getValue<int>("AppMon.enable") == 1)
     backends.emplace_back(std::unique_ptr<Backend>(
-      new ApMonBackend(mConfigFile.getValue<string>("AppMon.pathToConfig"))
+      new ApMonBackend(configFile.getValue<string>("AppMon.pathToConfig"))
     ));
 #endif
 
 #ifdef _WITH_INFLUX
-  if (mConfigFile.getValue<int>("InfluxDB.enable") == 1)
+  if (configFile.getValue<int>("InfluxDB.enable") == 1)
     backends.emplace_back(std::unique_ptr<Backend>(
-      new InfluxBackend(mConfigFile.getValue<string>("InfluxDB.writeUrl"))
+      new InfluxBackend(configFile.getValue<string>("InfluxDB.writeUrl"))
     ));
 #endif
 

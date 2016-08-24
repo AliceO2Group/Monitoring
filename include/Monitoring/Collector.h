@@ -49,8 +49,8 @@ private:
 public:
 
   /// Initialaze backends and instance of "derived metric processor" (DerivedMetrics class)
-  /// \param mConfigFile 	configuration object
-  Collector(ConfigFile &mConfigFile);
+  /// \param configFile 	configuration object
+  Collector(ConfigFile &configFile);
 
   /// Generates timestamp in miliseconds
   /// \return timestamp as unsigned long

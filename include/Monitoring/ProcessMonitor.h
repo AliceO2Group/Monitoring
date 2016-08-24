@@ -40,9 +40,10 @@ public:
   /// Joins parent thread if joinable
   ~ProcessMonitor();
 
+private:
+
   /// Launches new thread
   void startMonitor();
-private:
 
   /// Pointer to Collector - used to sent values	
   std::shared_ptr<Collector> collector;

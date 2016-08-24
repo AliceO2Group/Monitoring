@@ -13,7 +13,6 @@ int main() {
 	
   // create monitoring object and confuguration as parameter to constructor
   std::unique_ptr<Monitoring::Core::ProcessMonitor> monitor(new Monitoring::Core::ProcessMonitor(collector, configFile));
-  monitor->startMonitor();
 
   for (;;) {
     collector->send(10, "mainThreadMetric");
