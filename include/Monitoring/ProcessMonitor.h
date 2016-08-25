@@ -8,6 +8,7 @@
 #include <atomic>
 #include <boost/algorithm/string.hpp>
 #include "Collector.h"
+#include <atomic>
 
 namespace AliceO2 {
 /// ALICE O2 Monitoring system
@@ -75,6 +76,8 @@ private:
 
   /// parses above vector of strings into comma seperated string
   void preparePsOptions();
+
+  std::atomic<bool> mStopThread;
 };
 
 } // namespace Core
