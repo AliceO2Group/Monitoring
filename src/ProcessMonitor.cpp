@@ -75,7 +75,7 @@ void ProcessMonitor::threadLoop()
       for (auto const pid : pids) {
         std::vector<std::string> PIDparams = getPIDStatus(pid);
         std::vector<std::pair<std::string, int>>::const_iterator  j = params.begin();
-        for (std::vector<std::string>::const_iterator i = PIDparams.begin(); i != PIDparams.end(); ++i, j++) {
+        for (std::vector<std::string>::const_iterator i = PIDparams.begin(); i != PIDparams.end(); ++i, ++j) {
           switch (j->second) {
             case 0 : collector->sendDirect( std::stoi(*i), j->first);
                      break;

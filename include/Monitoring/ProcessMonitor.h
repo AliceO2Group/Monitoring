@@ -42,6 +42,14 @@ public:
   /// Joins parent thread if joinable
   ~ProcessMonitor();
 
+
+    /// Vector of PID's parameters and values
+    std::vector<std::string> getPIDStatus(int pid);
+
+
+    /// List of PS params with their types: 0 - int, 1 - double, 2 - string
+    const std::vector<std::pair<std::string, int>> params { {"pid", 0 }, {"etime", 2}, {"time", 2}, {"pcpu", 1 }, {"pmem", 1}, {"rsz", 0}, {"vsz", 0}, {"comm", 2} };
+
 private:
 
   /// Launches new thread
@@ -59,8 +67,6 @@ private:
   /// Executes terminal command
   std::string exec(const char* cmd);
 
-  /// Vector of PID's parameters and values
-  std::vector<std::string> getPIDStatus(int pid);
 
   /// options to be passed to PS
   std::string options;
@@ -71,8 +77,6 @@ private:
   /// Thread object
   std::thread monitorThread;
 
-  /// List of PS params with their types: 0 - int, 1 - double, 2 - string
-  const std::vector<std::pair<std::string, int>> params { {"pid", 0 }, {"etime", 2}, {"time", 2}, {"pcpu", 1 }, {"pmem", 1}, {"rsz", 0}, {"vsz", 0}, {"comm", 2} };
 
   /// parses above vector of strings into comma seperated string
   void preparePsOptions();
