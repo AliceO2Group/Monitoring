@@ -29,16 +29,18 @@ public:
 	
   /// Monitors single process
   /// \param collector 	shared pointer to collector, it executes only thread-safe methods of Collector
-  /// \param configFile	constains time interval between updates
+  /// \param configFile	Configuration object
   /// \param pid 	PID number
   ProcessMonitor(std::shared_ptr<Collector> collector, ConfigFile &configFile, int pid);
 
-  /// Monitors multiple processes
+  /// Target constructor, parses vector parameters comma seperated string needed by PS
+  /// and rabs interval value from configuration
+  /// Monitors from 1 to multiple processes (PIDs)
   /// \param collector	shared pointer to collector, it executes only thread-safe methods of Collector
-  /// \param configFile	constains time interval between updates
+  /// \param configFile	Configuration object
   /// \param pids 	vector of PIDs
   ProcessMonitor(std::shared_ptr<Collector> collector, ConfigFile &configFile, std::vector<int> pids);
-	
+
   /// Joins parent thread if joinable
   ~ProcessMonitor();
 
@@ -56,32 +58,32 @@ private:
   void startMonitor();
 
   /// Pointer to Collector - used to sent values	
-  std::shared_ptr<Collector> collector;
+  std::shared_ptr<Collector> mCollector;
   
   /// Time-interval between updates (in seconds)
-  int interval;
+  int mInterval;
 
   /// Vector of PIDs that will be monitored
-  std::vector<int> pids;
+  std::vector<int> mPids;
 
-  /// Executes terminal command
-  std::string exec(const char* cmd);
-
+  /// States whether thread should run or join
+  std::atomic<bool> mRunning;
 
   /// options to be passed to PS
   std::string options;
-
-  /// Main loop of monitoring thread
-  void threadLoop();
 
   /// Thread object
   std::thread monitorThread;
 
 
-  /// parses above vector of strings into comma seperated string
-  void preparePsOptions();
+  /// Executes terminal command
+  std::string exec(const char* cmd);
 
-  std::atomic<bool> mStopThread;
+  /// Vector of PID's parameters and values
+  std::vector<std::string> getPIDStatus(int pid);
+
+  /// Main loop of monitoring thread
+  void threadLoop();
 };
 
 } // namespace Core

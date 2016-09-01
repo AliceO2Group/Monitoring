@@ -10,39 +10,25 @@ namespace Monitoring {
 namespace Core {
 
 
-ProcessMonitor::ProcessMonitor(std::shared_ptr<Collector> collector, ConfigFile &configFile):
-collector(collector), mStopThread(false)
+ProcessMonitor::ProcessMonitor(std::shared_ptr<Collector> collector, ConfigFile &configFile)
+  : ProcessMonitor(collector, configFile, std::vector<int>{ (int) ::getpid() })
 {
-  
-  pids.push_back((int) ::getpid());
-  preparePsOptions();
-  interval = configFile.getValue<int>("ProcessMonitor.interval");
-  startMonitor();
 }
 
-ProcessMonitor::ProcessMonitor(std::shared_ptr<Collector> collector, ConfigFile &configFile, int pid):
-collector(collector), mStopThread(false)
+ProcessMonitor::ProcessMonitor(std::shared_ptr<Collector> collector, ConfigFile &configFile, int pid)
+  : ProcessMonitor(collector, configFile, std::vector<int>{ pid })
 {
-  pids.push_back(pid);
-  preparePsOptions();
-  interval = configFile.getValue<int>("ProcessMonitor.interval");
-  startMonitor();
 }
 
-ProcessMonitor::ProcessMonitor(std::shared_ptr<Collector> collector, ConfigFile &configFile, std::vector<int> pids) : 
-collector(collector), pids(pids), mStopThread(false)
+ProcessMonitor::ProcessMonitor(std::shared_ptr<Collector> collector, ConfigFile &configFile, std::vector<int> pids)
+  : mCollector(collector), mPids(pids)
 {
-  preparePsOptions();
-  interval = configFile.getValue<int>("ProcessMonitor.interval");
-  startMonitor();
-}
-
-
-void ProcessMonitor::preparePsOptions()
-{
+  mInterval = configFile.getValue<int>("ProcessMonitor.interval");
   for (std::vector<std::pair<std::string, int>>::const_iterator i = params.begin(); i != params.end(); ++i) {
     options = options.empty() ? i->first : options += (',' +  i->first);
   }
+  mRunning = true;
+  startMonitor();
 }
 
 std::vector<std::string> ProcessMonitor::getPIDStatus(int pid)
@@ -71,22 +57,22 @@ std::string ProcessMonitor::exec(const char* cmd)
 void ProcessMonitor::threadLoop()
 {
   try {
-    while (!mStopThread) {
-      for (auto const pid : pids) {
+    while (mRunning) {
+      for (auto const pid : mPids) {
         std::vector<std::string> PIDparams = getPIDStatus(pid);
         std::vector<std::pair<std::string, int>>::const_iterator  j = params.begin();
         for (std::vector<std::string>::const_iterator i = PIDparams.begin(); i != PIDparams.end(); ++i, ++j) {
           switch (j->second) {
-            case 0 : collector->sendDirect( std::stoi(*i), j->first);
+            case 0 : mCollector->sendDirect( std::stoi(*i), j->first);
                      break;
-            case 1 : collector->sendDirect( std::stod(*i), j->first);
+            case 1 : mCollector->sendDirect( std::stod(*i), j->first);
                      break;
-            case 2 : collector->sendDirect(*i, j->first);
+            case 2 : mCollector->sendDirect(*i, j->first);
                      break;
           }
         }
       }
-      std::this_thread::sleep_for (std::chrono::seconds(interval));
+      std::this_thread::sleep_for (std::chrono::seconds(mInterval));
     }
   } catch (runtime_error& e) {
     MonInfoLogger::GetInstance() << "Process Monitoritor failed to sent data: " << e.what() 
@@ -100,7 +86,7 @@ void ProcessMonitor::startMonitor()
 }
 ProcessMonitor::~ProcessMonitor()
 {
-  mStopThread = true;
+  mRunning = false;
   if (monitorThread.joinable()) {
     monitorThread.join();
   }
