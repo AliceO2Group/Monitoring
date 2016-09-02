@@ -6,10 +6,15 @@
 #include <map>
 #include <chrono>
 #include <memory>
+#include <tuple>
+#include <atomic>
+#include <thread>
 #include "Configuration/Configuration.h"
 #include "Monitoring/Backend.h"
 #include "Monitoring/Metric.h"
 #include "Monitoring/DerivedMetrics.h"
+#include "Monitoring/ProcessMonitor.h"
+
 
 namespace AliceO2 {
 /// ALICE O2 Monitoring system
@@ -43,6 +48,19 @@ private:
   /// Default entity value, see setUniqueEntity method
   std::string uniqueEntity;
 
+  /// States whether Process Monitor thread should run or join
+  std::atomic<bool> mMonitorRunning;
+
+  /// Process Monitor thread  
+  std::thread monitorThread;
+
+  /// Process Monitor loop (of new thread)
+  void processMonitorLoop(int interval);
+
+  /// Process Monitor object
+  /// If automatic updates are not enabled still "monitorUpdate" method can be used
+  std::unique_ptr<ProcessMonitor> processMonitor;
+
   /// Generates entity value as concatenated hostname and process id
   void setUniqueEntity();
 
@@ -51,6 +69,9 @@ public:
   /// Initialaze backends and instance of "derived metric processor" (DerivedMetrics class)
   /// \param configFile 	configuration object
   Collector(ConfigFile &configFile);
+
+  /// Wait and join monitoring thread
+  ~Collector();
 
   /// Generates timestamp in miliseconds
   /// \return timestamp as unsigned long
@@ -74,9 +95,6 @@ public:
   /// \param mode
   /// \param name
   void addDerivedMetric(DerivedMetricMode mode, std::string name);
-	
-  /// Default destructor
-  ~Collector() = default;
 
   /// Sends Metric object to backend
   /// \param metric	 r-value pointer to Metric
@@ -86,6 +104,14 @@ public:
   template<typename T>
   void sendDirect(T value, std::string name, 
                   std::chrono::time_point<std::chrono::system_clock> timestamp = Collector::getCurrentTimestamp()) const;
+
+  /// Manual update and send of Process Monitor parameters
+  void monitorUpdate();
+
+  /// Add process PID that will be automatically monitored
+  /// \param pid
+  void addMonitoredPid(int pid);
+
 };
 } // namespace Core
 } // namespace Monitoring

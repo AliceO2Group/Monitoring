@@ -1,5 +1,5 @@
 #include <iostream>
-#include "Monitoring/ProcessMonitor.h"
+#include "Monitoring/Collector.h"
 
 namespace Monitoring = AliceO2::Monitoring;
 

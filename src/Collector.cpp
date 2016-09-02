@@ -37,11 +37,26 @@ Collector::Collector(ConfigFile &configFile) {
       new InfluxBackend(configFile.getValue<string>("InfluxDB.writeUrl"))
     ));
 #endif
-
   setUniqueEntity();
+  
+  processMonitor = std::unique_ptr<ProcessMonitor>(new ProcessMonitor());
+  if (configFile.getValue<int>("ProcessMonitor.enable") == 1) {
+    int interval = configFile.getValue<int>("ProcessMonitor.interval");
+    mMonitorRunning = true;
+    monitorThread = std::thread(&Collector::processMonitorLoop, this, interval);  
+    MonInfoLogger::GetInstance() << "Process Monitor : Automatic updates enabled" << AliceO2::InfoLogger::InfoLogger::endm;
+  }
 }
 
-void Collector::setUniqueEntity(){
+Collector::~Collector() {
+  mMonitorRunning = false;
+  if (monitorThread.joinable()) {
+    monitorThread.join();
+  }
+
+}
+
+void Collector::setUniqueEntity() {
   char hostname[255];
   gethostname(hostname, 255);
 
@@ -52,6 +67,35 @@ void Collector::setUniqueEntity(){
 }
 void Collector::setEntity(std::string entity) {
 	uniqueEntity = entity;
+}
+
+void Collector::monitorUpdate() {
+  ///           1-3    name    value
+  /// std::tuple<int, string, string>
+  for (auto const pid : processMonitor->getPidsDetails()) {
+    switch (std::get<0>(pid)) {
+      // convert to int
+      case 0 : sendDirect( std::stoi(std::get<1>(pid)), std::get<2>(pid));
+               break;
+      // convert to double
+      case 1 : sendDirect( std::stod(std::get<1>(pid)), std::get<2>(pid));
+               break;
+      // do not convert (string)
+      case 2 : sendDirect(std::get<1>(pid), std::get<2>(pid));
+               break;
+    }
+  }
+}
+
+void Collector::processMonitorLoop(int interval) {
+  while (mMonitorRunning) {
+    monitorUpdate();
+    std::this_thread::sleep_for (std::chrono::seconds(interval));
+  }
+}
+
+void Collector::addMonitoredPid(int pid) {
+  processMonitor->addPid(pid);
 }
 
 std::chrono::time_point<std::chrono::system_clock> Collector::getCurrentTimestamp() {
