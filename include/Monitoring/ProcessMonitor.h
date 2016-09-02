@@ -79,9 +79,6 @@ private:
   /// Executes terminal command
   std::string exec(const char* cmd);
 
-  /// Vector of PID's parameters and values
-  std::vector<std::string> getPIDStatus(int pid);
-
   /// Main loop of monitoring thread
   void threadLoop();
 };
