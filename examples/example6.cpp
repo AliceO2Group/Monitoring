@@ -10,12 +10,12 @@ int main() {
 
   // create monitoring object and confuguration as parameter to constructor
   std::shared_ptr<Monitoring::Core::Collector> collector(new Monitoring::Core::Collector(configFile));
-	
-  // create monitoring object and confuguration as parameter to constructor
-  std::unique_ptr<Monitoring::Core::ProcessMonitor> monitor(new Monitoring::Core::ProcessMonitor(collector, configFile));
 
+  collector->addMonitoredPid(1);
+	
   for (;;) {
     collector->send(10, "mainThreadMetric");
+    collector->monitorUpdate();
     std::this_thread::sleep_for(std::chrono::seconds(1));
   }
 }	
