@@ -20,6 +20,9 @@ namespace Core {
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 
 class ProcessMonitor {
+
+friend class Collector;
+
 public:
   /// Enables self monitoring
   /// \param collector	shared pointer to collector, it executes only thread-safe methods of Collector
