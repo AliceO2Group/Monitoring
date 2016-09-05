@@ -67,7 +67,7 @@ private:
   /// \param value 	metric value converted into string
   /// \param timestamp	timestamp in nanoseconds
   /// \return 		0 - success, 1 - wrong response code, 2 - conectivity issues
-  int curlWrite(const std::string value, const std::string name, const std::string entity, const unsigned long timestamp);
+  int curlWrite(const std::string value, std::string name, const std::string entity, const unsigned long timestamp);
 
 };
 

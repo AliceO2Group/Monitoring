@@ -1,5 +1,6 @@
 #include <iostream>
 #include <curl/curl.h>
+#include <boost/algorithm/string.hpp>
 #include "Monitoring/MonInfoLogger.h"
 #include "Monitoring/InfluxBackend.h"
 
@@ -48,9 +49,12 @@ void InfluxBackend::send(const uint32_t value, const std::string name, const std
   curlWrite(std::to_string(value), name, entity, convertTimestamp(timestamp));
 }
 
-int InfluxBackend::curlWrite(const std::string value, const std::string name, const std::string entity, 
+int InfluxBackend::curlWrite(const std::string value, std::string name, const std::string entity, 
                              const unsigned long timestamp)
 {
+  // escape space in name for InluxDB
+  boost::replace_all(name, " ", "\\ ");
+
   std::stringstream convert;
   CURL *curl;
   CURLcode response;
