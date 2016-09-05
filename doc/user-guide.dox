@@ -171,7 +171,7 @@
                #include "Monitoring/Collector.h"
                namespace Monitoring = AliceO2::Monitoring;
                ...
-	       // create configuration
+               // create configuration
                ConfigFile mConfigFile;
                mConfigFile.load("file:/home/awegrzyn/hackathon/Monitoring/examples/example.ini");
 
@@ -245,6 +245,7 @@
                // now send an application specific metric
                // 10 is the value 
                // myCrazyMetric is the name of the metric
+               // timestamp as 3rd parameter
                collector->send(10, "myCrazyMetric", timestamp);
                ...
                         \endcode
@@ -273,6 +274,7 @@
 
                // now send at least two metrics to see the result
                collector->send(10, "myCrazyMetric");
+               ...
                collector->send(20, "myCrazyMetric");
                ...
                         \endcode
@@ -284,25 +286,26 @@
 	Library allows to monitor current process or other processes running at the same machine.
 
         \code
-	#include "Monitoring/Collector.h"
-	namespace Monitoring = AliceO2::Monitoring;
-	...
-	// create configuration
-	ConfigFile mConfigFile;
-	mConfigFile.load("file:/home/awegrzyn/hackathon/Monitoring/examples/example.ini");
+        #include "Monitoring/Collector.h"
+        namespace Monitoring = AliceO2::Monitoring;
+        ...
+        // create configuration
+        ConfigFile mConfigFile;
+        mConfigFile.load("file:/home/awegrzyn/hackathon/Monitoring/examples/example.ini");
 
-	// create monitoring object
-	// pass reference of configuration object as argument
-	std::unique_ptr<Monitoring::Core::Collector> collector(new Monitoring::Core::Collector(mConfigFile));
-	...
-	// create monitoring object and confuguration as parameter to constructor
-	std::unique_ptr<Monitoring::Core::ProcessMonitor> monitor(new Monitoring::Core::ProcessMonitor(collector));
-	monitor->startMonitor();
-	...
-	/// continue execution of main thread
+        // create monitoring object
+        // pass reference of configuration object as argument
+        std::unique_ptr<Monitoring::Core::Collector> collector(new Monitoring::Core::Collector(mConfigFile));
+        ...
+        // add additional PID to be monitored
+        collector->addMonitoredPid(1);
+
+        // manual monitor update
+        collector->monitorUpdate();
+        ...
+        /// continue execution of main thread
         \endcode
 
-        ProcessMonitoring can also monitor other process or list of processes. The constructor accepts PID (int) or list of PIDs (std::vector<int>) as its second argument.
 	The full code is available in \a examples/example6.cpp
 
 @subsection Running Running
