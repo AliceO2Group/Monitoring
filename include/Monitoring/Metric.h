@@ -19,16 +19,16 @@ class Metric {
 protected:
 
   /// Metric value
-  const boost::variant< int, std::string, double, uint32_t > value;
+  const boost::variant< int, std::string, double, uint32_t > mValue;
 	
   /// Metric name
-  const std::string name;
+  const std::string mName;
 
   /// Metric entity (origin)
-  const std::string entity;
+  const std::string mEntity;
 
   /// Metric timestamp
-  const std::chrono::time_point<std::chrono::system_clock> timestamp;
+  const std::chrono::time_point<std::chrono::system_clock> mTimestamp;
         
 public:
 

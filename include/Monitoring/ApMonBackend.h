@@ -69,7 +69,9 @@ private:
   /// \param timestamp 	timestamp in std::chrono::time_point format
   /// \return 		timestamp as integer (miliseconds from epoch)
   int convertTimestamp(const std::chrono::time_point<std::chrono::system_clock> timestamp);
+  
   ApMon* mApMon; ///< ApMon object
+
 };
 
 } // namespace Core

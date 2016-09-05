@@ -30,11 +30,11 @@ private:
   const int MAX_VECTOR_SIZE = 1000;
 	
   /// Cache of registered metrics (metric name / vector of metric pointers).
-  std::map <std::string, std::vector<std::unique_ptr<Metric>>> cache;
+  std::map <std::string, std::vector<std::unique_ptr<Metric>>> mCache;
 
   /// Registered metrics with their modes (metric name, registered mode).
   /// See list of modes in begiing of the file.
-  std::map <std::string, DerivedMetricMode> registered;
+  std::map <std::string, DerivedMetricMode> mRegistered;
 
 public:
 
@@ -53,7 +53,7 @@ public:
   /// Following processing modes are supported: REGISTER_RATE, REGISTER_AVERAGE
   /// \param mode 	mode, see DerivedMetricMode
   /// \param name 	name, metrics name
-	void registerMetric(DerivedMetricMode mode, std::string name);
+  void registerMetric(DerivedMetricMode mode, std::string name);
 
   /// Handles metric processing, switches over processing modes
   template<typename T> 

@@ -40,13 +40,13 @@ private:
 
   /// Object responsible from derived metrics
   /// \see class DerivedMetrics
-  DerivedMetrics derivedHandler;
+  DerivedMetrics mDerivedHandler;
 
   /// Vector of backends (where the values are send to).
-  std::vector <std::unique_ptr<Backend>> backends;
+  std::vector <std::unique_ptr<Backend>> mBackends;
     
   /// Default entity value, see setUniqueEntity method
-  std::string uniqueEntity;
+  std::string mUniqueEntity;
 
   /// States whether Process Monitor thread should run or join
   std::atomic<bool> mMonitorRunning;
@@ -54,12 +54,12 @@ private:
   /// Process Monitor thread  
   std::thread monitorThread;
 
-  /// Process Monitor loop (of new thread)
-  void processMonitorLoop(int interval);
-
   /// Process Monitor object
   /// If automatic updates are not enabled still "monitorUpdate" method can be used
-  std::unique_ptr<ProcessMonitor> processMonitor;
+  std::unique_ptr<ProcessMonitor> mProcessMonitor;
+
+  /// Process Monitor loop (of new thread)
+  void processMonitorLoop(int interval);
 
   /// Generates entity value as concatenated hostname and process id
   void setUniqueEntity();

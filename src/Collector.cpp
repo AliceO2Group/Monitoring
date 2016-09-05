@@ -22,24 +22,24 @@ namespace Core {
 
 Collector::Collector(ConfigFile &configFile) {
   if (configFile.getValue<int>("InfoLoggerBackend.enable") == 1)
-    backends.emplace_back(std::unique_ptr<Backend>(new InfoLoggerBackend()));
+    mBackends.emplace_back(std::unique_ptr<Backend>(new InfoLoggerBackend()));
 
 #ifdef _WITH_APPMON
   if (configFile.getValue<int>("AppMon.enable") == 1)
-    backends.emplace_back(std::unique_ptr<Backend>(
+    mBackends.emplace_back(std::unique_ptr<Backend>(
       new ApMonBackend(configFile.getValue<string>("AppMon.pathToConfig"))
     ));
 #endif
 
 #ifdef _WITH_INFLUX
   if (configFile.getValue<int>("InfluxDB.enable") == 1)
-    backends.emplace_back(std::unique_ptr<Backend>(
+    mBackends.emplace_back(std::unique_ptr<Backend>(
       new InfluxBackend(configFile.getValue<string>("InfluxDB.writeUrl"))
     ));
 #endif
   setUniqueEntity();
   
-  processMonitor = std::unique_ptr<ProcessMonitor>(new ProcessMonitor());
+  mProcessMonitor = std::unique_ptr<ProcessMonitor>(new ProcessMonitor());
   if (configFile.getValue<int>("ProcessMonitor.enable") == 1) {
     int interval = configFile.getValue<int>("ProcessMonitor.interval");
     mMonitorRunning = true;
@@ -63,16 +63,16 @@ void Collector::setUniqueEntity() {
   std::ostringstream format;
   format << hostname << "." << getpid();
 
-  uniqueEntity = format.str();
+  mUniqueEntity = format.str();
 }
 void Collector::setEntity(std::string entity) {
-	uniqueEntity = entity;
+	mUniqueEntity = entity;
 }
 
 void Collector::monitorUpdate() {
   ///           1-3    name    value
   /// std::tuple<int, string, string>
-  for (auto const pid : processMonitor->getPidsDetails()) {
+  for (auto const pid : mProcessMonitor->getPidsDetails()) {
     switch (std::get<0>(pid)) {
       // convert to int
       case 0 : sendDirect( std::stoi(std::get<1>(pid)), std::get<2>(pid));
@@ -95,7 +95,7 @@ void Collector::processMonitorLoop(int interval) {
 }
 
 void Collector::addMonitoredPid(int pid) {
-  processMonitor->addPid(pid);
+  mProcessMonitor->addPid(pid);
 }
 
 std::chrono::time_point<std::chrono::system_clock> Collector::getCurrentTimestamp() {
@@ -104,27 +104,27 @@ std::chrono::time_point<std::chrono::system_clock> Collector::getCurrentTimestam
 
 template<typename T>
 void Collector::sendMetric(std::unique_ptr<Metric> &&metric, T) {
-  for (auto& b: backends) {
+  for (auto& b: mBackends) {
     b->send(boost::get<T>(metric->getValue()), metric->getName(), metric->getEntity(), metric->getTimestamp());
   }
 }
 
 void Collector::addDerivedMetric(DerivedMetricMode mode, std::string name) {
-  derivedHandler.registerMetric(mode, name);
+  mDerivedHandler.registerMetric(mode, name);
 }
 
 template<typename T> 
 inline void Collector::sendDirect(T value, std::string name, std::chrono::time_point<std::chrono::system_clock> timestamp) const {
-  for (auto& b: backends) {
-    b->send(value, name, uniqueEntity, timestamp);
+  for (auto& b: mBackends) {
+    b->send(value, name, mUniqueEntity, timestamp);
   }
 }
 
 template<typename T>
 void Collector::send(T value, std::string name, std::chrono::time_point<std::chrono::system_clock> timestamp) {
-  if (derivedHandler.isRegistered(name)) {
+  if (mDerivedHandler.isRegistered(name)) {
     try {
-      std::unique_ptr<Metric> derived = derivedHandler.processMetric(value, name, uniqueEntity, timestamp);
+      std::unique_ptr<Metric> derived = mDerivedHandler.processMetric(value, name, mUniqueEntity, timestamp);
       if (derived != nullptr) sendMetric(std::move(derived), value);
     } catch(boost::bad_get e) {
       throw std::runtime_error("Derived metrics failed : metric " + name + " has incorrect type");

@@ -46,10 +46,10 @@ private:
   std::vector<int> mPids;
 
   /// options to be passed to PS
-  std::string options;
+  std::string mOptions;
 
   /// mutex to lock vector of PIDs
-  std::mutex vectorPidLock;
+  std::mutex mVectorPidLock;
 
   /// List of PS params with their types: 0 - int, 1 - double, 2 - string
   const std::vector<std::pair<std::string, int>> params { {"pid", 0 }, {"etime", 2}, {"time", 2}, {"pcpu", 1 }, {"pmem", 1}, {"rsz", 0}, {"vsz", 0}, {"comm", 2} };

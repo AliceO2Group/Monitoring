@@ -14,14 +14,14 @@ ProcessMonitor::ProcessMonitor()
 {
   mPids.push_back( (int) ::getpid() );
   for (std::vector<std::pair<std::string, int>>::const_iterator i = params.begin(); i != params.end(); ++i) {
-    options = options.empty() ? i->first : options += (',' +  i->first);
+    mOptions = mOptions.empty() ? i->first : mOptions += (',' +  i->first);
   }
 }
 
 std::vector<std::tuple<int, std::string, std::string>> ProcessMonitor::getPidsDetails()
 {
   std::vector<std::tuple<int, std::string, std::string>> allPidsParams;
-  std::lock_guard<std::mutex> lock(vectorPidLock);
+  std::lock_guard<std::mutex> lock(mVectorPidLock);
   for (auto const pid : mPids) {
     std::vector<std::string> PIDparams = getPIDStatus(pid);
     std::vector<std::pair<std::string, int>>::const_iterator  j = params.begin();
@@ -34,13 +34,13 @@ std::vector<std::tuple<int, std::string, std::string>> ProcessMonitor::getPidsDe
 
 
 void ProcessMonitor::addPid(int pid) {
-  std::lock_guard<std::mutex> lock(vectorPidLock);
+  std::lock_guard<std::mutex> lock(mVectorPidLock);
   mPids.push_back(pid);
 }
 
 std::vector<std::string> ProcessMonitor::getPIDStatus(int pid)
 {
-  std::string command = "ps --no-headers --pid " + std::to_string(pid) + " -o " + options;
+  std::string command = "ps --no-headers --pid " + std::to_string(pid) + " -o " + mOptions;
   std::string output = exec(command.c_str());
   std::vector<std::string> params;
   boost::trim(output);
