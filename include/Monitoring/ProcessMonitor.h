@@ -32,10 +32,6 @@ public:
   /// Default destructor
   ~ProcessMonitor() = default;
 
-
-  /// Vector of PID's parameters and values
-  std::vector<std::string> getPIDStatus(int pid);
-
   /// Generates vector of parameters for all PIDs
   /// \return	vactor of tuples; 3 values (type, name, value)
   std::vector<std::tuple<int, std::string, std::string>> getPidsDetails();
@@ -59,6 +55,9 @@ private:
 
   /// Executes terminal command
   std::string exec(const char* cmd);
+
+  /// Vector of PID's parameters and values
+  std::vector<std::string> getPIDStatus(int pid);
 
 };
 
