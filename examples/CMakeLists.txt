@@ -1,17 +1,14 @@
-add_executable(Example1 example1.cpp)
-target_link_libraries(Example1 DataCollector)
+add_executable(1-Basic 1-Basic.cxx)
+target_link_libraries(1-Basic DataCollector)
 
-add_executable(Example2 example2.cpp)
-target_link_libraries(Example2 DataCollector)
+add_executable(2-UserDefinedEntity 2-UserDefinedEntity.cxx)
+target_link_libraries(2-UserDefinedEntity DataCollector)
 
-add_executable(Example3 example3.cpp)
-target_link_libraries(Example3 DataCollector)
+add_executable(3-UserDefinedTimestamp 3-UserDefinedTimestamp.cxx)
+target_link_libraries(3-UserDefinedTimestamp DataCollector)
 
-add_executable(Example4 example4.cpp)
-target_link_libraries(Example4 DataCollector)
+add_executable(4-RateDerivedMetric 4-RateDerivedMetric.cxx)
+target_link_libraries(4-RateDerivedMetric DataCollector)
 
-add_executable(Example5 example5.cpp)
-target_link_libraries(Example5 DataCollector)
-
-add_executable(Example6 example6.cpp)
-target_link_libraries(Example6 DataCollector)
+add_executable(5-MonitorAdditionalPid 5-MonitorAdditionalPid.cxx)
+target_link_libraries(5-MonitorAdditionalPid DataCollector)

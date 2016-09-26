@@ -6,7 +6,7 @@ namespace Monitoring = AliceO2::Monitoring;
 int main() {
 
   ConfigFile configFile;
-  configFile.load("file:/home/awegrzyn/hackathon/Monitoring/examples/example.ini");
+  configFile.load("file:/home/awegrzyn/hackathon/Monitoring/examples/SampleConfig.ini");
 
   // create monitoring object and confuguration as parameter to constructor
   std::shared_ptr<Monitoring::Core::Collector> collector(new Monitoring::Core::Collector(configFile));
