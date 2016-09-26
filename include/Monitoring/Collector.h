@@ -1,17 +1,17 @@
 #ifndef ALICEO2_MONITORING_CORE_COLLECTOR_H
 #define ALICEO2_MONITORING_CORE_COLLECTOR_H
 
-#include <string>
-#include <vector>
-#include <map>
-#include <chrono>
-#include <memory>
-#include <tuple>
 #include <atomic>
+#include <chrono>
+#include <map>
+#include <memory>
+#include <string>
 #include <thread>
-#include "Configuration/Configuration.h"
+#include <tuple>
+#include <vector>
+
+#include <Configuration/Configuration.h>
 #include "Monitoring/Backend.h"
-#include "Monitoring/Metric.h"
 #include "Monitoring/DerivedMetrics.h"
 #include "Monitoring/ProcessMonitor.h"
 

@@ -1,13 +1,13 @@
 #ifndef ALICEO2_MONITORING_CORE_PROCESSMONITOR_H
 #define ALICEO2_MONITORING_CORE_PROCESSMONITOR_H
 
+#include <atomic>
+#include <boost/algorithm/string.hpp>
+#include <mutex>
 #include <iostream>
 #include <string>
-#include <vector>
 #include <thread>
-#include <atomic>
-#include <mutex>
-#include <boost/algorithm/string.hpp>
+#include <vector>
 
 namespace AliceO2 {
 /// ALICE O2 Monitoring system

@@ -1,7 +1,7 @@
+#include "ApMonBackend.h"
 #include <iostream>
 #include <sstream>
-#include "Monitoring/MonInfoLogger.h"
-#include "Monitoring/ApMonBackend.h"
+#include "MonInfoLogger.h"
 
 namespace AliceO2 {
 namespace Monitoring {

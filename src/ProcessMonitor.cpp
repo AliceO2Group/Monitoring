@@ -1,9 +1,10 @@
-#include <chrono> 
-#include <sstream>
+#include "Monitoring/ProcessMonitor.h"
+
 #include <boost/algorithm/string/classification.hpp> 
 #include <boost/algorithm/string/split.hpp>
-#include "Monitoring/ProcessMonitor.h"
-#include "Monitoring/MonInfoLogger.h"
+#include <chrono>
+#include <sstream>
+#include "MonInfoLogger.h"
 
 namespace AliceO2 {
 namespace Monitoring {

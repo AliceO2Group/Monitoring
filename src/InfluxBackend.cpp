@@ -1,8 +1,9 @@
-#include <iostream>
-#include <curl/curl.h>
+#include "InfluxBackend.h"
+
 #include <boost/algorithm/string.hpp>
-#include "Monitoring/MonInfoLogger.h"
-#include "Monitoring/InfluxBackend.h"
+#include <curl/curl.h>
+#include <iostream>
+#include "MonInfoLogger.h"
 
 namespace AliceO2 {
 namespace Monitoring {
@@ -15,7 +16,7 @@ inline unsigned long InfluxBackend::convertTimestamp(std::chrono::time_point<std
     timestamp.time_since_epoch()
   ).count();
 }
-InfluxBackend::InfluxBackend(string _url)
+InfluxBackend::InfluxBackend(std::string _url)
 {
   url = _url;
   curl_global_init(CURL_GLOBAL_ALL);

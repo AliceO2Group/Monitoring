@@ -1,12 +1,13 @@
+#include "Monitoring/DerivedMetrics.h"
+
+#include <chrono>
 #include <iostream>
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
-#include <chrono>
-#include <map>
-#include "Monitoring/DerivedMetrics.h"
-#include "Monitoring/InfoLoggerBackend.h"
-#include "Monitoring/MonInfoLogger.h"
+#include "InfoLoggerBackend.h"
+#include "MonInfoLogger.h"
 
 namespace AliceO2 {
 namespace Monitoring {

@@ -3,11 +3,9 @@
 
 set(LIB_HEADERS
   "${CMAKE_CURRENT_BINARY_DIR}/../include/Monitoring/Version.h" # Generated header  
-  ../include/Monitoring/MonInfoLogger.h
   ../include/Monitoring/Backend.h
   ../include/Monitoring/Collector.h
   ../include/Monitoring/Metric.h
-  ../include/Monitoring/InfoLoggerBackend.h
   ../include/Monitoring/DerivedMetrics.h
   ../include/Monitoring/ProcessMonitor.h
 )
@@ -22,7 +20,6 @@ set(LIB_SOURCES
 
 if(APMON_FOUND)
 	message(STATUS "  Adding ApMon backend classes...")
-	list(APPEND LIB_HEADERS ../include/Monitoring/ApMonBackend.h)
 	list(APPEND LIB_SOURCES ApMonBackend.cpp)
 endif()
 FIND_PACKAGE(CURL)
@@ -30,7 +27,6 @@ if(CURL_FOUND)
         message(STATUS "libcurl found")
 	message(STATUS "  Compiling InfluxDB Backend")
 	add_definitions(-D_WITH_INFLUX)
-        list(APPEND LIB_HEADERS ../include/Monitoring/InfluxBackend.h)
         list(APPEND LIB_SOURCES InfluxBackend.cpp)
 endif()
 

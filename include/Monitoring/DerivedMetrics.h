@@ -1,10 +1,11 @@
 #ifndef ALICEO2_MONITORING_CORE_DERIVED_METRICS_H
 #define ALICEO2_MONITORING_CORE_DERIVED_METRICS_H
 
-#include <string>
-#include <vector>
 #include <map>
 #include <memory>
+#include <string>
+#include <vector>
+
 #include "Monitoring/Metric.h"
 
 namespace AliceO2 {

@@ -1,8 +1,10 @@
+#include "Monitoring/Metric.h"
+
 #include <iostream>
 #include <chrono>
-#include <vector>
 #include <memory>
-#include "Monitoring/Metric.h"
+#include <vector>
+
 
 namespace AliceO2 {
 namespace Monitoring {

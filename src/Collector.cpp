@@ -1,19 +1,20 @@
+#include "Monitoring/Collector.h"
+
+#include <chrono>
 #include <iostream>
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
-#include <chrono>
-#include <map>
-#include "Monitoring/Collector.h"
-#include "Monitoring/MonInfoLogger.h"
-#include "Monitoring/InfoLoggerBackend.h"
+#include "MonInfoLogger.h"
+#include "InfoLoggerBackend.h"
 
 #ifdef _WITH_APPMON
-#include "Monitoring/ApMonBackend.h"
+#include "ApMonBackend.h"
 #endif
 
 #ifdef _WITH_INFLUX
-#include "Monitoring/InfluxBackend.h"
+#include "InfluxBackend.h"
 #endif
 
 namespace AliceO2 {
