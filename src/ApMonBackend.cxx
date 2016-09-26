@@ -1,11 +1,21 @@
+///
+/// \file ApMonBackend.cxx
+/// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
+///
+
 #include "ApMonBackend.h"
 #include <iostream>
 #include <sstream>
 #include "MonInfoLogger.h"
 
-namespace AliceO2 {
-namespace Monitoring {
-namespace Core {
+namespace AliceO2 
+{
+/// ALICE O2 Monitoring system
+namespace Monitoring 
+{
+/// Core features of ALICE O2 Monitoring system
+namespace Core
+{
 
 ApMonBackend::ApMonBackend(const std::string configurationFile)
 {

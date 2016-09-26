@@ -1,12 +1,22 @@
+///
+/// \file MonInfoLogger.h
+/// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
+///
+
 #ifndef MONITORING_MONINFOLOGGER_H
 #define MONITORING_MONINFOLOGGER_H
 
 #include <iostream>
 #include <InfoLogger/InfoLogger.hxx>
 
-namespace AliceO2 {
-namespace Monitoring {
-namespace Core {
+namespace AliceO2
+{
+/// ALICE O2 Monitoring system
+namespace Monitoring
+{
+/// Core features of ALICE O2 Monitoring system
+namespace Core
+{
 
 using namespace std;
 

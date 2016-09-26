@@ -1,3 +1,8 @@
+///
+/// \file DerivedMetrics.h
+/// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
+///
+
 #ifndef ALICEO2_MONITORING_CORE_DERIVED_METRICS_H
 #define ALICEO2_MONITORING_CORE_DERIVED_METRICS_H
 
@@ -8,14 +13,17 @@
 
 #include "Monitoring/Metric.h"
 
-namespace AliceO2 {
+namespace AliceO2
+{
 /// ALICE O2 Monitoring system
-namespace Monitoring {
+namespace Monitoring
+{
 /// Core features of ALICE O2 Monitoring system
-namespace Core {
+namespace Core
+{
 	
-  /// Avaliable derived metric modes : RATE and AVERAGE values
-  enum class DerivedMetricMode { RATE, AVERAGE };
+/// Avaliable derived metric modes : RATE and AVERAGE values
+enum class DerivedMetricMode { RATE, AVERAGE };
 
 /// \brief Calculates derived metrics (rate, average...)
 ///

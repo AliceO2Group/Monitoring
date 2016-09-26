@@ -1,14 +1,22 @@
+///
+/// \file Backend.h
+/// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
+///
+
 #ifndef ALICEO2_MONITORING_CORE_BACKEND_H
 #define ALICEO2_MONITORING_CORE_BACKEND_H
 
 #include <chrono>
 #include <string>
 
-namespace AliceO2 {
+namespace AliceO2
+{
 /// ALICE O2 Monitoring system
-namespace Monitoring {
+namespace Monitoring 
+{
 /// Core features of ALICE O2 Monitoring system
-namespace Core {
+namespace Core 
+{
 
 /// \brief Interface for backends - pure virtual class
 ///

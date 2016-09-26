@@ -1,3 +1,8 @@
+///
+/// \file ProcessMonitor.h
+/// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
+///
+
 #ifndef ALICEO2_MONITORING_CORE_PROCESSMONITOR_H
 #define ALICEO2_MONITORING_CORE_PROCESSMONITOR_H
 
@@ -9,11 +14,14 @@
 #include <thread>
 #include <vector>
 
-namespace AliceO2 {
+namespace AliceO2
+{
 /// ALICE O2 Monitoring system
-namespace Monitoring {
+namespace Monitoring
+{
 /// Core features of ALICE O2 Monitoring system
-namespace Core {
+namespace Core
+{
 
 /// \brief Allows self monitoring or to monitor processes running at the same machine
 ///

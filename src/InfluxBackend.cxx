@@ -1,3 +1,8 @@
+///
+/// \file InfluxBackend.cxx
+/// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
+///
+
 #include "InfluxBackend.h"
 
 #include <boost/algorithm/string.hpp>
@@ -5,10 +10,14 @@
 #include <iostream>
 #include "MonInfoLogger.h"
 
-namespace AliceO2 {
-namespace Monitoring {
-namespace Core {
-
+namespace AliceO2
+{
+/// ALICE O2 Monitoring system
+namespace Monitoring
+{
+/// Core features of ALICE O2 Monitoring system
+namespace Core
+{
 
 inline unsigned long InfluxBackend::convertTimestamp(std::chrono::time_point<std::chrono::system_clock> timestamp)
 {

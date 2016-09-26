@@ -1,3 +1,8 @@
+///
+/// \file Metric.cxx
+/// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
+///
+
 #include "Monitoring/Metric.h"
 
 #include <iostream>
@@ -6,9 +11,14 @@
 #include <vector>
 
 
-namespace AliceO2 {
-namespace Monitoring {
-namespace Core {
+namespace AliceO2
+{
+/// ALICE O2 Monitoring system
+namespace Monitoring
+{
+/// Core features of ALICE O2 Monitoring system
+namespace Core
+{
 
 std::string Metric::getEntity()
 {

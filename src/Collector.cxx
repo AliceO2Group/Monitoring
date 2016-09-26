@@ -1,3 +1,8 @@
+///
+/// \file Collector.cxx
+/// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
+///
+
 #include "Monitoring/Collector.h"
 
 #include <chrono>
@@ -17,9 +22,14 @@
 #include "InfluxBackend.h"
 #endif
 
-namespace AliceO2 {
-namespace Monitoring {
-namespace Core {
+namespace AliceO2 
+{
+/// ALICE O2 Monitoring system
+namespace Monitoring 
+{
+/// Core features of ALICE O2 Monitoring system
+namespace Core
+{
 
 Collector::Collector(ConfigFile &configFile) {
   if (configFile.getValue<int>("InfoLoggerBackend.enable") == 1)

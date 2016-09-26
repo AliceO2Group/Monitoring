@@ -1,3 +1,8 @@
+///
+/// \file DerivedMetrics.cxx
+/// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
+///
+
 #include "Monitoring/DerivedMetrics.h"
 
 #include <chrono>
@@ -9,9 +14,14 @@
 #include "InfoLoggerBackend.h"
 #include "MonInfoLogger.h"
 
-namespace AliceO2 {
-namespace Monitoring {
-namespace Core {
+namespace AliceO2
+{
+/// ALICE O2 Monitoring system
+namespace Monitoring 
+{
+/// Core features of ALICE O2 Monitoring system
+namespace Core 
+{
 
 void DerivedMetrics::registerMetric(DerivedMetricMode mode, std::string name) {
   mRegistered.insert(std::pair<std::string, DerivedMetricMode>(name, mode));

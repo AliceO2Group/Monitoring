@@ -1,3 +1,8 @@
+///
+/// \file ProcessMonitor.cxx
+/// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
+///
+
 #include "Monitoring/ProcessMonitor.h"
 
 #include <boost/algorithm/string/classification.hpp> 
@@ -6,9 +11,14 @@
 #include <sstream>
 #include "MonInfoLogger.h"
 
-namespace AliceO2 {
-namespace Monitoring {
-namespace Core {
+namespace AliceO2
+{
+/// ALICE O2 Monitoring system
+namespace Monitoring
+{
+/// Core features of ALICE O2 Monitoring system
+namespace Core
+{
 
 
 ProcessMonitor::ProcessMonitor()

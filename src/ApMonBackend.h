@@ -1,3 +1,8 @@
+///
+/// \file ApMonBackend.h
+/// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
+///
+
 #ifndef ALICEO2_MONITORING_CORE_APMON_BACKEND_H
 #define ALICEO2_MONITORING_CORE_APMON_BACKEND_H
 
@@ -6,11 +11,14 @@
 #include <ApMon.h>
 #include "Monitoring/Backend.h"
 
-namespace AliceO2 {
+namespace AliceO2
+{
 /// ALICE O2 Monitoring system
-namespace Monitoring {
+namespace Monitoring
+{
 /// Core features of ALICE O2 Monitoring system
-namespace Core {
+namespace Core
+{
 
 /// \brief Backend that uses AppMon (MonALISA)
 ///
