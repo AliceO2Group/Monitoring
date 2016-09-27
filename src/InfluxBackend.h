@@ -24,7 +24,7 @@ namespace Core
 /// InfoLogger does not support std::chrono::time_point therefore timestamps is converted to unsigned long (see method #convertTimestamp)
 ///
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
-class InfluxBackend : public Backend {
+class InfluxBackend final : public Backend {
 public:
 
   /// Constructor
