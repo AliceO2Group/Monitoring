@@ -1,10 +1,14 @@
+///
+/// \file 5-MonitorAdditionalPid.cxx
+/// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
+///
+
 #include <iostream>
 #include "Monitoring/Collector.h"
 
 namespace Monitoring = AliceO2::Monitoring;
 
 int main() {
-
   ConfigFile configFile;
   configFile.load("file:/home/awegrzyn/hackathon/Monitoring/examples/SampleConfig.ini");
 

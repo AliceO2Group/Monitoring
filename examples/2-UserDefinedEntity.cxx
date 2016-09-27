@@ -1,3 +1,8 @@
+///
+/// \file 2-UserDefinedEntity.cxx
+/// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
+///
+
 #include <iostream>
 #include "Monitoring/Collector.h"
 
