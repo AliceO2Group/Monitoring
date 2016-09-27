@@ -103,10 +103,18 @@ std::unique_ptr<Metric> DerivedMetrics::processMetric(T value, std::string name,
     return nullptr;
   }
 }
-template std::unique_ptr<Metric> DerivedMetrics::processMetric(int value, std::string name, std::string entity, std::chrono::time_point<std::chrono::system_clock> timestamp);
-template std::unique_ptr<Metric> DerivedMetrics::processMetric(double value, std::string name, std::string entity, std::chrono::time_point<std::chrono::system_clock> timestamp);
-template std::unique_ptr<Metric> DerivedMetrics::processMetric(std::string value, std::string name, std::string entity, std::chrono::time_point<std::chrono::system_clock> timestamp);
-template std::unique_ptr<Metric> DerivedMetrics::processMetric(uint32_t value, std::string name, std::string entity, std::chrono::time_point<std::chrono::system_clock> timestamp);
+
+template std::unique_ptr<Metric> DerivedMetrics::processMetric(int value, std::string name, std::string entity, 
+  std::chrono::time_point<std::chrono::system_clock> timestamp);
+
+template std::unique_ptr<Metric> DerivedMetrics::processMetric(double value, std::string name, std::string entity,
+  std::chrono::time_point<std::chrono::system_clock> timestamp);
+
+template std::unique_ptr<Metric> DerivedMetrics::processMetric(std::string value, std::string name, std::string entity,
+  std::chrono::time_point<std::chrono::system_clock> timestamp);
+
+template std::unique_ptr<Metric> DerivedMetrics::processMetric(uint32_t value, std::string name, std::string entity,
+  std::chrono::time_point<std::chrono::system_clock> timestamp);
 } // namespace Core
 } // namespace Monitoring
 } // namespace AliceO2
