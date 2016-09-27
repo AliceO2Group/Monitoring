@@ -84,7 +84,7 @@ std::unique_ptr<Metric> DerivedMetrics::processMetric(T value, std::string name,
   auto search = mCache.find(name);
   // create vector if this is first metric of this kind
   if (search == mCache.end()) {
-    mCache.insert(std::pair<std::string, std::vector<std::unique_ptr<Metric>>>(name, std::vector<std::unique_ptr<Metric>>()));
+    mCache.emplace(std::make_pair(name, std::vector<std::unique_ptr<Metric>>()));
   }
   // remove first value if vector too large
   if (mCache[name].size() > mMaxVectorSize) {
