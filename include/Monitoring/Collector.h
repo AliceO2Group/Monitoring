@@ -104,8 +104,8 @@ public:
   void addDerivedMetric(DerivedMetricMode mode, std::string name);
 
   /// Sends Metric object to backend
-  /// \param metric	 r-value pointer to Metric
-  template<typename T> void sendMetric(std::unique_ptr<Metric> &&metric, T);
+  /// \param metric	pointer to Metric
+  template<typename T> void sendMetric(std::unique_ptr<Metric> metric, T);
 	
   /// Same as send but totally skips derived metrics logic
   template<typename T>

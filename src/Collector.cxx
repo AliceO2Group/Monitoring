@@ -111,7 +111,7 @@ std::chrono::time_point<std::chrono::system_clock> Collector::getCurrentTimestam
 }
 
 template<typename T>
-void Collector::sendMetric(std::unique_ptr<Metric> &&metric, T) {
+void Collector::sendMetric(std::unique_ptr<Metric> metric, T) {
   for (auto& b: mBackends) {
     b->send(boost::get<T>(metric->getValue()), metric->getName(), metric->getEntity(), metric->getTimestamp());
   }
