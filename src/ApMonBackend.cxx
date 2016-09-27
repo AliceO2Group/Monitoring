@@ -20,18 +20,13 @@ namespace Core
 ApMonBackend::ApMonBackend(const std::string configurationFile)
 {
   try {
-    mApMon = new ApMon(const_cast<char *>(configurationFile.c_str()));
+    mApMon = std::unique_ptr<ApMon>(new ApMon(const_cast<char *>(configurationFile.c_str())));
   } catch (std::runtime_error& e) {
     MonInfoLogger::GetInstance() << "Could not open ApMon configuration file: " << configurationFile
                                  << AliceO2::InfoLogger::InfoLogger::endm;
     throw std::runtime_error("ApMon cannot be configured");
   }
   MonInfoLogger::GetInstance() << "ApMon backend initialized" << AliceO2::InfoLogger::InfoLogger::endm;
-}
-
-ApMonBackend::~ApMonBackend()
-{
-  delete mApMon;
 }
 
 inline int ApMonBackend::convertTimestamp(const std::chrono::time_point<std::chrono::system_clock> timestamp)

@@ -8,6 +8,7 @@
 
 #include <string>
 #include <chrono>
+#include <memory>
 #include <ApMon.h>
 #include "Monitoring/Backend.h"
 
@@ -32,8 +33,8 @@ public:
   /// \param configurationFile 	filepath to ApMon configuration file
   ApMonBackend(const std::string configurationFile);
 
-  /// Destroys ApMon object
-   ~ApMonBackend();
+  /// Default destructor
+   ~ApMonBackend() = default;
 
   /// Pushes integer metric
   /// \param value 	metric value (integer)
@@ -69,16 +70,12 @@ public:
 
 private:
 
-  /// Get ApMon
-  /// \return 	Returns ApMon object
-  ApMon* getApMon() const;
-
   /// Converts timestamp to format supported by ApMon
   /// \param timestamp 	timestamp in std::chrono::time_point format
   /// \return 		timestamp as integer (miliseconds from epoch)
   int convertTimestamp(const std::chrono::time_point<std::chrono::system_clock> timestamp);
   
-  ApMon* mApMon; ///< ApMon object
+  std::unique_ptr<ApMon> mApMon; ///< ApMon object
 
 };
 
