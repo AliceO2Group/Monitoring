@@ -81,18 +81,15 @@ void Collector::setEntity(std::string entity) {
 }
 
 void Collector::monitorUpdate() {
-  ///           1-3    name    value
-  /// std::tuple<int, string, string>
+  ///                         type    name    value
+  /// std::tuple<ProcessMonitorType, string, string>
   for (auto const pid : mProcessMonitor->getPidsDetails()) {
     switch (std::get<0>(pid)) {
-      // convert to int
-      case 0 : sendDirect( std::stoi(std::get<1>(pid)), std::get<2>(pid));
+      case ProcessMonitorType::INT : sendDirect( std::stoi(std::get<1>(pid)), std::get<2>(pid));
                break;
-      // convert to double
-      case 1 : sendDirect( std::stod(std::get<1>(pid)), std::get<2>(pid));
+      case ProcessMonitorType::DOUBLE : sendDirect( std::stod(std::get<1>(pid)), std::get<2>(pid));
                break;
-      // do not convert (string)
-      case 2 : sendDirect(std::get<1>(pid), std::get<2>(pid));
+      case ProcessMonitorType::STRING : sendDirect(std::get<1>(pid), std::get<2>(pid));
                break;
     }
   }

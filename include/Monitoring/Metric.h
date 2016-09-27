@@ -8,7 +8,7 @@
 
 #include <string>
 #include <chrono>
-#include "boost/variant.hpp"
+#include <boost/variant.hpp>
 #include "Monitoring/Backend.h"
 
 namespace AliceO2

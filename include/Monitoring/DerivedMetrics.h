@@ -50,7 +50,7 @@ public:
   /// Default constructor
   DerivedMetrics()  = default;
 
-  /// Deallocates pointers from std::maps
+  /// Default destructor
   ~DerivedMetrics() = default;
 
   /// States whether metric has been registered or not
