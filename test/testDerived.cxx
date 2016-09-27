@@ -21,7 +21,7 @@ BOOST_AUTO_TEST_CASE(derivedAverage)
   std::string name("metricName");
   std::string entity("metricEntity");
 
-  AliceO2::Monitoring::Core::DerivedMetrics derivedHandler;	
+  AliceO2::Monitoring::Core::DerivedMetrics derivedHandler(1000);	
   derivedHandler.registerMetric(AliceO2::Monitoring::Core::DerivedMetricMode::AVERAGE, name);
 		
   for (auto const result : results) {
@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE(derivedRate)
   std::string name("metricName");
   std::string entity("metricEntity");
 
-  AliceO2::Monitoring::Core::DerivedMetrics derivedHandler;
+  AliceO2::Monitoring::Core::DerivedMetrics derivedHandler(1000);
   derivedHandler.registerMetric(AliceO2::Monitoring::Core::DerivedMetricMode::RATE, name);
 
   for (auto const result : results) {

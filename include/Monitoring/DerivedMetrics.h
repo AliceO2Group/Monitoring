@@ -36,7 +36,7 @@ class DerivedMetrics {
 
 private:
 
-  const int MAX_VECTOR_SIZE = 1000;
+  const unsigned int mMaxVectorSize;
 	
   /// Cache of registered metrics (metric name / vector of metric pointers).
   std::map <std::string, std::vector<std::unique_ptr<Metric>>> mCache;
@@ -48,7 +48,7 @@ private:
 public:
 
   /// Default constructor
-  DerivedMetrics()  = default;
+  DerivedMetrics(const unsigned int cacheSize);
 
   /// Default destructor
   ~DerivedMetrics() = default;

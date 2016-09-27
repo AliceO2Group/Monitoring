@@ -47,7 +47,7 @@ private:
 
   /// Object responsible from derived metrics
   /// \see class DerivedMetrics
-  DerivedMetrics mDerivedHandler;
+  std::unique_ptr<DerivedMetrics> mDerivedHandler;
 
   /// Vector of backends (where the values are send to).
   std::vector <std::unique_ptr<Backend>> mBackends;

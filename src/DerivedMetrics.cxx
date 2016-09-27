@@ -23,6 +23,9 @@ namespace Monitoring
 namespace Core 
 {
 
+DerivedMetrics::DerivedMetrics(const unsigned int cacheSize) : mMaxVectorSize(cacheSize) {
+}
+
 void DerivedMetrics::registerMetric(DerivedMetricMode mode, std::string name) {
   mRegistered.insert(std::pair<std::string, DerivedMetricMode>(name, mode));
   MonInfoLogger::GetInstance() << "Monitoring : Metric " << name << " added to derived metrics" 
@@ -84,7 +87,7 @@ std::unique_ptr<Metric> DerivedMetrics::processMetric(T value, std::string name,
     mCache.insert(std::pair<std::string, std::vector<std::unique_ptr<Metric>>>(name, std::vector<std::unique_ptr<Metric>>()));
   }
   // remove first value if vector too large
-  if (mCache[name].size() > MAX_VECTOR_SIZE) {
+  if (mCache[name].size() > mMaxVectorSize) {
     mCache[name].erase( mCache[name].begin() );
   }
   mCache[name].emplace_back(std::unique_ptr<Metric>(new Metric(value, name, entity, timestamp)));

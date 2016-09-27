@@ -7,7 +7,6 @@
 
 #include <chrono>
 #include <iostream>
-#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -57,6 +56,8 @@ Collector::Collector(ConfigFile &configFile) {
     monitorThread = std::thread(&Collector::processMonitorLoop, this, interval);  
     MonInfoLogger::GetInstance() << "Process Monitor : Automatic updates enabled" << AliceO2::InfoLogger::InfoLogger::endm;
   }
+
+  mDerivedHandler = std::unique_ptr<DerivedMetrics>(new DerivedMetrics(configFile.getValue<int>("DerivedMetrics.maxCacheSize")));
 }
 
 Collector::~Collector() {
@@ -118,7 +119,7 @@ void Collector::sendMetric(std::unique_ptr<Metric> metric, T) {
 }
 
 void Collector::addDerivedMetric(DerivedMetricMode mode, std::string name) {
-  mDerivedHandler.registerMetric(mode, name);
+  mDerivedHandler->registerMetric(mode, name);
 }
 
 template<typename T> 
@@ -130,9 +131,9 @@ inline void Collector::sendDirect(T value, std::string name, std::chrono::time_p
 
 template<typename T>
 void Collector::send(T value, std::string name, std::chrono::time_point<std::chrono::system_clock> timestamp) {
-  if (mDerivedHandler.isRegistered(name)) {
+  if (mDerivedHandler->isRegistered(name)) {
     try {
-      std::unique_ptr<Metric> derived = mDerivedHandler.processMetric(value, name, mUniqueEntity, timestamp);
+      std::unique_ptr<Metric> derived = mDerivedHandler->processMetric(value, name, mUniqueEntity, timestamp);
       if (derived != nullptr) sendMetric(std::move(derived), value);
     } catch(boost::bad_get e) {
       throw std::runtime_error("Derived metrics failed : metric " + name + " has incorrect type");
