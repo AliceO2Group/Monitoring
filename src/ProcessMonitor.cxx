@@ -25,8 +25,9 @@ ProcessMonitor::ProcessMonitor()
 {
   mPids.push_back( (int) ::getpid() );
   for (std::vector<std::pair<std::string, ProcessMonitorType>>::const_iterator i = psParams.begin(); i != psParams.end(); ++i) {
-    mOptions = mOptions.empty() ? i->first : mOptions += (',' +  i->first);
+    mPsCommand = mPsCommand.empty() ? i->first : mPsCommand += (',' +  i->first);
   }
+  mPsCommand = "ps --no-headers -o " + mPsCommand + " --pid ";
 }
 
 std::vector<std::tuple<ProcessMonitorType, std::string, std::string>> ProcessMonitor::getPidsDetails()
@@ -51,7 +52,7 @@ void ProcessMonitor::addPid(int pid) {
 
 std::vector<std::string> ProcessMonitor::getPidStatus(int pid)
 {
-  std::string command = "ps --no-headers --pid " + std::to_string(pid) + " -o " + mOptions;
+  std::string command = mPsCommand + std::to_string(pid);
   std::string output = exec(command.c_str());
   std::vector<std::string> params;
   boost::trim(output);

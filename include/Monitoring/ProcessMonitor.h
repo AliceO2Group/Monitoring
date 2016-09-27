@@ -55,7 +55,7 @@ private:
   std::vector<int> mPids;
 
   /// options to be passed to PS
-  std::string mOptions;
+  std::string mPsCommand;
 
   /// mutex to lock vector of PIDs
   std::mutex mVectorPidLock;
