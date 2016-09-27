@@ -25,9 +25,9 @@ inline unsigned long InfluxBackend::convertTimestamp(std::chrono::time_point<std
     timestamp.time_since_epoch()
   ).count();
 }
-InfluxBackend::InfluxBackend(std::string _url)
+InfluxBackend::InfluxBackend(std::string url)
 {
-  url = _url;
+  mUrl = url;
   curl_global_init(CURL_GLOBAL_ALL);
   MonInfoLogger::GetInstance() << "InfluxDB backend enabled" << AliceO2::InfoLogger::InfoLogger::endm;
 }
@@ -77,7 +77,7 @@ int InfluxBackend::curlWrite(const std::string value, std::string name, const st
   curl = curl_easy_init();
   long responseCode;
   if(curl) {
-    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+    curl_easy_setopt(curl, CURLOPT_URL, mUrl.c_str());
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
     curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 10);
     curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10);

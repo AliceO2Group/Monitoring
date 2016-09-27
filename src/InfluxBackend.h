@@ -28,7 +28,7 @@ class InfluxBackend final : public Backend {
 public:
 
   /// Constructor
-  InfluxBackend(std::string _url);
+  InfluxBackend(std::string url);
 
   /// Default destructor
   ~InfluxBackend();
@@ -69,7 +69,7 @@ private:
   unsigned long convertTimestamp(std::chrono::time_point<std::chrono::system_clock> timestamp);
 	
   /// URL of InfluxDB
-  std::string url;
+  std::string mUrl;
 	
   /// Writes metric into InfluxDB using cURL library
   /// \param value 	metric value converted into string
