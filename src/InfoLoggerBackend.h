@@ -3,8 +3,8 @@
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 ///
 
-#ifndef ALICEO2_MONITORING_CORE_STDOUT_BACKEND_H
-#define ALICEO2_MONITORING_CORE_STDOUT_BACKEND_H
+#ifndef ALICEO2_MONITORING_CORE_INFOLOGGER_BACKEND_H
+#define ALICEO2_MONITORING_CORE_INFOLOGGER_BACKEND_H
 
 #include "Monitoring/Backend.h"
 #include <string>
@@ -76,4 +76,4 @@ private:
 } // namespace Monitoring
 } // namespace AliceO2
 
-#endif // ALICEO2_MONITORING_CORE_STDOUT_BACKEND_H
+#endif // ALICEO2_MONITORING_CORE_INFOLOGGER_BACKEND_H
