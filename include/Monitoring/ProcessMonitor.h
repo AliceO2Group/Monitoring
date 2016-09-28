@@ -29,8 +29,8 @@ enum class ProcessMonitorType { INT, DOUBLE, STRING };
 /// \brief Allows self monitoring or to monitor processes running at the same machine
 ///
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
-class ProcessMonitor {
-
+class ProcessMonitor
+{
   friend class Collector;
 
   public:

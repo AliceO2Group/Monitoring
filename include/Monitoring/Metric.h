@@ -23,8 +23,8 @@ namespace Core
 /// \brief Represents metric parameters except value itself (timestamp, name, entity)
 ///
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
-class Metric {
-
+class Metric
+{
   public:
     /// Initialize class variables : supporting int, double, uint32_t and std::string
     /// \param value of the metric

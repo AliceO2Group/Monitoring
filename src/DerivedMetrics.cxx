@@ -23,27 +23,32 @@ namespace Monitoring
 namespace Core 
 {
 
-DerivedMetrics::DerivedMetrics(const unsigned int cacheSize) : mMaxVectorSize(cacheSize) {
+DerivedMetrics::DerivedMetrics(const unsigned int cacheSize) : mMaxVectorSize(cacheSize) 
+{
 }
 
-void DerivedMetrics::registerMetric(DerivedMetricMode mode, std::string name) {
+void DerivedMetrics::registerMetric(DerivedMetricMode mode, std::string name)
+{
   mRegistered.insert(std::pair<std::string, DerivedMetricMode>(name, mode));
   MonInfoLogger::GetInstance() << "Monitoring : Metric " << name << " added to derived metrics" 
                                << AliceO2::InfoLogger::InfoLogger::endm;
 }
 
-bool DerivedMetrics::isRegistered(std::string name) {
+bool DerivedMetrics::isRegistered(std::string name)
+{
   auto search = mRegistered.find(name);
   return (search != mRegistered.end());
 }
 
 template<typename T>
-std::unique_ptr<Metric> DerivedMetrics::calculateRate(std::string name, T) {
+std::unique_ptr<Metric> DerivedMetrics::calculateRate(std::string name, T)
+{
   auto search = mCache.find(name);
   if (search != mCache.end()) {
     int size = search->second.size();
     if (size >= 2) {
-      std::chrono::duration<float> timestampDifferenct = search->second[size - 1]->getTimestamp() - search->second[size - 2]->getTimestamp();
+      std::chrono::duration<float> timestampDifferenct = (search->second[size - 1]->getTimestamp() 
+                                                        - search->second[size - 2]->getTimestamp());
       T last = boost::get<T>(search->second[size - 1]->getValue());
       T beforelast = boost::get<T>(search->second[size - 2]->getValue());
       // disallow dividing by 0
@@ -57,12 +62,14 @@ std::unique_ptr<Metric> DerivedMetrics::calculateRate(std::string name, T) {
 }
 
 template <>
-std::unique_ptr<Metric> DerivedMetrics::calculateRate(std::string, std::string) {
+std::unique_ptr<Metric> DerivedMetrics::calculateRate(std::string, std::string)
+{
   return nullptr;
 }
 
 template<typename T>
-std::unique_ptr<Metric> DerivedMetrics::calculateAverage(std::string name, T) {
+std::unique_ptr<Metric> DerivedMetrics::calculateAverage(std::string name, T)
+{
   T total = 0;
   for (auto& m : mCache[name]) {
     total += boost::get<T>(m->getValue());
@@ -73,7 +80,8 @@ std::unique_ptr<Metric> DerivedMetrics::calculateAverage(std::string name, T) {
 }
 
 template <>
-std::unique_ptr<Metric> DerivedMetrics::calculateAverage(std::string, std::string) {
+std::unique_ptr<Metric> DerivedMetrics::calculateAverage(std::string, std::string)
+{
   return nullptr;
 }
 

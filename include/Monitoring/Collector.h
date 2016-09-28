@@ -37,8 +37,8 @@ namespace Core
 /// Generates default entity (origin) as concatanated hostname and process ID.
 ///
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
-class Collector {
-
+class Collector
+{
   public:
     /// Disable copy constructor
     Collector & operator=(const Collector&) = delete;

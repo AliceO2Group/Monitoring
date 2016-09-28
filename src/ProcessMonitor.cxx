@@ -43,8 +43,8 @@ std::vector<std::tuple<ProcessMonitorType, std::string, std::string>> ProcessMon
   return allPidsParams;
 }
 
-
-void ProcessMonitor::addPid(int pid) {
+void ProcessMonitor::addPid(int pid)
+{
   std::lock_guard<std::mutex> lock(mVectorPidLock);
   mPids.push_back(pid);
 }

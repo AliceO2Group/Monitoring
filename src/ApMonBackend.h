@@ -27,7 +27,8 @@ namespace Core
 /// ApMon accepts timestamps as integers, therefore cast is needed (see method #convertTimestamp)
 ///
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
-class ApMonBackend final : public Backend {
+class ApMonBackend final : public Backend
+{
   public:
     /// Constructs AppMon backend
     /// \param configurationFile 	filepath to ApMon configuration file

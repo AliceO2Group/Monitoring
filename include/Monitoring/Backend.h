@@ -21,7 +21,8 @@ namespace Core
 /// \brief Interface for backends - pure virtual class
 ///
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
-class Backend {
+class Backend
+{
   public:
     /// Default constructor
     Backend() = default;

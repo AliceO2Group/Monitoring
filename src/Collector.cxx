@@ -30,7 +30,8 @@ namespace Monitoring
 namespace Core
 {
 
-Collector::Collector(ConfigFile &configFile) {
+Collector::Collector(ConfigFile &configFile)
+{
   if (configFile.getValue<int>("InfoLoggerBackend.enable") == 1)
     mBackends.emplace_back(std::unique_ptr<Backend>(new InfoLoggerBackend()));
 
@@ -60,7 +61,8 @@ Collector::Collector(ConfigFile &configFile) {
   mDerivedHandler = std::unique_ptr<DerivedMetrics>(new DerivedMetrics(configFile.getValue<int>("DerivedMetrics.maxCacheSize")));
 }
 
-Collector::~Collector() {
+Collector::~Collector()
+{
   mMonitorRunning = false;
   if (monitorThread.joinable()) {
     monitorThread.join();
@@ -68,7 +70,8 @@ Collector::~Collector() {
 
 }
 
-void Collector::setUniqueEntity() {
+void Collector::setUniqueEntity()
+{
   char hostname[255];
   gethostname(hostname, 255);
 
@@ -81,7 +84,8 @@ void Collector::setEntity(std::string entity) {
 	mUniqueEntity = entity;
 }
 
-void Collector::monitorUpdate() {
+void Collector::monitorUpdate()
+{
   ///                         type    name    value
   /// std::tuple<ProcessMonitorType, string, string>
   for (auto const pid : mProcessMonitor->getPidsDetails()) {
@@ -96,23 +100,27 @@ void Collector::monitorUpdate() {
   }
 }
 
-void Collector::processMonitorLoop(int interval) {
+void Collector::processMonitorLoop(int interval)
+{
   while (mMonitorRunning) {
     monitorUpdate();
     std::this_thread::sleep_for (std::chrono::seconds(interval));
   }
 }
 
-void Collector::addMonitoredPid(int pid) {
+void Collector::addMonitoredPid(int pid)
+{
   mProcessMonitor->addPid(pid);
 }
 
-std::chrono::time_point<std::chrono::system_clock> Collector::getCurrentTimestamp() {
+std::chrono::time_point<std::chrono::system_clock> Collector::getCurrentTimestamp()
+{
   return std::chrono::system_clock::now();
 }
 
 template<typename T>
-void Collector::sendMetric(std::unique_ptr<Metric> metric, T) {
+void Collector::sendMetric(std::unique_ptr<Metric> metric, T)
+{
   for (auto& b: mBackends) {
     b->send(boost::get<T>(metric->getValue()), metric->getName(), metric->getEntity(), metric->getTimestamp());
   }
@@ -123,14 +131,16 @@ void Collector::addDerivedMetric(DerivedMetricMode mode, std::string name) {
 }
 
 template<typename T> 
-inline void Collector::sendDirect(T value, std::string name, std::chrono::time_point<std::chrono::system_clock> timestamp) const {
+inline void Collector::sendDirect(T value, std::string name, std::chrono::time_point<std::chrono::system_clock> timestamp) const
+{
   for (auto& b: mBackends) {
     b->send(value, name, mUniqueEntity, timestamp);
   }
 }
 
 template<typename T>
-void Collector::send(T value, std::string name, std::chrono::time_point<std::chrono::system_clock> timestamp) {
+void Collector::send(T value, std::string name, std::chrono::time_point<std::chrono::system_clock> timestamp)
+{
   if (mDerivedHandler->isRegistered(name)) {
     try {
       std::unique_ptr<Metric> derived = mDerivedHandler->processMetric(value, name, mUniqueEntity, timestamp);

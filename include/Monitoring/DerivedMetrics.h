@@ -32,8 +32,8 @@ enum class DerivedMetricMode { RATE, AVERAGE };
 /// It applies only to metrics registered via #registerMetric method (see where Collector invokes this method)
 ///
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
-class DerivedMetrics {
-
+class DerivedMetrics
+{
   public:
     /// Default constructor
     DerivedMetrics(const unsigned int cacheSize);
