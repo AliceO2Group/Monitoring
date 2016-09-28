@@ -7,6 +7,8 @@
 #define ALICEO2_MONITORING_CORE_INFLUX_H
 
 #include "Monitoring/Backend.h"
+#include <curl/curl.h>
+#include <memory>
 #include <string>
 
 namespace AliceO2
@@ -31,7 +33,7 @@ public:
   InfluxBackend(std::string url);
 
   /// Default destructor
-  ~InfluxBackend();
+  ~InfluxBackend() = default;
 	
   /// Pushes integer metric
   /// \param value        metric value (integer)
@@ -62,14 +64,22 @@ public:
   void send(uint32_t value, std::string name, const std::string entity, std::chrono::time_point<std::chrono::system_clock> timestamp) override;
 
 private:
+  /// Custom deleter of CURL object
+  /// \param curl 	CURL handle
+  static void deleteCurl(CURL * curl);
+
+  /// Initilizes CURL and all common options
+  /// \param url 	URL to InfluxDB
+  /// \return 		CURL handle
+  CURL* initCurl(std::string url);
+  
+  /// CURL smart pointer with dedicated deleter
+  std::unique_ptr<CURL, decltype(&InfluxBackend::deleteCurl)> curlHandle;
 
   /// Converts timestamp to unsigned long (nanoseconds from epoch)
   /// \param timestamp    timestamp in std::chrono::time_point format
   /// \return             timestamp as unsigned long (nanoseconds from epoch)
   unsigned long convertTimestamp(std::chrono::time_point<std::chrono::system_clock> timestamp);
-	
-  /// URL of InfluxDB
-  std::string mUrl;
 	
   /// Writes metric into InfluxDB using cURL library
   /// \param value 	metric value converted into string

@@ -6,7 +6,6 @@
 #include "InfluxBackend.h"
 
 #include <boost/algorithm/string.hpp>
-#include <curl/curl.h>
 #include <iostream>
 #include "MonInfoLogger.h"
 
@@ -19,20 +18,32 @@ namespace Monitoring
 namespace Core
 {
 
-inline unsigned long InfluxBackend::convertTimestamp(std::chrono::time_point<std::chrono::system_clock> timestamp)
+InfluxBackend::InfluxBackend(std::string url) : curlHandle(initCurl(url), &InfluxBackend::deleteCurl)
 {
-  return std::chrono::duration_cast <std::chrono::nanoseconds>(
-    timestamp.time_since_epoch()
-  ).count();
-}
-InfluxBackend::InfluxBackend(std::string url)
-{
-  mUrl = url;
-  curl_global_init(CURL_GLOBAL_ALL);
   MonInfoLogger::GetInstance() << "InfluxDB backend enabled" << AliceO2::InfoLogger::InfoLogger::endm;
 }
-InfluxBackend::~InfluxBackend()
+
+CURL* InfluxBackend::initCurl(std::string url)
 {
+  CURLcode globalInitResult = curl_global_init(CURL_GLOBAL_ALL);
+  if (globalInitResult != CURLE_OK) {
+    throw std::logic_error(curl_easy_strerror(globalInitResult));
+  }
+  
+  CURL *curl = curl_easy_init();
+
+  curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+  curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
+  curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 10);
+  curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10);
+  curl_easy_setopt(curl, CURLOPT_POST, 1);
+  
+  return curl;
+}
+
+void InfluxBackend::deleteCurl(CURL * curl)
+{
+  curl_easy_cleanup(curl);
   curl_global_cleanup();
 }
 
@@ -41,11 +52,13 @@ void InfluxBackend::send(const int value, const std::string name, const std::str
 {
   curlWrite(std::to_string(value), name, entity, convertTimestamp(timestamp));
 }
+
 void InfluxBackend::send(const double value, const std::string name, const std::string entity, 
                          const std::chrono::time_point<std::chrono::system_clock> timestamp)
 {
   curlWrite(std::to_string(value), name, entity, convertTimestamp(timestamp));
 }
+
 void InfluxBackend::send(std::string value, const std::string name, const std::string entity, 
                          const std::chrono::time_point<std::chrono::system_clock> timestamp)
 {
@@ -53,6 +66,7 @@ void InfluxBackend::send(std::string value, const std::string name, const std::s
   value.insert(value.end(), '"');
   curlWrite(value, name, entity, convertTimestamp(timestamp));
 }
+
 void InfluxBackend::send(const uint32_t value, const std::string name, const std::string entity, 
                          std::chrono::time_point<std::chrono::system_clock> timestamp)
 {
@@ -65,42 +79,38 @@ int InfluxBackend::curlWrite(const std::string value, std::string name, const st
   // escape space in name for InluxDB
   boost::replace_all(name, " ", "\\ ");
 
-  std::stringstream convert;
-  CURL *curl;
-  CURLcode response;
-
   // preparing post data
+  std::stringstream convert;
   convert << name << ",entity=" << entity << " value=" << value << " " << timestamp;
   string post = convert.str();
-	
-  // cURL..
-  curl = curl_easy_init();
+
+  // send via curl
+  CURLcode response;	
   long responseCode;
-  if(curl) {
-    curl_easy_setopt(curl, CURLOPT_URL, mUrl.c_str());
-    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
-    curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 10);
-    curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10);
-    curl_easy_setopt(curl, CURLOPT_POST, 1);
-    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post.c_str());
-    curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, (long) post.length());
-    response = curl_easy_perform(curl);
-    curl_easy_getinfo(curl,CURLINFO_RESPONSE_CODE, &responseCode);
-    if (response != CURLE_OK) {
-      MonInfoLogger::GetInstance() << "!!! InfluxDB : cURL error : " << (curl_easy_strerror(response)) 
-                                   << AliceO2::InfoLogger::InfoLogger::endm;
-      return 2;
-    }
-    if (responseCode != 204) {
-      MonInfoLogger::GetInstance() << "!!! InfluxDB : cURL response code " + to_string(responseCode) 
-                                   << AliceO2::InfoLogger::InfoLogger::endm;
-      return 1;
-    }
-      MonInfoLogger::GetInstance() << "InfluxDB : metric " <<  name << ", code " << responseCode 
-                                   << AliceO2::InfoLogger::InfoLogger::endm;
-    }
-    curl_easy_cleanup(curl);
-    return 0;
+  curl_easy_setopt(curlHandle.get(), CURLOPT_POSTFIELDS, post.c_str());
+  curl_easy_setopt(curlHandle.get(), CURLOPT_POSTFIELDSIZE, (long) post.length());
+  response = curl_easy_perform(curlHandle.get());
+  curl_easy_getinfo(curlHandle.get(), CURLINFO_RESPONSE_CODE, &responseCode);
+  if (response != CURLE_OK) {
+    MonInfoLogger::GetInstance() << "!!! InfluxDB : cURL error : " << (curl_easy_strerror(response)) 
+                                 << AliceO2::InfoLogger::InfoLogger::endm;
+    return 2;
+  }
+  if (responseCode != 204) {
+    MonInfoLogger::GetInstance() << "!!! InfluxDB : cURL response code " + to_string(responseCode) 
+                                 << AliceO2::InfoLogger::InfoLogger::endm;
+    return 1;
+  }
+    MonInfoLogger::GetInstance() << "InfluxDB : metric " <<  name << ", code " << responseCode 
+                                 << AliceO2::InfoLogger::InfoLogger::endm;
+  return 0;
+}
+
+inline unsigned long InfluxBackend::convertTimestamp(std::chrono::time_point<std::chrono::system_clock> timestamp)
+{
+  return std::chrono::duration_cast <std::chrono::nanoseconds>(
+    timestamp.time_since_epoch()
+  ).count();
 }
 
 } // namespace Core
