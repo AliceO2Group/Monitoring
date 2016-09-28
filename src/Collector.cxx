@@ -54,7 +54,7 @@ Collector::Collector(ConfigFile &configFile)
   if (configFile.getValue<int>("ProcessMonitor.enable") == 1) {
     int interval = configFile.getValue<int>("ProcessMonitor.interval");
     mMonitorRunning = true;
-    monitorThread = std::thread(&Collector::processMonitorLoop, this, interval);  
+    mMonitorThread = std::thread(&Collector::processMonitorLoop, this, interval);  
     MonInfoLogger::GetInstance() << "Process Monitor : Automatic updates enabled" << AliceO2::InfoLogger::InfoLogger::endm;
   }
 
@@ -64,8 +64,8 @@ Collector::Collector(ConfigFile &configFile)
 Collector::~Collector()
 {
   mMonitorRunning = false;
-  if (monitorThread.joinable()) {
-    monitorThread.join();
+  if (mMonitorThread.joinable()) {
+    mMonitorThread.join();
   }
 
 }

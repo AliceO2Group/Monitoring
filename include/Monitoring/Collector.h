@@ -105,7 +105,7 @@ class Collector
     std::atomic<bool> mMonitorRunning;
 
     /// Process Monitor thread  
-    std::thread monitorThread;
+    std::thread mMonitorThread;
 
     /// Process Monitor object
     /// If automatic updates are not enabled still "monitorUpdate" method can be used
