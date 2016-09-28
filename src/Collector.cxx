@@ -48,7 +48,7 @@ Collector::Collector(ConfigFile &configFile)
       new InfluxBackend(configFile.getValue<string>("InfluxDB.writeUrl"))
     ));
 #endif
-  setUniqueEntity();
+  setDefaultEntity();
   
   mProcessMonitor = std::unique_ptr<ProcessMonitor>(new ProcessMonitor());
   if (configFile.getValue<int>("ProcessMonitor.enable") == 1) {
@@ -70,7 +70,7 @@ Collector::~Collector()
 
 }
 
-void Collector::setUniqueEntity()
+void Collector::setDefaultEntity()
 {
   char hostname[255];
   gethostname(hostname, 255);
@@ -78,10 +78,10 @@ void Collector::setUniqueEntity()
   std::ostringstream format;
   format << hostname << "." << getpid();
 
-  mUniqueEntity = format.str();
+  mEntity = format.str();
 }
 void Collector::setEntity(std::string entity) {
-	mUniqueEntity = entity;
+	mEntity = entity;
 }
 
 void Collector::monitorUpdate()
@@ -134,7 +134,7 @@ template<typename T>
 inline void Collector::sendDirect(T value, std::string name, std::chrono::time_point<std::chrono::system_clock> timestamp) const
 {
   for (auto& b: mBackends) {
-    b->send(value, name, mUniqueEntity, timestamp);
+    b->send(value, name, mEntity, timestamp);
   }
 }
 
@@ -143,7 +143,7 @@ void Collector::send(T value, std::string name, std::chrono::time_point<std::chr
 {
   if (mDerivedHandler->isRegistered(name)) {
     try {
-      std::unique_ptr<Metric> derived = mDerivedHandler->processMetric(value, name, mUniqueEntity, timestamp);
+      std::unique_ptr<Metric> derived = mDerivedHandler->processMetric(value, name, mEntity, timestamp);
       if (derived != nullptr) sendMetric(std::move(derived), value);
     } 
     catch (boost::bad_get e) {

@@ -98,8 +98,8 @@ class Collector
     /// Vector of backends (where the values are send to).
     std::vector <std::unique_ptr<Backend>> mBackends;
 
-    /// Default entity value, see setUniqueEntity method
-    std::string mUniqueEntity;
+    /// Entity value
+    std::string mEntity;
 
     /// States whether Process Monitor thread should run or join
     std::atomic<bool> mMonitorRunning;
@@ -115,7 +115,7 @@ class Collector
     void processMonitorLoop(int interval);
 
     /// Generates entity value as concatenated hostname and process id
-    void setUniqueEntity();
+    void setDefaultEntity();
 };
 } // namespace Core
 } // namespace Monitoring
