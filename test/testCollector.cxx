@@ -17,7 +17,8 @@ BOOST_AUTO_TEST_CASE(derivedAverage)
   ConfigFile mConfigFile;
   try {
     mConfigFile.load(filepath);
-  } catch (...) {
+  }
+  catch (...) {
      BOOST_ERROR("Unable to load confguration file: " << filepath);
   }
 

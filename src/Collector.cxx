@@ -145,7 +145,8 @@ void Collector::send(T value, std::string name, std::chrono::time_point<std::chr
     try {
       std::unique_ptr<Metric> derived = mDerivedHandler->processMetric(value, name, mUniqueEntity, timestamp);
       if (derived != nullptr) sendMetric(std::move(derived), value);
-    } catch(boost::bad_get e) {
+    } 
+    catch (boost::bad_get e) {
       throw std::runtime_error("Derived metrics failed : metric " + name + " has incorrect type");
     }
   }

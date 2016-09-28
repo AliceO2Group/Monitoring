@@ -21,7 +21,8 @@ ApMonBackend::ApMonBackend(const std::string configurationFile)
 {
   try {
     mApMon = std::unique_ptr<ApMon>(new ApMon(const_cast<char*>(configurationFile.c_str())));
-  } catch (...) {
+  } 
+  catch (...) {
     MonInfoLogger::GetInstance() << "Could not open ApMon configuration file: " << configurationFile
                                  << AliceO2::InfoLogger::InfoLogger::endm;
     throw std::runtime_error("ApMon cannot be configured");
