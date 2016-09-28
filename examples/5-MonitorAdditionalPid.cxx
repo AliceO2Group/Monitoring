@@ -21,7 +21,7 @@ int main() {
   for (;;) {
     collector->send(10, "mainThreadMetric");
     // manual monitor update
-    collector->monitorUpdate();
+    collector->sendProcessMonitorValues();
     std::this_thread::sleep_for(std::chrono::seconds(1));
   }
 }	

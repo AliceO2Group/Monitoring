@@ -5,6 +5,7 @@
 
 #include "Monitoring/Collector.h"
 
+#include <boost/lexical_cast.hpp>
 #include <chrono>
 #include <iostream>
 #include <memory>
@@ -92,9 +93,9 @@ void Collector::sendProcessMonitorValues()
   /// std::tuple<ProcessMonitorType, string, string>
   for (auto const pid : mProcessMonitor->getPidsDetails()) {
     switch (std::get<0>(pid)) {
-      case ProcessMonitorType::INT : sendRawValue( std::stoi(std::get<1>(pid)), std::get<2>(pid));
+      case ProcessMonitorType::INT : sendRawValue(boost::lexical_cast<int>(std::get<1>(pid)), std::get<2>(pid));
                break;
-      case ProcessMonitorType::DOUBLE : sendRawValue( std::stod(std::get<1>(pid)), std::get<2>(pid));
+      case ProcessMonitorType::DOUBLE : sendRawValue(boost::lexical_cast<double>(std::get<1>(pid)), std::get<2>(pid));
                break;
       case ProcessMonitorType::STRING : sendRawValue(std::get<1>(pid), std::get<2>(pid));
                break;
