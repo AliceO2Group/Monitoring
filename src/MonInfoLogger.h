@@ -18,8 +18,6 @@ namespace Monitoring
 namespace Core
 {
 
-using namespace std;
-
 /// \brief  Singleton class that any class in the QC can use to log.
 ///
 /// The aim of this class is to avoid every class in the package to define and configure its own instance of InfoLogger.
@@ -29,9 +27,7 @@ using namespace std;
 /// \author modified by Adam Wegrzynek <adam.wegrzynek@cern.ch>
 class MonInfoLogger : public AliceO2::InfoLogger::InfoLogger
 {
-
   public:
-
     static MonInfoLogger &GetInstance()
     {
       // Guaranteed to be destroyed. Instantiated on first use
@@ -48,7 +44,6 @@ class MonInfoLogger : public AliceO2::InfoLogger::InfoLogger
 
     virtual ~MonInfoLogger()
     {
-
     }
 
     /// Delete copy constructors

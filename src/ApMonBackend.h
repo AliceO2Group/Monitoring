@@ -28,55 +28,53 @@ namespace Core
 ///
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 class ApMonBackend final : public Backend {
-public:
-  /// Constructs AppMon backend
-  /// \param configurationFile 	filepath to ApMon configuration file
-  ApMonBackend(const std::string configurationFile);
+  public:
+    /// Constructs AppMon backend
+    /// \param configurationFile 	filepath to ApMon configuration file
+    ApMonBackend(const std::string configurationFile);
 
-  /// Default destructor
-   ~ApMonBackend() = default;
+    /// Default destructor
+    ~ApMonBackend() = default;
 
-  /// Pushes integer metric
-  /// \param value 	metric value (integer)
-  /// \param name 	metric name
-  /// \param entity 	metric entity - origin
-  /// \param timestamp 	metric timestamp (std::chrono::time_point)
-  void send(int value, const std::string& name, const std::string& entity, 
-    const std::chrono::time_point<std::chrono::system_clock>& timestamp) override;
+    /// Pushes integer metric
+    /// \param value 	metric value (integer)
+    /// \param name 	metric name
+    /// \param entity 	metric entity - origin
+    /// \param timestamp 	metric timestamp (std::chrono::time_point)
+    void send(int value, const std::string& name, const std::string& entity, 
+      const std::chrono::time_point<std::chrono::system_clock>& timestamp) override;
 
-  /// Pushes double metric
-  /// \param value        metric value (double)
-  /// \param name         metric name
-  /// \param entity       metric entity - origin
-  /// \param timestamp    metric timestamp (std::chrono::time_point)
-  void send(double value, const std::string& name, const std::string& entity, 
-    const std::chrono::time_point<std::chrono::system_clock>& timestamp) override;
+    /// Pushes double metric
+    /// \param value        metric value (double)
+    /// \param name         metric name
+    /// \param entity       metric entity - origin
+    /// \param timestamp    metric timestamp (std::chrono::time_point)
+    void send(double value, const std::string& name, const std::string& entity, 
+      const std::chrono::time_point<std::chrono::system_clock>& timestamp) override;
 
-  /// Pushes string metric
-  /// \param value        metric value (string)
-  /// \param name         metric name
-  /// \param entity       metric entity - origin
-  /// \param timestamp    metric timestamp (std::chrono::time_point)
-  void send(std::string value, const std::string& name, const std::string& entity, 
-    const std::chrono::time_point<std::chrono::system_clock>& timestamp) override;
+    /// Pushes string metric
+    /// \param value        metric value (string)
+    /// \param name         metric name
+    /// \param entity       metric entity - origin
+    /// \param timestamp    metric timestamp (std::chrono::time_point)
+    void send(std::string value, const std::string& name, const std::string& entity, 
+      const std::chrono::time_point<std::chrono::system_clock>& timestamp) override;
 
-  /// Pushes uint32_t metric
-  /// \param value        metric value (uint32_t)
-  /// \param name         metric name
-  /// \param entity       metric entity - origin
-  /// \param timestamp    metric timestamp (std::chrono::time_point)
-  void send(uint32_t value, const std::string& name, const std::string& entity, 
-    const std::chrono::time_point<std::chrono::system_clock>& timestamp) override;
+    /// Pushes uint32_t metric
+    /// \param value        metric value (uint32_t)
+    /// \param name         metric name
+    /// \param entity       metric entity - origin
+    /// \param timestamp    metric timestamp (std::chrono::time_point)
+    void send(uint32_t value, const std::string& name, const std::string& entity, 
+      const std::chrono::time_point<std::chrono::system_clock>& timestamp) override;
 
-private:
-
-  /// Converts timestamp to format supported by ApMon
-  /// \param timestamp 	timestamp in std::chrono::time_point format
-  /// \return 		timestamp as integer (miliseconds from epoch)
-  int convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp);
+  private:
+    /// Converts timestamp to format supported by ApMon
+    /// \param timestamp 	timestamp in std::chrono::time_point format
+    /// \return 		timestamp as integer (miliseconds from epoch)
+    int convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp);
   
-  std::unique_ptr<ApMon> mApMon; ///< ApMon object
-
+    std::unique_ptr<ApMon> mApMon; ///< ApMon object
 };
 
 } // namespace Core

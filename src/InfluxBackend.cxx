@@ -83,7 +83,7 @@ int InfluxBackend::curlWrite(std::string value, const std::string& name, const s
   // preparing post data
   std::stringstream convert;
   convert << escapedName << ",entity=" << entity << " value=" << value << " " << timestamp;
-  string post = convert.str();
+  std::string post = convert.str();
 
   // send via curl
   CURLcode response;	
@@ -98,7 +98,7 @@ int InfluxBackend::curlWrite(std::string value, const std::string& name, const s
     return 2;
   }
   if (responseCode != 204) {
-    MonInfoLogger::GetInstance() << "!!! InfluxDB : cURL response code " + to_string(responseCode) 
+    MonInfoLogger::GetInstance() << "!!! InfluxDB : cURL response code " + std::to_string(responseCode) 
                                  << AliceO2::InfoLogger::InfoLogger::endm;
     return 1;
   }

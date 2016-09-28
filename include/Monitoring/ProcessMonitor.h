@@ -31,46 +31,46 @@ enum class ProcessMonitorType { INT, DOUBLE, STRING };
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 class ProcessMonitor {
 
-friend class Collector;
+  friend class Collector;
 
-public:
-  /// Enables self monitoring
-  /// \param collector	shared pointer to collector, it executes only thread-safe methods of Collector
-  /// \param interval 	time interval between updates
-  ProcessMonitor();
+  public:
+    /// Enables self monitoring
+    /// \param collector	shared pointer to collector, it executes only thread-safe methods of Collector
+    /// \param interval 	time interval between updates
+    ProcessMonitor();
 	
-  /// Default destructor
-  ~ProcessMonitor() = default;
+    /// Default destructor
+    ~ProcessMonitor() = default;
 
-  /// Generates vector of parameters for all PIDs
-  /// \return	vactor of tuples; 3 values (type, name, value)
-  std::vector<std::tuple<ProcessMonitorType, std::string, std::string>> getPidsDetails();
+    /// Generates vector of parameters for all PIDs
+    /// \return	vactor of tuples; 3 values (type, name, value)
+    std::vector<std::tuple<ProcessMonitorType, std::string, std::string>> getPidsDetails();
 
-  /// Adds to list monitored PIDs
-  /// \param pid
-  void addPid(int pid);
+    /// Adds to list monitored PIDs
+    /// \param pid
+    void addPid(int pid);
 
-private:
-  /// Vector of PIDs that will be monitored
-  std::vector<int> mPids;
+  private:
+    /// Vector of PIDs that will be monitored
+    std::vector<int> mPids;
 
-  /// options to be passed to PS
-  std::string mPsCommand;
+    /// options to be passed to PS
+    std::string mPsCommand;
 
-  /// mutex to lock vector of PIDs
-  std::mutex mVectorPidLock;
+    /// mutex to lock vector of PIDs
+    std::mutex mVectorPidLock;
 
-  /// List of PS params with their types
-  const std::vector<std::pair<std::string, ProcessMonitorType>> mPsParams { 
-    {"pid", ProcessMonitorType::INT},    {"etime", ProcessMonitorType::STRING}, {"time", ProcessMonitorType::STRING},
-    {"pcpu", ProcessMonitorType::DOUBLE}, {"pmem", ProcessMonitorType::DOUBLE},   {"rsz", ProcessMonitorType::INT},
-    {"vsz", ProcessMonitorType::INT},    {"comm", ProcessMonitorType::STRING} };
+    /// List of PS params with their types
+    const std::vector<std::pair<std::string, ProcessMonitorType>> mPsParams { 
+      {"pid", ProcessMonitorType::INT},    {"etime", ProcessMonitorType::STRING}, {"time", ProcessMonitorType::STRING},
+      {"pcpu", ProcessMonitorType::DOUBLE}, {"pmem", ProcessMonitorType::DOUBLE},   {"rsz", ProcessMonitorType::INT},
+      {"vsz", ProcessMonitorType::INT},    {"comm", ProcessMonitorType::STRING} };
 
-  /// Executes terminal command
-  std::string exec(const char* cmd);
+    /// Executes terminal command
+    std::string exec(const char* cmd);
 
-  /// Vector of PID's parameters and values
-  std::vector<std::string> getPidStatus(int pid);
+    /// Vector of PID's parameters and values
+    std::vector<std::string> getPidStatus(int pid);
 };
 
 } // namespace Core

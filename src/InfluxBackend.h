@@ -27,70 +27,68 @@ namespace Core
 ///
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 class InfluxBackend final : public Backend {
-public:
+  public:
+    /// Constructor
+    InfluxBackend(std::string url);
 
-  /// Constructor
-  InfluxBackend(std::string url);
-
-  /// Default destructor
-  ~InfluxBackend() = default;
+    /// Default destructor
+    ~InfluxBackend() = default;
 	
-  /// Pushes integer metric
-  /// \param value        metric value (integer)
-  /// \param name         metric name
-  /// \param entity       metric entity - origin
-  /// \param timestamp    metric timestamp (std::chrono::time_point)
-  void send(int value, const std::string& name, const std::string& entity, 
-    const std::chrono::time_point<std::chrono::system_clock>& timestamp) override;
+    /// Pushes integer metric
+    /// \param value        metric value (integer)
+    /// \param name         metric name
+    /// \param entity       metric entity - origin
+    /// \param timestamp    metric timestamp (std::chrono::time_point)
+    void send(int value, const std::string& name, const std::string& entity, 
+      const std::chrono::time_point<std::chrono::system_clock>& timestamp) override;
 
-  /// Pushes double metric
-  /// \param value        metric value (double)
-  /// \param name         metric name
-  /// \param entity       metric entity - origin
-  /// \param timestamp    metric timestamp (std::chrono::time_point
-  void send(double value, const std::string& name, const std::string& entity, 
-    const std::chrono::time_point<std::chrono::system_clock>& timestamp) override;
+    /// Pushes double metric
+    /// \param value        metric value (double)
+    /// \param name         metric name
+    /// \param entity       metric entity - origin
+    /// \param timestamp    metric timestamp (std::chrono::time_point
+    void send(double value, const std::string& name, const std::string& entity, 
+      const std::chrono::time_point<std::chrono::system_clock>& timestamp) override;
 
-  /// Pushes string metric
-  /// \param value        metric value (string)
-  /// \param name         metric name
-  /// \param entity       metric entity - origin
-  /// \param timestamp    metric timestamp (std::chrono::time_point)
-  void send(std::string value, const std::string& name, const std::string& entity,
-    const std::chrono::time_point<std::chrono::system_clock>& timestamp) override;
+    /// Pushes string metric
+    /// \param value        metric value (string)
+    /// \param name         metric name
+    /// \param entity       metric entity - origin
+    /// \param timestamp    metric timestamp (std::chrono::time_point)
+    void send(std::string value, const std::string& name, const std::string& entity,
+      const std::chrono::time_point<std::chrono::system_clock>& timestamp) override;
 
-  /// Pushes uint32_t metric
-  /// \param value        metric value (uint32_t)
-  /// \param name         metric name
-  /// \param entity       metric entity - origin
-  /// \param timestamp    metric timestamp (std::chrono::time_point)
-  void send(uint32_t value, const std::string& name, const std::string& entity,
+    /// Pushes uint32_t metric
+    /// \param value        metric value (uint32_t)
+    /// \param name         metric name
+    /// \param entity       metric entity - origin
+    /// \param timestamp    metric timestamp (std::chrono::time_point)
+    void send(uint32_t value, const std::string& name, const std::string& entity,
     const std::chrono::time_point<std::chrono::system_clock> &timestamp) override;
 
-private:
-  /// Custom deleter of CURL object
-  /// \param curl 	CURL handle
-  static void deleteCurl(CURL * curl);
+  private:
+    /// Custom deleter of CURL object
+    /// \param curl 	CURL handle
+    static void deleteCurl(CURL * curl);
 
-  /// Initilizes CURL and all common options
-  /// \param url 	URL to InfluxDB
-  /// \return 		CURL handle
-  CURL* initCurl(std::string url);
+    /// Initilizes CURL and all common options
+    /// \param url 	URL to InfluxDB
+    /// \return 		CURL handle
+    CURL* initCurl(std::string url);
   
-  /// CURL smart pointer with dedicated deleter
-  std::unique_ptr<CURL, decltype(&InfluxBackend::deleteCurl)> curlHandle;
+    /// CURL smart pointer with dedicated deleter
+    std::unique_ptr<CURL, decltype(&InfluxBackend::deleteCurl)> curlHandle;
 
-  /// Converts timestamp to unsigned long (nanoseconds from epoch)
-  /// \param timestamp    timestamp in std::chrono::time_point format
-  /// \return             timestamp as unsigned long (nanoseconds from epoch)
-  unsigned long convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp);
+    /// Converts timestamp to unsigned long (nanoseconds from epoch)
+    /// \param timestamp    timestamp in std::chrono::time_point format
+    /// \return             timestamp as unsigned long (nanoseconds from epoch)
+    unsigned long convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp);
 	
-  /// Writes metric into InfluxDB using cURL library
-  /// \param value 	metric value converted into string
-  /// \param timestamp	timestamp in nanoseconds
-  /// \return 		0 - success, 1 - wrong response code, 2 - conectivity issues
-  int curlWrite(std::string value, const std::string &name, const std::string& entity, unsigned long timestamp);
-
+    /// Writes metric into InfluxDB using cURL library
+    /// \param value 	metric value converted into string
+    /// \param timestamp	timestamp in nanoseconds
+    /// \return 		0 - success, 1 - wrong response code, 2 - conectivity issues
+    int curlWrite(std::string value, const std::string &name, const std::string& entity, unsigned long timestamp);
 };
 
 } // namespace Core

@@ -34,51 +34,49 @@ enum class DerivedMetricMode { RATE, AVERAGE };
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 class DerivedMetrics {
 
-private:
+  public:
+    /// Default constructor
+    DerivedMetrics(const unsigned int cacheSize);
 
-  const unsigned int mMaxVectorSize;
-	
-  /// Cache of registered metrics (metric name / vector of metric pointers).
-  std::map <std::string, std::vector<std::unique_ptr<Metric>>> mCache;
+    /// Default destructor
+    ~DerivedMetrics() = default;
 
-  /// Registered metrics with their modes (metric name, registered mode).
-  /// See list of modes in begiing of the file.
-  std::map <std::string, DerivedMetricMode> mRegistered;
+    /// States whether metric has been registered or not
+    /// \param name metric name
+    /// \return 	yes or no
+    bool isRegistered(std::string name);
 
-public:
+    /// Registers metric - to be processed in one of the modes
+    /// Following processing modes are supported: REGISTER_RATE, REGISTER_AVERAGE
+    /// \param mode 	mode, see DerivedMetricMode
+    /// \param name 	name, metrics name
+    void registerMetric(DerivedMetricMode mode, std::string name);
 
-  /// Default constructor
-  DerivedMetrics(const unsigned int cacheSize);
-
-  /// Default destructor
-  ~DerivedMetrics() = default;
-
-  /// States whether metric has been registered or not
-  /// \param name metric name
-  /// \return 	yes or no
-  bool isRegistered(std::string name);
-
-  /// Registers metric - to be processed in one of the modes
-  /// Following processing modes are supported: REGISTER_RATE, REGISTER_AVERAGE
-  /// \param mode 	mode, see DerivedMetricMode
-  /// \param name 	name, metrics name
-  void registerMetric(DerivedMetricMode mode, std::string name);
-
-  /// Handles metric processing, switches over processing modes
-  template<typename T> 
-  std::unique_ptr<Metric> processMetric(T value, std::string name, std::string entity, 
+    /// Handles metric processing, switches over processing modes
+    template<typename T> 
+    std::unique_ptr<Metric> processMetric(T value, std::string name, std::string entity, 
                                         std::chrono::time_point<std::chrono::system_clock> timestamp);
 
-  /// Calculates rate based on past and curret value and timestamp
-  /// \param name 	metric name
-  /// \return 		metric with calculated rate value
-  template<typename T> std::unique_ptr<Metric> calculateRate(std::string name, T);
+    /// Calculates rate based on past and curret value and timestamp
+    /// \param name 	metric name
+    /// \return 		metric with calculated rate value
+    template<typename T> std::unique_ptr<Metric> calculateRate(std::string name, T);
 
-  /// Calculates average value based on all past values
-  /// \param name 	metric name
-  /// \return		metric with calculated average value
-  template<typename T> std::unique_ptr<Metric> calculateAverage(std::string name, T);
+    /// Calculates average value based on all past values
+    /// \param name 	metric name
+    /// \return		metric with calculated average value
+    template<typename T> std::unique_ptr<Metric> calculateAverage(std::string name, T);
 
+  private:
+    /// maximum size of vector in cache
+    const unsigned int mMaxVectorSize;
+
+    /// Cache of registered metrics (metric name / vector of metric pointers).
+    std::map <std::string, std::vector<std::unique_ptr<Metric>>> mCache;
+
+    /// Registered metrics with their modes (metric name, registered mode).
+    /// See list of modes in begiing of the file.
+    std::map <std::string, DerivedMetricMode> mRegistered;
 };
 
 } // namespace Core
