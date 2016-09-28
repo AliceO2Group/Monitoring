@@ -17,7 +17,7 @@ namespace Monitoring
 namespace Core
 {
 
-inline unsigned long InfoLoggerBackend::convertTimestamp(std::chrono::time_point<std::chrono::system_clock> timestamp)
+inline unsigned long InfoLoggerBackend::convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp)
 {
   return std::chrono::duration_cast <std::chrono::milliseconds>(
     timestamp.time_since_epoch()
@@ -29,32 +29,32 @@ InfoLoggerBackend::InfoLoggerBackend()
   MonInfoLogger::GetInstance() << "InfoLogger backend initialized" << AliceO2::InfoLogger::InfoLogger::endm;
 }
 
-void InfoLoggerBackend::send(const int value, const std::string name, const std::string entity, 
-                             const std::chrono::time_point<std::chrono::system_clock> timestamp)
+void InfoLoggerBackend::send(int value, const std::string& name, const std::string& entity, 
+                             const std::chrono::time_point<std::chrono::system_clock>& timestamp)
 {
   MonInfoLogger::GetInstance() << "InfoLoggerMonitoring : " << name << ", " << value << " [int], "
                                << convertTimestamp(timestamp) << ", " << entity
                                << AliceO2::InfoLogger::InfoLogger::endm;
 }
 
-void InfoLoggerBackend::send(const double value, const std::string name, const std::string entity, 
-                             const std::chrono::time_point<std::chrono::system_clock> timestamp)
+void InfoLoggerBackend::send(double value, const std::string& name, const std::string& entity, 
+                             const std::chrono::time_point<std::chrono::system_clock>& timestamp)
 {
   MonInfoLogger::GetInstance() << "InfoLoggerMonitoring : " << name << ", " << value << " [double], " 
                                << convertTimestamp(timestamp) << ", " << entity
                                << AliceO2::InfoLogger::InfoLogger::endm;
 }
 
-void InfoLoggerBackend::send(const std::string value, const std::string name, const std::string entity, 
-                             const std::chrono::time_point<std::chrono::system_clock> timestamp)
+void InfoLoggerBackend::send(std::string value, const std::string& name, const std::string& entity, 
+                             const std::chrono::time_point<std::chrono::system_clock>& timestamp)
 {
   MonInfoLogger::GetInstance() << "InfoLoggerMonitoring : " << name << ", " << value << " [string], "
                                << convertTimestamp(timestamp) << ", " << entity
                                << AliceO2::InfoLogger::InfoLogger::endm;
 }
 
-void InfoLoggerBackend::send(const uint32_t value, const std::string name, const std::string entity,
-                             std::chrono::time_point<std::chrono::system_clock> timestamp)
+void InfoLoggerBackend::send(uint32_t value, const std::string& name, const std::string& entity,
+                             const std::chrono::time_point<std::chrono::system_clock>& timestamp)
 {
   MonInfoLogger::GetInstance() << "InfoLoggerMonitoring : " << name << ", " << value << " [uint32_t], " 
                                << convertTimestamp(timestamp) << ", " << entity

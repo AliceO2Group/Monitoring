@@ -47,41 +47,42 @@ void InfluxBackend::deleteCurl(CURL * curl)
   curl_global_cleanup();
 }
 
-void InfluxBackend::send(const int value, const std::string name, const std::string entity, 
-                         const std::chrono::time_point<std::chrono::system_clock> timestamp)
+void InfluxBackend::send(int value, const std::string& name, const std::string& entity, 
+                         const std::chrono::time_point<std::chrono::system_clock>& timestamp)
 {
   curlWrite(std::to_string(value), name, entity, convertTimestamp(timestamp));
 }
 
-void InfluxBackend::send(const double value, const std::string name, const std::string entity, 
-                         const std::chrono::time_point<std::chrono::system_clock> timestamp)
+void InfluxBackend::send(double value, const std::string& name, const std::string& entity, 
+                         const std::chrono::time_point<std::chrono::system_clock>& timestamp)
 {
   curlWrite(std::to_string(value), name, entity, convertTimestamp(timestamp));
 }
 
-void InfluxBackend::send(std::string value, const std::string name, const std::string entity, 
-                         const std::chrono::time_point<std::chrono::system_clock> timestamp)
+void InfluxBackend::send(std::string value, const std::string& name, const std::string& entity, 
+                         const std::chrono::time_point<std::chrono::system_clock>& timestamp)
 {
   value.insert(value.begin(), '"');
   value.insert(value.end(), '"');
   curlWrite(value, name, entity, convertTimestamp(timestamp));
 }
 
-void InfluxBackend::send(const uint32_t value, const std::string name, const std::string entity, 
-                         std::chrono::time_point<std::chrono::system_clock> timestamp)
+void InfluxBackend::send(uint32_t value, const std::string& name, const std::string& entity, 
+                         const std::chrono::time_point<std::chrono::system_clock>& timestamp)
 {
   curlWrite(std::to_string(value), name, entity, convertTimestamp(timestamp));
 }
 
-int InfluxBackend::curlWrite(const std::string value, std::string name, const std::string entity, 
+int InfluxBackend::curlWrite(std::string value, const std::string& name, const std::string& entity, 
                              const unsigned long timestamp)
 {
+  std::string escapedName = name;
   // escape space in name for InluxDB
-  boost::replace_all(name, " ", "\\ ");
+  boost::replace_all(escapedName, " ", "\\ ");
 
   // preparing post data
   std::stringstream convert;
-  convert << name << ",entity=" << entity << " value=" << value << " " << timestamp;
+  convert << escapedName << ",entity=" << entity << " value=" << value << " " << timestamp;
   string post = convert.str();
 
   // send via curl
@@ -106,7 +107,7 @@ int InfluxBackend::curlWrite(const std::string value, std::string name, const st
   return 0;
 }
 
-inline unsigned long InfluxBackend::convertTimestamp(std::chrono::time_point<std::chrono::system_clock> timestamp)
+inline unsigned long InfluxBackend::convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp)
 {
   return std::chrono::duration_cast <std::chrono::nanoseconds>(
     timestamp.time_since_epoch()
