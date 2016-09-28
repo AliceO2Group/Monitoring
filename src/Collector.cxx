@@ -86,7 +86,7 @@ void Collector::setEntity(std::string entity) {
 	mEntity = entity;
 }
 
-void Collector::monitorUpdate()
+void Collector::sendProcessMonitorValues()
 {
   ///                         type    name    value
   /// std::tuple<ProcessMonitorType, string, string>
@@ -105,7 +105,7 @@ void Collector::monitorUpdate()
 void Collector::processMonitorLoop(int interval)
 {
   while (mMonitorRunning) {
-    monitorUpdate();
+    sendProcessMonitorValues();
     std::this_thread::sleep_for (std::chrono::seconds(interval));
   }
 }

@@ -84,7 +84,7 @@ class Collector
       std::chrono::time_point<std::chrono::system_clock> timestamp = Collector::getCurrentTimestamp()) const;
 
     /// Manual update and send of Process Monitor parameters
-    void monitorUpdate();
+    void sendProcessMonitorValues();
 
     /// Add process PID that will be automatically monitored
     /// \param pid
