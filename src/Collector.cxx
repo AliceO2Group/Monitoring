@@ -32,21 +32,23 @@ namespace Core
 
 Collector::Collector(ConfigFile &configFile)
 {
-  if (configFile.getValue<int>("InfoLoggerBackend.enable") == 1)
+  if (configFile.getValue<int>("InfoLoggerBackend.enable") == 1) {
     mBackends.emplace_back(std::unique_ptr<Backend>(new InfoLoggerBackend()));
-
+  }
 #ifdef _WITH_APPMON
-  if (configFile.getValue<int>("AppMon.enable") == 1)
+  if (configFile.getValue<int>("AppMon.enable") == 1) {
     mBackends.emplace_back(std::unique_ptr<Backend>(
       new ApMonBackend(configFile.getValue<string>("AppMon.pathToConfig"))
     ));
+  }
 #endif
 
 #ifdef _WITH_INFLUX
-  if (configFile.getValue<int>("InfluxDB.enable") == 1)
+  if (configFile.getValue<int>("InfluxDB.enable") == 1) {
     mBackends.emplace_back(std::unique_ptr<Backend>(
       new InfluxBackend(configFile.getValue<string>("InfluxDB.writeUrl"))
     ));
+  }
 #endif
   setDefaultEntity();
   
@@ -90,11 +92,11 @@ void Collector::monitorUpdate()
   /// std::tuple<ProcessMonitorType, string, string>
   for (auto const pid : mProcessMonitor->getPidsDetails()) {
     switch (std::get<0>(pid)) {
-      case ProcessMonitorType::INT : sendDirect( std::stoi(std::get<1>(pid)), std::get<2>(pid));
+      case ProcessMonitorType::INT : sendRawValue( std::stoi(std::get<1>(pid)), std::get<2>(pid));
                break;
-      case ProcessMonitorType::DOUBLE : sendDirect( std::stod(std::get<1>(pid)), std::get<2>(pid));
+      case ProcessMonitorType::DOUBLE : sendRawValue( std::stod(std::get<1>(pid)), std::get<2>(pid));
                break;
-      case ProcessMonitorType::STRING : sendDirect(std::get<1>(pid), std::get<2>(pid));
+      case ProcessMonitorType::STRING : sendRawValue(std::get<1>(pid), std::get<2>(pid));
                break;
     }
   }
@@ -131,7 +133,7 @@ void Collector::addDerivedMetric(DerivedMetricMode mode, std::string name) {
 }
 
 template<typename T> 
-inline void Collector::sendDirect(T value, std::string name, std::chrono::time_point<std::chrono::system_clock> timestamp) const
+inline void Collector::sendRawValue(T value, std::string name, std::chrono::time_point<std::chrono::system_clock> timestamp) const
 {
   for (auto& b: mBackends) {
     b->send(value, name, mEntity, timestamp);
@@ -150,7 +152,7 @@ void Collector::send(T value, std::string name, std::chrono::time_point<std::chr
       throw std::runtime_error("Derived metrics failed : metric " + name + " has incorrect type");
     }
   }
-  sendDirect(value, name, timestamp);
+  sendRawValue(value, name, timestamp);
 }
 
 template void Collector::send(int, std::string, std::chrono::time_point<std::chrono::system_clock>);
@@ -158,10 +160,10 @@ template void Collector::send(double, std::string, std::chrono::time_point<std::
 template void Collector::send(std::string, std::string, std::chrono::time_point<std::chrono::system_clock>);
 template void Collector::send(uint32_t, std::string, std::chrono::time_point<std::chrono::system_clock>);
 
-template void Collector::sendDirect(int, std::string, std::chrono::time_point<std::chrono::system_clock>) const;
-template void Collector::sendDirect(double, std::string, std::chrono::time_point<std::chrono::system_clock>) const;
-template void Collector::sendDirect(std::string, std::string, std::chrono::time_point<std::chrono::system_clock>) const;
-template void Collector::sendDirect(uint32_t, std::string, std::chrono::time_point<std::chrono::system_clock>) const;
+template void Collector::sendRawValue(int, std::string, std::chrono::time_point<std::chrono::system_clock>) const;
+template void Collector::sendRawValue(double, std::string, std::chrono::time_point<std::chrono::system_clock>) const;
+template void Collector::sendRawValue(std::string, std::string, std::chrono::time_point<std::chrono::system_clock>) const;
+template void Collector::sendRawValue(uint32_t, std::string, std::chrono::time_point<std::chrono::system_clock>) const;
 
 } // namespace Core
 } // namespace Monitoring

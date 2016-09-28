@@ -80,7 +80,7 @@ class Collector
 	
     /// Same as send but totally skips derived metrics logic
     template<typename T>
-    void sendDirect(T value, std::string name, 
+    void sendRawValue(T value, std::string name, 
       std::chrono::time_point<std::chrono::system_clock> timestamp = Collector::getCurrentTimestamp()) const;
 
     /// Manual update and send of Process Monitor parameters
