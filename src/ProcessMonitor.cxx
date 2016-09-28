@@ -8,7 +8,6 @@
 #include <boost/algorithm/string/classification.hpp> 
 #include <boost/algorithm/string/split.hpp>
 #include <chrono>
-#include <sstream>
 #include "MonInfoLogger.h"
 
 namespace AliceO2
@@ -24,8 +23,8 @@ namespace Core
 ProcessMonitor::ProcessMonitor()
 {
   mPids.push_back( (int) ::getpid() );
-  for (std::vector<std::pair<std::string, ProcessMonitorType>>::const_iterator i = psParams.begin(); i != psParams.end(); ++i) {
-    mPsCommand = mPsCommand.empty() ? i->first : mPsCommand += (',' +  i->first);
+  for (auto const param : mPsParams) {
+    mPsCommand = mPsCommand.empty() ? param.first : mPsCommand += (',' +  param.first);
   }
   mPsCommand = "ps --no-headers -o " + mPsCommand + " --pid ";
 }
@@ -36,8 +35,8 @@ std::vector<std::tuple<ProcessMonitorType, std::string, std::string>> ProcessMon
   std::lock_guard<std::mutex> lock(mVectorPidLock);
   for (auto const pid : mPids) {
     std::vector<std::string> pidParams = getPidStatus(pid);
-    std::vector<std::pair<std::string, ProcessMonitorType>>::const_iterator  j = psParams.begin();
-    for (std::vector<std::string>::const_iterator i = pidParams.begin(); i != pidParams.end(); ++i, ++j) {
+    auto j = mPsParams.begin();
+    for (auto i = pidParams.begin(); i != pidParams.end(); ++i, ++j) {
       allPidsParams.emplace_back(std::make_tuple(j->second, *i, j->first));
     }
   }

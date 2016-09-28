@@ -61,7 +61,7 @@ private:
   std::mutex mVectorPidLock;
 
   /// List of PS params with their types
-  const std::vector<std::pair<std::string, ProcessMonitorType>> psParams { 
+  const std::vector<std::pair<std::string, ProcessMonitorType>> mPsParams { 
     {"pid", ProcessMonitorType::INT},    {"etime", ProcessMonitorType::STRING}, {"time", ProcessMonitorType::STRING},
     {"pcpu", ProcessMonitorType::DOUBLE}, {"pmem", ProcessMonitorType::DOUBLE},   {"rsz", ProcessMonitorType::INT},
     {"vsz", ProcessMonitorType::INT},    {"comm", ProcessMonitorType::STRING} };
