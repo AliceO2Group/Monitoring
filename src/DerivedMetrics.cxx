@@ -47,13 +47,13 @@ std::unique_ptr<Metric> DerivedMetrics::calculateRate(std::string name, T)
   if (search != mCache.end()) {
     int size = search->second.size();
     if (size >= 2) {
-      std::chrono::duration<float> timestampDifferenct = (search->second[size - 1]->getTimestamp() 
+      std::chrono::duration<float> timestampDifference = (search->second[size - 1]->getTimestamp() 
                                                         - search->second[size - 2]->getTimestamp());
       T last = boost::get<T>(search->second[size - 1]->getValue());
       T beforelast = boost::get<T>(search->second[size - 2]->getValue());
       // disallow dividing by 0
-      if (timestampDifferenct.count() == 0) return nullptr;
-      T rate = (last - beforelast ) / timestampDifferenct.count();
+      if (timestampDifference.count() == 0) return nullptr;
+      T rate = (last - beforelast ) / timestampDifference.count();
       return std::unique_ptr<Metric>(new Metric(rate, name + "Rate", 
                                      mCache[name].back()->getEntity(), mCache[name].back()->getTimestamp()));
     } 

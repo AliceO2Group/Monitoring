@@ -45,9 +45,9 @@ Collector::Collector(ConfigFile &configFile)
 
 #ifdef _WITH_INFLUX
   if (configFile.getValue<int>("InfluxDB.enable") == 1) {
-    mBackends.emplace_back(std::unique_ptr<Backend>(
-      new InfluxBackend(configFile.getValue<string>("InfluxDB.writeUrl"))
-    ));
+    std::string url = configFile.getValue<string>("InfluxDB.hostname") + ":" +  configFile.getValue<string>("InfluxDB.port")
+                    + "/write?db=" + configFile.getValue<string>("InfluxDB.db");
+    mBackends.emplace_back(std::unique_ptr<Backend>(new InfluxBackend(url)));
   }
 #endif
   setDefaultEntity();
@@ -148,7 +148,7 @@ void Collector::send(T value, std::string name, std::chrono::time_point<std::chr
       std::unique_ptr<Metric> derived = mDerivedHandler->processMetric(value, name, mEntity, timestamp);
       if (derived != nullptr) sendMetric(std::move(derived), value);
     } 
-    catch (boost::bad_get e) {
+    catch (boost::bad_get& e) {
       throw std::runtime_error("Derived metrics failed : metric " + name + " has incorrect type");
     }
   }

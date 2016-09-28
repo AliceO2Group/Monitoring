@@ -56,7 +56,8 @@ class DerivedMetrics
     template<typename T> 
     std::unique_ptr<Metric> processMetric(T value, std::string name, std::string entity, 
                                         std::chrono::time_point<std::chrono::system_clock> timestamp);
-
+  
+  private:
     /// Calculates rate based on past and curret value and timestamp
     /// \param name 	metric name
     /// \return 		metric with calculated rate value
@@ -67,7 +68,6 @@ class DerivedMetrics
     /// \return		metric with calculated average value
     template<typename T> std::unique_ptr<Metric> calculateAverage(std::string name, T);
 
-  private:
     /// maximum size of vector in cache
     const unsigned int mMaxVectorSize;
 
