@@ -95,16 +95,16 @@ int InfluxBackend::curlWrite(std::string value, const std::string& name, const s
   if (response != CURLE_OK) {
     MonInfoLogger::GetInstance() << "!!! InfluxDB : cURL error : " << (curl_easy_strerror(response)) 
                                  << AliceO2::InfoLogger::InfoLogger::endm;
-    return 2;
+    return;
   }
   if (responseCode != 204) {
     MonInfoLogger::GetInstance() << "!!! InfluxDB : cURL response code " + std::to_string(responseCode) 
                                  << AliceO2::InfoLogger::InfoLogger::endm;
-    return 1;
+    return;
   }
     MonInfoLogger::GetInstance() << "InfluxDB : metric " <<  name << ", code " << responseCode 
                                  << AliceO2::InfoLogger::InfoLogger::endm;
-  return 0;
+  return;
 }
 
 inline unsigned long InfluxBackend::convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp)

@@ -18,12 +18,10 @@ namespace Monitoring
 namespace Core
 {
 
-/// \brief Backend that injects metrics to InfoLogger
+/// Library backend that injects metrics to InfoLogger
 ///
-/// Inject monitoring metrics to InfoLogger - logging module
-/// InfoLogger does not support std::chrono::time_point therefore timestamps is converted to unsigned long (see method #convertTimestamp)
-///
-/// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
+/// Inject monitoring metrics to InfoLogger
+/// InfoLogger does not support std::chrono::time_point therefore timestamps is converted to unsigned long (see #convertTimestamp)
 class InfoLoggerBackend final : public Backend
 {
   public:

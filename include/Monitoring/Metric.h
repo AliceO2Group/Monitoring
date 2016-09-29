@@ -20,19 +20,32 @@ namespace Monitoring
 namespace Core
 {
 
-/// \brief Represents metric parameters except value itself (timestamp, name, entity)
-///
-/// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
+/// \brief Represents metric parameters except (value, name, entity and timestamp)
 class Metric
 {
   public:
-    /// Initialize class variables : supporting int, double, uint32_t and std::string
-    /// \param value of the metric
-    /// \param name of the metric
-    /// \param timestamp in miliseconds, if not provided output of getCurrentTimestamp as default value is assigned
+    /// Initialize class variables
+    /// \param value 	 	metric value (int)
+    /// \param name 	 	the metric nam
+    /// \param timestamp 	metric timestamp in milliseconds
     Metric(int value, const std::string& name, std::string entity, std::chrono::time_point<std::chrono::system_clock> timestamp);
+
+    /// Initialize class variables
+    /// \param value            metric value (string)
+    /// \param name             the metric nam
+    /// \param timestamp        metric timestamp in milliseconds    
     Metric(std::string value, const std::string& name, std::string entity, std::chrono::time_point<std::chrono::system_clock> timestamp);
+
+    /// Initialize class variables
+    /// \param value            metric value (double)
+    /// \param name             the metric nam
+    /// \param timestamp        metric timestamp in milliseconds 
     Metric(double value, const std::string& name, std::string entity, std::chrono::time_point<std::chrono::system_clock> timestamp);
+
+    /// Initialize class variables
+    /// \param value            metric value (uint32_t)
+    /// \param name             the metric nam
+    /// \param timestamp        metric timestamp in milliseconds 
     Metric(uint32_t value, const std::string& name, std::string entity, std::chrono::time_point<std::chrono::system_clock> timestamp);
 	
     /// Default destructor

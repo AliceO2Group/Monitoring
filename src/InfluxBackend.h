@@ -20,12 +20,10 @@ namespace Monitoring
 namespace Core
 {
 
-/// \brief Backend that injects metrics to InfoLogger
+/// Library backend that injects metrics to InfluxDB time-series databse
 ///
-/// Inject monitoring metrics to InfoLogger - logging module
-/// InfoLogger does not support std::chrono::time_point therefore timestamps is converted to unsigned long (see method #convertTimestamp)
-///
-/// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
+/// Metrics are transfered via cURL library.
+/// InfluxDB does not support std::chrono::time_point therefore timestamps are converted to unsigned long (see #convertTimestamp)
 class InfluxBackend final : public Backend
 {
   public:
@@ -77,7 +75,7 @@ class InfluxBackend final : public Backend
     /// \return 		CURL handle
     CURL* initCurl(std::string url);
   
-    /// CURL smart pointer with dedicated deleter
+    /// CURL smart pointer with custom deleter
     std::unique_ptr<CURL, decltype(&InfluxBackend::deleteCurl)> curlHandle;
 
     /// Converts timestamp to unsigned long (nanoseconds from epoch)
@@ -86,10 +84,9 @@ class InfluxBackend final : public Backend
     unsigned long convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp);
 	
     /// Writes metric into InfluxDB using cURL library
-    /// \param value 	metric value converted into string
+    /// \param value 		metric value converted into string
     /// \param timestamp	timestamp in nanoseconds
-    /// \return 		0 - success, 1 - wrong response code, 2 - conectivity issues
-    int curlWrite(std::string value, const std::string &name, const std::string& entity, unsigned long timestamp);
+    void curlWrite(std::string value, const std::string &name, const std::string& entity, unsigned long timestamp);
 };
 
 } // namespace Core

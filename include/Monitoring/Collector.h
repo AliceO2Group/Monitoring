@@ -29,88 +29,90 @@ namespace Monitoring
 namespace Core 
 {
 
-/// \brief Collects metrics - public interface
+/// Collect metrics and dispatches them to selected backends for further processing.
 ///
-/// Collects metrics and pushes them through all avaliable backends. Supported types: int, double, string, uint32_t.
+/// Collects metrics (see Metric class) and pushes them through all selected backends (see Backend)
 /// Supports feature of calculating derived metrics, such as rate and average value (see #addDerivedMetric method).
-/// Generates default entity (origin) as concatanated hostname and process ID.
-///
-/// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
+/// Generates default entity as concatenated hostname and process ID.
+/// Interacts with ProcessMonitor that monitors allows to monitor current and other processes running
+/// at the same machine (see ProcessMonitor).
 class Collector
 {
   public:
-    /// Disable copy constructor
+    /// Disables copy constructor
     Collector & operator=(const Collector&) = delete;
     Collector(const Collector&) = delete;
   
-    /// Initialaze backends and instance of "derived metric processor" (DerivedMetrics class)
-    /// \param configFile 	configuration object
-    Collector(ConfigFile &configFile);
+    /// Initializes backends based on passed configuration.
+    /// Instantiates derived metrics processor (see DerivedMetrics class) and process monitor (see ProcessMonitor).
+    /// \param configPath 	path to configuration
+    Collector(const std::string& configPath);
 
-    /// Wait and join monitoring thread
+    /// Joins process monitor thread if possible
     ~Collector();
 
-    /// Generates timestamp in miliseconds
-    /// \return timestamp as unsigned long
+    /// Generates current timestamp in milliseconds
+    /// \return 	timestamp as unsigned long
     static std::chrono::time_point<std::chrono::system_clock> getCurrentTimestamp();
 
     /// Overwrites default entity value
     /// \param entity 	new entity value
     void setEntity(std::string entity);
 
-    /// Sends the metric to all avaliabes backends
-    /// If metric has been added to "derived metric processor" the derived metric is calculated (see addDerivedMetric method)
-    /// \param value of the metric
-    /// \param name of the metric
-    /// \param timestamp in miliseconds, if not provided output of getCurrentTimestamp as default value is assigned
+    /// Sends a metric to all avaliabes backends
+    /// If metric has been added to DerivedMetric the derived metric is calculated (see addDerivedMetric method)
+    /// \param value 		metric value
+    /// \param name 		metric name
+    /// \param timestamp 	metric timestamp in miliseconds, if not provided getCurrentTimestamp provides current value
     template<typename T> 
     void send(T value, std::string name, 
             std::chrono::time_point<std::chrono::system_clock> timestamp = Collector::getCurrentTimestamp());
   
-    /// Adds metric to the list - each time the metric arrives the derived metric is calculated and then sent to all backends
+    /// Adds metric to derived metric list - each time the metric arrives the derived metric is calculated and pushed to all backends
     /// Following processing modes are supported: DerivedMetricMode::RATE, DerivedMetricMode::AVERAGE
-    /// \param mode
     /// \param name
-    void addDerivedMetric(DerivedMetricMode mode, std::string name);
+    /// \param mode
+    void addDerivedMetric(std::string name, DerivedMetricMode mode);
 
-    /// Sends Metric object to backend
+    /// Sends metric object to a backend
     /// \param metric	pointer to Metric
     template<typename T> void sendMetric(std::unique_ptr<Metric> metric, T);
 	
-    /// Same as send but totally skips derived metrics logic
+    /// Same as send but skips derived metrics logic
     template<typename T>
     void sendRawValue(T value, std::string name, 
       std::chrono::time_point<std::chrono::system_clock> timestamp = Collector::getCurrentTimestamp()) const;
 
-    /// Manual update and send of Process Monitor parameters
+    /// Forces updates of Process Monitor parameters
     void sendProcessMonitorValues();
 
-    /// Add process PID that will be automatically monitored
-    /// \param pid
+    /// Adds PID to list of monitored processes
+    /// \param pid 	process PID
     void addMonitoredPid(int pid);
 
   private:
-    /// Object responsible from derived metrics
+    /// Derived metrics handler
     /// \see class DerivedMetrics
     std::unique_ptr<DerivedMetrics> mDerivedHandler;
 
-    /// Vector of backends (where the values are send to).
+    /// Vector of backends (where metrics are passed to)
     std::vector <std::unique_ptr<Backend>> mBackends;
 
     /// Entity value
     std::string mEntity;
 
-    /// States whether Process Monitor thread should run or join
+    /// States whether Process Monitor thread is running
     std::atomic<bool> mMonitorRunning;
 
     /// Process Monitor thread  
     std::thread mMonitorThread;
 
     /// Process Monitor object
-    /// If automatic updates are not enabled still "monitorUpdate" method can be used
+    /// If automatic updates are not enabled user can invoke #sendProcessMonitorValues method
     std::unique_ptr<ProcessMonitor> mProcessMonitor;
 
-    /// Process Monitor loop (of new thread)
+    /// Process Monitor thread loop
+    /// \param interval 	sleep time in seconds
     void processMonitorLoop(int interval);
 
     /// Generates entity value as concatenated hostname and process id

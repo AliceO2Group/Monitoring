@@ -23,35 +23,31 @@ namespace Monitoring
 namespace Core
 {
 
-/// Types of parameters
+/// Types of ProcessMonitor parameters (eg. output of ps command)
 enum class ProcessMonitorType { INT, DOUBLE, STRING };
 
-/// \brief Allows self monitoring or to monitor processes running at the same machine
-///
-/// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
+/// Monitors current process and/or other processes running at the same machien
 class ProcessMonitor
 {
   friend class Collector;
 
   public:
-    /// Enables self monitoring
-    /// \param collector	shared pointer to collector, it executes only thread-safe methods of Collector
-    /// \param interval 	time interval between updates
+    /// Prepares externam software commands (ps)
     ProcessMonitor();
 	
     /// Default destructor
     ~ProcessMonitor() = default;
 
-    /// Generates vector of parameters for all PIDs
+    /// Generates vector of tuples; singile tuple contain a meric for one PIDs
     /// \return	vactor of tuples; 3 values (type, name, value)
     std::vector<std::tuple<ProcessMonitorType, std::string, std::string>> getPidsDetails();
 
-    /// Adds to list monitored PIDs
+    /// Adds PID to list monitored processes
     /// \param pid
     void addPid(int pid);
 
   private:
-    /// Vector of PIDs that will be monitored
+    /// PIDs that are monitored
     std::vector<int> mPids;
 
     /// options to be passed to PS
