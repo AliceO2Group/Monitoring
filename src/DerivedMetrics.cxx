@@ -47,15 +47,15 @@ std::unique_ptr<Metric> DerivedMetrics::calculateRate(std::string name, T)
   if (search != mCache.end()) {
     int size = search->second.size();
     if (size >= 2) {
-      std::chrono::duration<float> timestampDifference = (search->second[size - 1]->getTimestamp() 
-                                                        - search->second[size - 2]->getTimestamp());
-      T last = boost::get<T>(search->second[size - 1]->getValue());
-      T beforelast = boost::get<T>(search->second[size - 2]->getValue());
+      std::chrono::duration<float> timestampDifference = (search->second.at(size - 1)->getTimestamp() 
+                                                        - search->second.at(size - 2)->getTimestamp());
+      T last = boost::get<T>(search->second.at(size - 1)->getValue());
+      T beforelast = boost::get<T>(search->second.at(size - 2)->getValue());
       // disallow dividing by 0
       if (timestampDifference.count() == 0) return nullptr;
       T rate = (last - beforelast ) / timestampDifference.count();
       return std::unique_ptr<Metric>(new Metric(rate, name + "Rate", 
-                                     mCache[name].back()->getEntity(), mCache[name].back()->getTimestamp()));
+                                     mCache.at(name).back()->getEntity(), mCache.at(name).back()->getTimestamp()));
     } 
   }
   return nullptr;
@@ -71,12 +71,12 @@ template<typename T>
 std::unique_ptr<Metric> DerivedMetrics::calculateAverage(std::string name, T)
 {
   T total = 0;
-  for (auto& m : mCache[name]) {
+  for (auto& m : mCache.at(name)) {
     total += boost::get<T>(m->getValue());
   }
-  T average = (T) total / mCache[name].size();
+  T average = (T) total / mCache.at(name).size();
   return std::unique_ptr<Metric>(new Metric(average, name + "Average",
-                                 mCache[name].back()->getEntity(), mCache[name].back()->getTimestamp()));
+                                 mCache.at(name).back()->getEntity(), mCache.at(name).back()->getTimestamp()));
 }
 
 template <>
@@ -95,8 +95,8 @@ std::unique_ptr<Metric> DerivedMetrics::processMetric(T value, std::string name,
     mCache.emplace(std::make_pair(name, std::vector<std::unique_ptr<Metric>>()));
   }
   // remove first value if vector too large
-  if (mCache[name].size() > mMaxVectorSize) {
-    mCache[name].erase( mCache[name].begin() );
+  if (mCache.at(name).size() > mMaxVectorSize) {
+    mCache.at(name).erase( mCache.at(name).begin() );
   }
   mCache[name].emplace_back(std::unique_ptr<Metric>(new Metric(value, name, entity, timestamp)));
 
