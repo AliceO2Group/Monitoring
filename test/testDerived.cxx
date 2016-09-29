@@ -22,7 +22,7 @@ BOOST_AUTO_TEST_CASE(derivedAverage)
   std::string entity("metricEntity");
 
   AliceO2::Monitoring::Core::DerivedMetrics derivedHandler(1000);	
-  derivedHandler.registerMetric(AliceO2::Monitoring::Core::DerivedMetricMode::AVERAGE, name);
+  derivedHandler.registerMetric(name, AliceO2::Monitoring::Core::DerivedMetricMode::AVERAGE);
 		
   for (auto const result : results) {
     std::chrono::time_point<std::chrono::system_clock> timestamp = std::chrono::system_clock::now();
@@ -46,7 +46,7 @@ BOOST_AUTO_TEST_CASE(derivedRate)
   std::string entity("metricEntity");
 
   AliceO2::Monitoring::Core::DerivedMetrics derivedHandler(1000);
-  derivedHandler.registerMetric(AliceO2::Monitoring::Core::DerivedMetricMode::RATE, name);
+  derivedHandler.registerMetric(name, AliceO2::Monitoring::Core::DerivedMetricMode::RATE);
 
   for (auto const result : results) {
     std::this_thread::sleep_for(std::chrono::milliseconds(200));

@@ -27,7 +27,7 @@ DerivedMetrics::DerivedMetrics(const unsigned int cacheSize) : mMaxVectorSize(ca
 {
 }
 
-void DerivedMetrics::registerMetric(DerivedMetricMode mode, std::string name)
+void DerivedMetrics::registerMetric(std::string name, DerivedMetricMode mode)
 {
   mRegistered.insert(std::pair<std::string, DerivedMetricMode>(name, mode));
   MonInfoLogger::GetInstance() << "Monitoring : Metric " << name << " added to derived metrics" 

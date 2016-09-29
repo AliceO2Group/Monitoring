@@ -50,7 +50,7 @@ class DerivedMetrics
     /// Following processing modes are supported: REGISTER_RATE, REGISTER_AVERAGE
     /// \param mode 	mode, see DerivedMetricMode
     /// \param name 	name, metrics name
-    void registerMetric(DerivedMetricMode mode, std::string name);
+    void registerMetric(std::string name, DerivedMetricMode mode);
 
     /// Handles metric processing, switches over processing modes
     template<typename T> 

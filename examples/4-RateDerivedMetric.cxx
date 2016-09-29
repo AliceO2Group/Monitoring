@@ -17,7 +17,7 @@ int main() {
   std::unique_ptr<Monitoring::Core::Collector> collector(new Monitoring::Core::Collector(configFile));
   
   // derived metric :  rate
-  collector->addDerivedMetric(Monitoring::Core::DerivedMetricMode::RATE, "myCrazyMetric1");
+  collector->addDerivedMetric("myCrazyMetric1", Monitoring::Core::DerivedMetricMode::RATE);
 
   // now send at least two metrics to see the result
   collector->send(10, "myCrazyMetric1");
