@@ -73,7 +73,7 @@ void InfluxBackend::send(uint32_t value, const std::string& name, const std::str
   curlWrite(std::to_string(value), name, entity, convertTimestamp(timestamp));
 }
 
-int InfluxBackend::curlWrite(std::string value, const std::string& name, const std::string& entity, 
+void InfluxBackend::curlWrite(std::string value, const std::string& name, const std::string& entity, 
                              const unsigned long timestamp)
 {
   std::string escapedName = name;
