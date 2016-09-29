@@ -6,6 +6,7 @@
 #define BOOST_TEST_MODULE testCollector
 #include <boost/test/included/unit_test.hpp>
 
+#include <Configuration/ConfigurationFactory.h>
 
 namespace AliceO2 {
 namespace Monitoring {
@@ -13,16 +14,7 @@ namespace Test {
 
 BOOST_AUTO_TEST_CASE(derivedAverage)
 {
-  std::string filepath = "file:../../Monitoring/test/test.ini";
-  ConfigFile mConfigFile;
-  try {
-    mConfigFile.load(filepath);
-  }
-  catch (...) {
-     BOOST_ERROR("Unable to load confguration file: " << filepath);
-  }
-
-  std::unique_ptr<Monitoring::Core::Collector> collector(new Monitoring::Core::Collector(mConfigFile));
+  std::unique_ptr<Monitoring::Core::Collector> collector(new Monitoring::Core::Collector("file://../../Monitoring/test/test.ini"));
   
   int intMetric = 10;
   std::string stringMetric("monitoring string");

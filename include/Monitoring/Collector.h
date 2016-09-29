@@ -15,7 +15,6 @@
 #include <tuple>
 #include <vector>
 
-#include <Configuration/Configuration.h>
 #include "Monitoring/Backend.h"
 #include "Monitoring/DerivedMetrics.h"
 #include "Monitoring/ProcessMonitor.h"

@@ -11,6 +11,8 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <Configuration/ConfigurationFactory.h>
+
 #include "MonInfoLogger.h"
 #include "InfoLoggerBackend.h"
 
