@@ -33,37 +33,41 @@ namespace Monitoring
 namespace Core
 {
 
-Collector::Collector(ConfigFile &configFile)
+Collector::Collector(const std::string& configPath)
 {
-  if (configFile.getValue<int>("InfoLoggerBackend.enable") == 1) {
+  std::unique_ptr<ConfigurationInterface> configFile = ConfigurationFactory::getConfiguration(configPath);
+  std::cout << configPath << std::endl;
+  if (configFile->get<int>("InfoLoggerBackend.enable") == 1) {
     mBackends.emplace_back(std::unique_ptr<Backend>(new InfoLoggerBackend()));
   }
 #ifdef _WITH_APPMON
-  if (configFile.getValue<int>("AppMon.enable") == 1) {
+  if (configFile->get<int>("AppMon.enable") == 1) {
     mBackends.emplace_back(std::unique_ptr<Backend>(
-      new ApMonBackend(configFile.getValue<string>("AppMon.pathToConfig"))
+      new ApMonBackend(configFile->get<string>("AppMon.pathToConfig"))
     ));
   }
 #endif
 
 #ifdef _WITH_INFLUX
-  if (configFile.getValue<int>("InfluxDB.enable") == 1) {
-    std::string url = configFile.getValue<string>("InfluxDB.hostname") + ":" +  configFile.getValue<string>("InfluxDB.port")
-                    + "/write?db=" + configFile.getValue<string>("InfluxDB.db");
+  if (configFile->get<int>("InfluxDB.enable") == 1) {
+    std::string url = configFile->get<string>("InfluxDB.hostname") + ":" +  configFile->get<string>("InfluxDB.port")
+                    + "/write?db=" + configFile->get<string>("InfluxDB.db");
     mBackends.emplace_back(std::unique_ptr<Backend>(new InfluxBackend(url)));
   }
 #endif
   setDefaultEntity();
   
   mProcessMonitor = std::unique_ptr<ProcessMonitor>(new ProcessMonitor());
-  if (configFile.getValue<int>("ProcessMonitor.enable") == 1) {
-    int interval = configFile.getValue<int>("ProcessMonitor.interval");
+  if (configFile->get<int>("ProcessMonitor.enable") == 1) {
+    int interval = configFile->get<int>("ProcessMonitor.interval");
     mMonitorRunning = true;
     mMonitorThread = std::thread(&Collector::processMonitorLoop, this, interval);  
     MonInfoLogger::GetInstance() << "Process Monitor : Automatic updates enabled" << AliceO2::InfoLogger::InfoLogger::endm;
   }
 
-  mDerivedHandler = std::unique_ptr<DerivedMetrics>(new DerivedMetrics(configFile.getValue<int>("DerivedMetrics.maxCacheSize")));
+  mDerivedHandler = std::unique_ptr<DerivedMetrics>(
+    new DerivedMetrics(configFile->get<int>("DerivedMetrics.maxCacheSize"))
+  );
 }
 
 Collector::~Collector()
@@ -131,8 +135,8 @@ void Collector::sendMetric(std::unique_ptr<Metric> metric, T)
   }
 }
 
-void Collector::addDerivedMetric(DerivedMetricMode mode, std::string name) {
-  mDerivedHandler->registerMetric(mode, name);
+void Collector::addDerivedMetric(std::string name, DerivedMetricMode mode) {
+  mDerivedHandler->registerMetric(name, mode);
 }
 
 template<typename T> 
