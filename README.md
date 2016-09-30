@@ -27,10 +27,15 @@ The following following metrics are generated for each process:
 
 
 ## Monitoring backends
-Metrics are pushed over network to backends. The following backends are supported:
-1. InfoLogger
-2. MonALISA (via AppMon)
-3. InfluxDB (via cURL)
+Metrics are pushed to one or multiple backends. The library currently supports three  backends.
+
+| Backend name     | Description                                                 | Client-side requirements
+| ---------------- |:-----------------------------------------------------------:| ----------------------------:|
+| InfluxDB         | pushes metrics using cURL to InfluxDB time series database  | cURL: yum install libcurl    |
+| ApMon (MonALISA) | pushes metrics via UDP to MonALISA Serivce                  | ApMon: yum install ApMon_cpp |
+| InfoLogger       | O2 Logging module                                           | none                         |
+
+Instruction how to install and configure server-sides backends are available in "Server-side backend installation and configuration" chapter.
 
 ## Configuration file
 + AppMon
@@ -51,7 +56,7 @@ Metrics are pushed over network to backends. The following backends are supporte
 
 
 ## Getting started
-Examples are avalibale in *example* directory.
+Examples are available in *example* directory.
 
 ### Injecting user specific metric
 Simple example that allows to send a metric.
@@ -141,3 +146,25 @@ Library monitors current process by default but it also allows to monitor other 
     std::this_thread::sleep_for(std::chrono::seconds(1));
   }
 ```
+
+## Backend installation and configuration
+
+### MonALISA
+##### MonALISA Service
+To install and configure the MonALISA service (1 central server):
++ yum install monalisa-service
++ copy config/ml_env to /opt/monalisa-service/Service/CMD/
++ copy config/ml.properties to /opt/monalisa-service/Service/myFarm/
++ copy config/myFarm.conf to /opt/monalisa-service/Service/myFarm/
++ add following line to iptables and restart it: -A INPUT -p udp -m state --state NEW -m udp --dport 8884 -m comment --comment "MonALISA UDP packets" -j ACCEPT
++ /sbin/service MLD start
+
+##### MonALISA Client
+To install the MonALISA Client run:
++ yum install monalisa-client
+
+### InfluxDB
+Instructions are avaliable here: https://docs.influxdata.com/influxdb/v1.0/introduction/installation/
+
+### InfoLogger
+There is no installation/configuration procedure needed. InfoLogger backend is available all the time (if not disabled in configuration file).
