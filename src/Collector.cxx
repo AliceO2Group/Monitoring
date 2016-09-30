@@ -51,9 +51,9 @@ Collector::Collector(const std::string& configPath)
 
 #ifdef _WITH_INFLUX
   if (configFile->get<int>("InfluxDB.enable") == 1) {
-    std::string url = configFile->get<string>("InfluxDB.hostname").value() + ":" 
-	            + configFile->get<string>("InfluxDB.port").value()
-                    + "/write?db=" + configFile->get<string>("InfluxDB.db").value();
+    std::string url = configFile->get<std::string>("InfluxDB.hostname").value() + ":" 
+	            + configFile->get<std::string>("InfluxDB.port").value()
+                    + "/write?db=" + configFile->get<std::string>("InfluxDB.db").value();
     mBackends.emplace_back(std::unique_ptr<Backend>(new InfluxBackend(url)));
   }
 #endif
