@@ -63,7 +63,7 @@ class InfluxBackend final : public Backend
     /// \param entity       metric entity - origin
     /// \param timestamp    metric timestamp (std::chrono::time_point)
     void send(uint32_t value, const std::string& name, const std::string& entity,
-    const std::chrono::time_point<std::chrono::system_clock> &timestamp) override;
+      const std::chrono::time_point<std::chrono::system_clock> &timestamp) override;
 
   private:
     /// Custom deleter of CURL object
@@ -85,6 +85,8 @@ class InfluxBackend final : public Backend
 	
     /// Writes metric into InfluxDB using cURL library
     /// \param value 		metric value converted into string
+    /// \param name		metric name
+    /// \param entity		metric entity
     /// \param timestamp	timestamp in nanoseconds
     void curlWrite(std::string value, const std::string &name, const std::string& entity, unsigned long timestamp);
 };
