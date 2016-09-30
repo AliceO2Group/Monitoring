@@ -10,7 +10,7 @@ Metric consists of 4 parameters: name, value, entity and timestamp.
 | name           | string                                        | yes      | -                |
 | value          | int/double/uint32t/string                     | yes      | -                |
 | entity         | string                                        | no       | <hostname>.<PID> |
-| timestamp      | chrono::time_point<std::chrono::system_clock> | no       | current time     |
+| timestamp      | chrono::time_point&lt;std::chrono::system_clock&gt; | no       | current time     |
 
 Not required parameters can be omitted. They will generated automatically (see Default column).
 
