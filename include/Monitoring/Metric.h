@@ -26,25 +26,29 @@ class Metric
   public:
     /// Initialize class variables
     /// \param value 	 	metric value (int)
-    /// \param name 	 	the metric nam
+    /// \param name 	 	metric name
+    /// \param entity 		metric entity
     /// \param timestamp 	metric timestamp in milliseconds
     Metric(int value, const std::string& name, std::string entity, std::chrono::time_point<std::chrono::system_clock> timestamp);
 
     /// Initialize class variables
     /// \param value            metric value (string)
-    /// \param name             the metric nam
+    /// \param name             the metric name
+    /// \param entity           metric entity
     /// \param timestamp        metric timestamp in milliseconds    
     Metric(std::string value, const std::string& name, std::string entity, std::chrono::time_point<std::chrono::system_clock> timestamp);
 
     /// Initialize class variables
     /// \param value            metric value (double)
-    /// \param name             the metric nam
+    /// \param name             metric name
+    /// \param entity           metric entity
     /// \param timestamp        metric timestamp in milliseconds 
     Metric(double value, const std::string& name, std::string entity, std::chrono::time_point<std::chrono::system_clock> timestamp);
 
     /// Initialize class variables
     /// \param value            metric value (uint32_t)
-    /// \param name             the metric nam
+    /// \param name             metric name
+    /// \param entity           metric entity
     /// \param timestamp        metric timestamp in milliseconds 
     Metric(uint32_t value, const std::string& name, std::string entity, std::chrono::time_point<std::chrono::system_clock> timestamp);
 	
