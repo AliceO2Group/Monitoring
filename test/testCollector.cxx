@@ -6,7 +6,7 @@
 #define BOOST_TEST_MODULE testCollector
 #include <boost/test/included/unit_test.hpp>
 
-#include <Configuration/ConfigurationFactory.h>
+//#include <Configuration/ConfigurationFactory.h>
 
 namespace AliceO2 {
 namespace Monitoring {

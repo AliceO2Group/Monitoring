@@ -36,7 +36,7 @@ namespace Core
 Collector::Collector(const std::string& configPath)
 {
   std::unique_ptr<Configuration::ConfigurationInterface> configFile =
-      Configuration::ConfigurationFactory::getConfiguration(configPath);
+		  Configuration::ConfigurationFactory::getConfiguration(configPath);
   std::cout << configPath << std::endl;
   if (configFile->get<int>("InfoLoggerBackend.enable") == 1) {
     mBackends.emplace_back(std::unique_ptr<Backend>(new InfoLoggerBackend()));
