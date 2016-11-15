@@ -45,7 +45,8 @@ find_package(Boost COMPONENTS unit_test_framework program_options REQUIRED)
 # Dependency on another subproject (InfoLogger)
 link_o2_subproject(Common)
 link_o2_subproject(InfoLogger)
-link_o2_subproject(Configuration)
+#link_o2_subproject(Configuration)
+find_package(Configuration)
 
 find_package(APMON)
 if(APMON_FOUND)
@@ -68,6 +69,7 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/include
     ${PROJECT_BINARY_DIR}/include   # add the binary tree to the search path so that we will find Version.h
     ${Boost_INCLUDE_DIRS}
+    ${Configuration_INCLUDE_DIRS}
 )
 
 # Mac needed variables (adapt according to your needs)
