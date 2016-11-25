@@ -15,6 +15,7 @@
 
 #include "MonInfoLogger.h"
 #include "InfoLoggerBackend.h"
+#include "InfluxBackendUDP.h"
 
 #ifdef _WITH_APPMON
 #include "ApMonBackend.h"
@@ -57,6 +58,13 @@ Collector::Collector(const std::string& configPath)
     mBackends.emplace_back(std::unique_ptr<Backend>(new InfluxBackend(url)));
   }
 #endif
+
+  if (configFile->get<int>("InfluxDBUDP.enable") == 1) {
+    mBackends.emplace_back(std::unique_ptr<Backend>(new InfluxBackendUDP(
+      configFile->get<std::string>("InfluxDBUDP.hostname").value(), 
+      configFile->get<int>("InfluxDBUDP.port").value()
+    )));
+  }
   setDefaultEntity();
   
   mProcessMonitor = std::unique_ptr<ProcessMonitor>(new ProcessMonitor());
