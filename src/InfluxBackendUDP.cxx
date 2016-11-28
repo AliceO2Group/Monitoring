@@ -29,16 +29,14 @@ void InfluxBackendUDP::sendUDP(std::string value, const std::string& name, const
   const unsigned long timestamp)
 {
   std::string escapedName = name;
-  // escape space in name for InluxDB
   boost::replace_all(escapedName, " ", "\\ ");
 
-  // preparing post data
   std::stringstream convert;
   convert << escapedName << ",entity=" << entity << " value=" << value << " " << timestamp;
   std::string lineMessage = convert.str();
   mSocket.send_to(boost::asio::buffer(lineMessage, lineMessage.size()), mEndpoint);
-  MonInfoLogger::GetInstance() << "InfluxDB via UDP : metric " <<  name << ", packet sent"
-                               << AliceO2::InfoLogger::InfoLogger::endm;
+  //MonInfoLogger::GetInstance() << "InfluxDB via UDP : metric " <<  name << ", packet sent"
+  //                             << AliceO2::InfoLogger::InfoLogger::endm;
 }
 
 inline unsigned long InfluxBackendUDP::convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp)

@@ -23,10 +23,9 @@ namespace Monitoring
 namespace Core
 {
 
-/// Library backend that injects metrics to InfluxDB time-series databse
+/// Library backend that injects metrics to InfluxDB time-series databse over UDP
 ///
-/// Metrics are transfered via cURL library.
-/// InfluxDB does not support std::chrono::time_point therefore timestamps are converted to unsigned long (see #convertTimestamp)
+/// Metrics are sent over UDP via boost asio library
 class InfluxBackendUDP final : public Backend
 {
   public:
@@ -36,9 +35,17 @@ class InfluxBackendUDP final : public Backend
     /// Default destructor
     ~InfluxBackendUDP() = default;
 
+    /// Convert to InfluxDB Line Protocol and send via UDP (boost asio)
+    /// \param value 	value already converted to string
+    /// \param name         metric name
+    /// \param entity       metric entity - origin
+    /// \param timestamp    metric timestamp in nanoseconds
     void sendUDP(std::string value, const std::string& name, const std::string& entity,
       const unsigned long timestamp);
 
+    /// Convert timestamp to unsigned long as required by InfluxDB
+    /// \param 		chrono time_point timestamp
+    /// \return  	timestamp in nanoseconds
     inline unsigned long convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp);
 
         /// Pushes integer metric
