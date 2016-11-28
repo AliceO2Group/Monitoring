@@ -102,8 +102,6 @@ void InfluxBackend::curlWrite(std::string value, const std::string& name, const 
                                  << AliceO2::InfoLogger::InfoLogger::endm;
     return;
   }
-    MonInfoLogger::GetInstance() << "InfluxDB : metric " <<  name << ", code " << responseCode 
-                                 << AliceO2::InfoLogger::InfoLogger::endm;
   return;
 }
 
