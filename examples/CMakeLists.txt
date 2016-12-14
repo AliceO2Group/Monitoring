@@ -12,3 +12,6 @@ target_link_libraries(4-RateDerivedMetric DataCollector)
 
 add_executable(5-MonitorAdditionalPid 5-MonitorAdditionalPid.cxx)
 target_link_libraries(5-MonitorAdditionalPid DataCollector)
+
+add_executable(6-Benchmark 6-Benchmark.cxx)
+target_link_libraries(6-Benchmark DataCollector)
