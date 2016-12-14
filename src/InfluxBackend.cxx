@@ -20,7 +20,7 @@ namespace Core
 
 InfluxBackend::InfluxBackend(std::string url) : curlHandle(initCurl(url), &InfluxBackend::deleteCurl)
 {
-  MonInfoLogger::GetInstance() << "InfluxDB backend enabled" << AliceO2::InfoLogger::InfoLogger::endm;
+  MonInfoLogger::GetInstance() << "InfluxDB backend enabled: " << url  << AliceO2::InfoLogger::InfoLogger::endm;
 }
 
 CURL* InfluxBackend::initCurl(std::string url)
@@ -37,6 +37,8 @@ CURL* InfluxBackend::initCurl(std::string url)
   curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 10);
   curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10);
   curl_easy_setopt(curl, CURLOPT_POST, 1);
+  curl_easy_setopt(curl, CURLOPT_TCP_KEEPIDLE, 120L);
+  curl_easy_setopt(curl, CURLOPT_TCP_KEEPINTVL, 60L);
   
   return curl;
 }
