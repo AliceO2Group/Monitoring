@@ -14,12 +14,14 @@ int main(int argc, char *argv[]) {
   int sleep = 1;
   int i = std::numeric_limits<int>::max() - 1;
   std::string metric = "myCrazyMetric";
+  std::string config = "SampleConfig.ini";
 
   boost::program_options::options_description desc("Allowed options");
   desc.add_options()
-    ("metric", boost::program_options::value<std::string>(), "metric name")
-    ("sleep", boost::program_options::value<int>(), "thread sleep in microseconds")
+    ("metric", boost::program_options::value<std::string>(), "Metric name")
+    ("sleep", boost::program_options::value<int>(), "Thread sleep in microseconds")
     ("count", boost::program_options::value<int>(), "Number of metrics to be sent")
+    ("config", boost::program_options::value<std::string>(), "Config file")
   ;
   
   boost::program_options::variables_map vm;
@@ -37,10 +39,14 @@ int main(int argc, char *argv[]) {
   if (vm.count("count")) {
     i = vm["count"].as<int>();
   }
+
+  if (vm.count("config")) {
+    config = vm["config"].as<std::string>();
+  }
   
   // create monitoring object, pass confuguration path as parameter
   std::unique_ptr<Monitoring::Core::Collector> collector(
-    new Monitoring::Core::Collector("file:///home/awegrzyn/hackathon/Monitoring/examples/SampleConfig.ini")
+    new Monitoring::Core::Collector("file:///home/awegrzyn/hackathon/Monitoring/examples/" + config)
   );
 
   for (; i > 0; i--) {
