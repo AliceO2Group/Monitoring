@@ -11,7 +11,7 @@
 namespace Monitoring = AliceO2::Monitoring;
 
 int main(int argc, char *argv[]) {
-  int sleep = 1;
+  int sleep = 1000000;
   int i = std::numeric_limits<int>::max() - 1;
   std::string metric = "myCrazyMetric";
   std::string config = "SampleConfig.ini";
