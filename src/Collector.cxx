@@ -40,12 +40,12 @@ Collector::Collector(const std::string& configPath)
 		  Configuration::ConfigurationFactory::getConfiguration(configPath);
   std::cout << configPath << std::endl;
   if (configFile->get<int>("InfoLoggerBackend.enable") == 1) {
-    mBackends.emplace_back(std::unique_ptr<Backend>(new InfoLoggerBackend()));
+    mBackends.emplace_back(std::make_unique<InfoLoggerBackend>());
   }
 #ifdef _WITH_APPMON
   if (configFile->get<int>("AppMon.enable") == 1) {
-    mBackends.emplace_back(std::unique_ptr<Backend>(
-      new ApMonBackend(configFile->get<string>("AppMon.pathToConfig").value())
+    mBackends.emplace_back(std::make_unique<ApMonBackend>(
+      configFile->get<string>("AppMon.pathToConfig").value()
     ));
   }
 #endif
@@ -55,15 +55,15 @@ Collector::Collector(const std::string& configPath)
     std::string url = configFile->get<std::string>("InfluxDB.hostname").value() + ":" 
 	            + configFile->get<std::string>("InfluxDB.port").value()
                     + "/write?db=" + configFile->get<std::string>("InfluxDB.db").value();
-    mBackends.emplace_back(std::unique_ptr<Backend>(new InfluxBackend(url)));
+    mBackends.emplace_back(std::make_unique<InfluxBackend>(url));
   }
 #endif
 
   if (configFile->get<int>("InfluxDBUDP.enable") == 1) {
-    mBackends.emplace_back(std::unique_ptr<Backend>(new InfluxBackendUDP(
+    mBackends.emplace_back(std::make_unique<InfluxBackendUDP>(
       configFile->get<std::string>("InfluxDBUDP.hostname").value(), 
       configFile->get<int>("InfluxDBUDP.port").value()
-    )));
+    ));
   }
   setDefaultEntity();
   
