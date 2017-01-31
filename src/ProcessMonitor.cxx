@@ -22,7 +22,7 @@ namespace Core
 
 ProcessMonitor::ProcessMonitor()
 {
-  mPids.push_back( (int) ::getpid() );
+  mPids.push_back(static_cast<int>(::getpid()));
   for (auto const param : mPsParams) {
     mPsCommand = mPsCommand.empty() ? param.first : mPsCommand += (',' +  param.first);
   }
