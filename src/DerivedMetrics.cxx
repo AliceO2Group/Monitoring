@@ -29,7 +29,7 @@ DerivedMetrics::DerivedMetrics(const unsigned int cacheSize) : mMaxVectorSize(ca
 
 void DerivedMetrics::registerMetric(std::string name, DerivedMetricMode mode)
 {
-  mRegistered.insert(std::pair<std::string, DerivedMetricMode>(name, mode));
+  mRegistered.emplace(std::pair<std::string, DerivedMetricMode>(name, mode));
   MonInfoLogger::GetInstance() << "Monitoring : Metric " << name << " added to derived metrics" 
                                << AliceO2::InfoLogger::InfoLogger::endm;
 }
@@ -54,8 +54,8 @@ std::unique_ptr<Metric> DerivedMetrics::calculateRate(std::string name, T)
       // disallow dividing by 0
       if (timestampDifference.count() == 0) return nullptr;
       T rate = (last - beforelast ) / timestampDifference.count();
-      return std::unique_ptr<Metric>(new Metric(rate, name + "Rate", 
-                                     mCache.at(name).back()->getEntity(), mCache.at(name).back()->getTimestamp()));
+      return std::make_unique<Metric>(rate, name + "Rate", 
+                                     mCache.at(name).back()->getEntity(), mCache.at(name).back()->getTimestamp());
     } 
   }
   return nullptr;
@@ -75,8 +75,8 @@ std::unique_ptr<Metric> DerivedMetrics::calculateAverage(std::string name, T)
     total += boost::get<T>(m->getValue());
   }
   T average = (T) total / mCache.at(name).size();
-  return std::unique_ptr<Metric>(new Metric(average, name + "Average",
-                                 mCache.at(name).back()->getEntity(), mCache.at(name).back()->getTimestamp()));
+  return std::make_unique<Metric>(average, name + "Average",
+                                 mCache.at(name).back()->getEntity(), mCache.at(name).back()->getTimestamp());
 }
 
 template <>
