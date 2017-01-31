@@ -67,7 +67,7 @@ Collector::Collector(const std::string& configPath)
   }
   setDefaultEntity();
   
-  mProcessMonitor = std::unique_ptr<ProcessMonitor>(new ProcessMonitor());
+  mProcessMonitor = std::make_unique<ProcessMonitor>();
   if (configFile->get<int>("ProcessMonitor/enable") == 1) {
     int interval = configFile->get<int>("ProcessMonitor/interval").value();
     mMonitorRunning = true;
@@ -75,9 +75,7 @@ Collector::Collector(const std::string& configPath)
     MonInfoLogger::GetInstance() << "Process Monitor : Automatic updates enabled" << AliceO2::InfoLogger::InfoLogger::endm;
   }
 
-  mDerivedHandler = std::unique_ptr<DerivedMetrics>(
-    new DerivedMetrics(configFile->get<int>("DerivedMetrics/maxCacheSize").value())
-  );
+  mDerivedHandler = std::make_unique<DerivedMetrics>(configFile->get<int>("DerivedMetrics/maxCacheSize").value());
 }
 
 Collector::~Collector()
