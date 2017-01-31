@@ -78,11 +78,16 @@ class InfluxBackendUDP final : public Backend
     /// \param entity       metric entity - origin
     /// \param timestamp    metric timestamp (std::chrono::time_point)
     void send(uint32_t value, const std::string& name, const std::string& entity,
-      const std::chrono::time_point<std::chrono::system_clock> &timestamp) override;
+      const std::chrono::time_point<std::chrono::system_clock>& timestamp) override;
 
   private:
+    /// Boost Asio I/O functionality
     boost::asio::io_service mIoService;
+
+    /// UDP socket
     boost::asio::ip::udp::socket mSocket;
+
+    /// UDP endpoint
     boost::asio::ip::udp::endpoint mEndpoint;
 };
 
