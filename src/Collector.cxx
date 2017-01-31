@@ -177,11 +177,6 @@ template void Collector::send(double, std::string, metric_time);
 template void Collector::send(std::string, std::string, metric_time);
 template void Collector::send(uint32_t, std::string, metric_time);
 
-//template void Collector::sendRawValue(int, std::string, metric_time) const;
-//template void Collector::sendRawValue(double, std::string, metric_time) const;
-//template void Collector::sendRawValue(std::string, std::string, metric_time) const;
-//template void Collector::sendRawValue(uint32_t, std::string, metric_time) const;
-
 } // namespace Core
 } // namespace Monitoring
 } // namespace AliceO2

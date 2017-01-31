@@ -80,10 +80,6 @@ class Collector
     /// \param metric	pointer to Metric
     template<typename T> void sendMetric(std::unique_ptr<Metric> metric, T);
 	
-    /// Same as send but skips derived metrics logic
-    template<typename T>
-    void sendRawValue(T value, std::string name, metric_time timestamp = Collector::getCurrentTimestamp()) const;
-    
     /// Forces updates of Process Monitor parameters
     void sendProcessMonitorValues();
 
@@ -111,6 +107,10 @@ class Collector
     /// Process Monitor object
     /// If automatic updates are not enabled user can invoke #sendProcessMonitorValues method
     std::unique_ptr<ProcessMonitor> mProcessMonitor;
+
+    /// Sends metric to a backend bypassing derived metric logic
+    template<typename T>
+    void sendRawValue(T value, std::string name, metric_time timestamp = Collector::getCurrentTimestamp()) const;
 
     /// Process Monitor thread loop
     /// \param interval 	sleep time in seconds
