@@ -39,44 +39,44 @@ Collector::Collector(const std::string& configPath)
   std::unique_ptr<Configuration::ConfigurationInterface> configFile =
 		  Configuration::ConfigurationFactory::getConfiguration(configPath);
   std::cout << configPath << std::endl;
-  if (configFile->get<int>("InfoLoggerBackend.enable") == 1) {
+  if (configFile->get<int>("InfoLoggerBackend/enable") == 1) {
     mBackends.emplace_back(std::make_unique<InfoLoggerBackend>());
   }
 #ifdef _WITH_APPMON
-  if (configFile->get<int>("AppMon.enable") == 1) {
+  if (configFile->get<int>("AppMon/enable") == 1) {
     mBackends.emplace_back(std::make_unique<ApMonBackend>(
-      configFile->get<string>("AppMon.pathToConfig").value()
+      configFile->get<string>("AppMon/pathToConfig").value()
     ));
   }
 #endif
 
 #ifdef _WITH_INFLUX
-  if (configFile->get<int>("InfluxDB.enable") == 1) {
-    std::string url = configFile->get<std::string>("InfluxDB.hostname").value() + ":" 
-	            + configFile->get<std::string>("InfluxDB.port").value()
-                    + "/write?db=" + configFile->get<std::string>("InfluxDB.db").value();
+  if (configFile->get<int>("InfluxDB/enable") == 1) {
+    std::string url = configFile->get<std::string>("InfluxDB/hostname").value() + ":" 
+	            + configFile->get<std::string>("InfluxDB/port").value()
+                    + "/write?db=" + configFile->get<std::string>("InfluxDB/db").value();
     mBackends.emplace_back(std::make_unique<InfluxBackend>(url));
   }
 #endif
 
-  if (configFile->get<int>("InfluxDBUDP.enable") == 1) {
+  if (configFile->get<int>("InfluxDBUDP/enable") == 1) {
     mBackends.emplace_back(std::make_unique<InfluxBackendUDP>(
-      configFile->get<std::string>("InfluxDBUDP.hostname").value(), 
-      configFile->get<int>("InfluxDBUDP.port").value()
+      configFile->get<std::string>("InfluxDBUDP/hostname").value(), 
+      configFile->get<int>("InfluxDBUDP/port").value()
     ));
   }
   setDefaultEntity();
   
   mProcessMonitor = std::unique_ptr<ProcessMonitor>(new ProcessMonitor());
-  if (configFile->get<int>("ProcessMonitor.enable") == 1) {
-    int interval = configFile->get<int>("ProcessMonitor.interval").value();
+  if (configFile->get<int>("ProcessMonitor/enable") == 1) {
+    int interval = configFile->get<int>("ProcessMonitor/interval").value();
     mMonitorRunning = true;
     mMonitorThread = std::thread(&Collector::processMonitorLoop, this, interval);  
     MonInfoLogger::GetInstance() << "Process Monitor : Automatic updates enabled" << AliceO2::InfoLogger::InfoLogger::endm;
   }
 
   mDerivedHandler = std::unique_ptr<DerivedMetrics>(
-    new DerivedMetrics(configFile->get<int>("DerivedMetrics.maxCacheSize").value())
+    new DerivedMetrics(configFile->get<int>("DerivedMetrics/maxCacheSize").value())
   );
 }
 
