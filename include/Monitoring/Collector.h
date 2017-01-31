@@ -28,6 +28,8 @@ namespace Monitoring
 /// Core features of ALICE O2 Monitoring system
 namespace Core 
 {
+/// std::chrono::time_point<std::chrono::system_clock>
+using metric_time = decltype(std::chrono::system_clock::now());
 
 /// Collect metrics and dispatches them to selected backends for further processing.
 ///
@@ -53,7 +55,7 @@ class Collector
 
     /// Generates current timestamp in milliseconds
     /// \return 	timestamp as unsigned long
-    static std::chrono::time_point<std::chrono::system_clock> getCurrentTimestamp();
+    static auto getCurrentTimestamp() -> decltype(std::chrono::system_clock::now());
 
     /// Overwrites default entity value
     /// \param entity 	new entity value
@@ -66,7 +68,7 @@ class Collector
     /// \param timestamp 	metric timestamp in miliseconds, if not provided getCurrentTimestamp provides current value
     template<typename T> 
     void send(T value, std::string name, 
-            std::chrono::time_point<std::chrono::system_clock> timestamp = Collector::getCurrentTimestamp());
+            metric_time timestamp = Collector::getCurrentTimestamp());
   
     /// Adds metric to derived metric list - each time the metric arrives the derived metric is calculated and pushed to all backends
     /// Following processing modes are supported: DerivedMetricMode::RATE, DerivedMetricMode::AVERAGE
@@ -80,9 +82,8 @@ class Collector
 	
     /// Same as send but skips derived metrics logic
     template<typename T>
-    void sendRawValue(T value, std::string name, 
-      std::chrono::time_point<std::chrono::system_clock> timestamp = Collector::getCurrentTimestamp()) const;
-
+    void sendRawValue(T value, std::string name, metric_time timestamp = Collector::getCurrentTimestamp()) const;
+    
     /// Forces updates of Process Monitor parameters
     void sendProcessMonitorValues();
 

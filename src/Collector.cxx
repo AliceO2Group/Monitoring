@@ -132,7 +132,7 @@ void Collector::addMonitoredPid(int pid)
   mProcessMonitor->addPid(pid);
 }
 
-std::chrono::time_point<std::chrono::system_clock> Collector::getCurrentTimestamp()
+auto Collector::getCurrentTimestamp() -> decltype(std::chrono::system_clock::now())
 {
   return std::chrono::system_clock::now();
 }
@@ -150,7 +150,7 @@ void Collector::addDerivedMetric(std::string name, DerivedMetricMode mode) {
 }
 
 template<typename T> 
-inline void Collector::sendRawValue(T value, std::string name, std::chrono::time_point<std::chrono::system_clock> timestamp) const
+inline void Collector::sendRawValue(T value, std::string name, metric_time timestamp) const
 {
   for (auto& b: mBackends) {
     b->send(value, name, mEntity, timestamp);
@@ -158,7 +158,7 @@ inline void Collector::sendRawValue(T value, std::string name, std::chrono::time
 }
 
 template<typename T>
-void Collector::send(T value, std::string name, std::chrono::time_point<std::chrono::system_clock> timestamp)
+void Collector::send(T value, std::string name, metric_time timestamp)
 {
   if (mDerivedHandler->isRegistered(name)) {
     try {
@@ -172,17 +172,16 @@ void Collector::send(T value, std::string name, std::chrono::time_point<std::chr
   sendRawValue(value, name, timestamp);
 }
 
-template void Collector::send(int, std::string, std::chrono::time_point<std::chrono::system_clock>);
-template void Collector::send(double, std::string, std::chrono::time_point<std::chrono::system_clock>);
-template void Collector::send(std::string, std::string, std::chrono::time_point<std::chrono::system_clock>);
-template void Collector::send(uint32_t, std::string, std::chrono::time_point<std::chrono::system_clock>);
+template void Collector::send(int, std::string, metric_time);
+template void Collector::send(double, std::string, metric_time);
+template void Collector::send(std::string, std::string, metric_time);
+template void Collector::send(uint32_t, std::string, metric_time);
 
-template void Collector::sendRawValue(int, std::string, std::chrono::time_point<std::chrono::system_clock>) const;
-template void Collector::sendRawValue(double, std::string, std::chrono::time_point<std::chrono::system_clock>) const;
-template void Collector::sendRawValue(std::string, std::string, std::chrono::time_point<std::chrono::system_clock>) const;
-template void Collector::sendRawValue(uint32_t, std::string, std::chrono::time_point<std::chrono::system_clock>) const;
+//template void Collector::sendRawValue(int, std::string, metric_time) const;
+//template void Collector::sendRawValue(double, std::string, metric_time) const;
+//template void Collector::sendRawValue(std::string, std::string, metric_time) const;
+//template void Collector::sendRawValue(uint32_t, std::string, metric_time) const;
 
 } // namespace Core
 } // namespace Monitoring
 } // namespace AliceO2
-
