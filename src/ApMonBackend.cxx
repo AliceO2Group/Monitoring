@@ -17,10 +17,10 @@ namespace Monitoring
 namespace Core
 {
 
-ApMonBackend::ApMonBackend(const std::string configurationFile)
+ApMonBackend::ApMonBackend(const std::string& configurationFile)
 {
   try {
-    mApMon = std::unique_ptr<ApMon>(new ApMon(const_cast<char*>(configurationFile.c_str())));
+    mApMon = std::make_unique<ApMon>(const_cast<char*>(configurationFile.c_str()));
   } 
   catch (...) {
     MonInfoLogger::GetInstance() << "Could not open ApMon configuration file: " << configurationFile
