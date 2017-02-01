@@ -1,6 +1,9 @@
 # Monitoring module
 
-Monitoring module allows to inject user specific metric and monitor running processes running.
+Monitoring module allows to:
++ inject user specific metrics
++ monitor process itself running
++ monitor processes running at the same machine
 
 ## Metrics
 Metric consists of 4 parameters: name, value, entity and timestamp.
@@ -9,15 +12,23 @@ Metric consists of 4 parameters: name, value, entity and timestamp.
 | -------------- |:---------------------------------------------:|:--------:| ----------------:|
 | name           | string                                        | yes      | -                |
 | value          | int/double/uint32t/string                     | yes      | -                |
-| entity         | string                                        | no       | <hostname>.<PID> |
-| timestamp      | chrono::time_point&lt;std::chrono::system_clock&gt; | no       | current time     |
+| entity         | string                                        | no       | &lt;hostname&gt;.&lt;PID&gt; |
+| timestamp      | chrono::time_point&lt;std::chrono::system_clock&gt; | no       | current timestamp     |
 
-Not required parameters can be omitted as they are filled by default value.
+Metrics can be send via *void send(T value, std::string name, metric_time timestamp)* (timestamp is optional parameter)
+The default entitiy value can be overwritten by *void Collector::setEntity(std::string entity)*
 
+
+## Derived metrics
+Dderived metrics can be calculated by the library. To use this functionality register metric name -  *void DerivedMetrics::registerMetric(std::string name, DerivedMetricMode mode)* - using one of two available modes:
++ DerivedMetricMode::RATE - rate between two following metric;
++ DerivedMetricMode::AVERAGE - average values of all stored in library cache;
+
+Each time new a metric arrives with the name which is registered derived metric will be calculated. The derived metric will have suffix added to its name.
 
 ## Processes monitoring
-The running process is monitored by default. In addition any other processes running at the same machine can be monitored.
-The following metrics are generated for each process:
+To enable process monitoring ProcessMonitor.enable flag in configuration file must be set to 1 (see section Configuration file). The process itself is monitored by default. In addition any other processes running at the same machine can be monitored as well. To do so, use method: *void addPid(int pid)*
+The following metrics are generated for each monitored process every N seconds (N can be specified in the config - ProcessMonitor.interval):
 1. cputime - cumulative CPU time, "[DD-]HH:MM:SS" format.
 2. etime - elapsed time since the process was started, in the form [[DD-]hh:]mm:ss.
 3. pcpu - cpu utilization of the process in "##.#" format. Currently, it is the CPU time used divided by the time the process has been running (cputime/realtime ratio), expressed as a percentage.  It will not add up to 100% unless you are lucky.
