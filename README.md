@@ -2,7 +2,7 @@
 
 Monitoring module allows to:
 + inject user specific metrics
-+ monitor process itself running
++ monitor process itself
 + monitor processes running at the same machine
 
 ## Metrics
@@ -15,20 +15,20 @@ Metric consists of 4 parameters: name, value, entity and timestamp.
 | entity         | string                                        | no       | &lt;hostname&gt;.&lt;PID&gt; |
 | timestamp      | chrono::time_point&lt;std::chrono::system_clock&gt; | no       | current timestamp     |
 
-Metrics can be send via *void send(T value, std::string name, metric_time timestamp)* (timestamp is optional parameter)
-The default entitiy value can be overwritten by *void Collector::setEntity(std::string entity)*
+Metrics can be send via *void send(T value, std::string name, metric_time timestamp)* (timestamp is optional parameter).  
+The default entitiy value can be overwritten by *void Collector::setEntity(std::string entity)*.
 
 
 ## Derived metrics
 Dderived metrics can be calculated by the library. To use this functionality register metric name -  *void DerivedMetrics::registerMetric(std::string name, DerivedMetricMode mode)* - using one of two available modes:
-+ DerivedMetricMode::RATE - rate between two following metric;
-+ DerivedMetricMode::AVERAGE - average values of all stored in library cache;
++ *DerivedMetricMode::RATE* - rate between two following metric;
++ *DerivedMetricMode::AVERAGE* - average values of all stored in library cache;
 
-Each time new a metric arrives with the name which is registered derived metric will be calculated. The derived metric will have suffix added to its name.
+Each time new a metric arrives with the already registered name derived metric will be calculated. The derived metric will have suffix added to its name.
 
 ## Processes monitoring
-To enable process monitoring ProcessMonitor.enable flag in configuration file must be set to 1 (see section Configuration file). The process itself is monitored by default. In addition any other processes running at the same machine can be monitored as well. To do so, use method: *void addPid(int pid)*
-The following metrics are generated for each monitored process every N seconds (N can be specified in the config - ProcessMonitor.interval):
+To enable process monitoring *ProcessMonitor.enable* flag in configuration file must be set to 1 (see section Configuration file). The process itself is monitored by default. In addition any other processes running at the same machine can be monitored as well. To do so, use method: *void addPid(int pid)*
+The following metrics are generated for each monitored process every N seconds (N can be specified in the config - *ProcessMonitor.interval*):
 1. cputime - cumulative CPU time, "[DD-]HH:MM:SS" format.
 2. etime - elapsed time since the process was started, in the form [[DD-]hh:]mm:ss.
 3. pcpu - cpu utilization of the process in "##.#" format. Currently, it is the CPU time used divided by the time the process has been running (cputime/realtime ratio), expressed as a percentage.  It will not add up to 100% unless you are lucky.
@@ -38,13 +38,13 @@ The following metrics are generated for each monitored process every N seconds (
 
 
 ## Monitoring backends
-Metrics are pushed to one or multiple backends. The library currently supports three  backends.
+Metrics are pushed to one or multiple backends. The library currently supports three backends - see table below.
 
 | Backend name     | Description                                                 | Client-side requirements
 | ---------------- |:-----------------------------------------------------------:| ----------------------------:|
-| InfluxDB         | pushes metrics using cURL to InfluxDB time series database  | cURL: yum install libcurl    |
-| ApMon (MonALISA) | pushes metrics via UDP to MonALISA Serivce                  | ApMon: yum install ApMon_cpp |
-| InfoLogger       | O2 Logging module                                           | none                         |
+| InfluxDB         | pushes metrics using cURL to InfluxDB time series database  | cURL    |
+| ApMon (MonALISA) | pushes metrics via UDP to MonALISA Serivce                  | ApMon   |
+| InfoLogger       | O2 Logging module                                           | none    |
 
 Instruction how to install and configure server-sides backends are available in "Server-side backend installation and configuration" chapter.
 
@@ -124,7 +124,7 @@ By default timestamp is set by the library, but user can overwrite it manually.
 ```
 
 ###  Derived metrics
-Library can calculate derived metrics: average value and rate.
+The Library can calculate derived metrics: average value and rate.
 ```cpp
 // create monitoring object, pass configuration path as parameter
   std::unique_ptr<Monitoring::Core::Collector> collector(
@@ -141,7 +141,7 @@ Library can calculate derived metrics: average value and rate.
   collector->send(50, "myCrazyMetric1");
 ```
 ### Process monitoring
-Library monitors current process by default and allows to monitor other processes running at the same machine.
+The library monitors current process by default and allows to monitor other processes running at the same machine.
 The updates are performed automatically at regular intervals of time (see Configuration file) but can also be executed manually. 
 
 ```cpp
@@ -178,7 +178,7 @@ To install the MonALISA Client run:
 + yum install monalisa-client
 
 ### InfluxDB
-Instructions are avaliable here: https://docs.influxdata.com/influxdb/v1.0/introduction/installation/
+Instructions are avaliable here: https://docs.influxdata.com/influxdb/v1.2/introduction/installation/
 
 ### InfoLogger
 There is no installation/configuration procedure needed. InfoLogger backend is available all the time (if not disabled in configuration file).
