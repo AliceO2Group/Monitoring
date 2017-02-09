@@ -20,11 +20,6 @@ namespace Monitoring
 namespace Core
 {
 
-std::string Metric::getEntity() const
-{
-  return mEntity;
-}
-
 std::chrono::time_point<std::chrono::system_clock> Metric::getTimestamp() const
 {
   return mTimestamp;
@@ -40,25 +35,35 @@ std::string Metric::getName() const
   return mName;
 }
 
-Metric::Metric(int value, const std::string& name, std::string entity, std::chrono::time_point<std::chrono::system_clock> timestamp) :
-  mValue(value), mName(name), mEntity(entity), mTimestamp(timestamp)
+Metric::Metric(int value, const std::string& name, std::chrono::time_point<std::chrono::system_clock> timestamp) :
+  mValue(value), mName(name), mTimestamp(timestamp)
 {}
 
-Metric::Metric(std::string value, const std::string& name, std::string entity, std::chrono::time_point<std::chrono::system_clock> timestamp) :
-  mValue(value), mName(name), mEntity(entity), mTimestamp(timestamp)
+Metric::Metric(std::string value, const std::string& name, std::chrono::time_point<std::chrono::system_clock> timestamp) :
+  mValue(value), mName(name), mTimestamp(timestamp)
 {}
 
-Metric::Metric(double value, const std::string& name, std::string entity, std::chrono::time_point<std::chrono::system_clock> timestamp) :
-  mValue(value), mName(name), mEntity(entity), mTimestamp(timestamp)
+Metric::Metric(double value, const std::string& name, std::chrono::time_point<std::chrono::system_clock> timestamp) :
+  mValue(value), mName(name), mTimestamp(timestamp)
 {}
 
-Metric::Metric(uint32_t value, const std::string& name, std::string entity, std::chrono::time_point<std::chrono::system_clock> timestamp) :
-  mValue(value), mName(name), mEntity(entity), mTimestamp(timestamp)
+Metric::Metric(uint32_t value, const std::string& name, std::chrono::time_point<std::chrono::system_clock> timestamp) :
+  mValue(value), mName(name), mTimestamp(timestamp)
 {}
 
 boost::variant< int, std::string, double, uint32_t > Metric::getValue() const
 {
   return mValue;
+}
+
+void Metric::addTags(std::vector<Tag>&& tags)
+{
+  tagSet = std::move(tags);
+}
+
+auto Metric::getCurrentTimestamp() -> decltype(std::chrono::system_clock::now())
+{
+  return std::chrono::system_clock::now();
 }
 
 } // namespace Core

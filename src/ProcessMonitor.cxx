@@ -22,31 +22,30 @@ namespace Core
 
 ProcessMonitor::ProcessMonitor()
 {
-  mPids.push_back(static_cast<int>(::getpid()));
+  mPid = static_cast<unsigned int>(::getpid());
   for (auto const param : mPsParams) {
     mPsCommand = mPsCommand.empty() ? param.first : mPsCommand += (',' +  param.first);
   }
   mPsCommand = "ps --no-headers -o " + mPsCommand + " --pid ";
 }
 
-std::vector<std::tuple<ProcessMonitorType, std::string, std::string>> ProcessMonitor::getPidsDetails()
+std::vector<Metric> ProcessMonitor::getPidsDetails()
 {
-  std::vector<std::tuple<ProcessMonitorType, std::string, std::string>> allPidsParams;
-  std::lock_guard<std::mutex> lock(mVectorPidLock);
-  for (auto const pid : mPids) {
-    std::vector<std::string> pidParams = getPidStatus(pid);
-    auto j = mPsParams.begin();
-    for (auto i = pidParams.begin(); i != pidParams.end(); ++i, ++j) {
-      allPidsParams.emplace_back(std::make_tuple(j->second, *i, j->first));
-    }
+  std::vector<Metric> metrics;
+  std::vector<std::string> pidParams = getPidStatus(mPid);
+  auto j = mPsParams.begin();
+  for (auto i = pidParams.begin(); i != pidParams.end(); ++i, ++j) {
+     if (j->second == MetricType::DOUBLE) {
+       metrics.emplace_back(Metric{boost::lexical_cast<double>(*i), j->first});
+     }
+     else if (j->second == MetricType::INT) {
+       metrics.emplace_back(Metric{boost::lexical_cast<int>(*i), j->first});
+     }
+     else {
+       metrics.emplace_back(Metric{*i, j->first});
+     }
   }
-  return allPidsParams;
-}
-
-void ProcessMonitor::addPid(int pid)
-{
-  std::lock_guard<std::mutex> lock(mVectorPidLock);
-  mPids.push_back(pid);
+  return metrics;
 }
 
 std::vector<std::string> ProcessMonitor::getPidStatus(int pid)

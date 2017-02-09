@@ -18,6 +18,8 @@ int main() {
   // now send an application specific metric
   // 10 is the value
   // myCrazyMetric is the name of the metric
-  collector->send(10, "myCrazyMetric");
-
+   for (;;) {
+    collector->send(10, "mainThreadMetric");
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+  }
 }	

@@ -25,18 +25,15 @@ InfluxBackendUDP::InfluxBackendUDP(const std::string &hostname, int port) :
   MonInfoLogger::GetInstance() << "InfluxDB via UDP backend enabled" << AliceO2::InfoLogger::InfoLogger::endm;
 }
 
-void InfluxBackendUDP::sendUDP(std::string value, const std::string& name, const std::string& entity,
+void InfluxBackendUDP::sendUDP(std::string value, std::string name,
   const unsigned long timestamp)
 {
-  std::string escapedName = name;
-  boost::replace_all(escapedName, " ", "\\ ");
-
+  escape(name);
+  
   std::stringstream convert;
-  convert << escapedName << ",entity=" << entity << " value=" << value << " " << timestamp;
+  convert << name << "," << tagSet << " value=" << value << " " << timestamp;
   std::string lineMessage = convert.str();
   mSocket.send_to(boost::asio::buffer(lineMessage, lineMessage.size()), mEndpoint);
-  //MonInfoLogger::GetInstance() << "InfluxDB via UDP : metric " <<  name << ", packet sent"
-  //                             << AliceO2::InfoLogger::InfoLogger::endm;
 }
 
 inline unsigned long InfluxBackendUDP::convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp)
@@ -46,30 +43,29 @@ inline unsigned long InfluxBackendUDP::convertTimestamp(const std::chrono::time_
   ).count();
 }
 
-void InfluxBackendUDP::send(int value, const std::string& name, const std::string& entity,
-  const std::chrono::time_point<std::chrono::system_clock>& timestamp)
+void InfluxBackendUDP::escape(std::string& escaped)
 {
-  sendUDP(std::to_string(value), name, entity, convertTimestamp(timestamp));
+  boost::replace_all(escaped, ",", "\\,");
+  boost::replace_all(escaped, "=", "\\=");
+  boost::replace_all(escaped, " ", "\\ ");
 }
 
-void InfluxBackendUDP::send(double value, const std::string& name, const std::string& entity,
-  const std::chrono::time_point<std::chrono::system_clock>& timestamp)
+void InfluxBackendUDP::send(const Metric& metric)
 {
-  sendUDP(std::to_string(value), name, entity, convertTimestamp(timestamp));
+  std::string value = boost::lexical_cast<std::string>(metric.getValue());
+  if (metric.getType() == MetricType::STRING) {
+    escape(value);
+    value.insert(value.begin(), '"');
+    value.insert(value.end(), '"');
+  }
+  sendUDP(value, metric.getName(), convertTimestamp(metric.getTimestamp()));
 }
 
-void InfluxBackendUDP::send(std::string value, const std::string& name, const std::string& entity,
-  const std::chrono::time_point<std::chrono::system_clock>& timestamp)
+void InfluxBackendUDP::addGlobalTag(std::string name, std::string value)
 {
-  value.insert(value.begin(), '"');
-  value.insert(value.end(), '"');
-  sendUDP(value, name, entity, convertTimestamp(timestamp));
-}
-
-void InfluxBackendUDP::send(uint32_t value, const std::string& name, const std::string& entity, 
-  const std::chrono::time_point<std::chrono::system_clock>& timestamp)
-{
-  sendUDP(std::to_string(value), name, entity, convertTimestamp(timestamp));
+  escape(name); escape(value);
+  if (!tagSet.empty()) tagSet += ",";
+  tagSet += name + "=" + value;
 }
 
 } // namespace Core

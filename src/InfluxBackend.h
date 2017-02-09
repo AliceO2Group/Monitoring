@@ -33,37 +33,8 @@ class InfluxBackend final : public Backend
     /// Default destructor
     ~InfluxBackend() = default;
 	
-    /// Pushes integer metric
-    /// \param value        metric value (integer)
-    /// \param name         metric name
-    /// \param entity       metric entity - origin
-    /// \param timestamp    metric timestamp (std::chrono::time_point)
-    void send(int value, const std::string& name, const std::string& entity, 
-      const std::chrono::time_point<std::chrono::system_clock>& timestamp) override;
-
-    /// Pushes double metric
-    /// \param value        metric value (double)
-    /// \param name         metric name
-    /// \param entity       metric entity - origin
-    /// \param timestamp    metric timestamp (std::chrono::time_point
-    void send(double value, const std::string& name, const std::string& entity, 
-      const std::chrono::time_point<std::chrono::system_clock>& timestamp) override;
-
-    /// Pushes string metric
-    /// \param value        metric value (string)
-    /// \param name         metric name
-    /// \param entity       metric entity - origin
-    /// \param timestamp    metric timestamp (std::chrono::time_point)
-    void send(std::string value, const std::string& name, const std::string& entity,
-      const std::chrono::time_point<std::chrono::system_clock>& timestamp) override;
-
-    /// Pushes uint32_t metric
-    /// \param value        metric value (uint32_t)
-    /// \param name         metric name
-    /// \param entity       metric entity - origin
-    /// \param timestamp    metric timestamp (std::chrono::time_point)
-    void send(uint32_t value, const std::string& name, const std::string& entity,
-      const std::chrono::time_point<std::chrono::system_clock> &timestamp) override;
+    void send(const Metric& metric) override;
+    void addGlobalTag(std::string name, std::string value) override;
 
   private:
     /// Custom deleter of CURL object
@@ -88,7 +59,11 @@ class InfluxBackend final : public Backend
     /// \param name		metric name
     /// \param entity		metric entity
     /// \param timestamp	timestamp in nanoseconds
-    void curlWrite(std::string value, const std::string &name, const std::string& entity, unsigned long timestamp);
+    void curlWrite(std::string value, std::string name, unsigned long timestamp);
+ 
+    std::string tagSet; ///< Global tagset (common for each metric)
+    void escape(std::string& escaped);
+
 };
 
 } // namespace Core

@@ -53,39 +53,20 @@ class Collector
     /// Joins process monitor thread if possible
     ~Collector();
 
-    /// Generates current timestamp in milliseconds
-    /// \return 	timestamp as unsigned long
-    static auto getCurrentTimestamp() -> decltype(std::chrono::system_clock::now());
-
-    /// Overwrites default entity value
-    /// \param entity 	new entity value
-    void setEntity(std::string entity);
-
     /// Sends a metric to all avaliabes backends
     /// If metric has been added to DerivedMetric the derived metric is calculated (see addDerivedMetric method)
     /// \param value 		metric value
     /// \param name 		metric name
     /// \param timestamp 	metric timestamp in miliseconds, if not provided getCurrentTimestamp provides current value
     template<typename T> 
-    void send(T value, std::string name, 
-            metric_time timestamp = Collector::getCurrentTimestamp());
-  
+    void send(T value, std::string name);
+    /// \param metric
+    void send(Metric&& metric);
     /// Adds metric to derived metric list - each time the metric arrives the derived metric is calculated and pushed to all backends
     /// Following processing modes are supported: DerivedMetricMode::RATE, DerivedMetricMode::AVERAGE
     /// \param name
     /// \param mode
     void addDerivedMetric(std::string name, DerivedMetricMode mode);
-
-    /// Sends metric object to a backend
-    /// \param metric	pointer to Metric
-    template<typename T> void sendMetric(std::unique_ptr<Metric> metric, T);
-	
-    /// Forces updates of Process Monitor parameters
-    void sendProcessMonitorValues();
-
-    /// Adds PID to list of monitored processes
-    /// \param pid 	process PID
-    void addMonitoredPid(int pid);
 
   private:
     /// Derived metrics handler
@@ -94,9 +75,6 @@ class Collector
 
     /// Vector of backends (where metrics are passed to)
     std::vector <std::unique_ptr<Backend>> mBackends;
-
-    /// Entity value
-    std::string mEntity;
 
     /// States whether Process Monitor thread is running
     std::atomic<bool> mMonitorRunning;
@@ -108,16 +86,10 @@ class Collector
     /// If automatic updates are not enabled user can invoke #sendProcessMonitorValues method
     std::unique_ptr<ProcessMonitor> mProcessMonitor;
 
-    /// Sends metric to a backend bypassing derived metric logic
-    template<typename T>
-    void sendRawValue(T value, std::string name, metric_time timestamp = Collector::getCurrentTimestamp()) const;
-
     /// Process Monitor thread loop
     /// \param interval 	sleep time in seconds
     void processMonitorLoop(int interval);
-
-    /// Generates entity value as concatenated hostname and process id
-    void setDefaultEntity();
+    void setDefaultTags();
 };
 } // namespace Core
 } // namespace Monitoring

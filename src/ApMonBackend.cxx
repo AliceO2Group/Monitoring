@@ -21,6 +21,7 @@ ApMonBackend::ApMonBackend(const std::string& configurationFile)
 {
   try {
     mApMon = std::make_unique<ApMon>(const_cast<char*>(configurationFile.c_str()));
+    ApMon::setLogLevel("FATAL");
   } 
   catch (...) {
     MonInfoLogger::GetInstance() << "Could not open ApMon configuration file: " << configurationFile
@@ -37,30 +38,48 @@ inline int ApMonBackend::convertTimestamp(const std::chrono::time_point<std::chr
   ).count();
 }
 
-void ApMonBackend::send(int value, const std::string& name, const std::string& entity, 
-                        const std::chrono::time_point<std::chrono::system_clock>& timestamp) 
+void ApMonBackend::addGlobalTag(std::string name, std::string value)
 {
-  mApMon->sendTimedParameter(const_cast<char*>(entity.c_str()), const_cast<char*>(entity.c_str()), 
-    const_cast<char*>(name.c_str()), XDR_INT32, reinterpret_cast<char*>(&value), convertTimestamp(timestamp));
+  if (!entity.empty()) entity += ".";
+  entity += value;
 }
-void ApMonBackend::send(double value, const std::string& name, const std::string& entity, 
-                        const std::chrono::time_point<std::chrono::system_clock>& timestamp)
+
+void ApMonBackend::send(const Metric& metric)
 {
-  mApMon->sendTimedParameter(const_cast<char*>(entity.c_str()), const_cast<char*>(entity.c_str()), 
-    const_cast<char*>(name.c_str()), XDR_REAL64, reinterpret_cast<char*>(&value), convertTimestamp(timestamp));
+  switch(metric.getType()) {
+    case MetricType::INT :
+    {
+      int value = boost::get<int>(metric.getValue());
+      mApMon->sendTimedParameter(const_cast<char*>(entity.c_str()), const_cast<char*>(entity.c_str()),
+        const_cast<char*>(metric.getName().c_str()), XDR_INT32, reinterpret_cast<char*>(&value), convertTimestamp(metric.getTimestamp()));
+    }
+    break;
+    
+    case MetricType::STRING :
+    {
+      std::string value = boost::get<std::string>(metric.getValue());
+      mApMon->sendTimedParameter(const_cast<char*>(entity.c_str()), const_cast<char*>(entity.c_str()),
+        const_cast<char*>(metric.getName().c_str()), XDR_STRING, const_cast<char*>(value.c_str()), convertTimestamp(metric.getTimestamp()));
+    }
+    break;
+
+    case MetricType::DOUBLE :
+    {
+      double value = boost::get<double>(metric.getValue());
+      mApMon->sendTimedParameter(const_cast<char*>(entity.c_str()), const_cast<char*>(entity.c_str()), 
+        const_cast<char*>(metric.getName().c_str()), XDR_REAL64, reinterpret_cast<char*>(&value), convertTimestamp(metric.getTimestamp()));
+    }
+    break;
+  
+    case MetricType::UINT32_T :
+    {  
+      uint32_t value = boost::get<uint32_t>(metric.getValue());
+      mApMon->sendTimedParameter(const_cast<char*>(entity.c_str()), const_cast<char*>(entity.c_str()),
+        const_cast<char*>(metric.getName().c_str()), XDR_INT32, reinterpret_cast<char*>(&value), convertTimestamp(metric.getTimestamp()));
+    }
+  }
 }
-void ApMonBackend::send(std::string value, const std::string& name, const std::string& entity, 
-                        const std::chrono::time_point<std::chrono::system_clock>& timestamp)
-{
-  mApMon->sendTimedParameter(const_cast<char*>(entity.c_str()), const_cast<char*>(entity.c_str()),
-    const_cast<char*>(name.c_str()), XDR_STRING, const_cast<char*>(value.c_str()), convertTimestamp(timestamp));
-}
-void ApMonBackend::send(uint32_t value, const std::string& name, const std::string& entity, 
-                        const std::chrono::time_point<std::chrono::system_clock>& timestamp)
-{
-  mApMon->sendTimedParameter(const_cast<char*>(entity.c_str()), const_cast<char*>(entity.c_str()),
-    const_cast<char*>(name.c_str()), XDR_INT32, reinterpret_cast<char*>(&value), convertTimestamp(timestamp));
-}
+
 } // namespace Core
 } // namespace Monitoring
 } // namespace AliceO2

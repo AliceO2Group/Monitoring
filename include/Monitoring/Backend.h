@@ -8,6 +8,7 @@
 
 #include <chrono>
 #include <string>
+#include "Monitoring/Metric.h"
 
 namespace AliceO2
 {
@@ -32,37 +33,8 @@ class Backend
     /// Default destructor
     virtual ~Backend() = default;
 	
-    /// Sends integer metric
-    /// \param value        metric value (integer)
-    /// \param name         metric name
-    /// \param entity       metric entity
-    /// \param timestamp    metric timestamp
-    virtual void send(int value, const std::string& name, const std::string& entity, 
-      const std::chrono::time_point<std::chrono::system_clock>& timestamp) = 0;
-
-    /// Sends double metric
-    /// \param value        metric value (double)
-    /// \param name         metric name
-    /// \param entity       metric entity
-    /// \param timestamp    metric timestamp
-    virtual void send(double value, const std::string& name, const std::string& entity, 
-      const std::chrono::time_point<std::chrono::system_clock>& timestamp) = 0;
-
-    /// Sends string metric
-    /// \param value        metric value (string)
-    /// \param name         metric name
-    /// \param entity       metric entity
-    /// \param timestamp    metric timestamp
-    virtual void send(std::string value, const std::string& name, const std::string& entity, 
-      const std::chrono::time_point<std::chrono::system_clock>& timestamp) = 0;
-
-    /// Sends uint32_t metric
-    /// \param value        metric value (uint32_t)
-    /// \param name         metric name
-    /// \param entity       metric entity
-    /// \param timestamp    metric timestamp
-    virtual void send(uint32_t value, const std::string& name, const std::string& entity,
-      const std::chrono::time_point<std::chrono::system_clock>& timestamp) = 0;
+    virtual void send(const Metric& metric) = 0;
+    virtual void addGlobalTag(std::string name, std::string value) = 0;
 };
 
 } // namespace Core

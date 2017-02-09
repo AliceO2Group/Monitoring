@@ -18,6 +18,7 @@ set(LIB_SOURCES
   DerivedMetrics.cxx
   ProcessMonitor.cxx
   InfluxBackendUDP.cxx
+  ProcessDetails.cxx
 )
 
 if(APMON_FOUND)

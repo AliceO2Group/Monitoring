@@ -29,35 +29,18 @@ InfoLoggerBackend::InfoLoggerBackend()
   MonInfoLogger::GetInstance() << "InfoLogger backend initialized" << AliceO2::InfoLogger::InfoLogger::endm;
 }
 
-void InfoLoggerBackend::send(int value, const std::string& name, const std::string& entity, 
-                             const std::chrono::time_point<std::chrono::system_clock>& timestamp)
+void InfoLoggerBackend::addGlobalTag(std::string name, std::string value)
 {
-  MonInfoLogger::GetInstance() << "InfoLoggerMonitoring : " << name << ", " << value << " [int], "
-                               << convertTimestamp(timestamp) << ", " << entity
-                               << AliceO2::InfoLogger::InfoLogger::endm;
+  if (!tagString.empty()) {
+    tagString += " ";
+  }
+  tagString += name + "=" + value;
 }
 
-void InfoLoggerBackend::send(double value, const std::string& name, const std::string& entity, 
-                             const std::chrono::time_point<std::chrono::system_clock>& timestamp)
+void InfoLoggerBackend::send(const Metric& metric)
 {
-  MonInfoLogger::GetInstance() << "InfoLoggerMonitoring : " << name << ", " << value << " [double], " 
-                               << convertTimestamp(timestamp) << ", " << entity
-                               << AliceO2::InfoLogger::InfoLogger::endm;
-}
-
-void InfoLoggerBackend::send(std::string value, const std::string& name, const std::string& entity, 
-                             const std::chrono::time_point<std::chrono::system_clock>& timestamp)
-{
-  MonInfoLogger::GetInstance() << "InfoLoggerMonitoring : " << name << ", " << value << " [string], "
-                               << convertTimestamp(timestamp) << ", " << entity
-                               << AliceO2::InfoLogger::InfoLogger::endm;
-}
-
-void InfoLoggerBackend::send(uint32_t value, const std::string& name, const std::string& entity,
-                             const std::chrono::time_point<std::chrono::system_clock>& timestamp)
-{
-  MonInfoLogger::GetInstance() << "InfoLoggerMonitoring : " << name << ", " << value << " [uint32_t], " 
-                               << convertTimestamp(timestamp) << ", " << entity
+  MonInfoLogger::GetInstance() << "InfoLoggerMonitoring : " << metric.getName() << ", " << metric.getValue() << " Type: " << metric.getType() << ", " 
+                               << convertTimestamp(metric.getTimestamp()) << ", " << tagString
                                << AliceO2::InfoLogger::InfoLogger::endm;
 }
 

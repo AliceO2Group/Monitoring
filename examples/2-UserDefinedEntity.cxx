@@ -15,7 +15,7 @@ int main() {
   );
 
   // set user specific entity value, eg.:
-  collector->setEntity("testEntity");
+  //collector->setEntity("testEntity");
 
   // now send an application specific metric
   // 10 is the value

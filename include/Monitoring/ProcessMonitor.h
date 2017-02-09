@@ -14,6 +14,8 @@
 #include <thread>
 #include <vector>
 
+#include "Monitoring/Metric.h"
+
 namespace AliceO2
 {
 /// ALICE O2 Monitoring system
@@ -40,15 +42,11 @@ class ProcessMonitor
 
     /// Generates vector of tuples; singile tuple contain a meric for one PIDs
     /// \return	vactor of tuples; 3 values (type, name, value)
-    std::vector<std::tuple<ProcessMonitorType, std::string, std::string>> getPidsDetails();
-
-    /// Adds PID to list monitored processes
-    /// \param pid
-    void addPid(int pid);
+    std::vector<Metric> getPidsDetails();
 
   private:
     /// PIDs that are monitored
-    std::vector<int> mPids;
+    unsigned int mPid;
 
     /// options to be passed to PS
     std::string mPsCommand;
@@ -57,10 +55,9 @@ class ProcessMonitor
     std::mutex mVectorPidLock;
 
     /// List of PS params with their types
-    const std::vector<std::pair<std::string, ProcessMonitorType>> mPsParams { 
-      {"pid", ProcessMonitorType::INT},    {"etime", ProcessMonitorType::STRING}, {"time", ProcessMonitorType::STRING},
-      {"pcpu", ProcessMonitorType::DOUBLE}, {"pmem", ProcessMonitorType::DOUBLE},   {"rsz", ProcessMonitorType::INT},
-      {"vsz", ProcessMonitorType::INT},    {"comm", ProcessMonitorType::STRING} };
+    const std::vector<std::pair<std::string, MetricType>> mPsParams { 
+      {"etime", MetricType::STRING}, {"time", MetricType::STRING},
+      {"pcpu", MetricType::DOUBLE}, {"pmem", MetricType::DOUBLE} };
 
     /// Executes terminal command
     std::string exec(const char* cmd);

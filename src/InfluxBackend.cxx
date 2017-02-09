@@ -49,42 +49,38 @@ void InfluxBackend::deleteCurl(CURL * curl)
   curl_global_cleanup();
 }
 
-void InfluxBackend::send(int value, const std::string& name, const std::string& entity, 
-                         const std::chrono::time_point<std::chrono::system_clock>& timestamp)
+void InfluxBackend::addGlobalTag(std::string name, std::string value)
 {
-  curlWrite(std::to_string(value), name, entity, convertTimestamp(timestamp));
+  escape(name); escape(value);
+  if (!tagSet.empty()) tagSet += ",";
+  tagSet += name + "=" + value;
 }
 
-void InfluxBackend::send(double value, const std::string& name, const std::string& entity, 
-                         const std::chrono::time_point<std::chrono::system_clock>& timestamp)
+void InfluxBackend::escape(std::string& escaped)
 {
-  curlWrite(std::to_string(value), name, entity, convertTimestamp(timestamp));
+  boost::replace_all(escaped, ",", "\\,");
+  boost::replace_all(escaped, "=", "\\=");
+  boost::replace_all(escaped, " ", "\\ ");
 }
 
-void InfluxBackend::send(std::string value, const std::string& name, const std::string& entity, 
-                         const std::chrono::time_point<std::chrono::system_clock>& timestamp)
+void InfluxBackend::send(const Metric& metric)
 {
-  value.insert(value.begin(), '"');
-  value.insert(value.end(), '"');
-  curlWrite(value, name, entity, convertTimestamp(timestamp));
+  std::string value = boost::lexical_cast<std::string>(metric.getValue());
+  if (metric.getType() == MetricType::STRING) {
+    escape(value);
+    value.insert(value.begin(), '"');
+    value.insert(value.end(), '"');
+  }
+  curlWrite(value, metric.getName(), convertTimestamp(metric.getTimestamp()));
 }
 
-void InfluxBackend::send(uint32_t value, const std::string& name, const std::string& entity, 
-                         const std::chrono::time_point<std::chrono::system_clock>& timestamp)
-{
-  curlWrite(std::to_string(value), name, entity, convertTimestamp(timestamp));
-}
-
-void InfluxBackend::curlWrite(std::string value, const std::string& name, const std::string& entity, 
+void InfluxBackend::curlWrite(std::string value, std::string name, 
                              const unsigned long timestamp)
 {
-  std::string escapedName = name;
-  // escape space in name for InluxDB
-  boost::replace_all(escapedName, " ", "\\ ");
-
+  escape(name);
   // preparing post data
   std::stringstream convert;
-  convert << escapedName << ",entity=" << entity << " value=" << value << " " << timestamp;
+  convert << name << "," << tagSet << " value=" << value << " " << timestamp;
   std::string post = convert.str();
 
   // send via curl

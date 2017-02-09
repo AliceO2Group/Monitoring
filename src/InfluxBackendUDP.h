@@ -38,9 +38,8 @@ class InfluxBackendUDP final : public Backend
     /// Convert to InfluxDB Line Protocol and send via UDP (boost asio)
     /// \param value 	value already converted to string
     /// \param name         metric name
-    /// \param entity       metric entity - origin
     /// \param timestamp    metric timestamp in nanoseconds
-    void sendUDP(std::string value, const std::string& name, const std::string& entity,
+    void sendUDP(std::string value, std::string name,
       const unsigned long timestamp);
 
     /// Convert timestamp to unsigned long as required by InfluxDB
@@ -48,38 +47,9 @@ class InfluxBackendUDP final : public Backend
     /// \return  	timestamp in nanoseconds
     inline unsigned long convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp);
 
-        /// Pushes integer metric
-    /// \param value        metric value (integer)
-    /// \param name         metric name
-    /// \param entity       metric entity - origin
-    /// \param timestamp    metric timestamp (std::chrono::time_point)
-    void send(int value, const std::string& name, const std::string& entity, 
-      const std::chrono::time_point<std::chrono::system_clock>& timestamp) override;
-
-    /// Pushes double metric
-    /// \param value        metric value (double)
-    /// \param name         metric name
-    /// \param entity       metric entity - origin
-    /// \param timestamp    metric timestamp (std::chrono::time_point
-    void send(double value, const std::string& name, const std::string& entity, 
-      const std::chrono::time_point<std::chrono::system_clock>& timestamp) override;
-
-    /// Pushes string metric
-    /// \param value        metric value (string)
-    /// \param name         metric name
-    /// \param entity       metric entity - origin
-    /// \param timestamp    metric timestamp (std::chrono::time_point)
-    void send(std::string value, const std::string& name, const std::string& entity,
-      const std::chrono::time_point<std::chrono::system_clock>& timestamp) override;
-
-    /// Pushes uint32_t metric
-    /// \param value        metric value (uint32_t)
-    /// \param name         metric name
-    /// \param entity       metric entity - origin
-    /// \param timestamp    metric timestamp (std::chrono::time_point)
-    void send(uint32_t value, const std::string& name, const std::string& entity,
-      const std::chrono::time_point<std::chrono::system_clock>& timestamp) override;
-
+    void send(const Metric& metric) override;
+    void addGlobalTag(std::string name, std::string value) override;
+    std::string tagSet;
   private:
     /// Boost Asio I/O functionality
     boost::asio::io_service mIoService;
@@ -89,6 +59,8 @@ class InfluxBackendUDP final : public Backend
 
     /// UDP endpoint
     boost::asio::ip::udp::endpoint mEndpoint;
+
+    void escape(std::string& escaped);
 };
 
 } // namespace Core
