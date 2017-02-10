@@ -19,6 +19,8 @@ namespace Monitoring
 namespace Core
 {
 
+using namespace AliceO2::InfoLogger;
+
 /// Singleton class that is used in all Monitoring classes
 ///
 /// The aim of this class is to avoid every class in the package to define and configure its own instance of InfoLogger.
@@ -26,25 +28,43 @@ namespace Core
 class MonInfoLogger : public AliceO2::InfoLogger::InfoLogger
 {
   public:
-    static MonInfoLogger &GetInstance()
+    static MonInfoLogger &Debug()
     {
-      static MonInfoLogger foo;
-      return foo;
+      static MonInfoLogger infoLoggerInstance;
+      infoLoggerInstance << InfoLogger::Severity::Debug;
+      return infoLoggerInstance;
+    }
+
+    static MonInfoLogger &Info()
+    {
+      static MonInfoLogger infoLoggerInstance;
+      infoLoggerInstance << InfoLogger::Severity::Info;
+      return infoLoggerInstance;
+    }
+    static MonInfoLogger &Error()
+    {
+      static MonInfoLogger infoLoggerInstance;
+      infoLoggerInstance << InfoLogger::Severity::Error;
+      return infoLoggerInstance;
+    }
+    static MonInfoLogger &Warning()
+    {
+      static MonInfoLogger infoLoggerInstance;
+      infoLoggerInstance << InfoLogger::Severity::Warning;
+      return infoLoggerInstance;
     }
 
   private:
     MonInfoLogger()
     {
-      *this << "InfoLogger instance for Monitoring initialized" << AliceO2::InfoLogger::InfoLogger::endm;
+      *this << "InfoLogger instance for Monitoring initialized" << InfoLogger::endm;
     }
 
-    virtual ~MonInfoLogger()
-    {
-    }
-
-    /// Delete copy constructors
+    /// Delete copy and move constructors
     MonInfoLogger &operator=(const MonInfoLogger &) = delete;
     MonInfoLogger(const MonInfoLogger &) = delete;
+    MonInfoLogger(MonInfoLogger &&) = delete;
+    MonInfoLogger &operator=(InfoLogger&&) = delete;
 
 };
 

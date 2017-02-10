@@ -26,7 +26,7 @@ inline unsigned long InfoLoggerBackend::convertTimestamp(const std::chrono::time
 
 InfoLoggerBackend::InfoLoggerBackend()
 {
-  MonInfoLogger::GetInstance() << "InfoLogger backend initialized" << AliceO2::InfoLogger::InfoLogger::endm;
+  MonInfoLogger::Info() << "InfoLogger backend initialized" << AliceO2::InfoLogger::InfoLogger::endm;
 }
 
 void InfoLoggerBackend::addGlobalTag(std::string name, std::string value)
@@ -39,7 +39,7 @@ void InfoLoggerBackend::addGlobalTag(std::string name, std::string value)
 
 void InfoLoggerBackend::send(const Metric& metric)
 {
-  MonInfoLogger::GetInstance() << "InfoLoggerMonitoring : " << metric.getName() << ", " << metric.getValue() << " Type: " << metric.getType() << ", " 
+  MonInfoLogger::Debug() << "InfoLoggerMonitoring : " << metric.getName() << ", " << metric.getValue() << " Type: " << metric.getType() << ", " 
                                << convertTimestamp(metric.getTimestamp()) << ", " << tagString
                                << AliceO2::InfoLogger::InfoLogger::endm;
 }

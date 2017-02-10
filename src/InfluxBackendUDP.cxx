@@ -22,7 +22,7 @@ InfluxBackendUDP::InfluxBackendUDP(const std::string &hostname, int port) :
   boost::asio::ip::udp::resolver::query query(boost::asio::ip::udp::v4(), hostname, std::to_string(port));
   boost::asio::ip::udp::resolver::iterator resolverInerator = resolver.resolve(query);
   mEndpoint = *resolverInerator;
-  MonInfoLogger::GetInstance() << "InfluxDB via UDP backend enabled" << AliceO2::InfoLogger::InfoLogger::endm;
+  MonInfoLogger::Info() << "InfluxDB via UDP backend enabled" << AliceO2::InfoLogger::InfoLogger::endm;
 }
 
 void InfluxBackendUDP::sendUDP(std::string value, std::string name,

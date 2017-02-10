@@ -24,11 +24,11 @@ ApMonBackend::ApMonBackend(const std::string& configurationFile)
     ApMon::setLogLevel("FATAL");
   } 
   catch (...) {
-    MonInfoLogger::GetInstance() << "Could not open ApMon configuration file: " << configurationFile
+    MonInfoLogger::Warning() << "Could not open ApMon configuration file: " << configurationFile
                                  << AliceO2::InfoLogger::InfoLogger::endm;
-    throw std::runtime_error("ApMon cannot be configured");
+    return;
   }
-  MonInfoLogger::GetInstance() << "ApMon backend initialized" << AliceO2::InfoLogger::InfoLogger::endm;
+  MonInfoLogger::Info() << "ApMon backend initialized" << AliceO2::InfoLogger::InfoLogger::endm;
 }
 
 inline int ApMonBackend::convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp)

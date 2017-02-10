@@ -30,7 +30,7 @@ DerivedMetrics::DerivedMetrics(const unsigned int cacheSize) : mMaxVectorSize(ca
 void DerivedMetrics::registerMetric(std::string name, DerivedMetricMode mode)
 {
   mRegistered.emplace(std::pair<std::string, DerivedMetricMode>(name, mode));
-  MonInfoLogger::GetInstance() << "Monitoring : Metric " << name << " added to derived metrics" 
+  MonInfoLogger::Info() << "Monitoring : Metric " << name << " added to derived metrics" 
                                << AliceO2::InfoLogger::InfoLogger::endm;
 }
 
@@ -93,7 +93,7 @@ std::unique_ptr<Metric> DerivedMetrics::processMetric(Metric& metric)
   else if (derived->second == DerivedMetricMode::AVERAGE)  {
     return calculateAverage(name);
   } else {
-    MonInfoLogger::GetInstance() << "Monitoring : Processing mode incorrect for metric " << name << AliceO2::InfoLogger::InfoLogger::endm;
+    MonInfoLogger::Warning() << "Monitoring : Processing mode incorrect for metric " << name << AliceO2::InfoLogger::InfoLogger::endm;
     return nullptr;
   }
 }

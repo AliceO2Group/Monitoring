@@ -20,7 +20,7 @@ namespace Core
 
 InfluxBackend::InfluxBackend(std::string url) : curlHandle(initCurl(url), &InfluxBackend::deleteCurl)
 {
-  MonInfoLogger::GetInstance() << "InfluxDB backend enabled: " << url  << AliceO2::InfoLogger::InfoLogger::endm;
+  MonInfoLogger::Info() << "InfluxDB backend enabled: " << url  << AliceO2::InfoLogger::InfoLogger::endm;
 }
 
 CURL* InfluxBackend::initCurl(std::string url)
@@ -91,12 +91,12 @@ void InfluxBackend::curlWrite(std::string value, std::string name,
   response = curl_easy_perform(curlHandle.get());
   curl_easy_getinfo(curlHandle.get(), CURLINFO_RESPONSE_CODE, &responseCode);
   if (response != CURLE_OK) {
-    MonInfoLogger::GetInstance() << "!!! InfluxDB : cURL error : " << (curl_easy_strerror(response)) 
+    MonInfoLogger::Warning() << "!!! InfluxDB : cURL error : " << (curl_easy_strerror(response)) 
                                  << AliceO2::InfoLogger::InfoLogger::endm;
     return;
   }
   if (responseCode != 204) {
-    MonInfoLogger::GetInstance() << "!!! InfluxDB : cURL response code " + std::to_string(responseCode) 
+    MonInfoLogger::Warning() << "!!! InfluxDB : cURL response code " + std::to_string(responseCode) 
                                  << AliceO2::InfoLogger::InfoLogger::endm;
     return;
   }

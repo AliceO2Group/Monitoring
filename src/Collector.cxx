@@ -72,7 +72,7 @@ Collector::Collector(const std::string& configPath)
     int interval = configFile->get<int>("ProcessMonitor.interval").value();
     mMonitorRunning = true;
     mMonitorThread = std::thread(&Collector::processMonitorLoop, this, interval);  
-    MonInfoLogger::GetInstance() << "Process Monitor : Automatic updates enabled" << AliceO2::InfoLogger::InfoLogger::endm;
+    MonInfoLogger::Info() << "Process Monitor : Automatic updates enabled" << AliceO2::InfoLogger::InfoLogger::endm;
   }
 
   mDerivedHandler = std::make_unique<DerivedMetrics>(configFile->get<int>("DerivedMetrics.maxCacheSize").value());
@@ -95,7 +95,7 @@ void Collector::setDefaultTags()
   for (auto& b: mBackends) {
     b->addGlobalTag("pid", std::to_string(details.getPid()));
     b->addGlobalTag("hostname", details.getHostname());
-    b->addGlobalTag("processname", details.getProcessName());
+    b->addGlobalTag("name", details.getProcessName());
   }
 }
 
