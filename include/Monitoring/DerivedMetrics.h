@@ -57,24 +57,24 @@ class DerivedMetrics
     /// \param entity 		metric entity
     /// \param timestamp 	metric timestamp
     /// \return Metric object with calculated derived metric in it
-    std::unique_ptr<Metric> processMetric(Metric& metric);
+    Metric processMetric(Metric& metric);
   
   private:
     /// Calculates rate value based on metrics stored in mCache map
     /// \param name 	metric name
     /// \return 	metric with calculated rate value
-    std::unique_ptr<Metric> calculateRate(std::string name);
+    Metric calculateRate(std::string name);
 
     /// Calculates average value based on metrics stored in mCache map
     /// \param name 	metric name
     /// \return		metric with calculated average value
-    std::unique_ptr<Metric> calculateAverage(std::string name);
+    Metric calculateAverage(std::string name);
 
     /// maximum size of cache map
     const unsigned int mMaxVectorSize;
 
     /// Cache of registered metrics (metric name / vector of metric pointers).
-    std::map <std::string, std::vector<std::unique_ptr<Metric>>> mCache;
+    std::map <std::string, std::vector<Metric>> mCache;
 
     /// Registered metrics with their modes (metric name, registered mode).
     std::map <std::string, DerivedMetricMode> mRegistered;

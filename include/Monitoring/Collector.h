@@ -19,7 +19,6 @@
 #include "Monitoring/DerivedMetrics.h"
 #include "Monitoring/ProcessMonitor.h"
 
-
 namespace AliceO2
 {
 /// ALICE O2 Monitoring system
@@ -62,6 +61,7 @@ class Collector
     void send(T value, std::string name);
     /// \param metric
     void send(Metric&& metric);
+    void send(Metric& metric);
     /// Adds metric to derived metric list - each time the metric arrives the derived metric is calculated and pushed to all backends
     /// Following processing modes are supported: DerivedMetricMode::RATE, DerivedMetricMode::AVERAGE
     /// \param name

@@ -113,14 +113,19 @@ void Collector::addDerivedMetric(std::string name, DerivedMetricMode mode) {
   mDerivedHandler->registerMetric(name, mode);
 }
 
-void Collector::send(Metric&& metric)
+void Collector::send(Metric& metric)
 {
   for (auto& b: mBackends) {
     b->send(metric);
     try {
       b->send(mDerivedHandler->processMetric(metric));
-    } catch (std::logic_error &e) { std::cout << e.what() << std::endl; /* derived metric can't be calculated; continue */ }
+    } catch (std::logic_error&) { }
   }
+}
+
+void Collector::send(Metric&& metric)
+{
+  send(metric);
 }
 
 template<typename T>

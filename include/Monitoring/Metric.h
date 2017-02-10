@@ -67,18 +67,19 @@ class Metric
     /// Value type getter
     /// \return type of value stores inside metric : 0 - int, 1 - std::string, 2 - double, 3 - uint32_t
     int getType() const;
-
-    void addTags(std::vector<Tag>&& tags);
+    std::vector<Tag> getTags() const;
+    Metric&& setTimestamp(std::chrono::time_point<std::chrono::system_clock>& timestamp);
+    Metric&& addTags(std::vector<Tag>&& tags);
     static auto getCurrentTimestamp() -> decltype(std::chrono::system_clock::now());
   private:
     /// Metric value
-    const boost::variant< int, std::string, double, uint32_t > mValue;
+    boost::variant< int, std::string, double, uint32_t > mValue;
 
     /// Metric name
-    const std::string mName;
+    std::string mName;
 
     /// Metric timestamp
-    const std::chrono::time_point<std::chrono::system_clock> mTimestamp;
+    std::chrono::time_point<std::chrono::system_clock> mTimestamp;
 
     /// Metric tags
     std::vector<Tag> tagSet;

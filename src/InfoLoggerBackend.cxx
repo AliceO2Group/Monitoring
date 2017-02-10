@@ -39,8 +39,15 @@ void InfoLoggerBackend::addGlobalTag(std::string name, std::string value)
 
 void InfoLoggerBackend::send(const Metric& metric)
 {
+  std::string metricTags{};
+  for (const auto& tag : metric.getTags()) {
+    if (!metricTags.empty()) {
+      metricTags += " ";
+    }
+    metricTags += tag.name + "=" + tag.value;
+  }
   MonInfoLogger::Debug() << "InfoLoggerMonitoring : " << metric.getName() << ", " << metric.getValue() << " Type: " << metric.getType() << ", " 
-                               << convertTimestamp(metric.getTimestamp()) << ", " << tagString
+                               << convertTimestamp(metric.getTimestamp()) << ", " << tagString << " " << metricTags
                                << AliceO2::InfoLogger::InfoLogger::endm;
 }
 

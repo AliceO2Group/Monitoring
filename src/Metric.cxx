@@ -56,9 +56,21 @@ boost::variant< int, std::string, double, uint32_t > Metric::getValue() const
   return mValue;
 }
 
-void Metric::addTags(std::vector<Tag>&& tags)
+Metric&& Metric::addTags(std::vector<Tag>&& tags)
 {
   tagSet = std::move(tags);
+  return std::move(*this);
+}
+
+Metric&& Metric::setTimestamp(std::chrono::time_point<std::chrono::system_clock>& timestamp)
+{
+  mTimestamp = timestamp;
+  return std::move(*this);
+}
+
+std::vector<Tag> Metric::getTags() const
+{
+  return tagSet;
 }
 
 auto Metric::getCurrentTimestamp() -> decltype(std::chrono::system_clock::now())
