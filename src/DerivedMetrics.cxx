@@ -40,51 +40,49 @@ bool DerivedMetrics::isRegistered(std::string name)
   return (search != mRegistered.end());
 }
 
-std::unique_ptr<Metric> DerivedMetrics::calculateRate(std::string name)
+Metric DerivedMetrics::calculateRate(std::string name)
 {
-  /*auto search = mCache.find(name);
-  if (search != mCache.end()) {
-    int size = search->second.size();
-    if (size >= 2) {
-      std::chrono::duration<float> timestampDifference = (search->second.at(size - 1)->getTimestamp() 
-                                                        - search->second.at(size - 2)->getTimestamp());
-      T last = boost::get<T>(search->second.at(size - 1)->getValue());
-      T beforelast = boost::get<T>(search->second.at(size - 2)->getValue());
-      // disallow dividing by 0
-      if (timestampDifference.count() == 0) return nullptr;
-      T rate = (last - beforelast ) / timestampDifference.count();
-      return std::make_unique<Metric>(rate, name + "Rate", 
-                                     mCache.at(name).back()->getEntity(), mCache.at(name).back()->getTimestamp());
-    } 
-  }*/
-  return nullptr;
+  auto search = mCache.find(name);
+  int size = search->second.size();
+  if (search == mCache.end() || size < 2) throw std::logic_error("Not enough values");
+  std::chrono::duration<float> timestampDifference = (search->second.at(size - 1).getTimestamp() 
+                                                   - search->second.at(size - 2).getTimestamp());
+  
+
+  double last = boost::lexical_cast<double>(search->second.at(size - 1).getValue());
+  double beforelast = boost::lexical_cast<double>(search->second.at(size - 2).getValue());
+  // disallow dividing by 0
+  if (timestampDifference.count() == 0) throw std::logic_error("Division by 0");
+  double rate = (last - beforelast ) / timestampDifference.count();
+  return Metric{rate, name + "Rate"};
 }
 
-std::unique_ptr<Metric> DerivedMetrics::calculateAverage(std::string name)
+Metric DerivedMetrics::calculateAverage(std::string name)
 {
-  /*T total = 0;
+  double total = 0;
   for (auto& m : mCache.at(name)) {
-    total += boost::get<T>(m->getValue());
+    total += boost::lexical_cast<double>(m.getValue());
   }
-  T average = (T) total / mCache.at(name).size();
-  return std::make_unique<Metric>(average, name + "Average",
-                                 mCache.at(name).back()->getEntity(), mCache.at(name).back()->getTimestamp());*/
-  return nullptr;
+  double average = total / mCache.at(name).size();
+  return Metric{average, name + "Average"};
 }
 
-std::unique_ptr<Metric> DerivedMetrics::processMetric(Metric& metric)
+Metric DerivedMetrics::processMetric(Metric& metric)
 {
-   std::string name = metric.getName();
-   auto search = mCache.find(name);
+  std::string name = metric.getName();
+  if (!isRegistered(name) || metric.getType() == MetricType::STRING) {
+    throw std::logic_error("Not able to calculate derived value");
+  }
+  auto search = mCache.find(name);
   // create vector if this is first metric of this kind
   if (search == mCache.end()) {
-    mCache.emplace(std::make_pair(name, std::vector<std::unique_ptr<Metric>>()));
+    mCache.emplace(std::make_pair(name, std::vector<Metric>()));
   }
   // remove first value if vector too large
   if (mCache.at(name).size() > mMaxVectorSize) {
     mCache.at(name).erase( mCache.at(name).begin() );
   }
-  mCache[name].push_back(std::make_unique<Metric>(metric));
+  mCache[name].push_back(metric);
 
   auto derived = mRegistered.find(name);
   if (derived->second == DerivedMetricMode::RATE) {
@@ -93,8 +91,7 @@ std::unique_ptr<Metric> DerivedMetrics::processMetric(Metric& metric)
   else if (derived->second == DerivedMetricMode::AVERAGE)  {
     return calculateAverage(name);
   } else {
-    MonInfoLogger::Warning() << "Monitoring : Processing mode incorrect for metric " << name << AliceO2::InfoLogger::InfoLogger::endm;
-    return nullptr;
+    throw std::logic_error("Processing mode not supported");
   }
 }
 

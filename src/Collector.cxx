@@ -117,8 +117,9 @@ void Collector::send(Metric&& metric)
 {
   for (auto& b: mBackends) {
     b->send(metric);
-    //std::unique_ptr<Metric> derived = mDerivedHandler->processMetric(std::move(metric));
-    //b->send(derived.get());
+    try {
+      b->send(mDerivedHandler->processMetric(metric));
+    } catch (std::logic_error &e) { std::cout << e.what() << std::endl; /* derived metric can't be calculated; continue */ }
   }
 }
 
