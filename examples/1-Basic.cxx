@@ -19,13 +19,10 @@ int main() {
   // now send an application specific metric
   // 10 is the value
   // myMetric is the name of the metric
-  
-  // moving
+  //  
+  // 1. by copying values
   collector->send(10, "myMetric");
+  
+  // 2. by creating and moving metric object
   collector->send({20, "myMetric"});
-  collector->send(Metric{30, "myMetric"});
-
-  // passing by reference
-  Metric metric{10, "myMetricAgain"};
-  collector->send(metric);
 }	

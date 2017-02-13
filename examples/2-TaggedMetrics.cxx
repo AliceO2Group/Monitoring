@@ -15,8 +15,14 @@ int main() {
     new Monitoring::Collector("file:///home/awegrzyn/hackathon/Monitoring/examples/SampleConfig.ini")
   );
 
-  // now send an application specific metric
+  // now send an application specific metric with additional tags
   // 10 is the value
-  // myCrazyMetric is the name of the metri
-  collector->send(Metric{10, "myCrazyMetric"}.addTags({{"tag1", "value1"}, {"tag2", "value2"}}));
+  // myMetric is the name of the metric
+  // then vector of key-value tags
+  //
+  // 1. by copying value and name and moving tags
+  collector->sendTagged(10, "myMetric", {{"tag1", "value1"}, {"tag2", "value2"}});
+
+  // 2. by moving value, name and tags
+  collector->send(Metric{10, "myMetric"}.addTags({{"tag1", "value1"}, {"tag2", "value2"}}));
 }

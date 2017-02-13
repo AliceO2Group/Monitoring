@@ -113,7 +113,7 @@ void Collector::addDerivedMetric(std::string name, DerivedMetricMode mode) {
   mDerivedHandler->registerMetric(name, mode);
 }
 
-void Collector::send(Metric& metric)
+void Collector::send(Metric&& metric)
 {
   for (auto& b: mBackends) {
     b->send(metric);
@@ -123,21 +123,43 @@ void Collector::send(Metric& metric)
   }
 }
 
-void Collector::send(Metric&& metric)
-{
-  send(metric);
-}
-
 template<typename T>
 void Collector::send(T value, std::string name)
 {
   send({value, name});
 }
 
+template<typename T>
+void Collector::sendTagged(T value, std::string name, std::vector<Tag>&& tags)
+{
+  Metric metric{value, name};
+  metric.addTags(std::move(tags));
+  send(std::move(metric));
+}
+
+template<typename T>
+void Collector::sendTimed(T value, std::string name, std::chrono::time_point<std::chrono::system_clock>& timestamp)
+{
+  Metric metric{value, name};
+  metric.setTimestamp(timestamp);
+  send(std::move(metric));
+}
+
 template void Collector::send(int, std::string);
 template void Collector::send(double, std::string);
 template void Collector::send(std::string, std::string);
 template void Collector::send(uint32_t, std::string);
+
+template void Collector::sendTagged(int, std::string, std::vector<Tag>&& tags);
+template void Collector::sendTagged(double, std::string, std::vector<Tag>&& tags);
+template void Collector::sendTagged(std::string, std::string, std::vector<Tag>&& tags);
+template void Collector::sendTagged(uint32_t, std::string, std::vector<Tag>&& tags);
+
+
+template void Collector::sendTimed(int, std::string, std::chrono::time_point<std::chrono::system_clock>& timestamp);
+template void Collector::sendTimed(double, std::string, std::chrono::time_point<std::chrono::system_clock>& timestamp);
+template void Collector::sendTimed(std::string, std::string, std::chrono::time_point<std::chrono::system_clock>& timestamp);
+template void Collector::sendTimed(uint32_t, std::string, std::chrono::time_point<std::chrono::system_clock>& timestamp);
 
 } // namespace Core
 } // namespace Monitoring

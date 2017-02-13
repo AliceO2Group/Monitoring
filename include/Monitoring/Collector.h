@@ -27,9 +27,6 @@ namespace Monitoring
 /// Core features of ALICE O2 Monitoring system
 namespace Core 
 {
-/// std::chrono::time_point<std::chrono::system_clock>
-using metric_time = decltype(std::chrono::system_clock::now());
-
 /// Collect metrics and dispatches them to selected backends for further processing.
 ///
 /// Collects metrics (see Metric class) and pushes them through all selected backends (see Backend)
@@ -57,11 +54,18 @@ class Collector
     /// \param value 		metric value
     /// \param name 		metric name
     /// \param timestamp 	metric timestamp in miliseconds, if not provided getCurrentTimestamp provides current value
+
     template<typename T> 
     void send(T value, std::string name);
+
+    template<typename T>
+    void sendTagged(T value, std::string name, std::vector<Tag>&& tags);
+
+    template<typename T>
+    void sendTimed(T value, std::string name, std::chrono::time_point<std::chrono::system_clock>& timestamp);
+
     /// \param metric
     void send(Metric&& metric);
-    void send(Metric& metric);
     /// Adds metric to derived metric list - each time the metric arrives the derived metric is calculated and pushed to all backends
     /// Following processing modes are supported: DerivedMetricMode::RATE, DerivedMetricMode::AVERAGE
     /// \param name

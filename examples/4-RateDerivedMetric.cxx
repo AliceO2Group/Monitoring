@@ -15,11 +15,11 @@ int main() {
   );  
 
   // derived metric :  rate
-  collector->addDerivedMetric("myCrazyMetric1", Monitoring::Core::DerivedMetricMode::RATE);
+  collector->addDerivedMetric("myMetric", Monitoring::Core::DerivedMetricMode::RATE);
 
   // now send at least two metrics to see the result
-  collector->send(10, "myCrazyMetric1");
-  collector->send(20, "myCrazyMetric1");
-  collector->send(30, "myCrazyMetric1");
-  collector->send(50, "myCrazyMetric1");
+  collector->send(10, "myMetric");
+  collector->send(20, "myMetric");
+  collector->send(30, "myMetric");
+  collector->send(50, "myMetric");
 }
