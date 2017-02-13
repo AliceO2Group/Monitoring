@@ -140,9 +140,7 @@ void Collector::sendTagged(T value, std::string name, std::vector<Tag>&& tags)
 template<typename T>
 void Collector::sendTimed(T value, std::string name, std::chrono::time_point<std::chrono::system_clock>& timestamp)
 {
-  Metric metric{value, name};
-  metric.setTimestamp(timestamp);
-  send(std::move(metric));
+  send({value, name, timestamp});
 }
 
 template void Collector::send(int, std::string);

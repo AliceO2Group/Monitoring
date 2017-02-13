@@ -18,9 +18,8 @@ namespace Monitoring
 namespace Core
 {
 
-/// Library backend that injects metrics to InfoLogger
+/// Backend that injects metrics to InfoLogger
 ///
-/// Inject monitoring metrics to InfoLogger
 /// InfoLogger does not support std::chrono::time_point therefore timestamps is converted to unsigned long (see #convertTimestamp)
 class InfoLoggerBackend final : public Backend
 {
@@ -30,15 +29,23 @@ class InfoLoggerBackend final : public Backend
  
     /// Default destructor
     ~InfoLoggerBackend() = default;
-	
+
+    /// Sends metric to InfluxDB
+    /// \param metric           reference to metric object    
     void send(const Metric& metric) override;
+
+    /// Adds tag
+    /// \param name         tag name
+    /// \param value        tag value
     void addGlobalTag(std::string name, std::string value) override;
+
   private:
     /// Converts timestamp to unsigned long (miliseconds from epoch)
     /// \param timestamp    timestamp in std::chrono::time_point format
     /// \return             timestamp as unsigned long (miliseconds from epoch)
     unsigned long convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp);
-    std::string tagString;
+
+    std::string tagString; ///< Global tagset (common for each metric)
 };
 
 } // namespace Core

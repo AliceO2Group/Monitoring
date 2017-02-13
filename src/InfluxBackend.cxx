@@ -71,19 +71,17 @@ void InfluxBackend::send(const Metric& metric)
     value.insert(value.begin(), '"');
     value.insert(value.end(), '"');
   }
-  curlWrite(value, metric.getName(), convertTimestamp(metric.getTimestamp()));
-}
+  std::string name = metric.getName();
+  escape(name);  
 
-void InfluxBackend::curlWrite(std::string value, std::string name, 
-                             const unsigned long timestamp)
-{
-  escape(name);
   // preparing post data
   std::stringstream convert;
-  convert << name << "," << tagSet << " value=" << value << " " << timestamp;
-  std::string post = convert.str();
+  convert << name << "," << tagSet << " value=" << value << " " << convertTimestamp(metric.getTimestamp());
+  curlWrite(convert.str());
+}
 
-  // send via curl
+void InfluxBackend::curlWrite(std::string&& post)
+{
   CURLcode response;	
   long responseCode;
   curl_easy_setopt(curlHandle.get(), CURLOPT_POSTFIELDS, post.c_str());

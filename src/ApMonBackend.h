@@ -23,7 +23,7 @@ namespace Core
 
 /// \brief Backend that uses AppMon (MonALISA)
 ///
-/// Uses ApMon library to push values to MonALISA Service.
+/// Uses ApMon library to push metric to MonALISA Service.
 /// ApMon accepts timestamps as integers, therefore cast is needed (see method #convertTimestamp)
 ///
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
@@ -37,7 +37,14 @@ class ApMonBackend final : public Backend
     /// Default destructor
     ~ApMonBackend() = default;
 
+    /// Sends metric via MonALISA
+    /// ApMon's intances is type-aware therefore cast of metric value is needed
+    /// \param metric           reference to metric object:
     void send(const Metric& metric) override;
+
+    /// Extends entity value
+    /// \param name             tag name (unused)
+    /// \param value            tag value that is concatenated to entity string
     void addGlobalTag(std::string name, std::string value) override;
   private:
     /// Converts timestamp to format supported by ApMon
@@ -46,7 +53,7 @@ class ApMonBackend final : public Backend
     int convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp);
   
     std::unique_ptr<ApMon> mApMon; ///< ApMon object
-    std::string entity; ///< MonALISA entity
+    std::string entity; ///< MonALISA entity, created out of global tags
 };
 
 } // namespace Core

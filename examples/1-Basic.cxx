@@ -7,7 +7,6 @@
 #include "Monitoring/Collector.h"
 
 namespace Monitoring = AliceO2::Monitoring::Core;
-using Monitoring::Metric;
 
 int main() {
   

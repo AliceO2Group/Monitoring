@@ -25,14 +25,8 @@ InfluxBackendUDP::InfluxBackendUDP(const std::string &hostname, int port) :
   MonInfoLogger::Info() << "InfluxDB via UDP backend enabled" << AliceO2::InfoLogger::InfoLogger::endm;
 }
 
-void InfluxBackendUDP::sendUDP(std::string value, std::string name,
-  const unsigned long timestamp)
+void InfluxBackendUDP::sendUDP(std::string&& lineMessage)
 {
-  escape(name);
-  
-  std::stringstream convert;
-  convert << name << "," << tagSet << " value=" << value << " " << timestamp;
-  std::string lineMessage = convert.str();
   mSocket.send_to(boost::asio::buffer(lineMessage, lineMessage.size()), mEndpoint);
 }
 
@@ -58,7 +52,12 @@ void InfluxBackendUDP::send(const Metric& metric)
     value.insert(value.begin(), '"');
     value.insert(value.end(), '"');
   }
-  sendUDP(value, metric.getName(), convertTimestamp(metric.getTimestamp()));
+  std::string name = metric.getName();
+  escape(name);
+
+  std::stringstream convert;
+  convert << name << "," << tagSet << " value=" << value << " " << convertTimestamp(metric.getTimestamp());
+  sendUDP(convert.str());
 }
 
 void InfluxBackendUDP::addGlobalTag(std::string name, std::string value)

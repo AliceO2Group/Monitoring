@@ -40,23 +40,20 @@ class DerivedMetrics
     ~DerivedMetrics() = default;
 
     /// States whether metric has been registered or not
-    /// \param name metric name
+    /// \param name     metric name
     /// \return 	true when metric is present in mRegistered, false otherwise
     bool isRegistered(std::string name);
 
     /// Registers metric to be processed (adds its name to mRegistered map)
     /// Processing modes are enumerated in DerivedMetricMode class
-    /// \param name 	name, metrics name
-    /// \param mode     mode, see DerivedMetricMode
+    /// \param name      name, metrics name
+    /// \param mode      mode, see DerivedMetricMode
     void registerMetric(std::string name, DerivedMetricMode mode);
 
     /// Handles actual metric processing; finds out whether metric needs to be processed or not
     /// If yes, passing it to one of methods that handles calculation of derived metric
-    /// \param value 		metric value
-    /// \param name 		metric name
-    /// \param entity 		metric entity
-    /// \param timestamp 	metric timestamp
-    /// \return Metric object with calculated derived metric in it
+    /// \param metric    reference to metric instance
+    /// \return          metric object with calculated derived metric in it
     Metric processMetric(Metric& metric);
   
   private:

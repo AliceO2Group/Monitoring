@@ -23,9 +23,10 @@ namespace Monitoring
 namespace Core
 {
 
-/// Library backend that injects metrics to InfluxDB time-series databse over UDP
+/// Backend that injects metrics to InfluxDB time-series databse over UDP
 ///
-/// Metrics are sent over UDP via boost asio library
+/// Metrics are converted into Influx Line protocol and then sent 
+/// via UDP using  boost asio library
 class InfluxBackendUDP final : public Backend
 {
   public:
@@ -35,21 +36,20 @@ class InfluxBackendUDP final : public Backend
     /// Default destructor
     ~InfluxBackendUDP() = default;
 
-    /// Convert to InfluxDB Line Protocol and send via UDP (boost asio)
-    /// \param value 	value already converted to string
-    /// \param name         metric name
-    /// \param timestamp    metric timestamp in nanoseconds
-    void sendUDP(std::string value, std::string name,
-      const unsigned long timestamp);
-
     /// Convert timestamp to unsigned long as required by InfluxDB
     /// \param 		chrono time_point timestamp
     /// \return  	timestamp in nanoseconds
     inline unsigned long convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp);
 
+    /// Sends metric to InfluxDB
+    //    /// \param metric           reference to metric object
     void send(const Metric& metric) override;
+
+    /// Adds tag
+    /// \param name         tag name
+    /// \param value        tag value
     void addGlobalTag(std::string name, std::string value) override;
-    std::string tagSet;
+  
   private:
     /// Boost Asio I/O functionality
     boost::asio::io_service mIoService;
@@ -60,7 +60,15 @@ class InfluxBackendUDP final : public Backend
     /// UDP endpoint
     boost::asio::ip::udp::endpoint mEndpoint;
 
+    std::string tagSet; ///< Global tagset (common for each metric)
+
+    /// Escapes " ", "," and "=" characters
+    /// \param escaped      string rerference to escape characters from
     void escape(std::string& escaped);
+
+    /// Sends metric in InfluxDB Line Protocol format via UDP
+    /// \param lineMessage   metrc in Influx Line Protocol format
+    void sendUDP(std::string&& lineMessage);
 };
 
 } // namespace Core

@@ -67,10 +67,25 @@ class Metric
     /// Value type getter
     /// \return type of value stores inside metric : 0 - int, 1 - std::string, 2 - double, 3 - uint32_t
     int getType() const;
+
+    /// Tag list getter
+    /// \return         vector of tags
     std::vector<Tag> getTags() const;
+
+    /// Sets user defined timestamp
+    /// \param           timestamp
+    /// \return          r-value to "this" - to be able to chain methods
     Metric&& setTimestamp(std::chrono::time_point<std::chrono::system_clock>& timestamp);
+ 
+    /// Add user defined tags
+    /// \param           r-value to vector of tags
+    /// \return          r-value to "this" - to be able to chain methods
     Metric&& addTags(std::vector<Tag>&& tags);
+
+    /// Generetes current timestamp
+    /// return          timestamp as std::chrono::system_clock
     static auto getCurrentTimestamp() -> decltype(std::chrono::system_clock::now());
+
   private:
     /// Metric value
     boost::variant< int, std::string, double, uint32_t > mValue;

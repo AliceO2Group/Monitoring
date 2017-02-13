@@ -21,9 +21,8 @@ namespace Core
 
 /// Backend pure virtual interface
 ///
-/// Specifies overloaded send function that represents process of sending a metric to remote backend.
-/// Each metric consists of four parameters: value, name, entity (origin), timestamp.
-/// Supported types of "value" are: int, double, string and uint_32t
+/// Interface that allows to send a metric to remote backend.
+/// In addition, default tagset (for all handled metrics) can be created.
 class Backend
 {
   public:
@@ -33,7 +32,10 @@ class Backend
     /// Default destructor
     virtual ~Backend() = default;
 	
+    /// Sends metric via backend
     virtual void send(const Metric& metric) = 0;
+
+    /// Sets a tag
     virtual void addGlobalTag(std::string name, std::string value) = 0;
 };
 

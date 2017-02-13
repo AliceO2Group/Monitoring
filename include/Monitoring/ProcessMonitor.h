@@ -25,9 +25,6 @@ namespace Monitoring
 namespace Core
 {
 
-/// Types of ProcessMonitor parameters (eg. output of ps command)
-enum class ProcessMonitorType { INT, DOUBLE, STRING };
-
 /// Monitors current process and/or other processes running at the same machien
 class ProcessMonitor
 {
