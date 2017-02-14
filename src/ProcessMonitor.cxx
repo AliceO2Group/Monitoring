@@ -15,10 +15,6 @@ namespace AliceO2
 /// ALICE O2 Monitoring system
 namespace Monitoring
 {
-/// Core features of ALICE O2 Monitoring system
-namespace Core
-{
-
 
 ProcessMonitor::ProcessMonitor()
 {
@@ -73,6 +69,5 @@ std::string ProcessMonitor::exec(const char* cmd)
   return result;
 }
 
-} // namespace Core
 } // namespace Monitoring
 } // namespace AliceO2

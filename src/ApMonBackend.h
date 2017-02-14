@@ -17,9 +17,6 @@ namespace AliceO2
 /// ALICE O2 Monitoring system
 namespace Monitoring
 {
-/// Core features of ALICE O2 Monitoring system
-namespace Core
-{
 
 /// \brief Backend that uses AppMon (MonALISA)
 ///
@@ -56,7 +53,6 @@ class ApMonBackend final : public Backend
     std::string entity; ///< MonALISA entity, created out of global tags
 };
 
-} // namespace Core
 } // namespace Monitoring
 } // namespace AliceO2
 

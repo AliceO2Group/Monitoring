@@ -16,9 +16,6 @@ namespace AliceO2
 /// ALICE O2 Monitoring system
 namespace Monitoring
 {
-/// Core features of ALICE O2 Monitoring system
-namespace Core
-{
 
 enum MetricType { INT = 0, STRING = 1, DOUBLE = 2, UINT32_T = 3 };
 
@@ -100,7 +97,6 @@ class Metric
     std::vector<Tag> tagSet;
 };
 
-} // namespace Core
 } // namespace Monitoring
 } // namespace AliceO2
 

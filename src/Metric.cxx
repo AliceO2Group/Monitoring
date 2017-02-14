@@ -16,9 +16,6 @@ namespace AliceO2
 /// ALICE O2 Monitoring system
 namespace Monitoring
 {
-/// Core features of ALICE O2 Monitoring system
-namespace Core
-{
 
 std::chrono::time_point<std::chrono::system_clock> Metric::getTimestamp() const
 {
@@ -78,6 +75,5 @@ auto Metric::getCurrentTimestamp() -> decltype(std::chrono::system_clock::now())
   return std::chrono::system_clock::now();
 }
 
-} // namespace Core
 } // namespace Monitoring
 } // namespace AliceO2

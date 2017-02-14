@@ -1,5 +1,5 @@
 ///
-/// \file 1-Basic.cxx
+/// \file 5-Benchmark.cxx
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 ///
 
@@ -45,8 +45,8 @@ int main(int argc, char *argv[]) {
   }
   
   // create monitoring object, pass confuguration path as parameter
-  std::unique_ptr<Monitoring::Core::Collector> collector(
-    new Monitoring::Core::Collector("file:///home/awegrzyn/hackathon/Monitoring/examples/" + config)
+  std::unique_ptr<Monitoring::Collector> collector(
+    new Monitoring::Collector("file:///home/awegrzyn/hackathon/Monitoring/examples/" + config)
   );
 
   for (; i > 0; i--) {

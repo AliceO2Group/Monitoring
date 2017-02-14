@@ -6,7 +6,7 @@
 #include <iostream>
 #include "Monitoring/Collector.h"
 
-namespace Monitoring = AliceO2::Monitoring::Core;
+namespace Monitoring = AliceO2::Monitoring;
 
 int main() {
   
@@ -23,5 +23,5 @@ int main() {
   collector->send(10, "myMetric");
   
   // 2. by creating and moving metric object
-  collector->send({20, "myMetric"});
+  collector->send({10, "myMetric"});
 }	

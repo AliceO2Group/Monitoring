@@ -13,9 +13,6 @@ namespace AliceO2
 /// ALICE O2 Monitoring system
 namespace Monitoring
 {
-/// Core features of ALICE O2 Monitoring system
-namespace Core
-{
 
 class ProcessDetails
 {
@@ -37,7 +34,6 @@ class ProcessDetails
 
 };
 
-} // namespace Core
 } // namespace Monitoring
 } // namespace AliceO2
 

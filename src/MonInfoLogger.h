@@ -15,9 +15,6 @@ namespace AliceO2
 /// ALICE O2 Monitoring system
 namespace Monitoring
 {
-/// Core features of ALICE O2 Monitoring system
-namespace Core
-{
 
 using namespace AliceO2::InfoLogger;
 
@@ -68,7 +65,6 @@ class MonInfoLogger : public AliceO2::InfoLogger::InfoLogger
 
 };
 
-} // Core
 } // Monitoring
 } // Alice02
 

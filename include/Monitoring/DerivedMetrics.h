@@ -18,9 +18,6 @@ namespace AliceO2
 /// ALICE O2 Monitoring system
 namespace Monitoring
 {
-/// Core features of ALICE O2 Monitoring system
-namespace Core
-{
 	
 /// Available derived metric modes : RATE and AVERAGE values
 enum class DerivedMetricMode { RATE, AVERAGE };
@@ -77,7 +74,6 @@ class DerivedMetrics
     std::map <std::string, DerivedMetricMode> mRegistered;
 };
 
-} // namespace Core
 } // namespace Monitoring
 } // namespace AliceO2
 

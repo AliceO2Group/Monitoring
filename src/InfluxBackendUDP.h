@@ -19,9 +19,6 @@ namespace AliceO2
 /// ALICE O2 Monitoring system
 namespace Monitoring
 {
-/// Core features of ALICE O2 Monitoring system
-namespace Core
-{
 
 /// Backend that injects metrics to InfluxDB time-series databse over UDP
 ///
@@ -71,7 +68,6 @@ class InfluxBackendUDP final : public Backend
     void sendUDP(std::string&& lineMessage);
 };
 
-} // namespace Core
 } // namespace Monitoring
 } // namespace AliceO2
 

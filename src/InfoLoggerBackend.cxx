@@ -13,9 +13,6 @@ namespace AliceO2
 /// ALICE O2 Monitoring system
 namespace Monitoring
 {
-/// Core features of ALICE O2 Monitoring system
-namespace Core
-{
 
 inline unsigned long InfoLoggerBackend::convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp)
 {
@@ -51,7 +48,5 @@ void InfoLoggerBackend::send(const Metric& metric)
                                << AliceO2::InfoLogger::InfoLogger::endm;
 }
 
-} // namespace Core
 } // namespace Monitoring
 } // namespace AliceO2
-

@@ -13,11 +13,8 @@ namespace AliceO2
 /// ALICE O2 Monitoring system
 namespace Monitoring
 {
-/// Core features of ALICE O2 Monitoring system
-namespace Core
-{
 
-/// \brief ??
+/// \brief Represent key-value metric tag
 class Tag
 {
   public:
@@ -25,7 +22,6 @@ class Tag
     std::string value;
 };
 
-} // namespace Core
 } // namespace Monitoring
 } // namespace AliceO2
 

@@ -11,9 +11,6 @@ namespace AliceO2
 /// ALICE O2 Monitoring system
 namespace Monitoring
 {
-/// Core features of ALICE O2 Monitoring system
-namespace Core
-{
 
 InfluxBackendUDP::InfluxBackendUDP(const std::string &hostname, int port) :
   mSocket(mIoService, boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), 0))
@@ -67,6 +64,5 @@ void InfluxBackendUDP::addGlobalTag(std::string name, std::string value)
   tagSet += name + "=" + value;
 }
 
-} // namespace Core
 } // namespace Monitoring
 } // namespace AliceO2

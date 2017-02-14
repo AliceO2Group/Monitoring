@@ -12,9 +12,6 @@ namespace AliceO2
 /// ALICE O2 Monitoring system
 namespace Monitoring
 {
-/// Core features of ALICE O2 Monitoring system
-namespace Core
-{
 
 ProcessDetails::ProcessDetails()
 {
@@ -64,7 +61,5 @@ std::string ProcessDetails::getHostname() const
   return mHostname;
 }
 
-} // namespace Core
 } // namespace Monitoring
 } // namespace AliceO2
-

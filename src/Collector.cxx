@@ -31,9 +31,6 @@ namespace AliceO2
 /// ALICE O2 Monitoring system
 namespace Monitoring 
 {
-/// Core features of ALICE O2 Monitoring system
-namespace Core
-{
 
 Collector::Collector(const std::string& configPath)
 {
@@ -162,6 +159,5 @@ template void Collector::sendTimed(double, std::string, std::chrono::time_point<
 template void Collector::sendTimed(std::string, std::string, std::chrono::time_point<std::chrono::system_clock>& timestamp);
 template void Collector::sendTimed(uint32_t, std::string, std::chrono::time_point<std::chrono::system_clock>& timestamp);
 
-} // namespace Core
 } // namespace Monitoring
 } // namespace AliceO2

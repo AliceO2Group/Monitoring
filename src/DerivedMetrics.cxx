@@ -19,9 +19,6 @@ namespace AliceO2
 /// ALICE O2 Monitoring system
 namespace Monitoring 
 {
-/// Core features of ALICE O2 Monitoring system
-namespace Core 
-{
 
 DerivedMetrics::DerivedMetrics(const unsigned int cacheSize) : mMaxVectorSize(cacheSize) 
 {
@@ -95,7 +92,5 @@ Metric DerivedMetrics::processMetric(Metric& metric)
   }
 }
 
-} // namespace Core
 } // namespace Monitoring
 } // namespace AliceO2
-

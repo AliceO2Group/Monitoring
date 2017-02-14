@@ -1,12 +1,12 @@
 ///
-/// \file 2-UserDefinedEntity.cxx
+/// \file 2-TaggedMetrics.cxx
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 ///
 
 #include <iostream>
 #include "Monitoring/Collector.h"
 
-namespace Monitoring = AliceO2::Monitoring::Core;
+namespace Monitoring = AliceO2::Monitoring;
 using Monitoring::Metric;
 
 int main() {

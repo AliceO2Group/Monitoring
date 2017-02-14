@@ -14,9 +14,6 @@ namespace AliceO2
 /// ALICE O2 Monitoring system
 namespace Monitoring
 {
-/// Core features of ALICE O2 Monitoring system
-namespace Core
-{
 
 InfluxBackend::InfluxBackend(std::string url) : curlHandle(initCurl(url), &InfluxBackend::deleteCurl)
 {
@@ -108,7 +105,5 @@ inline unsigned long InfluxBackend::convertTimestamp(const std::chrono::time_poi
   ).count();
 }
 
-} // namespace Core
 } // namespace Monitoring
 } // namespace AliceO2
-

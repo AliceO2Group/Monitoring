@@ -15,9 +15,6 @@ namespace AliceO2
 /// ALICE O2 Monitoring system
 namespace Monitoring 
 {
-/// Core features of ALICE O2 Monitoring system
-namespace Core 
-{
 
 /// Backend pure virtual interface
 ///
@@ -39,7 +36,6 @@ class Backend
     virtual void addGlobalTag(std::string name, std::string value) = 0;
 };
 
-} // namespace Core
 } // namespace Monitoring
 } // namespace AliceO2
 

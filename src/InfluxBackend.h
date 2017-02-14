@@ -16,9 +16,6 @@ namespace AliceO2
 /// ALICE O2 Monitoring system
 namespace Monitoring
 {
-/// Core features of ALICE O2 Monitoring system
-namespace Core
-{
 
 /// Library backend that injects metrics to InfluxDB time-series databse
 ///
@@ -72,7 +69,6 @@ class InfluxBackend final : public Backend
 
 };
 
-} // namespace Core
 } // namespace Monitoring
 } // namespace AliceO2
 

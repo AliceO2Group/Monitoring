@@ -13,9 +13,6 @@ namespace AliceO2
 /// ALICE O2 Monitoring system
 namespace Monitoring 
 {
-/// Core features of ALICE O2 Monitoring system
-namespace Core
-{
 
 ApMonBackend::ApMonBackend(const std::string& configurationFile)
 {
@@ -80,6 +77,5 @@ void ApMonBackend::send(const Metric& metric)
   }
 }
 
-} // namespace Core
 } // namespace Monitoring
 } // namespace AliceO2

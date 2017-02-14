@@ -24,9 +24,6 @@ namespace AliceO2
 /// ALICE O2 Monitoring system
 namespace Monitoring 
 {
-/// Core features of ALICE O2 Monitoring system
-namespace Core 
-{
 /// Collects metrics and dispatches them to selected backends.
 ///
 /// Collects metrics (see Metric class) and pushes them through all selected backends (see Backend).
@@ -106,7 +103,6 @@ class Collector
     /// Sets default tags that are applied to all metrics: PID, proces name, hostname
     void setDefaultTags();
 };
-} // namespace Core
 } // namespace Monitoring
 } // namespace AliceO2
 

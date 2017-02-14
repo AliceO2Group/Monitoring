@@ -7,7 +7,7 @@
 #include <chrono>
 #include "Monitoring/Collector.h"
 
-namespace Monitoring = AliceO2::Monitoring::Core;
+namespace Monitoring = AliceO2::Monitoring;
 using Monitoring::Metric;
 
 int main() {
