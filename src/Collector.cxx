@@ -86,7 +86,6 @@ Collector::~Collector()
   if (mMonitorThread.joinable()) {
     mMonitorThread.join();
   }
-
 }
 
 void Collector::setDefaultTags()
@@ -101,11 +100,15 @@ void Collector::setDefaultTags()
 
 void Collector::processMonitorLoop(int interval)
 {
+  // loopCount - no need to wait full sleep time to terminame the thread
+  int loopCount = 0;
   while (mMonitorRunning) {
+    std::this_thread::sleep_for (std::chrono::milliseconds(interval*10));
+    if ((++loopCount % 100) != 0) continue;
     for (auto&& metric : mProcessMonitor->getPidsDetails()) {
       send(std::move(metric));
     }
-    std::this_thread::sleep_for (std::chrono::seconds(interval));
+    loopCount = 0;
   }
 }
 
