@@ -12,3 +12,6 @@ target_link_libraries(4-RateDerivedMetric DataCollector)
 
 add_executable(5-Benchmark 5-Benchmark.cxx)
 target_link_libraries(5-Benchmark DataCollector)
+
+add_executable(6-DedicatedInstance 6-DedicatedInstance.cxx)
+target_link_libraries(6-DedicatedInstance DataCollector)

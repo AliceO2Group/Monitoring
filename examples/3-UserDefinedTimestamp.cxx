@@ -3,9 +3,7 @@
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 ///
 
-#include <iostream>
-#include <chrono>
-#include "Monitoring/Collector.h"
+#include "Monitoring/MonitoringFactory.h"
 
 using Monitoring = AliceO2::Monitoring::MonitoringFactory;
 using AliceO2::Monitoring::Metric;

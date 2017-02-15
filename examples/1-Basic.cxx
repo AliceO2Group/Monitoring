@@ -17,8 +17,8 @@ int main() {
   // myMetric is the name of the metric
   //  
   // 1. by copying values
-  Monitoring::GetInstance().send(10, "myMetric");
+  Monitoring::Get().send(10, "myMetric");
   
   // 2. by creating and moving metric object
-  Monitoring::GetInstance().send({10, "myMetric"});
+  Monitoring::Get().send({10, "myMetric"});
 }	

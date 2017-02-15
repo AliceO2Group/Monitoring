@@ -27,7 +27,7 @@ void MonitoringFactory::Configure(const std::string& configPath)
   }
 }
 
-Collector& MonitoringFactory::GetInstance()
+Collector& MonitoringFactory::Get()
 {
   if (MonitoringFactory::configPath.empty()) {
     MonInfoLogger::Get() << InfoLogger::Severity::Fatal << "Monitoring hasn't been configured"

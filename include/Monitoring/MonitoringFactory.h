@@ -21,7 +21,7 @@ class MonitoringFactory
     MonitoringFactory & operator=(const MonitoringFactory&) = delete;
     MonitoringFactory(const MonitoringFactory&) = delete;
   
-    static Collector& GetInstance();
+    static Collector& Get();
     static void Configure(const std::string& configPath);
     static std::unique_ptr<Collector> Create(const std::string& configPath);
 

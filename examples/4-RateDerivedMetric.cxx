@@ -3,8 +3,7 @@
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 ///
 
-#include <iostream>
-#include "Monitoring/Collector.h"
+#include "Monitoring/MonitoringFactory.h"
 
 using Monitoring = AliceO2::Monitoring::MonitoringFactory;
 
@@ -13,7 +12,7 @@ int main() {
   Monitoring::Configure("file:///home/awegrzyn/hackathon/Monitoring/examples/SampleConfig.ini");
 
   // derived metric :  rate
-  Monitoring::Get().addDerivedMetric("myMetric", Monitoring::DerivedMetricMode::RATE);
+  Monitoring::Get().addDerivedMetric("myMetric", AliceO2::Monitoring::DerivedMetricMode::RATE);
 
   // now send at least two metrics to see the result
   Monitoring::Get().send(10, "myMetric");

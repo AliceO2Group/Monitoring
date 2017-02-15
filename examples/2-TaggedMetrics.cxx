@@ -18,8 +18,8 @@ int main() {
   // then vector of key-value tags
   //
   // 1. by copying value and name and moving tags
-  collector->sendTagged(10, "myMetric", {{"tag1", "value1"}, {"tag2", "value2"}});
+  Monitoring::Get().sendTagged(10, "myMetric", {{"tag1", "value1"}, {"tag2", "value2"}});
 
   // 2. by moving value, name and tags
-  collector->send(Metric{10, "myMetric"}.addTags({{"tag1", "value1"}, {"tag2", "value2"}}));
+  Monitoring::Get().send(Metric{10, "myMetric"}.addTags({{"tag1", "value1"}, {"tag2", "value2"}}));
 }

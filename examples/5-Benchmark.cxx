@@ -4,9 +4,7 @@
 ///
 
 #include <boost/program_options.hpp>
-#include <iostream>
-#include <string>
-#include "Monitoring/Collector.h"
+#include "Monitoring/MonitoringFactory.h"
 
 using Monitoring = AliceO2::Monitoring::MonitoringFactory;
 
