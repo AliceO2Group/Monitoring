@@ -41,7 +41,8 @@ class Collector
     /// Instantiates derived metrics processor (see DerivedMetrics class) and process monitor (see ProcessMonitor).
     /// \param configPath 	path to configuration
     Collector(const std::string& configPath);
-
+    static Collector& getInstance();
+    static void configure(const std::string& configPath);
     /// Joins process monitor thread if possible
     ~Collector();
 
@@ -80,6 +81,7 @@ class Collector
     void addDerivedMetric(std::string name, DerivedMetricMode mode);
 
   private:
+    static std::string configPath;
     /// Derived metrics handler
     /// \see class DerivedMetrics
     std::unique_ptr<DerivedMetrics> mDerivedHandler;
@@ -103,6 +105,7 @@ class Collector
     /// Sets default tags that are applied to all metrics: PID, proces name, hostname
     void setDefaultTags();
 };
+
 } // namespace Monitoring
 } // namespace AliceO2
 

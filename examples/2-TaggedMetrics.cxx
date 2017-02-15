@@ -3,17 +3,14 @@
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 ///
 
-#include <iostream>
-#include "Monitoring/Collector.h"
+#include "Monitoring/MonitoringFactory.h"
 
-namespace Monitoring = AliceO2::Monitoring;
-using Monitoring::Metric;
+using Monitoring = AliceO2::Monitoring::MonitoringFactory;
+using AliceO2::Monitoring::Metric;
 
 int main() {
-  // create monitoring object, pass configuration path as parameter
-  std::unique_ptr<Monitoring::Collector> collector(
-    new Monitoring::Collector("file:///home/awegrzyn/hackathon/Monitoring/examples/SampleConfig.ini")
-  );
+  // configure monitoring (only once per process), pass configuration path as parameter
+  Monitoring::Configure("file:///home/awegrzyn/hackathon/Monitoring/examples/SampleConfig.ini");
 
   // now send an application specific metric with additional tags
   // 10 is the value

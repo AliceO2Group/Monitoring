@@ -36,7 +36,6 @@ Collector::Collector(const std::string& configPath)
 {
   std::unique_ptr<Configuration::ConfigurationInterface> configFile =
 		  Configuration::ConfigurationFactory::getConfiguration(configPath);
-  std::cout << configPath << std::endl;
   if (configFile->get<int>("InfoLoggerBackend.enable") == 1) {
     mBackends.emplace_back(std::make_unique<InfoLoggerBackend>());
   }
@@ -69,7 +68,7 @@ Collector::Collector(const std::string& configPath)
     int interval = configFile->get<int>("ProcessMonitor.interval").value();
     mMonitorRunning = true;
     mMonitorThread = std::thread(&Collector::processMonitorLoop, this, interval);  
-    MonInfoLogger::Info() << "Process Monitor : Automatic updates enabled" << AliceO2::InfoLogger::InfoLogger::endm;
+    MonInfoLogger::Get() << "Process Monitor : Automatic updates enabled" << AliceO2::InfoLogger::InfoLogger::endm;
   }
 
   mDerivedHandler = std::make_unique<DerivedMetrics>(configFile->get<int>("DerivedMetrics.maxCacheSize").value());
@@ -152,7 +151,6 @@ template void Collector::sendTagged(int, std::string, std::vector<Tag>&& tags);
 template void Collector::sendTagged(double, std::string, std::vector<Tag>&& tags);
 template void Collector::sendTagged(std::string, std::string, std::vector<Tag>&& tags);
 template void Collector::sendTagged(uint32_t, std::string, std::vector<Tag>&& tags);
-
 
 template void Collector::sendTimed(int, std::string, std::chrono::time_point<std::chrono::system_clock>& timestamp);
 template void Collector::sendTimed(double, std::string, std::chrono::time_point<std::chrono::system_clock>& timestamp);

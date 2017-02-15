@@ -8,6 +8,7 @@ set(LIB_HEADERS
   ../include/Monitoring/Metric.h
   ../include/Monitoring/DerivedMetrics.h
   ../include/Monitoring/ProcessMonitor.h
+  ../include/Monitoring/MonitoringFactory.h
 )
 
 set(LIB_SOURCES
@@ -19,6 +20,7 @@ set(LIB_SOURCES
   ProcessMonitor.cxx
   InfluxBackendUDP.cxx
   ProcessDetails.cxx
+  MonitoringFactory.cxx
 )
 
 if(APMON_FOUND)

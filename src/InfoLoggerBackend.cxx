@@ -14,6 +14,8 @@ namespace AliceO2
 namespace Monitoring
 {
 
+using AliceO2::InfoLogger::InfoLogger;
+
 inline unsigned long InfoLoggerBackend::convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp)
 {
   return std::chrono::duration_cast <std::chrono::milliseconds>(
@@ -23,7 +25,7 @@ inline unsigned long InfoLoggerBackend::convertTimestamp(const std::chrono::time
 
 InfoLoggerBackend::InfoLoggerBackend()
 {
-  MonInfoLogger::Info() << "InfoLogger backend initialized" << AliceO2::InfoLogger::InfoLogger::endm;
+  MonInfoLogger::Get() << "InfoLogger backend initialized" << InfoLogger::endm;
 }
 
 void InfoLoggerBackend::addGlobalTag(std::string name, std::string value)
@@ -43,9 +45,10 @@ void InfoLoggerBackend::send(const Metric& metric)
     }
     metricTags += tag.name + "=" + tag.value;
   }
-  MonInfoLogger::Debug() << "InfoLoggerMonitoring : " << metric.getName() << ", " << metric.getValue() << " Type: " << metric.getType() << ", " 
-                               << convertTimestamp(metric.getTimestamp()) << ", " << tagString << " " << metricTags
-                               << AliceO2::InfoLogger::InfoLogger::endm;
+  MonInfoLogger::Get() << InfoLogger::Severity::Debug << "InfoLoggerMonitoring : " << metric.getName() << ", "
+                       << metric.getValue() << " Type: " << metric.getType() << ", " 
+                       << convertTimestamp(metric.getTimestamp()) << ", " << tagString << " " << metricTags
+                       << InfoLogger::endm;
 }
 
 } // namespace Monitoring

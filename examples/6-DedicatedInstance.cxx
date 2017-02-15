@@ -1,5 +1,5 @@
-///
-/// \file 1-Basic.cxx
+//
+/// \file 6-DedicatedInstance.cxx
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 ///
 
@@ -9,16 +9,16 @@ using Monitoring = AliceO2::Monitoring::MonitoringFactory;
 
 int main() {
   
-  // configure monitoring (once per process), pass configuration path as parameter
-  Monitoring::Configure("file:///home/awegrzyn/hackathon/Monitoring/examples/SampleConfig.ini");
+  // create dedicated monitoring instance, pass confuguration path as parameter
+  auto collector = Monitoring::Create("file:///home/awegrzyn/hackathon/Monitoring/examples/SampleConfig.ini");
 
   // now send an application specific metric
   // 10 is the value
   // myMetric is the name of the metric
   //  
   // 1. by copying values
-  Monitoring::GetInstance().send(10, "myMetric");
+  collector->send(10, "myMetric");
   
   // 2. by creating and moving metric object
-  Monitoring::GetInstance().send({10, "myMetric"});
+  collector->send({10, "myMetric"});
 }	

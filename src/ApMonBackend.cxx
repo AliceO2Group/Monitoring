@@ -14,18 +14,19 @@ namespace AliceO2
 namespace Monitoring 
 {
 
+using AliceO2::InfoLogger::InfoLogger;
+
 ApMonBackend::ApMonBackend(const std::string& configurationFile)
 {
   try {
     mApMon = std::make_unique<ApMon>(const_cast<char*>(configurationFile.c_str()));
     ApMon::setLogLevel("FATAL");
+    MonInfoLogger::Get() << "ApMon backend initialized" << InfoLogger::endm;
   } 
   catch (...) {
-    MonInfoLogger::Warning() << "Could not open ApMon configuration file: " << configurationFile
-                                 << AliceO2::InfoLogger::InfoLogger::endm;
-    return;
+    MonInfoLogger::Get() << InfoLogger::Severity::Warning << "Could not open ApMon configuration file: "
+                         << configurationFile << InfoLogger::endm;
   }
-  MonInfoLogger::Info() << "ApMon backend initialized" << AliceO2::InfoLogger::InfoLogger::endm;
 }
 
 inline int ApMonBackend::convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp)

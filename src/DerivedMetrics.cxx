@@ -27,7 +27,7 @@ DerivedMetrics::DerivedMetrics(const unsigned int cacheSize) : mMaxVectorSize(ca
 void DerivedMetrics::registerMetric(std::string name, DerivedMetricMode mode)
 {
   mRegistered.emplace(std::pair<std::string, DerivedMetricMode>(name, mode));
-  MonInfoLogger::Info() << "Monitoring : Metric " << name << " added to derived metrics" 
+  MonInfoLogger::Get() << "Monitoring : Metric " << name << " added to derived metrics" 
                                << AliceO2::InfoLogger::InfoLogger::endm;
 }
 

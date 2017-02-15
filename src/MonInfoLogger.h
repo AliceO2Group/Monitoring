@@ -25,29 +25,9 @@ using namespace AliceO2::InfoLogger;
 class MonInfoLogger : public AliceO2::InfoLogger::InfoLogger
 {
   public:
-    static MonInfoLogger &Debug()
+    static MonInfoLogger &Get()
     {
       static MonInfoLogger infoLoggerInstance;
-      infoLoggerInstance << InfoLogger::Severity::Debug;
-      return infoLoggerInstance;
-    }
-
-    static MonInfoLogger &Info()
-    {
-      static MonInfoLogger infoLoggerInstance;
-      infoLoggerInstance << InfoLogger::Severity::Info;
-      return infoLoggerInstance;
-    }
-    static MonInfoLogger &Error()
-    {
-      static MonInfoLogger infoLoggerInstance;
-      infoLoggerInstance << InfoLogger::Severity::Error;
-      return infoLoggerInstance;
-    }
-    static MonInfoLogger &Warning()
-    {
-      static MonInfoLogger infoLoggerInstance;
-      infoLoggerInstance << InfoLogger::Severity::Warning;
       return infoLoggerInstance;
     }
 

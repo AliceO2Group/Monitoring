@@ -15,9 +15,11 @@ namespace AliceO2
 namespace Monitoring
 {
 
+using AliceO2::InfoLogger::InfoLogger;
+
 InfluxBackend::InfluxBackend(std::string url) : curlHandle(initCurl(url), &InfluxBackend::deleteCurl)
 {
-  MonInfoLogger::Info() << "InfluxDB backend enabled: " << url  << AliceO2::InfoLogger::InfoLogger::endm;
+  MonInfoLogger::Get() << "InfluxDB backend enabled: " << url  << InfoLogger::endm;
 }
 
 CURL* InfluxBackend::initCurl(std::string url)
@@ -86,16 +88,14 @@ void InfluxBackend::curlWrite(std::string&& post)
   response = curl_easy_perform(curlHandle.get());
   curl_easy_getinfo(curlHandle.get(), CURLINFO_RESPONSE_CODE, &responseCode);
   if (response != CURLE_OK) {
-    MonInfoLogger::Warning() << "!!! InfluxDB : cURL error : " << (curl_easy_strerror(response)) 
-                                 << AliceO2::InfoLogger::InfoLogger::endm;
-    return;
+    MonInfoLogger::Get() << InfoLogger::Severity::Warning << "!!! InfluxDB : cURL error : "
+                         << (curl_easy_strerror(response)) << InfoLogger::endm;
   }
   if (responseCode != 204) {
-    MonInfoLogger::Warning() << "!!! InfluxDB : cURL response code " + std::to_string(responseCode) 
-                                 << AliceO2::InfoLogger::InfoLogger::endm;
-    return;
+    MonInfoLogger::Get() << InfoLogger::Severity::Warning
+                         <<   "!!! InfluxDB : cURL response code " + std::to_string(responseCode) 
+                         << AliceO2::InfoLogger::InfoLogger::endm;
   }
-  return;
 }
 
 inline unsigned long InfluxBackend::convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp)

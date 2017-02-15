@@ -8,7 +8,7 @@
 #include <string>
 #include "Monitoring/Collector.h"
 
-namespace Monitoring = AliceO2::Monitoring;
+using Monitoring = AliceO2::Monitoring::MonitoringFactory;
 
 int main(int argc, char *argv[]) {
   int sleep = 1000000;
@@ -44,13 +44,11 @@ int main(int argc, char *argv[]) {
     config = vm["config"].as<std::string>();
   }
   
-  // create monitoring object, pass confuguration path as parameter
-  std::unique_ptr<Monitoring::Collector> collector(
-    new Monitoring::Collector("file:///home/awegrzyn/hackathon/Monitoring/examples/" + config)
-  );
+  // configure monitoring (only once per process), pass configuration path as parameter
+  Monitoring::Configure("file:///home/awegrzyn/hackathon/Monitoring/examples/SampleConfig.ini");
 
   for (; i > 0; i--) {
-    collector->send(10, metric);
+    Monitoring::Get().send(10, metric);
     std::this_thread::sleep_for(std::chrono::microseconds(sleep));
   }
 }	
