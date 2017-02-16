@@ -21,12 +21,15 @@ namespace Monitoring
 namespace Transports
 {
 
-
+/// HTTP POST transport for Monitoring backends
+///
+/// Allows to push string formatted metrics as HTTP POST requests via cURL
 class HTTP : public TransportInterface
 {
   public:
     /// Constructor
-    HTTP(const std::string& hostname, int port, const std::string& database);
+    /// \param url    URL of HTTP server endpoint
+    HTTP(const std::string& url);
 
     /// Default destructor
     ~HTTP() = default;

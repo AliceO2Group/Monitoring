@@ -17,6 +17,10 @@ namespace Monitoring
 namespace Transports
 {
 
+/// Transport interface for backends
+///
+/// Represents transport protocol for backends that already formatted metrcis can be sent by
+/// Eg. TCP, UDP or HTTP
 class TransportInterface
 {
   public:
@@ -24,8 +28,8 @@ class TransportInterface
 
     virtual ~TransportInterface() = default;
 
-    /// Sends metric in InfluxDB Line Protocol format via UDP
-    /// \param lineMessage   metrc in Influx Line Protocol format
+    /// Sends metric via given transport
+    /// \param message   r-value to string formatted metric
     virtual void send(std::string&& message) = 0;
 };
 

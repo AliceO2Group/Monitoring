@@ -17,8 +17,8 @@ namespace Monitoring
 namespace Transports
 {
 
-HTTP::HTTP(const std::string& hostname, int port, const std::string& database) :
-  curlHandle(initCurl("http://" + hostname + ":" + std::to_string(port) + "/write?db=" + database), &HTTP::deleteCurl)
+HTTP::HTTP(const std::string& url) :
+  curlHandle(initCurl(url), &HTTP::deleteCurl)
 {
 }
 
