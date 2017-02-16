@@ -52,6 +52,11 @@ void InfluxDB::escape(std::string& escaped)
 
 void InfluxDB::send(const Metric& metric)
 {
+  std::string metricTags{};
+  for (const auto& tag : metric.getTags()) {
+    metricTags += "," + tag.name + "=" + tag.value;
+  }
+
   std::string value = boost::lexical_cast<std::string>(metric.getValue());
   if (metric.getType() == MetricType::STRING) {
     escape(value);
@@ -62,7 +67,7 @@ void InfluxDB::send(const Metric& metric)
   escape(name);
 
   std::stringstream convert;
-  convert << name << "," << tagSet << " value=" << value << " " << convertTimestamp(metric.getTimestamp());
+  convert << name << "," << tagSet << metricTags << " value=" << value << " " << convertTimestamp(metric.getTimestamp());
   
   try {
     transport->send(convert.str());

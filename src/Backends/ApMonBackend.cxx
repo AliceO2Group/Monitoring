@@ -47,6 +47,11 @@ void ApMonBackend::addGlobalTag(std::string name, std::string value)
 
 void ApMonBackend::send(const Metric& metric)
 {
+  std::string name = metric.getName();
+  for (const auto& tag : metric.getTags()) {
+    name += "," + tag.name + "=" + tag.value;
+  } 
+ 
   switch(metric.getType()) {
     case MetricType::INT :
     {

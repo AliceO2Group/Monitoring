@@ -39,9 +39,9 @@ Collector::Collector(const std::string& configPath)
     mBackends.emplace_back(std::make_unique<Backends::InfoLoggerBackend>());
   }
 #ifdef _WITH_APPMON
-  if (configFile->get<int>("AppMon.enable") == 1) {
+  if (configFile->get<int>("ApMon.enable") == 1) {
     mBackends.emplace_back(std::make_unique<Backends::ApMonBackend>(
-      configFile->get<string>("AppMon.pathToConfig").value()
+      configFile->get<string>("ApMon.pathToConfig").value()
     ));
   }
 #endif
