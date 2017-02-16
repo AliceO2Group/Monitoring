@@ -5,7 +5,7 @@ Monitoring module allows to:
 + monitor process itself (cpu / memory)
 
 ## Metrics
-Metrics consist of 4 parameters: name, value, timestamp and tags
+Metrics consist of 4 parameters: name, value, timestamp and tags.I
 
 | Parameter name | Type                                          | Required | Default          |
 | -------------- |:---------------------------------------------:|:--------:| ----------------:|
@@ -14,10 +14,27 @@ Metrics consist of 4 parameters: name, value, timestamp and tags
 | timestamp      | chrono::time_point&lt;std::chrono::system_clock&gt; | no       | current timestamp     |
 | tags           | vector<Tag>                                   | no       | -**                |
 
-**There's default tag set specified per each process that is added to each metric:
+**Default tag set is generated per process that attached to each sent metric:
 + hostname
 + PID
 + process name
+
+See how backends are handling tags in  *Monitoring backends* section.
+
+## Creating monitring instance
+The most recommended way of getting (reference to) monitoring instance is via *MonitoringFactory*.
+Before using the factory Configure method must be call providing path to cofiguration file/backend. It should be called only once per process (following calls will not have any effect).
+```cpp
+AliceO2::Monitoring::MonitoringFactory::Configure("file://../Monitoring/examples/SampleConfig.ini");
+AliceO2::Monitoring::MonitoringFactory::Get();
+```
+
+The second way is getting dedicated instance. It should be used only when different configuration path needs to be passed within the same process.
+```cpp
+Monitoring::Create("file://../Monitoring/examples/SampleConfig.ini");
+```
+
+See *Getting started* before writting any code.
 
 ## Sending metric
 Metric can be sent by one of following ways:
@@ -28,14 +45,15 @@ Metric can be sent by one of following ways:
    + *sendTagged(T value, std::string name, std::vector&lt;Tag&gt;&& tags)*
    + *sendTimed(T value, std::string name, std::chrono::time_point&lt;std::chrono::system_clock&gt;& timestamp)*
 
-See Getting Started section to learn usage.
+See *Getting started* section to learn usage.
 
 ## Derived metrics
-Dderived metrics can be calculated by the library. To use this functionality register metric name -  *void DerivedMetrics::registerMetric(std::string name, DerivedMetricMode mode)* - using one of two available modes:
-+ *DerivedMetricMode::RATE* - rate between two following metric;
-+ *DerivedMetricMode::AVERAGE* - average values of all stored in library cache;
+Library can calculate Derived metrics - use  *void addDerivedMetric(std::string name, DerivedMetricMode mode)* with one of two available modes:
++ *DerivedMetricMode::RATE* - rate between two following metrics;
++ *DerivedMetricMode::AVERAGE* - average value of all metrics stored in cache;
 
-Each time new a metric arrives with the already registered name derived metric will be calculated. The derived metric will have suffix added to its name.
+Derived metrics are generated as new value arrives. 
+Derived metric will have suffix added to its name.
 
 ## Processes monitoring
 To enable process monitoring *ProcessMonitor.enable* flag in configuration file must be set to 1 (see section Configuration file).
@@ -47,11 +65,11 @@ The following metrics are generated every N seconds (N can be specified in the c
 ## Monitoring backends
 Metrics are pushed to one or multiple backends. The library currently supports three backends - see table below.
 
-| Backend name     | Description                                                 | Client-side requirements
-| ---------------- |:-----------------------------------------------------------:| ----------------------------:|
-| InfluxDB         | pushes metrics using cURL to InfluxDB time series database  | cURL    |
-| ApMon (MonALISA) | pushes metrics via UDP to MonALISA Serivce                  | ApMon   |
-| InfoLogger       | O2 Logging module                                           | none    |
+| Backend name     | Description                    | Transport                    | Client-side requirements   | Handling tags  |
+| ---------------- |:------------------------------:|:----------------------------:|:--------------------------:| --------------:|
+| InfluxDB         | InfluxDB time series database  | HTTP / UDP                   | cURL / boost asio          | Supported by the backend |
+| ApMonBackend     | MonALISA Serivce               | UDP                          | ApMon                      | Default tags concatenated with entity; Metric tags concatenated with name |
+| InfoLoggerBackned| O2 Logging module              | -                            | -                          | Displayed in the end |
 
 Instruction how to install and configure server-sides backends are available in "Server-side backend installation and configuration" chapter.
 
