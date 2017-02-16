@@ -3,8 +3,8 @@
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 ///
 
-#ifndef ALICEO2_MONITORING_CORE_APMON_BACKEND_H
-#define ALICEO2_MONITORING_CORE_APMON_BACKEND_H
+#ifndef ALICEO2_MONITORING_BACKENDS_APMONBACKEND_H
+#define ALICEO2_MONITORING_BACKENDS_APMONBACKEND_H
 
 #include <string>
 #include <chrono>
@@ -17,25 +17,28 @@ namespace AliceO2
 /// ALICE O2 Monitoring system
 namespace Monitoring
 {
+/// Monitoring backends
+namespace Backends
+{
 
 /// \brief Backend that uses AppMon (MonALISA)
 ///
-/// Uses ApMon library to push metric to MonALISA Service.
-/// ApMon accepts timestamps as integers, therefore cast is needed (see method #convertTimestamp)
+/// Uses ApMonBackend library to push metric to MonALISA Service.
+/// ApMonBackend accepts timestamps as integers, therefore cast is needed (see method #convertTimestamp)
 ///
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 class ApMonBackend final : public Backend
 {
   public:
     /// Constructs AppMon backend
-    /// \param configurationFile 	filepath to ApMon configuration file
+    /// \param configurationFile 	filepath to ApMonBackend configuration file
     ApMonBackend(const std::string& configurationFile);
 
     /// Default destructor
     ~ApMonBackend() = default;
 
     /// Sends metric via MonALISA
-    /// ApMon's intances is type-aware therefore cast of metric value is needed
+    /// ApMonBackend's intances is type-aware therefore cast of metric value is needed
     /// \param metric           reference to metric object:
     void send(const Metric& metric) override;
 
@@ -44,7 +47,7 @@ class ApMonBackend final : public Backend
     /// \param value            tag value that is concatenated to entity string
     void addGlobalTag(std::string name, std::string value) override;
   private:
-    /// Converts timestamp to format supported by ApMon
+    /// Converts timestamp to format supported by ApMonBackend
     /// \param timestamp 	timestamp in std::chrono::time_point format
     /// \return 		timestamp as integer (milliseconds from epoch)
     int convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp);
@@ -53,7 +56,8 @@ class ApMonBackend final : public Backend
     std::string entity; ///< MonALISA entity, created out of global tags
 };
 
+} // namespace Backends
 } // namespace Monitoring
 } // namespace AliceO2
 
-#endif // ALICEO2_MONITORING_CORE_STDOUT_BACKEND_H
+#endif // ALICEO2_MONITORING_BACKENDS_APMONBACKEND_H

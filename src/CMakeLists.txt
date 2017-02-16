@@ -14,25 +14,25 @@ set(LIB_HEADERS
 set(LIB_SOURCES
   Collector.cxx
   Metric.cxx
-  InfoLoggerBackend.cxx
-  InfluxBackend.cxx
+  Backends/InfoLoggerBackend.cxx
   DerivedMetrics.cxx
   ProcessMonitor.cxx
-  InfluxBackendUDP.cxx
   ProcessDetails.cxx
   MonitoringFactory.cxx
+  Transports/UDP.cxx
+  Transports/HTTP.cxx
 )
 
 if(APMON_FOUND)
 	message(STATUS "  Adding ApMon backend classes...")
-	list(APPEND LIB_SOURCES ApMonBackend.cxx)
+	list(APPEND LIB_SOURCES Backends/ApMonBackend.cxx)
 endif()
 FIND_PACKAGE(CURL)
 if(CURL_FOUND)
         message(STATUS "libcurl found")
 	message(STATUS "  Compiling InfluxDB Backend")
 	add_definitions(-D_WITH_INFLUX)
-        list(APPEND LIB_SOURCES InfluxBackend.cxx)
+        list(APPEND LIB_SOURCES Backends/InfluxDB.cxx)
 endif()
 
 

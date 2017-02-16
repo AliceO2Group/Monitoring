@@ -11,7 +11,6 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include "InfoLoggerBackend.h"
 #include "MonInfoLogger.h"
 
 namespace AliceO2

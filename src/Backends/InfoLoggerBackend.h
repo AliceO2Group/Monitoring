@@ -14,6 +14,9 @@ namespace AliceO2
 /// ALICE O2 Monitoring system
 namespace Monitoring
 {
+/// Monitoring backends
+namespace Backends
+{
 
 /// Backend that injects metrics to InfoLogger
 ///
@@ -45,6 +48,7 @@ class InfoLoggerBackend final : public Backend
     std::string tagString; ///< Global tagset (common for each metric)
 };
 
+} // namespace Backends
 } // namespace Monitoring
 } // namespace AliceO2
 

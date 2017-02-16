@@ -32,11 +32,8 @@ class MonInfoLogger : public AliceO2::InfoLogger::InfoLogger
     }
 
   private:
-    MonInfoLogger()
-    {
-      *this << "InfoLogger instance for Monitoring initialized" << InfoLogger::endm;
-    }
-
+    MonInfoLogger() = default;
+    
     /// Delete copy and move constructors
     MonInfoLogger &operator=(const MonInfoLogger &) = delete;
     MonInfoLogger(const MonInfoLogger &) = delete;

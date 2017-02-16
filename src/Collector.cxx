@@ -14,16 +14,15 @@
 #include <Configuration/ConfigurationFactory.h>
 
 #include "MonInfoLogger.h"
-#include "InfoLoggerBackend.h"
-#include "InfluxBackendUDP.h"
 #include "ProcessDetails.h"
+#include "Backends/InfoLoggerBackend.h"
 
 #ifdef _WITH_APPMON
-#include "ApMonBackend.h"
+#include "Backends/ApMonBackend.h"
 #endif
 
 #ifdef _WITH_INFLUX
-#include "InfluxBackend.h"
+#include "Backends/InfluxDB.h"
 #endif
 
 namespace AliceO2 
@@ -37,31 +36,31 @@ Collector::Collector(const std::string& configPath)
   std::unique_ptr<Configuration::ConfigurationInterface> configFile =
 		  Configuration::ConfigurationFactory::getConfiguration(configPath);
   if (configFile->get<int>("InfoLoggerBackend.enable") == 1) {
-    mBackends.emplace_back(std::make_unique<InfoLoggerBackend>());
+    mBackends.emplace_back(std::make_unique<Backends::InfoLoggerBackend>());
   }
 #ifdef _WITH_APPMON
   if (configFile->get<int>("AppMon.enable") == 1) {
-    mBackends.emplace_back(std::make_unique<ApMonBackend>(
+    mBackends.emplace_back(std::make_unique<Backends::ApMonBackend>(
       configFile->get<string>("AppMon.pathToConfig").value()
     ));
   }
 #endif
 
 #ifdef _WITH_INFLUX
-  if (configFile->get<int>("InfluxDB.enable") == 1) {
-    std::string url = configFile->get<std::string>("InfluxDB.hostname").value() + ":" 
-	            + configFile->get<std::string>("InfluxDB.port").value()
-                    + "/write?db=" + configFile->get<std::string>("InfluxDB.db").value();
-    mBackends.emplace_back(std::make_unique<InfluxBackend>(url));
-  }
-#endif
-
-  if (configFile->get<int>("InfluxDBUDP.enable") == 1) {
-    mBackends.emplace_back(std::make_unique<InfluxBackendUDP>(
-      configFile->get<std::string>("InfluxDBUDP.hostname").value(), 
-      configFile->get<int>("InfluxDBUDP.port").value()
+  if (configFile->get<int>("InfluxDB.enableUDP") == 1) {
+    mBackends.emplace_back(std::make_unique<Backends::InfluxDB>(
+      configFile->get<std::string>("InfluxDB.hostname").value(), 
+      configFile->get<int>("InfluxDB.port").value()
+    ));
+ }
+ if (configFile->get<int>("InfluxDB.enableHTTP") == 1) {
+    mBackends.emplace_back(std::make_unique<Backends::InfluxDB>(
+      configFile->get<std::string>("InfluxDB.hostname").value(),
+      configFile->get<int>("InfluxDB.port").value(),
+      configFile->get<std::string>("InfluxDB.db").value()
     ));
   }
+#endif
   
   mProcessMonitor = std::make_unique<ProcessMonitor>();
   if (configFile->get<int>("ProcessMonitor.enable") == 1) {
@@ -70,7 +69,7 @@ Collector::Collector(const std::string& configPath)
     mMonitorThread = std::thread(&Collector::processMonitorLoop, this, interval);  
     MonInfoLogger::Get() << "Process Monitor : Automatic updates enabled" << AliceO2::InfoLogger::InfoLogger::endm;
   }
-
+ 
   mDerivedHandler = std::make_unique<DerivedMetrics>(configFile->get<int>("DerivedMetrics.maxCacheSize").value());
 
   setDefaultTags();

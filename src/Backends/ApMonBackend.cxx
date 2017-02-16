@@ -6,12 +6,15 @@
 #include "ApMonBackend.h"
 #include <iostream>
 #include <sstream>
-#include "MonInfoLogger.h"
+#include "../MonInfoLogger.h"
 
 namespace AliceO2
 {
 /// ALICE O2 Monitoring system
 namespace Monitoring 
+{
+/// Monitoring backends
+namespace Backends
 {
 
 using AliceO2::InfoLogger::InfoLogger;
@@ -78,5 +81,6 @@ void ApMonBackend::send(const Metric& metric)
   }
 }
 
+} // namespace Backends
 } // namespace Monitoring
 } // namespace AliceO2
