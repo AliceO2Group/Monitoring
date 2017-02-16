@@ -25,32 +25,38 @@ namespace Monitoring
 namespace Backends
 {
 
-/// Backend that injects metrics to InfluxDB time-series databse over UDP
+/// Backend that sends metrics to InfluxDB time-series databse
 ///
-/// Metrics are converted into Influx Line protocol and then sent 
-/// via UDP using  boost asio library
+/// Metrics are converted into Influx Line protocol and then sent via one of available transports
 class InfluxDB final : public Backend
 {
   public:
-    /// Constructor
+    /// Constructor, uses UDP transport
+    /// \param hostname  InfluxDB UDP endpoint hostname
+    /// \param port      InfluxDB UDP endpoint port number
     InfluxDB(const std::string &hostname, int port);
+
+    /// Constructor, uses HTTP trasnport
+    /// \param hostname  InfluxDB HTTP endpoint hostanme
+    /// \param port      InfluxDB HTTP endpoint port number
+    /// \param database  InfluxDB database name
     InfluxDB(const std::string &hostname, int port, const std::string& database);
 
     /// Default destructor
     ~InfluxDB() = default;
 
     /// Convert timestamp to unsigned long as required by InfluxDB
-    /// \param 		chrono time_point timestamp
-    /// \return  	timestamp in nanoseconds
+    /// \param 		 chrono time_point timestamp
+    /// \return  	 timestamp in nanoseconds
     inline unsigned long convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp);
 
-    /// Sends metric to InfluxDB
-    //    /// \param metric           reference to metric object
+    /// Sends metric to InfluxDB instance via one transport
+    /// \param metric    reference to metric object
     void send(const Metric& metric) override;
 
     /// Adds tag
-    /// \param name         tag name
-    /// \param value        tag value
+    /// \param name      tag name
+    /// \param value     tag value
     void addGlobalTag(std::string name, std::string value) override;
   
   private:
@@ -58,7 +64,7 @@ class InfluxDB final : public Backend
     std::string tagSet; ///< Global tagset (common for each metric)
 
     /// Escapes " ", "," and "=" characters
-    /// \param escaped      string rerference to escape characters from
+    /// \param escaped   string rerference to escape characters from
     void escape(std::string& escaped);
 };
 

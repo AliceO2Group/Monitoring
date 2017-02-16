@@ -20,13 +20,26 @@ class MonitoringFactory
     /// Disables copy constructor
     MonitoringFactory & operator=(const MonitoringFactory&) = delete;
     MonitoringFactory(const MonitoringFactory&) = delete;
-  
+
+    /// Provide single instance on Monitoring Collector (singleton)
+    /// \return              renerence to Collector instance
     static Collector& Get();
+
+    /// Confugurates Monitoring module
+    /// This method should be invoked only once per process (following calls with be ommited)
+    /// \param configPath    configuration path
     static void Configure(const std::string& configPath);
+
+    /// Creates dedicated instance of Monitoring Collector
+    /// \param configPath    configuration path
+    /// \return              smart pointer to Collector instance
     static std::unique_ptr<Collector> Create(const std::string& configPath);
 
   private:
+    /// Stores cofiguration path
     static std::string configPath;
+
+    /// Private constructor disallows to create instance of Factory
     MonitoringFactory() = default;
 };
 

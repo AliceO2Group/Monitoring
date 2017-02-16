@@ -28,14 +28,14 @@ class HTTP : public TransportInterface
 {
   public:
     /// Constructor
-    /// \param url    URL of HTTP server endpoint
+    /// \param url          URL of HTTP server endpoint
     HTTP(const std::string& url);
 
     /// Default destructor
     ~HTTP() = default;
 
-    /// Sends metric to InfluxDB
-    /// \param metric           reference to metric object	
+    /// Sends metric via HTTP POST
+    /// \param metric       r-value reference string formatted metric
     void send(std::string&& post) throw(std::runtime_error);
     
   private:

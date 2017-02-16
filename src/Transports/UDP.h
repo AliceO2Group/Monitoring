@@ -22,21 +22,21 @@ namespace Monitoring
 /// Monitoring transports
 namespace Transports
 {
-/// Backend that injects metrics to InfluxDB time-series databse over UDP
-///
-/// Metrics are converted into Influx Line protocol and then sent 
-/// via UDP using  boost asio library
+
+/// Transport that sends string formatted metrics via UDP
 class UDP : public TransportInterface
 {
   public:
     /// Constructor
+    /// \param hostname      InfluxDB instance hostname
+    //  \param port          InfluxDB instance port number
     UDP(const std::string &hostname, int port);
 
     /// Default destructor
     ~UDP() = default;
  
-    /// Sends metric in InfluxDB Line Protocol format via UDP
-    /// \param lineMessage   metrc in Influx Line Protocol format
+    /// Sends metric via UDP
+    /// \param lineMessage   r-value string formated
     void send(std::string&& message) override;   
 
   private:

@@ -24,12 +24,13 @@ namespace AliceO2
 /// ALICE O2 Monitoring system
 namespace Monitoring 
 {
-/// Collects metrics and dispatches them to selected backends.
+
+/// Collects metrics and dispatches them to selected backends. Monitors process itself.
 ///
-/// Collects metrics (see Metric class) and pushes them through all selected backends (see Backend).
+/// Collects user-defined metrics (see Metric class) and pushes them through all selected backends (see Backend).
 /// Supports feature of calculating derived metrics, such as rate and average value (see #addDerivedMetric method).
 /// Adds default tags to each metric: PID, proces name, hostname.
-/// Monitors the process itself - including memory and cpu usage and running time (see ProcessMonitor).
+/// Monitors the process itself - including memory, cpu usage and running time (see ProcessMonitor).
 class Collector
 {
   public:
@@ -41,8 +42,7 @@ class Collector
     /// Instantiates derived metrics processor (see DerivedMetrics class) and process monitor (see ProcessMonitor).
     /// \param configPath 	path to configuration
     Collector(const std::string& configPath);
-    static Collector& getInstance();
-    static void configure(const std::string& configPath);
+    
     /// Joins process monitor thread if possible
     ~Collector();
 
