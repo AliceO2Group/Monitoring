@@ -44,11 +44,7 @@ Metric::Metric(double value, const std::string& name, std::chrono::time_point<st
   mValue(value), mName(name), mTimestamp(timestamp)
 {}
 
-Metric::Metric(uint32_t value, const std::string& name, std::chrono::time_point<std::chrono::system_clock> timestamp) :
-  mValue(value), mName(name), mTimestamp(timestamp)
-{}
-
-boost::variant< int, std::string, double, uint32_t > Metric::getValue() const
+boost::variant< int, std::string, double > Metric::getValue() const
 {
   return mValue;
 }

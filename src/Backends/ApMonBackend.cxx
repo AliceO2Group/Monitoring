@@ -76,13 +76,6 @@ void ApMonBackend::send(const Metric& metric)
         const_cast<char*>(metric.getName().c_str()), XDR_REAL64, reinterpret_cast<char*>(&value), convertTimestamp(metric.getTimestamp()));
     }
     break;
-  
-    case MetricType::UINT32_T :
-    {  
-      uint32_t value = boost::get<uint32_t>(metric.getValue());
-      mApMon->sendTimedParameter(const_cast<char*>(entity.c_str()), const_cast<char*>(entity.c_str()),
-        const_cast<char*>(metric.getName().c_str()), XDR_INT32, reinterpret_cast<char*>(&value), convertTimestamp(metric.getTimestamp()));
-    }
   }
 }
 
