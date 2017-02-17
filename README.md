@@ -173,7 +173,7 @@ Monitoring::Get().send(30, "myMetric");
 Monitoring::Get().send(50, "myMetric");
 ```
 
-### Dedicated monitoring intance
+### Dedicated monitoring instance - examples/6-DedicatedInstance.cxx
 ```cpp
 // create dedicated monitoring instance, pass confuguration path as parameter
 auto collector = Monitoring::Create("file:///home/awegrzyn/hackathon/Monitoring/examples/SampleConfig.ini");
