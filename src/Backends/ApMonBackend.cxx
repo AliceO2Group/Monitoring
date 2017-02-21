@@ -23,7 +23,6 @@ ApMonBackend::ApMonBackend(const std::string& configurationFile)
 {
   try {
     mApMon = std::make_unique<ApMon>(const_cast<char*>(configurationFile.c_str()));
-    ApMon::setLogLevel("FATAL");
     MonInfoLogger::Get() << "ApMon backend initialized" << InfoLogger::endm;
   } 
   catch (...) {
