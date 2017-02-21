@@ -8,8 +8,6 @@
 #include <iostream>
 #include <chrono>
 #include <memory>
-#include <vector>
-
 
 namespace AliceO2
 {

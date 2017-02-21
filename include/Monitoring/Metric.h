@@ -8,6 +8,7 @@
 
 #include <string>
 #include <chrono>
+#include <vector>
 #include <boost/variant.hpp>
 #include "../src/Tag.h"
 
