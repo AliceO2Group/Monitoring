@@ -38,7 +38,8 @@ Flume::~Flume()
 void Flume::dispatchLoop()
 {
   while (mThreadRunning) {
-    std::this_thread::sleep_for (std::chrono::milliseconds(250));
+    std::this_thread::sleep_for (std::chrono::milliseconds(500));
+    if (mQueue.empty()) continue;
     boost::property_tree::ptree root;
     root.put_child("array", boost::property_tree::ptree());
     auto& rootArray = root.get_child("array");
@@ -46,12 +47,13 @@ void Flume::dispatchLoop()
       std::lock_guard<std::mutex> lock(mQueueMutex);
       for (auto& metric : mQueue) {
         boost::property_tree::ptree header, event;
-        header.put<int>("timestamp", convertTimestamp(metric.getTimestamp()));
+        header.put<std::string>("timestamp", std::to_string(convertTimestamp(metric.getTimestamp())));
         header.put<std::string>("name", metric.getName());
         header.put<std::string>("value", boost::lexical_cast<std::string>(metric.getValue()));
         event.push_back(std::make_pair("headers", header));
         rootArray.push_back(std::make_pair("", event));
       }
+      mQueue.clear();
     }
     std::stringstream ss;
     write_json(ss, root);
