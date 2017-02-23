@@ -9,11 +9,7 @@
 #include "Monitoring/Backend.h"
 #include "../Transports/TransportInterface.h"
 #include "../MonInfoLogger.h"
-#include <boost/array.hpp>
-#include <boost/asio.hpp>
-#include <boost/algorithm/string.hpp>
 #include <chrono>
-#include <curl/curl.h>
 #include <string>
 
 namespace AliceO2
