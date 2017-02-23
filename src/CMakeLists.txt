@@ -33,6 +33,9 @@ if(CURL_FOUND)
 	message(STATUS "  Compiling InfluxDB Backend")
 	add_definitions(-D_WITH_INFLUX)
         list(APPEND LIB_SOURCES Backends/InfluxDB.cxx)
+        message(STATUS "  Compiling Flume Backend")
+        add_definitions(-D_WITH_FLUME)
+        list(APPEND LIB_SOURCES Backends/Flume.cxx)
 endif()
 
 

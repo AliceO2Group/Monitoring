@@ -25,6 +25,10 @@
 #include "Backends/InfluxDB.h"
 #endif
 
+#ifdef _WITH_FLUME
+#include "Backends/Flume.h"
+#endif
+
 namespace AliceO2 
 {
 /// ALICE O2 Monitoring system
@@ -60,6 +64,16 @@ Collector::Collector(const std::string& configPath)
       configFile->get<std::string>("InfluxDB.db").value()
     ));
   }
+#endif
+
+#ifdef _WITH_FLUME
+  if (configFile->get<int>("Flume.enable") == 1) {
+    mBackends.emplace_back(std::make_unique<Backends::Flume>(
+      configFile->get<std::string>("Flume.hostname").value(),
+      configFile->get<int>("Flume.port").value()
+    )); 
+  } 
+
 #endif
   
   mProcessMonitor = std::make_unique<ProcessMonitor>();

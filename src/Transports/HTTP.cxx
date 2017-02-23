@@ -57,10 +57,10 @@ void HTTP::send(std::string&& post) throw(std::runtime_error)
   response = curl_easy_perform(curlHandle.get());
   curl_easy_getinfo(curlHandle.get(), CURLINFO_RESPONSE_CODE, &responseCode);
   if (response != CURLE_OK) {
-    throw std::runtime_error(std::string("InfluxDB : cURL error : ") + curl_easy_strerror(response));
+    throw std::runtime_error(std::string("HTTP Tranposrt : cURL error : ") + curl_easy_strerror(response));
   }
-  if (responseCode != 204) {
-    throw std::runtime_error("InfluxDB : cURL response code " + (std::to_string(responseCode)));
+  if (responseCode < 200 || responseCode > 206) {
+    throw std::runtime_error("HTTP Transport : cURL response code " + (std::to_string(responseCode)));
   }
 }
 
