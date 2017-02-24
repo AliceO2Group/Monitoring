@@ -114,9 +114,14 @@ void Collector::processMonitorLoop(int interval)
   while (mMonitorRunning) {
     std::this_thread::sleep_for (std::chrono::milliseconds(interval*10));
     if ((++loopCount % 100) != 0) continue;
-    for (auto&& metric : mProcessMonitor->getPidsDetails()) {
+    // send pmem, pcpu, etime
+    for (auto&& metric : mProcessMonitor->getPidStatus()) {
       send(std::move(metric));
     }
+    // send bytesReceived and bytedTransmitted per interface
+    for (auto&& metric : mProcessMonitor->getNetworkUsage()) {
+      send(std::move(metric));
+    }   
     loopCount = 0;
   }
 }

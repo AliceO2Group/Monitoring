@@ -34,9 +34,11 @@ class ProcessMonitor
     /// Default destructor
     ~ProcessMonitor() = default;
 
-    /// Generates vector of tuples; singile tuple contain a meric for one PIDs
-    /// \return	vactor of tuples; 3 values (type, name, value)
-    std::vector<Metric> getPidsDetails();
+    /// Generates performance metrics (stored in mPsParams vecotr)
+    std::vector<Metric> getPidStatus();
+
+    /// Generates metrics per network interface: bytesReceived, bytesTransmitted
+    std::vector<Metric> getNetworkUsage();
 
   private:
     /// PIDs that are monitored
@@ -55,9 +57,6 @@ class ProcessMonitor
 
     /// Executes terminal command
     std::string exec(const char* cmd);
-
-    /// Vector of PID's parameters and values
-    std::vector<std::string> getPidStatus(int pid);
 };
 
 } // namespace Monitoring

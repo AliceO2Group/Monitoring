@@ -25,33 +25,56 @@ ProcessMonitor::ProcessMonitor()
   mPsCommand = "ps --no-headers -o " + mPsCommand + " --pid ";
 }
 
-std::vector<Metric> ProcessMonitor::getPidsDetails()
+std::vector<Metric> ProcessMonitor::getNetworkUsage()
 {
   std::vector<Metric> metrics;
-  std::vector<std::string> pidParams = getPidStatus(mPid);
+  std::stringstream ss;
+  // get bytes received and transmitted per interface
+  ss << "cat /proc/" << mPid << "/net/dev | tail -n +3 |awk ' {print $1 $2 \":\" $10}'";
+  std::string output = exec(ss.str().c_str());
+  // for each line (each network interfrace)
+  std::istringstream iss(output);
+  for (std::string line; std::getline(iss, line); ) {
+    auto position = line.find(":");
+    auto secondPosition = line.find(":", position + 1);
+    metrics.emplace_back(Metric{
+      (line.substr(position + 1, secondPosition - position - 1)),
+      "bytesReceived"}.addTags({{"interface", line.substr(0, position)}})
+    );
+    metrics.emplace_back(Metric{
+      (line.substr(secondPosition + 1, line.size())),
+      "bytesTransmitted"}.addTags({{"interface", line.substr(0, position)}})
+    );
+  }
+  return metrics;
+}
+
+std::vector<Metric> ProcessMonitor::getPidStatus()
+{
+  std::vector<Metric> metrics;
+  std::string command = mPsCommand + std::to_string(mPid);
+  std::string output = exec(command.c_str());
+
+  // split output into std vector
+  std::vector<std::string> pidParams;
+  boost::trim(output);
+  boost::split(pidParams, output, boost::is_any_of("\t "), boost::token_compress_on);
+  
+  // parse output, cast to propriate types
   auto j = mPsParams.begin();
   for (auto i = pidParams.begin(); i != pidParams.end(); ++i, ++j) {
      if (j->second == MetricType::DOUBLE) {
-       metrics.emplace_back(Metric{boost::lexical_cast<double>(*i), j->first});
+       metrics.emplace_back(Metric{std::stod(*i), j->first});
      }
      else if (j->second == MetricType::INT) {
-       metrics.emplace_back(Metric{boost::lexical_cast<int>(*i), j->first});
+       metrics.emplace_back(Metric{std::stoi(*i), j->first});
      }
      else {
        metrics.emplace_back(Metric{*i, j->first});
      }
   }
-  return metrics;
-}
 
-std::vector<std::string> ProcessMonitor::getPidStatus(int pid)
-{
-  std::string command = mPsCommand + std::to_string(pid);
-  std::string output = exec(command.c_str());
-  std::vector<std::string> params;
-  boost::trim(output);
-  boost::split(params, output, boost::is_any_of("\t "), boost::token_compress_on);
-  return params;
+  return metrics;
 }
 
 std::string ProcessMonitor::exec(const char* cmd)
