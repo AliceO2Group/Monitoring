@@ -38,6 +38,8 @@ CURL* HTTP::initCurl(std::string url)
   curl_easy_setopt(curl, CURLOPT_POST, 1);
   curl_easy_setopt(curl, CURLOPT_TCP_KEEPIDLE, 120L);
   curl_easy_setopt(curl, CURLOPT_TCP_KEEPINTVL, 60L);
+  FILE *devnull = fopen("/dev/null", "w+");
+  curl_easy_setopt(curl, CURLOPT_WRITEDATA, devnull);
   
   return curl;
 }

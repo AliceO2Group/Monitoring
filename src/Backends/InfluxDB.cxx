@@ -34,8 +34,10 @@ InfluxDB::InfluxDB(const std::string &hostname, int port)
 InfluxDB::InfluxDB(const std::string &hostname, int port, const std::string& database)
 {
   transport = std::make_unique<Transports::HTTP>(
-                "http://" + hostname + ":" + std::to_string(port) + "/write?db=" + database
-              );
+    "http://" + hostname + ":" + std::to_string(port) + "/write?db=" + database
+  );
+  MonInfoLogger::Get() << "InfluxDB/HTTP backend initialized"
+                       << " ("<< hostname << ":" << port << "/write?db=" << database << ")" << InfoLogger::endm;
 }
 
 inline unsigned long InfluxDB::convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp)

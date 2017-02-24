@@ -24,6 +24,8 @@ Flume::Flume(const std::string &hostname, int port)
   mTransport = std::make_unique<Transports::HTTP>("http://" + hostname + ":" + std::to_string(port));
   mThreadRunning = true;
   mDispatchThread = std::thread(&Flume::dispatchLoop, this);
+  MonInfoLogger::Get() << "Flume/HTTP backend initialized"
+                       << " ("<< hostname << ":" << port << ")" << InfoLogger::endm;
 }
 
 Flume::~Flume()
@@ -60,9 +62,18 @@ void Flume::dispatchLoop()
     }
     std::stringstream ss;
     write_json(ss, root);
+    // hack for Boost JSON
     std::string boostHackJSON = ss.str();
     boostHackJSON.replace(0, 15, "");
-    mTransport->send(boostHackJSON.substr(0, boostHackJSON.size()-3));
+    // send data via tranport
+    try {
+      mTransport->send(boostHackJSON.substr(0, boostHackJSON.size()-3));
+    } catch (std::runtime_error &e) {
+      MonInfoLogger::Get() << InfoLogger::Severity::Warning
+                           << "Flume HTTP Error:" <<  e.what() << " retrying..."
+                           << InfoLogger::endm;
+      std::this_thread::sleep_for (std::chrono::milliseconds(1000));
+    }
   }   
 }
 
