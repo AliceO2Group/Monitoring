@@ -9,8 +9,13 @@ using Monitoring = AliceO2::Monitoring::MonitoringFactory;
 using AliceO2::Monitoring::Metric;
 
 int main() {
-  // configure monitoring (only once per process), pass configuration path as parameter
-  Monitoring::Configure("file:///home/awegrzyn/hackathon/Monitoring/examples/SampleConfig.ini");
+  try {
+    // configure monitoring (once per process), pass configuration path as parameter
+    Monitoring::Configure("file://../Monitoring/examples/SampleConfig.ini");
+  } catch (std::string &e) {
+    std::cout << "Run you examples from 'build' (dev) or 'bin' (install) direcotry\n";
+    std::cout << e << std::endl;
+  }
 
   // now send an application specific metric with additional tags
   // 10 is the value

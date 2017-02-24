@@ -5,6 +5,7 @@
 
 #include "Monitoring/MonitoringFactory.h"
 #include "MonInfoLogger.h"
+#include <Configuration/ConfigurationFactory.h>
 
 namespace AliceO2 
 {
@@ -20,6 +21,7 @@ void MonitoringFactory::Configure(const std::string& configPath)
 {
   if (MonitoringFactory::configPath.empty()) {
     MonitoringFactory::configPath = configPath;
+    Configuration::ConfigurationFactory::getConfiguration(configPath);
   }
   else {
     MonInfoLogger::Get() << InfoLogger::Severity::Warning << "Reconfiguration of Monitoring forebidden! Valid configuration path: "

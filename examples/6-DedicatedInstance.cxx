@@ -8,9 +8,8 @@
 using Monitoring = AliceO2::Monitoring::MonitoringFactory;
 
 int main() {
-  
   // create dedicated monitoring instance, pass confuguration path as parameter
-  auto collector = Monitoring::Create("file:///home/awegrzyn/hackathon/Monitoring/examples/SampleConfig.ini");
+  auto collector = Monitoring::Create("file://../Monitoring/examples/SampleConfig.ini");
 
   // now send an application specific metric
   // 10 is the value

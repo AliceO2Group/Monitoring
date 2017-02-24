@@ -41,9 +41,14 @@ int main(int argc, char *argv[]) {
   if (vm.count("config")) {
     config = vm["config"].as<std::string>();
   }
-  
-  // configure monitoring (only once per process), pass configuration path as parameter
-  Monitoring::Configure("file:///home/awegrzyn/hackathon/Monitoring/examples/SampleConfig.ini");
+
+  try {
+    // configure monitoring (once per process), pass configuration path as parameter
+    Monitoring::Configure("file://../Monitoring/examples/SampleConfig.ini");
+  } catch (std::string &e) {
+    std::cout << "Run you examples from 'build' (dev) or 'bin' (install) direcotry\n";
+    std::cout << e << std::endl;
+  }  
 
   for (; i > 0; i--) {
     Monitoring::Get().send(10, metric);
