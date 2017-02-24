@@ -76,6 +76,7 @@ Metrics are pushed to one or multiple backends. The library currently supports t
 | InfluxDB         | InfluxDB time series database  | HTTP / UDP                   | cURL / boost asio          | Supported by the backend |
 | ApMonBackend     | MonALISA Serivce               | UDP                          | ApMon                      | Default tags concatenated with entity; Metric tags concatenated with name |
 | InfoLoggerBackned| O2 Logging module              | -                            | -                          | Displayed in the end |
+| Flume            | Collects, aggragate monitoring data | HTTP/JSON               | cURL                       | In header (Flume Event) |
 
 Instruction how to install and configure server-sides backends are available in *Server-side backend installation and configuration* chapter.
 
@@ -91,6 +92,10 @@ Instruction how to install and configure server-sides backends are available in 
   + db - name of database
 + InfoLoggerBackend
   + enable - enable InfoLogger backend
++ Flume
+  + enable - enable Flume HTTP backend
+  + port 
+  + hostname
 + ProcessMonitor
   + enable - enable process monitor
   + interval - updates interval 
