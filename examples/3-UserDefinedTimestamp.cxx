@@ -3,19 +3,16 @@
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 ///
 
+#include "ExampleBoilerplate.cxx"
 #include "Monitoring/MonitoringFactory.h"
 
 using Monitoring = AliceO2::Monitoring::MonitoringFactory;
 using AliceO2::Monitoring::Metric;
 
-int main() {
-  try {
-    // configure monitoring (once per process), pass configuration path as parameter
-    Monitoring::Configure("file://../Monitoring/examples/SampleConfig.ini");
-  } catch (std::string &e) {
-    std::cout << "Run you examples from 'build' (dev) or 'bin' (install) direcotry\n";
-    std::cout << e << std::endl;
-  }
+int main(int argc, char *argv[]) {
+
+  // configure monitoring (once per process), pass configuration path as parameter
+  Monitoring::Configure("file://" + GetConfigFromCmdLine(argc, argv));
 
   // current timestamp
   std::chrono::time_point<std::chrono::system_clock> timestamp = std::chrono::system_clock::now();

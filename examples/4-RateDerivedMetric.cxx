@@ -3,21 +3,14 @@
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 ///
 
+#include "ExampleBoilerplate.cxx"
 #include "Monitoring/MonitoringFactory.h"
 
 using Monitoring = AliceO2::Monitoring::MonitoringFactory;
 
-int main() {
-  try {
-    // configure monitoring (once per process), pass configuration path as parameter
-    Monitoring::Configure("file://../Monitoring/examples/SampleConfig.ini");
-  } catch (std::string &e) {
-    std::cout << "Run you examples from 'build' (dev) or 'bin' (install) direcotry\n";
-    std::cout << e << std::endl;
-  }
-
-  // configure monitoring (only once per process), pass configuration path as parameter
-  Monitoring::Configure("file:///home/awegrzyn/hackathon/Monitoring/examples/SampleConfig.ini");
+int main(int argc, char *argv[]) {
+  // configure monitoring (once per process), pass configuration path as parameter
+  Monitoring::Configure("file://" + GetConfigFromCmdLine(argc, argv));
 
   // derived metric :  rate
   Monitoring::Get().addDerivedMetric("myMetric", AliceO2::Monitoring::DerivedMetricMode::RATE);

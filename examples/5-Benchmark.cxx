@@ -12,14 +12,14 @@ int main(int argc, char *argv[]) {
   int sleep = 1000000;
   int i = std::numeric_limits<int>::max() - 1;
   std::string metric = "myCrazyMetric";
-  std::string config = "SampleConfig.ini";
+  std::string config = "/home/awegrzyn/hackathon/Monitoring/examples/SampleConfig.ini";
 
   boost::program_options::options_description desc("Allowed options");
   desc.add_options()
     ("metric", boost::program_options::value<std::string>(), "Metric name")
     ("sleep", boost::program_options::value<int>(), "Thread sleep in microseconds")
     ("count", boost::program_options::value<int>(), "Number of metrics to be sent")
-    ("config", boost::program_options::value<std::string>(), "Config file")
+    ("config", boost::program_options::value<std::string>(), "Config file path")
   ;
   
   boost::program_options::variables_map vm;
@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
 
   try {
     // configure monitoring (once per process), pass configuration path as parameter
-    Monitoring::Configure("file://../Monitoring/examples/SampleConfig.ini");
+    Monitoring::Configure("file://" + config);
   } catch (std::string &e) {
     std::cout << "Run you examples from 'build' (dev) or 'bin' (install) direcotry\n";
     std::cout << e << std::endl;

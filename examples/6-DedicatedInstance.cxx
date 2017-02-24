@@ -3,13 +3,15 @@
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 ///
 
+#include "ExampleBoilerplate.cxx"
 #include "Monitoring/MonitoringFactory.h"
 
 using Monitoring = AliceO2::Monitoring::MonitoringFactory;
 
-int main() {
+int main(int argc, char *argv[]) {
+  
   // create dedicated monitoring instance, pass confuguration path as parameter
-  auto collector = Monitoring::Create("file://../Monitoring/examples/SampleConfig.ini");
+  auto collector = Monitoring::Create("file://" + GetConfigFromCmdLine(argc, argv));
 
   // now send an application specific metric
   // 10 is the value
