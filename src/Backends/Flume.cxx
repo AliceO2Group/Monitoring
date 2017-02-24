@@ -7,7 +7,6 @@
 #include <string>
 #include "../Transports/HTTP.h"
 #include <boost/property_tree/json_parser.hpp>
-#include <boost/property_tree/ptree.hpp>
 
 namespace AliceO2
 {
@@ -46,10 +45,14 @@ void Flume::dispatchLoop()
     {
       std::lock_guard<std::mutex> lock(mQueueMutex);
       for (auto& metric : mQueue) {
-        boost::property_tree::ptree header, event;
+        boost::property_tree::ptree header = globalHeader;
         header.put<std::string>("timestamp", std::to_string(convertTimestamp(metric.getTimestamp())));
         header.put<std::string>("name", metric.getName());
         header.put<std::string>("value", boost::lexical_cast<std::string>(metric.getValue()));
+        for (const auto& tag : metric.getTags()) {
+          header.put<std::string>(tag.name, tag.value);
+        }
+        boost::property_tree::ptree event;
         event.push_back(std::make_pair("headers", header));
         rootArray.push_back(std::make_pair("", event));
       }
@@ -78,8 +81,7 @@ void Flume::send(const Metric& metric)
 
 void Flume::addGlobalTag(std::string name, std::string value)
 {
-  if (!globalHeader.empty()) globalHeader += ",";
-  globalHeader += name + "=" + value;
+  globalHeader.put<std::string>(name, value);
 }
 
 } // namespace Backends

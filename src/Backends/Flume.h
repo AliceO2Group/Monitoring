@@ -10,6 +10,7 @@
 #include "../Transports/TransportInterface.h"
 #include "../MonInfoLogger.h"
 #include <atomic>
+#include <boost/property_tree/ptree.hpp>
 #include <chrono>
 #include <mutex>
 #include <string>
@@ -54,12 +55,25 @@ class Flume final : public Backend
     void addGlobalTag(std::string name, std::string value) override;
       
   private:
+    /// HTTP transport
     std::unique_ptr<Transports::TransportInterface> mTransport;
-    std::string globalHeader; ///< Global tagset (common for each metric)
-    void dispatchLoop();
-    std::vector<Metric> mQueue;
-    std::mutex mQueueMutex;
+
+    /// Flume backend global header (for each metric)
+    boost::property_tree::ptree globalHeader;
+
+    /// New thread for dispatch metrics
     std::thread mDispatchThread;
+
+    /// Thread loop that dispatches metric periodically (to limit number of HTTP requests)
+    void dispatchLoop();
+
+    /// Vector that stores metrics to be sent
+    std::vector<Metric> mQueue;
+
+    /// Mutex on queue vector
+    std::mutex mQueueMutex;
+
+    /// States whether dispatch thread should run or not
     std::atomic<bool> mThreadRunning;
 };
 
