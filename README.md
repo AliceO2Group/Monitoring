@@ -10,7 +10,7 @@ Metrics consist of 4 parameters: name, value, timestamp and tags.I
 | Parameter name | Type                                          | Required | Default          |
 | -------------- |:---------------------------------------------:|:--------:| ----------------:|
 | name           | string                                        | yes      | -                |
-| value          | int / double / uint32_t / string                     | yes      | -                |
+| value          | int / double / string / unsigned long long    | yes      | -                |
 | timestamp      | chrono::time_point&lt;std::chrono::system_clock&gt; | no       | current timestamp     |
 | tags           | vector<Tag>                                   | no       | -**                |
 
@@ -62,9 +62,11 @@ Derived metric will have suffix added to its name.
 ## Processes monitoring
 To enable process monitoring *ProcessMonitor.enable* flag in configuration file must be set to 1 (see section Configuration file).
 The following metrics are generated every N seconds (N can be specified in the config - *ProcessMonitor.interval*):
-1. etime - elapsed time since the process was started, in the form [[DD-]hh:]mm:ss.
-2. pcpu - cpu utilization of the process in "##.#" format. Currently, it is the CPU time used divided by the time the process has been running (cputime/realtime ratio), expressed as a percentage.  It will not add up to 100% unless you are lucky.
-3. pmem - ratio of the process's resident set size  to the physical memory on the machine, expressed as a percentage.
+1. etime - elapsed time since the process was started, in the form [[DD-]hh:]mm:ss
+2. pcpu - cpu utilization of the process in "##.#" format. Currently, it is the CPU time used divided by the time the process has been running (cputime/realtime ratio), expressed as a percentage.  It will not add up to 100% unless you are lucky
+3. pmem - ratio of the process's resident set size  to the physical memory on the machine, expressed as a percentage
+4. bytesReceived - the total number of bytes of data received by the process (per interface)
+5. bytesTransmitted - the total number of bytes of data transmitted by the process (per interface)
 
 ## Monitoring backends
 Metrics are pushed to one or multiple backends. The library currently supports three backends - see table below. Enabling/Disabling backends is done via configuration file.
