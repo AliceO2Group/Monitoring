@@ -48,6 +48,16 @@ BOOST_AUTO_TEST_CASE(retrieveString)
   BOOST_CHECK_EQUAL(metricInstance.getType(), 1);
 }
 
+BOOST_AUTO_TEST_CASE(retrieveUnsignedLongLong)
+{
+  unsigned long long value = 10000000000000LL;
+  std::string name("metric name");
+  AliceO2::Monitoring::Metric metricInstance(value,  name );
+
+  BOOST_CHECK_EQUAL(boost::get<unsigned long long>(metricInstance.getValue()), 10000000000000LL);
+  BOOST_CHECK_EQUAL(metricInstance.getType(), 3);
+}
+
 } // namespace Test
 } // namespace Monitoring
 } // namespace AliceO2

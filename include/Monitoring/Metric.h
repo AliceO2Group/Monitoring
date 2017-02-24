@@ -18,7 +18,7 @@ namespace AliceO2
 namespace Monitoring
 {
 
-enum MetricType { INT = 0, STRING = 1, DOUBLE = 2 };
+enum MetricType { INT = 0, STRING = 1, DOUBLE = 2, UNSIGNEDLONGLONG = 3 };
 
 /// \brief Represents metric parameters except (value, name, entity and timestamp)
 class Metric
@@ -41,6 +41,12 @@ class Metric
     /// \param timestamp        metric timestamp in milliseconds 
     Metric(double value, const std::string& name, std::chrono::time_point<std::chrono::system_clock> timestamp = Metric::getCurrentTimestamp());
 
+    /// Initialize class variables
+    /// \param value            metric value (unsigned long long)
+    /// \param name             metric name
+    /// \param timestamp        metric timestamp in milliseconds
+    Metric(unsigned long long value, const std::string& name, std::chrono::time_point<std::chrono::system_clock> timestamp = Metric::getCurrentTimestamp());
+
     /// Default destructor
     ~Metric() = default;
         
@@ -54,7 +60,7 @@ class Metric
 	
     /// Value getter
     /// \return metric value
-    boost::variant< int, std::string, double > getValue() const;
+    boost::variant< int, std::string, double, unsigned long long > getValue() const;
 
     /// Value type getter
     /// \return type of value stores inside metric : 0 - int, 1 - std::string, 2 - double
@@ -80,7 +86,7 @@ class Metric
 
   private:
     /// Metric value
-    boost::variant< int, std::string, double > mValue;
+    boost::variant< int, std::string, double, unsigned long long > mValue;
 
     /// Metric name
     std::string mName;

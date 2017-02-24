@@ -163,14 +163,17 @@ void Collector::sendTimed(T value, std::string name, std::chrono::time_point<std
 template void Collector::send(int, std::string);
 template void Collector::send(double, std::string);
 template void Collector::send(std::string, std::string);
+template void Collector::send(unsigned long long, std::string);
 
 template void Collector::sendTagged(int, std::string, std::vector<Tag>&& tags);
 template void Collector::sendTagged(double, std::string, std::vector<Tag>&& tags);
 template void Collector::sendTagged(std::string, std::string, std::vector<Tag>&& tags);
+template void Collector::sendTagged(unsigned long long, std::string, std::vector<Tag>&& tags);
 
 template void Collector::sendTimed(int, std::string, std::chrono::time_point<std::chrono::system_clock>& timestamp);
 template void Collector::sendTimed(double, std::string, std::chrono::time_point<std::chrono::system_clock>& timestamp);
 template void Collector::sendTimed(std::string, std::string, std::chrono::time_point<std::chrono::system_clock>& timestamp);
+template void Collector::sendTimed(unsigned long long, std::string, std::chrono::time_point<std::chrono::system_clock>& timestamp);
 
 } // namespace Monitoring
 } // namespace AliceO2
