@@ -16,8 +16,8 @@ int main(int argc, char *argv[]) {
   Monitoring::Get().addDerivedMetric("myMetric", AliceO2::Monitoring::DerivedMetricMode::RATE);
 
   // now send at least two metrics to see the result
-  Monitoring::Get().send(10, "myMetric");
-  Monitoring::Get().send(20, "myMetric");
-  Monitoring::Get().send(30, "myMetric");
-  Monitoring::Get().send(50, "myMetric");
+  for (int i = 0; i < 101; i+=10) {
+    Monitoring::Get().send(i, "myMetric");
+    std::this_thread::sleep_for(std::chrono::milliseconds(250));
+  }
 }

@@ -134,10 +134,13 @@ void Collector::send(Metric&& metric)
 {
   for (auto& b: mBackends) {
     b->send(metric);
-    try {
-      b->send(mDerivedHandler->processMetric(metric));
-    } catch (std::logic_error&) { }
   }
+  try {
+    Metric&& derived = mDerivedHandler->processMetric(metric);
+    for (auto& b: mBackends) {
+      b->send(derived);
+    }
+  } catch (std::logic_error&) { }
 }
 
 template<typename T>
