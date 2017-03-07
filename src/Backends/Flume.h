@@ -9,12 +9,9 @@
 #include "Monitoring/Backend.h"
 #include "../Transports/TransportInterface.h"
 #include "../MonInfoLogger.h"
-#include <atomic>
 #include <boost/property_tree/ptree.hpp>
 #include <chrono>
-#include <mutex>
 #include <string>
-#include <thread>
 
 namespace AliceO2
 {
@@ -38,7 +35,7 @@ class Flume final : public Backend
     Flume(const std::string &hostname, int port);
 
     /// Default destructor
-    ~Flume();
+    ~Flume() = default;
 
     // Convert timestamp to unsigned long as required by InfluxDB
     /// \param 		 chrono time_point timestamp
@@ -55,26 +52,11 @@ class Flume final : public Backend
     void addGlobalTag(std::string name, std::string value) override;
       
   private:
-    /// HTTP transport
+    /// UDP transport
     std::unique_ptr<Transports::TransportInterface> mTransport;
 
     /// Flume backend global header (for each metric)
     boost::property_tree::ptree globalHeader;
-
-    /// New thread for dispatch metrics
-    std::thread mDispatchThread;
-
-    /// Thread loop that dispatches metric periodically (to limit number of HTTP requests)
-    void dispatchLoop();
-
-    /// Vector that stores metrics to be sent
-    std::vector<Metric> mQueue;
-
-    /// Mutex on queue vector
-    std::mutex mQueueMutex;
-
-    /// States whether dispatch thread should run or not
-    std::atomic<bool> mThreadRunning;
 };
 
 } // namespace Backends
