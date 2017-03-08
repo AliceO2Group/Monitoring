@@ -4,6 +4,7 @@
 ///
 
 #include "Monitoring/DerivedMetrics.h"
+#include "Exceptions/MonitoringInternalException.h"
 
 #include <chrono>
 #include <iostream>
@@ -40,7 +41,7 @@ Metric DerivedMetrics::calculateRate(std::string name)
 {
   auto search = mCache.find(name);
   int size = search->second.size();
-  if (search == mCache.end() || size < 2) throw std::logic_error("Not enough values");
+  if (search == mCache.end() || size < 2) throw MonitoringInternalException("Calculate rate", "Not enough values");
   std::chrono::duration<float> timestampDifference = (search->second.at(size - 1).getTimestamp() 
                                                    - search->second.at(size - 2).getTimestamp());
   
@@ -48,7 +49,7 @@ Metric DerivedMetrics::calculateRate(std::string name)
   double last = boost::lexical_cast<double>(search->second.at(size - 1).getValue());
   double beforelast = boost::lexical_cast<double>(search->second.at(size - 2).getValue());
   // disallow dividing by 0
-  if (timestampDifference.count() == 0) throw std::logic_error("Division by 0");
+  if (timestampDifference.count() == 0) throw MonitoringInternalException("Calculate rate", "Division by 0");
   double rate = (last - beforelast ) / timestampDifference.count();
   return Metric{rate, name + "Rate"};
 }
@@ -67,7 +68,7 @@ Metric DerivedMetrics::processMetric(Metric& metric)
 {
   std::string name = metric.getName();
   if (!isRegistered(name) || metric.getType() == MetricType::STRING) {
-    throw std::logic_error("Not able to calculate derived value");
+    throw MonitoringInternalException("DerivedMetrics/ProcessMetric", "Not able to calculate derived value");
   }
   auto search = mCache.find(name);
   // create vector if this is first metric of this kind
@@ -87,7 +88,7 @@ Metric DerivedMetrics::processMetric(Metric& metric)
   else if (derived->second == DerivedMetricMode::AVERAGE)  {
     return calculateAverage(name);
   } else {
-    throw std::logic_error("Processing mode not supported");
+    throw MonitoringInternalException("DerivedMetrics/ProcessMetric", "Processing mode not supported");
   }
 }
 

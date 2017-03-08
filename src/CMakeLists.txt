@@ -21,6 +21,8 @@ set(LIB_SOURCES
   MonitoringFactory.cxx
   Transports/UDP.cxx
   Transports/HTTP.cxx
+  Exceptions/MonitoringException.cxx
+  Exceptions/MonitoringInternalException.cxx
 )
 
 if(APMON_FOUND)

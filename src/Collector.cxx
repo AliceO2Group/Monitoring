@@ -15,6 +15,7 @@
 
 #include "MonInfoLogger.h"
 #include "ProcessDetails.h"
+#include "Exceptions/MonitoringInternalException.h"
 #include "Backends/InfoLoggerBackend.h"
 
 #ifdef _WITH_APPMON
@@ -37,6 +38,10 @@ namespace Monitoring
 
 Collector::Collector(const std::string& configPath)
 {
+  MonInfoLogger::Get() << AliceO2::InfoLogger::InfoLogger::Severity::Debug 
+                       << "Creating Monitoring instance from configuration: "
+                       << configPath << AliceO2::InfoLogger::InfoLogger::endm;
+
   std::unique_ptr<Configuration::ConfigurationInterface> configFile =
 		  Configuration::ConfigurationFactory::getConfiguration(configPath);
   if (configFile->get<int>("InfoLoggerBackend/enable") == 1) {
@@ -140,7 +145,7 @@ void Collector::send(Metric&& metric)
     for (auto& b: mBackends) {
       b->send(derived);
     }
-  } catch (std::logic_error&) { }
+  } catch (MonitoringInternalException&) { }
 }
 
 template<typename T>

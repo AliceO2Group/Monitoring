@@ -18,6 +18,5 @@ std::string GetConfigFromCmdLine(int argc, char *argv[])
   if (vm.count("config")) {
     config = vm["config"].as<std::string>();
   }
-  std::cout << "Configuration file: '/" << config << "'" << std::endl;
   return config;
 }

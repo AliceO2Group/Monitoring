@@ -7,6 +7,7 @@
 #include <string>
 #include "../Transports/UDP.h"
 #include "../Transports/HTTP.h"
+#include "../Exceptions/MonitoringInternalException.h"
 
 namespace AliceO2
 {
@@ -21,14 +22,9 @@ using AliceO2::InfoLogger::InfoLogger;
 
 InfluxDB::InfluxDB(const std::string &hostname, int port)
 { 
-  try {
-    transport = std::make_unique<Transports::UDP>(hostname, port);
-    MonInfoLogger::Get() << "InfluxDB/UDP backend initialized"
-                         << " ("<< hostname << ":" << port << ")" << InfoLogger::endm;
-  } catch(...) {
-    MonInfoLogger::Get() << InfoLogger::Severity::Error << "Failed to initialize InfluxDB/UDP backend"
-                         << " ("<< hostname << ":" << port << ")" << InfoLogger::endm;
-  }
+  transport = std::make_unique<Transports::UDP>(hostname, port);
+  MonInfoLogger::Get() << "InfluxDB/UDP backend initialized"
+                       << " ("<< hostname << ":" << port << ")" << InfoLogger::endm;
 }
 
 InfluxDB::InfluxDB(const std::string &hostname, int port, const std::string& database)
@@ -75,8 +71,7 @@ void InfluxDB::send(const Metric& metric)
   
   try {
     transport->send(convert.str());
-  } catch (std::runtime_error& e) {
-    MonInfoLogger::Get() << InfoLogger::Severity::Warning << "Monitoring: " << e.what() << InfoLogger::endm;
+  } catch (MonitoringInternalException&) {
   }
 }
 

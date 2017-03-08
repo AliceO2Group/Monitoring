@@ -4,7 +4,7 @@
 ///
 
 #include "HTTP.h"
-
+#include "../Exceptions/MonitoringInternalException.h"
 #include <boost/algorithm/string.hpp>
 #include <iostream>
 
@@ -26,11 +26,10 @@ CURL* HTTP::initCurl(std::string url)
 {
   CURLcode globalInitResult = curl_global_init(CURL_GLOBAL_ALL);
   if (globalInitResult != CURLE_OK) {
-    throw std::runtime_error(curl_easy_strerror(globalInitResult));
+    throw MonitoringInternalException("cURL init", curl_easy_strerror(globalInitResult));
   }
   
   CURL *curl = curl_easy_init();
-
   curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
   curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
   curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 10);
@@ -40,7 +39,6 @@ CURL* HTTP::initCurl(std::string url)
   curl_easy_setopt(curl, CURLOPT_TCP_KEEPINTVL, 60L);
   FILE *devnull = fopen("/dev/null", "w+");
   curl_easy_setopt(curl, CURLOPT_WRITEDATA, devnull);
-  
   return curl;
 }
 
@@ -50,7 +48,7 @@ void HTTP::deleteCurl(CURL * curl)
   curl_global_cleanup();
 }
 
-void HTTP::send(std::string&& post) throw(std::runtime_error)
+void HTTP::send(std::string&& post)
 {
   CURLcode response;	
   long responseCode;
@@ -59,10 +57,10 @@ void HTTP::send(std::string&& post) throw(std::runtime_error)
   response = curl_easy_perform(curlHandle.get());
   curl_easy_getinfo(curlHandle.get(), CURLINFO_RESPONSE_CODE, &responseCode);
   if (response != CURLE_OK) {
-    throw std::runtime_error(std::string("HTTP Tranposrt : cURL error : ") + curl_easy_strerror(response));
+    throw MonitoringInternalException("HTTP Tranposrt", curl_easy_strerror(response));
   }
   if (responseCode < 200 || responseCode > 206) {
-    throw std::runtime_error("HTTP Transport : cURL response code " + (std::to_string(responseCode)));
+    throw MonitoringInternalException("HTTP Transport", "Response code : " + std::to_string(responseCode));
   }
 }
 

@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_CASE(derivedAverage)
       BOOST_CHECK_EQUAL(derived.getName(), "metricNameAverage");
       BOOST_CHECK_EQUAL(boost::get<double>(derived.getValue()), result.average);
     } catch (std::logic_error& e) {
-       std::cout << e.what() << std::endl;
+      BOOST_ERROR( e.what() );
     }   
   }
 }
@@ -55,9 +55,9 @@ BOOST_AUTO_TEST_CASE(derivedRate)
     try {
       AliceO2::Monitoring::Metric derived = derivedHandler.processMetric(metric);
       BOOST_CHECK_EQUAL(derived.getName(), "metricNameRate");
-      BOOST_CHECK((boost::get<double>(derived.getValue()) > result.average - 1) || (boost::get<double>(derived.getValue()) < result.average + 1));
+      BOOST_CHECK_CLOSE(boost::get<double>(derived.getValue()), result.average, 1);
     } catch (std::logic_error& e) {
-       std::cout << e.what() << std::endl;
+      BOOST_ERROR( e.what() );
     }
   }
 }

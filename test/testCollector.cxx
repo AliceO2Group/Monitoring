@@ -20,7 +20,7 @@ BOOST_AUTO_TEST_CASE(derivedAverage)
   Monitoring::Configure("file://" + relativePath.string());
 
   int intMetric = 10;
-  std::string stringMetric("monitoring string");
+  std::string stringMetric("monitoringString");
   double doubleMetric = static_cast <double> (rand()) / static_cast <double> (RAND_MAX);
 
   Monitoring::Get().send(intMetric, "myCrazyMetricI");

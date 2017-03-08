@@ -4,6 +4,7 @@
 ///
 
 #include "Monitoring/MonitoringFactory.h"
+#include "Exceptions/MonitoringException.h"
 #include "MonInfoLogger.h"
 #include <Configuration/ConfigurationFactory.h>
 
@@ -15,7 +16,7 @@ namespace Monitoring
 
 using AliceO2::InfoLogger::InfoLogger;
 
-std::string MonitoringFactory::configPath = ""; 
+std::string MonitoringFactory::configPath = "";
 
 void MonitoringFactory::Configure(const std::string& configPath)
 {
@@ -32,9 +33,7 @@ void MonitoringFactory::Configure(const std::string& configPath)
 Collector& MonitoringFactory::Get()
 {
   if (MonitoringFactory::configPath.empty()) {
-    MonInfoLogger::Get() << InfoLogger::Severity::Fatal << "Monitoring hasn't been configured"
-                         << InfoLogger::endm;
-    throw std::runtime_error("Monitoring hasn't been configured");
+    throw MonitoringException("MonitoringFactory", "Monitoring hasn't been configured");
   }
   static Collector instance(MonitoringFactory::configPath);
   return instance;

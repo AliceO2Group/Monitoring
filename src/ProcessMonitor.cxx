@@ -4,7 +4,7 @@
 ///
 
 #include "Monitoring/ProcessMonitor.h"
-
+#include "Exceptions/MonitoringInternalException.h"
 #include <boost/algorithm/string/classification.hpp> 
 #include <boost/algorithm/string/split.hpp>
 #include <chrono>
@@ -83,7 +83,7 @@ std::string ProcessMonitor::exec(const char* cmd)
   std::string result = "";
   std::shared_ptr<FILE> pipe(popen(cmd, "r"), pclose);
   if (!pipe) {
-    throw std::runtime_error("Issue encountered when running 'ps' (popen)");
+    throw MonitoringInternalException("Process Monitor exec", "Issue encountered when running 'ps' (popen)");
   }
   while (!feof(pipe.get())) {
     if (fgets(buffer, 128, pipe.get()) != NULL)

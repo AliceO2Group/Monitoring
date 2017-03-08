@@ -36,7 +36,7 @@ class HTTP : public TransportInterface
 
     /// Sends metric via HTTP POST
     /// \param metric       r-value reference string formatted metric
-    void send(std::string&& post) throw(std::runtime_error);
+    void send(std::string&& post);
     
   private:
     /// Custom deleter of CURL object

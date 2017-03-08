@@ -1,10 +1,10 @@
 ///
-/// \file Tags.h
+/// \file ProcessDetails.h
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 ///
 
-#ifndef ALICEO2_MONITORING_CORE_PROCESSDETAILS_H
-#define ALICEO2_MONITORING_CORE_PROCESSDETAILS_H
+#ifndef ALICEO2_MONITORING_PROCESSDETAILS_H
+#define ALICEO2_MONITORING_PROCESSDETAILS_H
 
 #include <string>
 
@@ -37,4 +37,4 @@ class ProcessDetails
 } // namespace Monitoring
 } // namespace AliceO2
 
-#endif // ALICEO2_MONITORING_CORE_PROCESSDETAILS_H
+#endif // ALICEO2_MONITORING_PROCESSDETAILS_H

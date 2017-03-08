@@ -44,13 +44,7 @@ void Flume::send(const Metric& metric)
     s.erase(std::remove_if( s.begin(), s.end(), 
       [](char c){ return (c =='\r' || c =='\t' || c == ' ' || c == '\n');}), s.end() );
     // send data via tranport
-    try {
-      mTransport->send(std::move(s));
-    } catch (std::runtime_error &e) {
-      MonInfoLogger::Get() << InfoLogger::Severity::Warning
-                           << "Flume error:" <<  e.what() << " retrying..."
-                           << InfoLogger::endm;
-    }
+    mTransport->send(std::move(s));
 }
 
 inline unsigned long Flume::convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp)
