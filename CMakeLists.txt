@@ -45,22 +45,7 @@ find_package(Boost COMPONENTS unit_test_framework program_options system REQUIRE
 # Dependency on another subproject (InfoLogger)
 link_o2_subproject(Common)
 link_o2_subproject(InfoLogger)
-#link_o2_subproject(Configuration)
 find_package(Configuration)
-
-
-# MonALISA Backend
-find_package(APMON)
-if(APMON_FOUND)
-    message(STATUS "APMON ${APMON_VERSION} found")
-    include_directories(${APMON_INCLUDE_DIRS})
-    list(APPEND LIBS ${APMON_LIBRARIES})
-    add_definitions(-D_WITH_APPMON)
-else()
-    message(WARNING "APMON not found, we won't compile the related classes")
-    #add_subdirectory(doc)
-    #return()
-endif()
 
 # Detect operating system
 if (UNIX AND NOT APPLE)
@@ -76,6 +61,19 @@ endif()
 if (APPLE)
   message(STATUS "Detected Mac OS: Process monitor disabled")
   add_definitions(-D_OS_OSX)
+endif()
+
+# MonALISA Backend
+find_package(APMON)
+if(APMON_FOUND)
+    message(STATUS "APMON ${APMON_VERSION} found")
+    include_directories(${APMON_INCLUDE_DIRS})
+    list(APPEND LIBS ${APMON_LIBRARIES})
+    add_definitions(-D_WITH_APPMON)
+else()
+    message(WARNING "APMON not found, we won't compile the related classes")
+    #add_subdirectory(doc)
+    #return()
 endif()
 
 # This sets the include directory for the reference project. This is
