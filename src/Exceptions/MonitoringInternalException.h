@@ -17,11 +17,13 @@ namespace Monitoring
 
 class MonitoringInternalException : public std::exception
 {
-public:
-    MonitoringInternalException();
+  public:
     MonitoringInternalException(const std::string& source, const std::string& message);
     MonitoringInternalException(int code, const std::string& source, const std::string& message);
     ~MonitoringInternalException() = default;
+    const char* what() const throw();
+  private:
+    std::string message;
 };
 
 } // Monitoring

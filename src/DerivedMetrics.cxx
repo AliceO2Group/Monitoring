@@ -28,7 +28,7 @@ void DerivedMetrics::registerMetric(std::string name, DerivedMetricMode mode)
 {
   mRegistered.emplace(std::pair<std::string, DerivedMetricMode>(name, mode));
   MonInfoLogger::Get() << "Monitoring : Metric " << name << " added to derived metrics" 
-                               << AliceO2::InfoLogger::InfoLogger::endm;
+                       << AliceO2::InfoLogger::InfoLogger::endm;
 }
 
 bool DerivedMetrics::isRegistered(std::string name)
@@ -41,7 +41,9 @@ Metric DerivedMetrics::calculateRate(std::string name)
 {
   auto search = mCache.find(name);
   int size = search->second.size();
-  if (search == mCache.end() || size < 2) throw MonitoringInternalException("Calculate rate", "Not enough values");
+  if (search == mCache.end() || size < 2) {
+    throw MonitoringInternalException("DerivedMetrics/Calculate rate", "Not enough values");
+  }
   std::chrono::duration<float> timestampDifference = (search->second.at(size - 1).getTimestamp() 
                                                    - search->second.at(size - 2).getTimestamp());
   
@@ -49,7 +51,9 @@ Metric DerivedMetrics::calculateRate(std::string name)
   double last = boost::lexical_cast<double>(search->second.at(size - 1).getValue());
   double beforelast = boost::lexical_cast<double>(search->second.at(size - 2).getValue());
   // disallow dividing by 0
-  if (timestampDifference.count() == 0) throw MonitoringInternalException("Calculate rate", "Division by 0");
+  if (timestampDifference.count() == 0) {
+    throw MonitoringInternalException("DerivedMetrics/Calculate rate", "Division by 0");
+  }
   double rate = (last - beforelast ) / timestampDifference.count();
   return Metric{rate, name + "Rate"};
 }
@@ -67,8 +71,8 @@ Metric DerivedMetrics::calculateAverage(std::string name)
 Metric DerivedMetrics::processMetric(Metric& metric)
 {
   std::string name = metric.getName();
-  if (!isRegistered(name) || metric.getType() == MetricType::STRING) {
-    throw MonitoringInternalException();
+  if (metric.getType() == MetricType::STRING) {
+    throw MonitoringInternalException("DerivedMetrics/ProcessMetric", "Not able to process string values");
   }
   auto search = mCache.find(name);
   // create vector if this is first metric of this kind

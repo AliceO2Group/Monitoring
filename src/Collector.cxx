@@ -141,12 +141,14 @@ void Collector::send(Metric&& metric)
   for (auto& b: mBackends) {
     b->send(metric);
   }
-  try {
-    Metric&& derived = mDerivedHandler->processMetric(metric);
-    for (auto& b: mBackends) {
-      b->send(derived);
-    }
-  } catch (MonitoringInternalException&) { }
+  if (mDerivedHandler->isRegistered(metric.getName())) {
+    try {
+      Metric&& derived = mDerivedHandler->processMetric(metric);
+      for (auto& b: mBackends) {
+        b->send(derived);
+      }   
+    } catch (MonitoringInternalException&) { }
+  }
 }
 
 template<typename T>
