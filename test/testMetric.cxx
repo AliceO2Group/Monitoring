@@ -58,6 +58,26 @@ BOOST_AUTO_TEST_CASE(retrieveUnsignedLongLong)
   BOOST_CHECK_EQUAL(metricInstance.getType(), 3);
 }
 
+bool is_critical(const boost::bad_get&) { return true; }
+
+BOOST_AUTO_TEST_CASE(retrieveWrongType) {
+  double value = 1.11;
+  std::string name("metric name");
+  AliceO2::Monitoring::Metric metricInstance(value,  name );
+  BOOST_CHECK_EXCEPTION(boost::get<std::string>(metricInstance.getValue()), boost::bad_get, is_critical);
+}
+
+BOOST_AUTO_TEST_CASE(tags) {
+  AliceO2::Monitoring::Metric metric = AliceO2::Monitoring::Metric{10, "myMetric"}.addTags({{"tag1", "value1"}, {"tag2", "value2"}});
+  std::vector<Tag> tags = metric.getTags();
+  for (auto const& tag: tags) {
+    BOOST_TEST(tag.name.find("tag") != std::string::npos);
+    BOOST_TEST(tag.value.find("value") != std::string::npos);
+  }
+}
+
+
+
 } // namespace Test
 } // namespace Monitoring
 } // namespace AliceO2
