@@ -48,6 +48,8 @@ link_o2_subproject(InfoLogger)
 #link_o2_subproject(Configuration)
 find_package(Configuration)
 
+
+# MonALISA Backend
 find_package(APMON)
 if(APMON_FOUND)
     message(STATUS "APMON ${APMON_VERSION} found")
@@ -58,6 +60,22 @@ else()
     message(WARNING "APMON not found, we won't compile the related classes")
     #add_subdirectory(doc)
     #return()
+endif()
+
+# Detect operating system
+if (UNIX AND NOT APPLE)
+    message(STATUS "Detected Linux OS: Process monitor enabled")
+    add_definitions(-D_OS_LINUX)
+endif()
+
+if (WIN32)
+  message(STATUS "Detected Windows OS: Process monitor disabled")
+  add_definitions(-D_OS_WINDOWS)
+endif()
+
+if (APPLE)
+  message(STATUS "Detected Mac OS: Process monitor disabled")
+  add_definitions(-D_OS_OSX)
 endif()
 
 # This sets the include directory for the reference project. This is

@@ -14,6 +14,9 @@ namespace Monitoring
 
 using AliceO2::InfoLogger::InfoLogger;
 
+MonitoringInternalException::MonitoringInternalException()
+{}
+
 MonitoringInternalException::MonitoringInternalException(const std::string& source, const std::string& message) :
   MonitoringInternalException(-1, source, message) {}
 

@@ -7,6 +7,7 @@
 #include <iostream>
 #include <sstream>
 #include "../MonInfoLogger.h"
+#include "../Exceptions/MonitoringException.h"
 
 namespace AliceO2
 {
@@ -25,9 +26,8 @@ ApMonBackend::ApMonBackend(const std::string& configurationFile)
     mApMon = std::make_unique<ApMon>(const_cast<char*>(configurationFile.c_str()));
     MonInfoLogger::Get() << "ApMon backend initialized" << InfoLogger::endm;
   } 
-  catch (...) {
-    MonInfoLogger::Get() << InfoLogger::Severity::Warning << "Could not open ApMon configuration file: "
-                         << configurationFile << InfoLogger::endm;
+  catch (std::runtime_error &e) {
+    throw MonitoringException("ApMonBackend initialization", std::string(e.what()) + " (" + configurationFile + ")");
   }
 }
 

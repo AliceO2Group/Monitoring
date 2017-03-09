@@ -68,7 +68,7 @@ Metric DerivedMetrics::processMetric(Metric& metric)
 {
   std::string name = metric.getName();
   if (!isRegistered(name) || metric.getType() == MetricType::STRING) {
-    throw MonitoringInternalException("DerivedMetrics/ProcessMetric", "Not able to calculate derived value");
+    throw MonitoringInternalException();
   }
   auto search = mCache.find(name);
   // create vector if this is first metric of this kind
