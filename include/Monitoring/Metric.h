@@ -10,7 +10,7 @@
 #include <chrono>
 #include <vector>
 #include <boost/variant.hpp>
-#include "../src/Tag.h"
+#include "Tag.h"
 
 namespace AliceO2
 {

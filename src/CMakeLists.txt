@@ -9,6 +9,7 @@ set(LIB_HEADERS
   ../include/Monitoring/DerivedMetrics.h
   ../include/Monitoring/ProcessMonitor.h
   ../include/Monitoring/MonitoringFactory.h
+  ../include/Monitoring/Tag.h
 )
 
 set(LIB_SOURCES
