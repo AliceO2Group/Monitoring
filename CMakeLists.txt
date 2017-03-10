@@ -47,35 +47,6 @@ link_o2_subproject(Common)
 link_o2_subproject(InfoLogger)
 find_package(Configuration)
 
-# Detect operating system
-if (UNIX AND NOT APPLE)
-    message(STATUS "Detected Linux OS: Process monitor enabled")
-    add_definitions(-D_OS_LINUX)
-endif()
-
-if (WIN32)
-  message(STATUS "Detected Windows OS: Process monitor disabled")
-  add_definitions(-D_OS_WINDOWS)
-endif()
-
-if (APPLE)
-  message(STATUS "Detected Mac OS: Process monitor disabled")
-  add_definitions(-D_OS_OSX)
-endif()
-
-# MonALISA Backend
-find_package(APMON)
-if(APMON_FOUND)
-    message(STATUS "APMON ${APMON_VERSION} found")
-    include_directories(${APMON_INCLUDE_DIRS})
-    list(APPEND LIBS ${APMON_LIBRARIES})
-    add_definitions(-D_WITH_APPMON)
-else()
-    message(WARNING "APMON not found, we won't compile the related classes")
-    #add_subdirectory(doc)
-    #return()
-endif()
-
 # This sets the include directory for the reference project. This is
 # the -I flag in gcc. All the includes should be in this variable To
 # add new directories to the include path, just add them in this list

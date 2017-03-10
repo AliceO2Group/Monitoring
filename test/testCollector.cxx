@@ -3,8 +3,6 @@
 #include <thread>
 #include <vector>
 
-#include <boost/filesystem.hpp>
-
 #define BOOST_TEST_MODULE testCollector
 #include <boost/test/included/unit_test.hpp>
 
@@ -14,18 +12,27 @@ namespace Test {
 
 using Monitoring = AliceO2::Monitoring::MonitoringFactory;
 
-BOOST_AUTO_TEST_CASE(derivedAverage)
+BOOST_AUTO_TEST_CASE(createCollector)
 {
-  boost::filesystem::path relativePath = boost::filesystem::system_complete("../Monitoring/test/test.ini");
-  Monitoring::Configure("file://" + relativePath.string());
+  Monitoring::Configure("file:///home/awegrzyn/hackathon/Monitoring/test/test.ini");
 
-  int intMetric = 10;
+  int intMetric = 10; 
   std::string stringMetric("monitoringString");
   double doubleMetric = static_cast <double> (rand()) / static_cast <double> (RAND_MAX);
 
   Monitoring::Get().send(intMetric, "myCrazyMetricI");
   Monitoring::Get().send(stringMetric, "myCrazyMetricS");
   Monitoring::Get().send(doubleMetric, "myCrazyMetricD");
+}
+
+BOOST_AUTO_TEST_CASE(testSymbols)
+{
+  BOOST_WARN_MESSAGE(!BOOST_IS_DEFINED( _WITH_APPMON ), "ApMon Backend disabled");
+  BOOST_WARN_MESSAGE(!BOOST_IS_DEFINED( _WITH_INFLUX ), "InfluxDB Backend disabled");
+  BOOST_WARN_MESSAGE(!BOOST_IS_DEFINED( _WITH_FLUME ), "Flume backend disabled");
+  BOOST_WARN_MESSAGE(BOOST_IS_DEFINED( _OS_LINUX ), "Linux OS detected");
+  BOOST_WARN_MESSAGE(BOOST_IS_DEFINED( _OS_WINDOWS ), "Windows OS detected");
+  BOOST_WARN_MESSAGE(BOOST_IS_DEFINED( _OS_MAC ), "Mac OS detected");
 }
 
 } // namespace Test

@@ -17,6 +17,7 @@
 #include "ProcessDetails.h"
 #include "Exceptions/MonitoringInternalException.h"
 #include "Backends/InfoLoggerBackend.h"
+#include "Backends/Flume.h"
 
 #ifdef _WITH_APPMON
 #include "Backends/ApMonBackend.h"
@@ -24,10 +25,6 @@
 
 #ifdef _WITH_INFLUX
 #include "Backends/InfluxDB.h"
-#endif
-
-#ifdef _WITH_FLUME
-#include "Backends/Flume.h"
 #endif
 
 namespace AliceO2 
@@ -71,15 +68,12 @@ Collector::Collector(const std::string& configPath)
   }
 #endif
 
-#ifdef _WITH_FLUME
   if (configFile->get<int>("Flume/enable") == 1) {
     mBackends.emplace_back(std::make_unique<Backends::Flume>(
       configFile->get<std::string>("Flume/hostname").value(),
       configFile->get<int>("Flume/port").value()
     )); 
   } 
-
-#endif
 
 #ifdef _OS_LINUX  
   mProcessMonitor = std::make_unique<ProcessMonitor>();
