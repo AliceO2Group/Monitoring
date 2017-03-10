@@ -22,22 +22,22 @@ namespace Monitoring
 namespace Backends
 {
 
-/// Backend that sends metrics to InfluxDB time-series databse
+/// Backend that sends metrics to custum Apache Flume source
 ///
-/// Metrics are converted into Influx Line protocol and then sent via one of available transports
+/// Metrics are serialized to JSON strings and send via UDP
 class Flume final : public Backend
 {
   public:
 
-    /// Constructor, uses HTTP trasnport
-    /// \param hostname  InfluxDB HTTP endpoint hostanme
-    /// \param port      InfluxDB HTTP endpoint port number
+    /// Constructor, uses UDP transport
+    /// \param hostname  Flume HTTP endpoint hostanme
+    /// \param port      Flume HTTP endpoint port number
     Flume(const std::string &hostname, int port);
 
     /// Default destructor
     ~Flume() = default;
 
-    // Convert timestamp to unsigned long as required by InfluxDB
+    // Convert timestamp to unsigned long as required by Flume
     /// \param 		 chrono time_point timestamp
     /// \return  	 timestamp in nanoseconds
     inline unsigned long convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp);
@@ -57,6 +57,11 @@ class Flume final : public Backend
 
     /// Flume backend global header (for each metric)
     boost::property_tree::ptree globalHeader;
+
+    /// Serializes metric object to JSON
+    /// \param metric
+    /// \return JSON serializes metric
+    std::string metricToJson(const Metric& metric); 
 };
 
 } // namespace Backends

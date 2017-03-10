@@ -26,7 +26,7 @@ Flume::Flume(const std::string &hostname, int port)
                        << " ("<< hostname << ":" << port << ")" << InfoLogger::endm;
 }
 
-void Flume::send(const Metric& metric)
+std::string Flume::metricToJson(const Metric& metric)
 {
     boost::property_tree::ptree event;
     boost::property_tree::ptree header = globalHeader;
@@ -35,16 +35,20 @@ void Flume::send(const Metric& metric)
     header.put<std::string>("value", boost::lexical_cast<std::string>(metric.getValue()));
     for (const auto& tag : metric.getTags()) {
       header.put<std::string>(tag.name, tag.value);
-    }
+    }   
     event.push_back(std::make_pair("headers", header));
     event.put<std::string>("body", boost::lexical_cast<std::string>(metric.getValue()));
-    std::stringstream ss;
+    std::stringstream ss; 
     write_json(ss, event);
     std::string s = ss.str();
     s.erase(std::remove_if( s.begin(), s.end(), 
       [](char c){ return (c =='\r' || c =='\t' || c == ' ' || c == '\n');}), s.end() );
-    // send data via tranport
-    mTransport->send(std::move(s));
+    return s;
+}
+
+void Flume::send(const Metric& metric)
+{
+    mTransport->send(metricToJson(metric));
 }
 
 inline unsigned long Flume::convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp)
