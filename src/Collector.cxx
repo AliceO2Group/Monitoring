@@ -41,11 +41,11 @@ Collector::Collector(const std::string& configPath)
 
   std::unique_ptr<Configuration::ConfigurationInterface> configFile =
 		  Configuration::ConfigurationFactory::getConfiguration(configPath);
-  if (configFile->get<int>("InfoLoggerBackend/enable") == 1) {
+  if (configFile->get<int>("InfoLoggerBackend/enable").value_or(0) == 1) {
     mBackends.emplace_back(std::make_unique<Backends::InfoLoggerBackend>());
   }
 #ifdef _WITH_APPMON
-  if (configFile->get<int>("ApMon/enable") == 1) {
+  if (configFile->get<int>("ApMon/enable").value_or(0) == 1) {
     mBackends.emplace_back(std::make_unique<Backends::ApMonBackend>(
       configFile->get<string>("ApMon/pathToConfig").value()
     ));
@@ -53,13 +53,13 @@ Collector::Collector(const std::string& configPath)
 #endif
 
 #ifdef _WITH_INFLUX
-  if (configFile->get<int>("InfluxDB/enableUDP") == 1) {
+  if (configFile->get<int>("InfluxDB/enableUDP").value_or(0) == 1) {
     mBackends.emplace_back(std::make_unique<Backends::InfluxDB>(
       configFile->get<std::string>("InfluxDB/hostname").value(), 
       configFile->get<int>("InfluxDB/port").value()
     ));
  }
- if (configFile->get<int>("InfluxDB/enableHTTP") == 1) {
+ if (configFile->get<int>("InfluxDB/enableHTTP").value_or(0) == 1) {
     mBackends.emplace_back(std::make_unique<Backends::InfluxDB>(
       configFile->get<std::string>("InfluxDB/hostname").value(),
       configFile->get<int>("InfluxDB/port").value(),
@@ -68,7 +68,7 @@ Collector::Collector(const std::string& configPath)
   }
 #endif
 
-  if (configFile->get<int>("Flume/enable") == 1) {
+  if (configFile->get<int>("Flume/enable").value_or(0) == 1) {
     mBackends.emplace_back(std::make_unique<Backends::Flume>(
       configFile->get<std::string>("Flume/hostname").value(),
       configFile->get<int>("Flume/port").value()
@@ -77,7 +77,7 @@ Collector::Collector(const std::string& configPath)
 
 #ifdef _OS_LINUX  
   mProcessMonitor = std::make_unique<ProcessMonitor>();
-  if (configFile->get<int>("ProcessMonitor/enable") == 1) {
+  if (configFile->get<int>("ProcessMonitor/enable").value_or(0) == 1) {
     int interval = configFile->get<int>("ProcessMonitor/interval").value();
     mMonitorRunning = true;
     mMonitorThread = std::thread(&Collector::processMonitorLoop, this, interval);  
