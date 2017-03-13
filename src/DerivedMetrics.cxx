@@ -28,7 +28,7 @@ void DerivedMetrics::registerMetric(std::string name, DerivedMetricMode mode)
 {
   mRegistered.emplace(std::pair<std::string, DerivedMetricMode>(name, mode));
   MonInfoLogger::Get() << "Monitoring : Metric " << name << " added to derived metrics" 
-                       << AliceO2::InfoLogger::InfoLogger::endm;
+                       << MonInfoLogger::End();
 }
 
 bool DerivedMetrics::isRegistered(std::string name)

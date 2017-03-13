@@ -12,16 +12,14 @@ namespace AliceO2
 namespace Monitoring
 {
 
-using AliceO2::InfoLogger::InfoLogger;
-
 MonitoringInternalException::MonitoringInternalException(const std::string& source, const std::string& message) :
   MonitoringInternalException(-1, source, message) {}
 
 MonitoringInternalException::MonitoringInternalException(int code, const std::string& source, const std::string& message)
 : message(message)
 {
-  MonInfoLogger::Get() << InfoLogger::Severity::Debug << "MonitoringInternalException["
-                       << source << "] (" << code << "): " << message << InfoLogger::endm;
+  MonInfoLogger::Get() << AliceO2::InfoLogger::InfoLogger::Severity::Debug << "MonitoringInternalException["
+                       << source << "] (" << code << "): " << message << MonInfoLogger::End();
 }
 
 const char* MonitoringInternalException::what() const throw()

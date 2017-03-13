@@ -23,7 +23,7 @@ Flume::Flume(const std::string &hostname, int port)
 {
   mTransport = std::make_unique<Transports::UDP>(hostname, port);
   MonInfoLogger::Get() << "Flume/UDP backend initialized"
-                       << " ("<< hostname << ":" << port << ")" << InfoLogger::endm;
+                       << " ("<< hostname << ":" << port << ")" << MonInfoLogger::End();
 }
 
 std::string Flume::metricToJson(const Metric& metric)

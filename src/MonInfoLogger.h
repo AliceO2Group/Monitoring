@@ -30,6 +30,10 @@ class MonInfoLogger : public AliceO2::InfoLogger::InfoLogger
       static MonInfoLogger infoLoggerInstance;
       return infoLoggerInstance;
     }
+    static auto End() -> decltype(AliceO2::InfoLogger::InfoLogger::endm)
+    {
+      return AliceO2::InfoLogger::InfoLogger::endm;
+    }
 
   private:
     MonInfoLogger() = default;

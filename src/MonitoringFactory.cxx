@@ -26,7 +26,7 @@ void MonitoringFactory::Configure(const std::string& configPath)
   }
   else {
     MonInfoLogger::Get() << InfoLogger::Severity::Warning << "Reconfiguration of Monitoring forebidden! Valid configuration path: "
-                         << MonitoringFactory::configPath  << InfoLogger::endm;
+                         << MonitoringFactory::configPath  << MonInfoLogger::End();
   }
 }
 

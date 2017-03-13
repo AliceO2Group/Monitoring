@@ -12,8 +12,6 @@ namespace AliceO2
 namespace Monitoring
 {
 
-using AliceO2::InfoLogger::InfoLogger;
-
 MonitoringException::MonitoringException(const std::string& source, const std::string& message) :
   MonitoringException(-1, source, message) {}
 
@@ -22,7 +20,7 @@ MonitoringException::MonitoringException(int code, const std::string& source, co
   std::stringstream ss; 
   ss << "MonitoringException[" << source << "] (" << code << "): " << message;
   this->message = ss.str();
-  MonInfoLogger::Get() << InfoLogger::Severity::Error << message << InfoLogger::endm;
+  MonInfoLogger::Get() << AliceO2::InfoLogger::InfoLogger::Severity::Error << message << MonInfoLogger::End();
 }
 
 const char* MonitoringException::what() const throw()

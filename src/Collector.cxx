@@ -37,18 +37,24 @@ Collector::Collector(const std::string& configPath)
 {
   MonInfoLogger::Get() << AliceO2::InfoLogger::InfoLogger::Severity::Debug 
                        << "Creating Monitoring instance from configuration: "
-                       << configPath << AliceO2::InfoLogger::InfoLogger::endm;
+                       << configPath << MonInfoLogger::End();
 
   std::unique_ptr<Configuration::ConfigurationInterface> configFile =
 		  Configuration::ConfigurationFactory::getConfiguration(configPath);
   if (configFile->get<int>("InfoLoggerBackend/enable").value_or(0) == 1) {
     mBackends.emplace_back(std::make_unique<Backends::InfoLoggerBackend>());
   }
+  else {
+    MonInfoLogger::Get() << "InfoLogger backend disabled" << MonInfoLogger::End();
+  }
 #ifdef _WITH_APPMON
   if (configFile->get<int>("ApMon/enable").value_or(0) == 1) {
     mBackends.emplace_back(std::make_unique<Backends::ApMonBackend>(
       configFile->get<string>("ApMon/pathToConfig").value()
     ));
+  }
+  else {
+    MonInfoLogger::Get() << "ApMon backend disabled" << MonInfoLogger::End();
   }
 #endif
 
@@ -58,6 +64,9 @@ Collector::Collector(const std::string& configPath)
       configFile->get<std::string>("InfluxDB/hostname").value(), 
       configFile->get<int>("InfluxDB/port").value()
     ));
+ } 
+ else {
+  MonInfoLogger::Get() << "InfluxDB/UDP backend disabled" << MonInfoLogger::End();
  }
  if (configFile->get<int>("InfluxDB/enableHTTP").value_or(0) == 1) {
     mBackends.emplace_back(std::make_unique<Backends::InfluxDB>(
@@ -66,6 +75,9 @@ Collector::Collector(const std::string& configPath)
       configFile->get<std::string>("InfluxDB/db").value()
     ));
   }
+  else {
+    MonInfoLogger::Get() << "InfluxDB/HTTP backend disabled" << MonInfoLogger::End();
+  }
 #endif
 
   if (configFile->get<int>("Flume/enable").value_or(0) == 1) {
@@ -73,7 +85,10 @@ Collector::Collector(const std::string& configPath)
       configFile->get<std::string>("Flume/hostname").value(),
       configFile->get<int>("Flume/port").value()
     )); 
-  } 
+  }
+  else {
+    MonInfoLogger::Get() << "Flume backend disabled" << MonInfoLogger::End();
+  }
 
 #ifdef _OS_LINUX  
   mProcessMonitor = std::make_unique<ProcessMonitor>();
@@ -81,11 +96,11 @@ Collector::Collector(const std::string& configPath)
     int interval = configFile->get<int>("ProcessMonitor/interval").value();
     mMonitorRunning = true;
     mMonitorThread = std::thread(&Collector::processMonitorLoop, this, interval);  
-    MonInfoLogger::Get() << "Process Monitor : Automatic updates enabled" << AliceO2::InfoLogger::InfoLogger::endm;
+    MonInfoLogger::Get() << "Process Monitor : Automatic updates enabled" << MonInfoLogger::End();
   }
 #endif
 
-  mDerivedHandler = std::make_unique<DerivedMetrics>(configFile->get<int>("DerivedMetrics/maxCacheSize").value());
+  mDerivedHandler = std::make_unique<DerivedMetrics>(configFile->get<int>("DerivedMetrics/maxCacheSize").value_or(0));
   setDefaultTags();
 }
 
