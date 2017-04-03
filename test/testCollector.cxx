@@ -14,7 +14,7 @@ using Monitoring = AliceO2::Monitoring::MonitoringFactory;
 
 BOOST_AUTO_TEST_CASE(createCollector)
 {
-  Monitoring::Configure("file:///home/awegrzyn/hackathon/Monitoring/test/test.ini");
+  Monitoring::Configure("file:///home/awegrzyn/hackathon/Monitoring/examples/config-default.ini");
 
   int intMetric = 10; 
   std::string stringMetric("monitoringString");
