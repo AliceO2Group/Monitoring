@@ -2,6 +2,8 @@
 #include <chrono>
 #include <thread>
 #include <vector>
+#include <boost/filesystem/path.hpp>
+#include <boost/filesystem/operations.hpp>
 
 #define BOOST_TEST_MODULE testCollector
 #include <boost/test/included/unit_test.hpp>
@@ -14,7 +16,8 @@ using Monitoring = AliceO2::Monitoring::MonitoringFactory;
 
 BOOST_AUTO_TEST_CASE(createCollector)
 {
-  Monitoring::Configure("file:///home/awegrzyn/hackathon/Monitoring/examples/config-default.ini");
+  boost::filesystem::path configPath = boost::filesystem::canonical("..");
+  Monitoring::Configure("file://" + configPath.string() + "/examples/config-default.ini");
 
   int intMetric = 10; 
   std::string stringMetric("monitoringString");

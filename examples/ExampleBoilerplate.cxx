@@ -4,19 +4,14 @@
 
 std::string GetConfigFromCmdLine(int argc, char *argv[])
 {
-  std::string config = "/home/awegrzyn/hackathon/Monitoring/examples/SampleConfig.ini";
-
   boost::program_options::options_description desc("Allowed options");
   desc.add_options()
-    ("config", boost::program_options::value<std::string>(), "Config file absolute path")
+    ("config", boost::program_options::value<std::string>()->required(), "Config file absolute path")
   ;
   
   boost::program_options::variables_map vm; 
   boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
   boost::program_options::notify(vm);
 
-  if (vm.count("config")) {
-    config = vm["config"].as<std::string>();
-  }
-  return config;
+  return vm["config"].as<std::string>();
 }

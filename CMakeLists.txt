@@ -47,6 +47,8 @@ link_o2_subproject(Common)
 link_o2_subproject(InfoLogger)
 find_package(Configuration)
 
+configure_file(examples/config-default.ini examples/config-default.ini COPYONLY)
+
 # This sets the include directory for the reference project. This is
 # the -I flag in gcc. All the includes should be in this variable To
 # add new directories to the include path, just add them in this list
