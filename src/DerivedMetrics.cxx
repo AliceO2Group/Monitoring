@@ -5,7 +5,7 @@
 
 #include "Monitoring/DerivedMetrics.h"
 #include "Exceptions/MonitoringInternalException.h"
-
+#include <boost/lexical_cast.hpp>
 #include <chrono>
 #include <iostream>
 #include <map>

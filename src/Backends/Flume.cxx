@@ -7,6 +7,7 @@
 #include <string>
 #include "../Transports/UDP.h"
 #include <boost/property_tree/json_parser.hpp>
+#include <boost/lexical_cast.hpp>
 
 namespace AliceO2
 {
@@ -16,8 +17,6 @@ namespace Monitoring
 /// Monitoring backends
 namespace Backends
 {
-
-using AliceO2::InfoLogger::InfoLogger;
 
 Flume::Flume(const std::string &hostname, int port)
 {

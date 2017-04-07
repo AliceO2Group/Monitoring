@@ -4,6 +4,7 @@
 ///
 
 #include "InfluxDB.h"
+#include <boost/lexical_cast.hpp>
 #include <string>
 #include "../Transports/UDP.h"
 #include "../Transports/HTTP.h"
@@ -17,8 +18,6 @@ namespace Monitoring
 /// Monitoring backends
 namespace Backends
 {
-
-using AliceO2::InfoLogger::InfoLogger;
 
 InfluxDB::InfluxDB(const std::string &hostname, int port)
 { 

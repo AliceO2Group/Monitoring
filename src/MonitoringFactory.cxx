@@ -14,8 +14,6 @@ namespace AliceO2
 namespace Monitoring 
 {
 
-using AliceO2::InfoLogger::InfoLogger;
-
 std::string MonitoringFactory::configPath = "";
 
 void MonitoringFactory::Configure(const std::string& configPath)
@@ -25,8 +23,8 @@ void MonitoringFactory::Configure(const std::string& configPath)
     Configuration::ConfigurationFactory::getConfiguration(configPath);
   }
   else {
-    MonLogger::Get() << InfoLogger::Severity::Warning << "Reconfiguration of Monitoring forebidden! Valid configuration path: "
-                         << MonitoringFactory::configPath  << MonLogger::End();
+    MonLogger::Get() << "Reconfiguration of Monitoring forebidden! Valid configuration path: "
+      << MonitoringFactory::configPath  << MonLogger::End();
   }
 }
 

@@ -18,8 +18,6 @@ namespace Monitoring
 namespace Backends
 {
 
-using AliceO2::InfoLogger::InfoLogger;
-
 ApMonBackend::ApMonBackend(const std::string& configurationFile)
 {
   try {

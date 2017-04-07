@@ -9,6 +9,7 @@
 #include <boost/algorithm/string/split.hpp>
 #include <chrono>
 #include "MonLogger.h"
+#include <sstream>
 
 namespace AliceO2
 {

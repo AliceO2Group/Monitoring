@@ -1,6 +1,5 @@
 ///
 /// \file MonLogger.h
-/// \author Barthelemy von Haller
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 ///
 
@@ -8,7 +7,6 @@
 #define MONITORING_MONINFOLOGGER_H
 
 #include <iostream>
-#include <InfoLogger/InfoLogger.hxx>
 
 namespace AliceO2
 {
@@ -16,33 +14,39 @@ namespace AliceO2
 namespace Monitoring
 {
 
-using namespace AliceO2::InfoLogger;
-
-/// Singleton class that is used in all Monitoring classes
-///
-/// The aim of this class is to avoid every class in the package to define and configure its own instance of InfoLogger.
-/// Independent InfoLogger instance can still be created when and if needed.
-class MonLogger : public AliceO2::InfoLogger::InfoLogger
+/// Simple Monitoring logging class
+class MonLogger
 {
   public:
+    template <typename T>
+    MonLogger &operator<<(const T &log) {
+        mStream << log;
+        return *this;
+    }
+
+    MonLogger &operator<<(std::ostream& (*log) (std::ostream&)) {
+        mStream << log;
+        return *this;
+    }
     static MonLogger &Get()
     {
-      static MonLogger infoLoggerInstance;
-      return infoLoggerInstance;
+      static MonLogger loggerInstance;
+      return loggerInstance;
     }
-    static auto End() -> decltype(AliceO2::InfoLogger::InfoLogger::endm)
+    static auto End() -> decltype("\n")
     {
-      return AliceO2::InfoLogger::InfoLogger::endm;
+      return "\n";
     }
 
   private:
-    MonLogger() = default;
+    std::ostream &mStream;
+    MonLogger(std::ostream &oStream = std::cout): mStream(oStream) {};
     
     /// Delete copy and move constructors
     MonLogger &operator=(const MonLogger &) = delete;
     MonLogger(const MonLogger &) = delete;
     MonLogger(MonLogger &&) = delete;
-    MonLogger &operator=(InfoLogger&&) = delete;
+    MonLogger &operator=(MonLogger&&) = delete;
 
 };
 

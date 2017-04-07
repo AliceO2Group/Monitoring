@@ -35,9 +35,8 @@ namespace Monitoring
 
 Collector::Collector(const std::string& configPath)
 {
-  MonLogger::Get() << AliceO2::InfoLogger::InfoLogger::Severity::Debug 
-                       << "Creating Monitoring instance from configuration: "
-                       << configPath << MonLogger::End();
+  MonLogger::Get() << "Creating Monitoring instance from configuration: "
+    << configPath << MonLogger::End();
 
   std::unique_ptr<Configuration::ConfigurationInterface> configFile =
 		  Configuration::ConfigurationFactory::getConfiguration(configPath);

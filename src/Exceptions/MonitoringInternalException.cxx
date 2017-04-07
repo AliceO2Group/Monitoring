@@ -18,7 +18,7 @@ MonitoringInternalException::MonitoringInternalException(const std::string& sour
 MonitoringInternalException::MonitoringInternalException(int code, const std::string& source, const std::string& message)
 : message(message)
 {
-  MonLogger::Get() << AliceO2::InfoLogger::InfoLogger::Severity::Debug << "MonitoringInternalException["
+  MonLogger::Get() << "MonitoringInternalException["
                        << source << "] (" << code << "): " << message << MonLogger::End();
 }
 
