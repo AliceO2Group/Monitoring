@@ -4,7 +4,7 @@
 ///
 
 #include "MonitoringInternalException.h"
-#include "../MonInfoLogger.h"
+#include "../MonLogger.h"
 
 namespace AliceO2
 {
@@ -18,8 +18,8 @@ MonitoringInternalException::MonitoringInternalException(const std::string& sour
 MonitoringInternalException::MonitoringInternalException(int code, const std::string& source, const std::string& message)
 : message(message)
 {
-  MonInfoLogger::Get() << AliceO2::InfoLogger::InfoLogger::Severity::Debug << "MonitoringInternalException["
-                       << source << "] (" << code << "): " << message << MonInfoLogger::End();
+  MonLogger::Get() << AliceO2::InfoLogger::InfoLogger::Severity::Debug << "MonitoringInternalException["
+                       << source << "] (" << code << "): " << message << MonLogger::End();
 }
 
 const char* MonitoringInternalException::what() const throw()

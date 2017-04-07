@@ -8,7 +8,7 @@
 #include <boost/algorithm/string/classification.hpp> 
 #include <boost/algorithm/string/split.hpp>
 #include <chrono>
-#include "MonInfoLogger.h"
+#include "MonLogger.h"
 
 namespace AliceO2
 {

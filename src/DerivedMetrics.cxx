@@ -12,7 +12,7 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include "MonInfoLogger.h"
+#include "MonLogger.h"
 
 namespace AliceO2
 {
@@ -27,8 +27,8 @@ DerivedMetrics::DerivedMetrics(const unsigned int cacheSize) : mMaxVectorSize(ca
 void DerivedMetrics::registerMetric(std::string name, DerivedMetricMode mode)
 {
   mRegistered.emplace(std::pair<std::string, DerivedMetricMode>(name, mode));
-  MonInfoLogger::Get() << "Monitoring : Metric " << name << " added to derived metrics" 
-                       << MonInfoLogger::End();
+  MonLogger::Get() << "Monitoring : Metric " << name << " added to derived metrics" 
+                       << MonLogger::End();
 }
 
 bool DerivedMetrics::isRegistered(std::string name)

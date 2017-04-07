@@ -22,8 +22,8 @@ using AliceO2::InfoLogger::InfoLogger;
 Flume::Flume(const std::string &hostname, int port)
 {
   mTransport = std::make_unique<Transports::UDP>(hostname, port);
-  MonInfoLogger::Get() << "Flume/UDP backend initialized"
-                       << " ("<< hostname << ":" << port << ")" << MonInfoLogger::End();
+  MonLogger::Get() << "Flume/UDP backend initialized"
+                       << " ("<< hostname << ":" << port << ")" << MonLogger::End();
 }
 
 std::string Flume::metricToJson(const Metric& metric)

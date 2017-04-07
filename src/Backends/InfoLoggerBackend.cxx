@@ -6,7 +6,7 @@
 #include "InfoLoggerBackend.h"
 
 #include <iostream>
-#include "../MonInfoLogger.h"
+#include "../MonLogger.h"
 
 namespace AliceO2
 {
@@ -28,7 +28,7 @@ inline unsigned long InfoLoggerBackend::convertTimestamp(const std::chrono::time
 
 InfoLoggerBackend::InfoLoggerBackend()
 {
-  MonInfoLogger::Get() << "InfoLogger backend initialized" << InfoLogger::endm;
+  MonLogger::Get() << "InfoLogger backend initialized" << InfoLogger::endm;
 }
 
 void InfoLoggerBackend::addGlobalTag(std::string name, std::string value)
@@ -48,10 +48,10 @@ void InfoLoggerBackend::send(const Metric& metric)
     }
     metricTags += tag.name + "=" + tag.value;
   }
-  MonInfoLogger::Get() << InfoLogger::Severity::Debug << "InfoLoggerMonitoring : " << metric.getName() << ", "
-                       << metric.getValue() << " Type: " << metric.getType() << ", " 
-                       << convertTimestamp(metric.getTimestamp()) << ", " << tagString << " " << metricTags
-                       << InfoLogger::endm;
+  mInfoLogger << InfoLogger::Severity::Debug << "InfoLoggerMonitoring : " << metric.getName() << ", "
+    << metric.getValue() << " Type: " << metric.getType() << ", " 
+    << convertTimestamp(metric.getTimestamp()) << ", " << tagString << " " << metricTags
+    << InfoLogger::endm;
 }
 
 } // namespace Backends

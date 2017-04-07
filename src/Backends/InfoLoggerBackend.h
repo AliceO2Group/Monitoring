@@ -7,6 +7,7 @@
 #define ALICEO2_MONITORING_CORE_INFOLOGGER_BACKEND_H
 
 #include "Monitoring/Backend.h"
+#include <InfoLogger/InfoLogger.hxx>
 #include <string>
 
 namespace AliceO2
@@ -46,6 +47,8 @@ class InfoLoggerBackend final : public Backend
     unsigned long convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp);
 
     std::string tagString; ///< Global tagset (common for each metric)
+
+    AliceO2::InfoLogger::InfoLogger mInfoLogger;
 };
 
 } // namespace Backends

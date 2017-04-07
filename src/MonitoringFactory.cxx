@@ -5,7 +5,7 @@
 
 #include "Monitoring/MonitoringFactory.h"
 #include "Exceptions/MonitoringException.h"
-#include "MonInfoLogger.h"
+#include "MonLogger.h"
 #include <Configuration/ConfigurationFactory.h>
 
 namespace AliceO2 
@@ -25,8 +25,8 @@ void MonitoringFactory::Configure(const std::string& configPath)
     Configuration::ConfigurationFactory::getConfiguration(configPath);
   }
   else {
-    MonInfoLogger::Get() << InfoLogger::Severity::Warning << "Reconfiguration of Monitoring forebidden! Valid configuration path: "
-                         << MonitoringFactory::configPath  << MonInfoLogger::End();
+    MonLogger::Get() << InfoLogger::Severity::Warning << "Reconfiguration of Monitoring forebidden! Valid configuration path: "
+                         << MonitoringFactory::configPath  << MonLogger::End();
   }
 }
 

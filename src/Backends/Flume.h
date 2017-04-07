@@ -8,7 +8,7 @@
 
 #include "Monitoring/Backend.h"
 #include "../Transports/TransportInterface.h"
-#include "../MonInfoLogger.h"
+#include "../MonLogger.h"
 #include <boost/property_tree/ptree.hpp>
 #include <chrono>
 #include <string>

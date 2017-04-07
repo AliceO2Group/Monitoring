@@ -13,7 +13,7 @@
 #include <vector>
 #include <Configuration/ConfigurationFactory.h>
 
-#include "MonInfoLogger.h"
+#include "MonLogger.h"
 #include "ProcessDetails.h"
 #include "Exceptions/MonitoringInternalException.h"
 #include "Backends/InfoLoggerBackend.h"
@@ -35,9 +35,9 @@ namespace Monitoring
 
 Collector::Collector(const std::string& configPath)
 {
-  MonInfoLogger::Get() << AliceO2::InfoLogger::InfoLogger::Severity::Debug 
+  MonLogger::Get() << AliceO2::InfoLogger::InfoLogger::Severity::Debug 
                        << "Creating Monitoring instance from configuration: "
-                       << configPath << MonInfoLogger::End();
+                       << configPath << MonLogger::End();
 
   std::unique_ptr<Configuration::ConfigurationInterface> configFile =
 		  Configuration::ConfigurationFactory::getConfiguration(configPath);
@@ -45,7 +45,7 @@ Collector::Collector(const std::string& configPath)
     mBackends.emplace_back(std::make_unique<Backends::InfoLoggerBackend>());
   }
   else {
-    MonInfoLogger::Get() << "InfoLogger backend disabled" << MonInfoLogger::End();
+    MonLogger::Get() << "InfoLogger backend disabled" << MonLogger::End();
   }
 #ifdef _WITH_APPMON
   if (configFile->get<int>("ApMon/enable").value_or(0) == 1) {
@@ -54,7 +54,7 @@ Collector::Collector(const std::string& configPath)
     ));
   }
   else {
-    MonInfoLogger::Get() << "ApMon backend disabled" << MonInfoLogger::End();
+    MonLogger::Get() << "ApMon backend disabled" << MonLogger::End();
   }
 #endif
 
@@ -66,7 +66,7 @@ Collector::Collector(const std::string& configPath)
     ));
  } 
  else {
-  MonInfoLogger::Get() << "InfluxDB/UDP backend disabled" << MonInfoLogger::End();
+  MonLogger::Get() << "InfluxDB/UDP backend disabled" << MonLogger::End();
  }
  if (configFile->get<int>("InfluxDB/enableHTTP").value_or(0) == 1) {
     mBackends.emplace_back(std::make_unique<Backends::InfluxDB>(
@@ -76,7 +76,7 @@ Collector::Collector(const std::string& configPath)
     ));
   }
   else {
-    MonInfoLogger::Get() << "InfluxDB/HTTP backend disabled" << MonInfoLogger::End();
+    MonLogger::Get() << "InfluxDB/HTTP backend disabled" << MonLogger::End();
   }
 #endif
 
@@ -87,7 +87,7 @@ Collector::Collector(const std::string& configPath)
     )); 
   }
   else {
-    MonInfoLogger::Get() << "Flume backend disabled" << MonInfoLogger::End();
+    MonLogger::Get() << "Flume backend disabled" << MonLogger::End();
   }
 
 #ifdef _OS_LINUX  
@@ -96,7 +96,7 @@ Collector::Collector(const std::string& configPath)
     int interval = configFile->get<int>("ProcessMonitor/interval").value();
     mMonitorRunning = true;
     mMonitorThread = std::thread(&Collector::processMonitorLoop, this, interval);  
-    MonInfoLogger::Get() << "Process Monitor : Automatic updates enabled" << MonInfoLogger::End();
+    MonLogger::Get() << "Process Monitor : Automatic updates enabled" << MonLogger::End();
   }
 #endif
 

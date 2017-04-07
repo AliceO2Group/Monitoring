@@ -1,5 +1,5 @@
 ///
-/// \file MonInfoLogger.h
+/// \file MonLogger.h
 /// \author Barthelemy von Haller
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 ///
@@ -22,12 +22,12 @@ using namespace AliceO2::InfoLogger;
 ///
 /// The aim of this class is to avoid every class in the package to define and configure its own instance of InfoLogger.
 /// Independent InfoLogger instance can still be created when and if needed.
-class MonInfoLogger : public AliceO2::InfoLogger::InfoLogger
+class MonLogger : public AliceO2::InfoLogger::InfoLogger
 {
   public:
-    static MonInfoLogger &Get()
+    static MonLogger &Get()
     {
-      static MonInfoLogger infoLoggerInstance;
+      static MonLogger infoLoggerInstance;
       return infoLoggerInstance;
     }
     static auto End() -> decltype(AliceO2::InfoLogger::InfoLogger::endm)
@@ -36,13 +36,13 @@ class MonInfoLogger : public AliceO2::InfoLogger::InfoLogger
     }
 
   private:
-    MonInfoLogger() = default;
+    MonLogger() = default;
     
     /// Delete copy and move constructors
-    MonInfoLogger &operator=(const MonInfoLogger &) = delete;
-    MonInfoLogger(const MonInfoLogger &) = delete;
-    MonInfoLogger(MonInfoLogger &&) = delete;
-    MonInfoLogger &operator=(InfoLogger&&) = delete;
+    MonLogger &operator=(const MonLogger &) = delete;
+    MonLogger(const MonLogger &) = delete;
+    MonLogger(MonLogger &&) = delete;
+    MonLogger &operator=(InfoLogger&&) = delete;
 
 };
 

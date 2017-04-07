@@ -4,7 +4,7 @@
 ///
 
 #include "MonitoringException.h"
-#include "../MonInfoLogger.h"
+#include "../MonLogger.h"
 
 namespace AliceO2
 {
@@ -20,7 +20,7 @@ MonitoringException::MonitoringException(int code, const std::string& source, co
   std::stringstream ss; 
   ss << "MonitoringException[" << source << "] (" << code << "): " << message;
   this->message = ss.str();
-  MonInfoLogger::Get() << AliceO2::InfoLogger::InfoLogger::Severity::Error << message << MonInfoLogger::End();
+  MonLogger::Get() << AliceO2::InfoLogger::InfoLogger::Severity::Error << message << MonLogger::End();
 }
 
 const char* MonitoringException::what() const throw()

@@ -23,8 +23,8 @@ using AliceO2::InfoLogger::InfoLogger;
 InfluxDB::InfluxDB(const std::string &hostname, int port)
 { 
   transport = std::make_unique<Transports::UDP>(hostname, port);
-  MonInfoLogger::Get() << "InfluxDB/UDP backend initialized"
-                       << " ("<< hostname << ":" << port << ")" << MonInfoLogger::End();
+  MonLogger::Get() << "InfluxDB/UDP backend initialized"
+                       << " ("<< hostname << ":" << port << ")" << MonLogger::End();
 }
 
 InfluxDB::InfluxDB(const std::string &hostname, int port, const std::string& database)
@@ -32,8 +32,8 @@ InfluxDB::InfluxDB(const std::string &hostname, int port, const std::string& dat
   transport = std::make_unique<Transports::HTTP>(
     "http://" + hostname + ":" + std::to_string(port) + "/write?db=" + database
   );
-  MonInfoLogger::Get() << "InfluxDB/HTTP backend initialized" << " ("<< hostname 
-                       << ":" << port << "/write?db=" << database << ")" << MonInfoLogger::End();
+  MonLogger::Get() << "InfluxDB/HTTP backend initialized" << " ("<< hostname 
+                       << ":" << port << "/write?db=" << database << ")" << MonLogger::End();
 }
 
 inline unsigned long InfluxDB::convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp)
