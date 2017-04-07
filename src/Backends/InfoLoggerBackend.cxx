@@ -28,7 +28,7 @@ inline unsigned long InfoLoggerBackend::convertTimestamp(const std::chrono::time
 
 InfoLoggerBackend::InfoLoggerBackend()
 {
-  MonLogger::Get() << "InfoLogger backend initialized" << InfoLogger::endm;
+  MonLogger::Get() << "InfoLogger backend initialized" << MonLogger::End();
 }
 
 void InfoLoggerBackend::addGlobalTag(std::string name, std::string value)
