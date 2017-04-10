@@ -78,7 +78,7 @@ set(APP_SOURCES
 set(LIBRARY_NAME_DATACOLLECTOR DataCollector)
 set(INCLUDE include/Monitoring)
 add_library(${LIBRARY_NAME_DATACOLLECTOR} SHARED ${LIB_HEADERS} ${LIB_SOURCES})
-target_link_libraries(${LIBRARY_NAME_DATACOLLECTOR} Common InfoLogger-static ${Configuration_LIBRARIES} ${Boost_SYSTEM_LIBRARY})
+target_link_libraries(${LIBRARY_NAME_DATACOLLECTOR} Common InfoLogger ${Configuration_LIBRARIES} ${Boost_SYSTEM_LIBRARY})
 if(APMON_FOUND)
 	target_link_libraries(${LIBRARY_NAME_DATACOLLECTOR} apmoncpp)
 endif()
