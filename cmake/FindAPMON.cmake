@@ -24,4 +24,8 @@ set(APMON_LIBRARIES ${APMON_LIBRARY})
 find_package_handle_standard_args(APMON  "ApMon could not be found. Install package ApMon_cpp."
                                   APMON_LIBRARY APMON_INCLUDE_DIR)
 
+if(APMON_FOUND)
+    message(info "APMON found")
+endif()
+
 mark_as_advanced(APMON_INCLUDE_DIR APMON_LIBRARY)

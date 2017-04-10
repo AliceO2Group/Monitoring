@@ -1,18 +1,41 @@
-# REFERENCE PROJECT CMAKELISTS.TXT
-#
-# @author Barthélémy von Haller
+####################################
+# General project definition
+####################################
 
-cmake_minimum_required(VERSION 2.8)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/../cmake) # main (top) cmake dir
+CMAKE_MINIMUM_REQUIRED(VERSION 3.5.2 FATAL_ERROR)
+
+### CMP0025   Compiler id for Apple Clang is now AppleClang.
+### CMP0042   MACOSX_RPATH is enabled by default.
+
+FOREACH (p
+        CMP0025 # CMake 3.0
+        CMP0042 # CMake 3.0
+        )
+    IF (POLICY ${p})
+        cmake_policy(SET ${p} NEW)
+    ENDIF ()
+endforeach ()
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake) # project specific cmake dir
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/../cmake)
 
-# CMake useful variables
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib") 
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+project(Monitoring)
 
-# Set the name of your project here
-project("Monitoring")
+# Load some basic macros which are needed later on
+include(O2Utils)
+include(MonitoringDependencies)
+include(O2) # to be removed
+
+link_o2_subproject(Common)
+link_o2_subproject(InfoLogger)
+
+# Set the default build type to "RelWithDebInfo"
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "RelWithDebInfo"
+            CACHE
+            STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel Coverage."
+            FORCE)
+endif(NOT CMAKE_BUILD_TYPE)
 
 # Set the version number of your project here (format is MAJOR.MINOR.PATCHLEVEL - e.g. 1.0.0)
 set(VERSION_MAJOR "0")
@@ -20,68 +43,146 @@ set(VERSION_MINOR "0")
 set(VERSION_PATCH "0")
 set(VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
-# Macros and variables for all O2 subprojects
-include(O2)
+# C++14
+IF (CMAKE_VERSION VERSION_LESS 3.1)
+    include(CheckCXXCompilerFlag)
+    CHECK_CXX_COMPILER_FLAG(-std=c++14 COMPILER_SUPPORTS_CXX14)
+    if (COMPILER_SUPPORTS_CXX14)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+    else ()
+        message(ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++14 support. Please use a different C++ compiler.")
+    endif ()
+ELSE ()
+    set(CMAKE_CXX_STANDARD 14)  # proper way in CMake >= 3.1
+ENDIF ()
 
-## Git (and its revision)
-find_package(Git QUIET) # if we don't find git or FindGit.cmake is not on the system we ignore it.
-## GetGitRevisionDescription module to retreive branch and revision information from Git
-## Starting with Git 1.9 the module will be part of official cMake distribution, until then it has to be
-## part of the application
-## The Git module will trigger a reconfiguration for each pull that will bring a new revision on the local repository
-set (VCS_REVISION "-1")
-if(GIT_FOUND)
-    include(GetGitRevisionDescription)
-    get_git_head_revision(GIT_REFSPEC GIT_SHA1)
-    message(STATUS "GIT branch ${GIT_REFSPEC}")
-    message(STATUS "GIT revision ${GIT_SHA1}")
-    set (VCS_REVISION ${GIT_SHA1})
+# Add compiler flags for warnings and (more importantly) fPIC and debug symbols
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra -fPIC")
+
+
+# TODO RECONSIDER THE THINGS BELOW AFTER EXTRACTION TO ITS OWN REPO
+# Make sure we tell the topdir CMakeLists that we exist (if build from topdir)
+get_directory_property(hasParent PARENT_DIRECTORY)
+if(hasParent)
+    set(PROJECT_${PROJECT_NAME} true PARENT_SCOPE)
+endif()
+include(PackageConfigurator)
+
+add_subdirectory(doc)
+
+
+
+####################################
+# Module, library and executable definition
+####################################
+
+set(MODULE_NAME "Monitoring")
+
+O2_SETUP(NAME ${MODULE_NAME})
+
+set(SRCS
+        src/Collector.cxx
+        src/Metric.cxx
+        src/Backends/InfoLoggerBackend.cxx
+        src/Backends/Flume.cxx
+        src/DerivedMetrics.cxx
+        src/ProcessMonitor.cxx
+        src/ProcessDetails.cxx
+        src/MonitoringFactory.cxx
+        src/Transports/UDP.cxx
+        src/Transports/HTTP.cxx
+        src/Exceptions/MonitoringException.cxx
+        src/Exceptions/MonitoringInternalException.cxx
+        )
+
+# Detect operating system
+if (UNIX AND NOT APPLE)
+    message(STATUS "Detected Linux OS: Process monitor enabled")
+    add_definitions(-D_OS_LINUX)
 endif()
 
-# This line finds the boost lib and headers. 
-set(Boost_NO_BOOST_CMAKE ON) #  Don't do a find_package in config mode before searching for a regular boost install.
-find_package(Boost COMPONENTS unit_test_framework program_options system REQUIRED)
+if (WIN32)
+    message(STATUS "Detected Windows OS: Process monitor disabled")
+    add_definitions(-D_OS_WINDOWS)
+endif()
 
-# Dependency on another subproject (InfoLogger)
-link_o2_subproject(Common)
-link_o2_subproject(InfoLogger)
-find_package(Configuration)
+if (APPLE)
+    message(STATUS "Detected Mac OS: Process monitor disabled")
+    add_definitions(-D_OS_MAC)
+endif()
+
+# Backends
+message(STATUS "Backends")
+message(STATUS "  Compiling InfoLoggerBackend backend")
+message(STATUS "  Compiling Flume UDP/JSON backend")
+
+if(APMON_FOUND)
+    message(STATUS "  Compiling ApMon backend")
+    list(APPEND SRCS src/Backends/ApMonBackend.cxx)
+    add_definitions(-D_WITH_APPMON)
+else()
+    message(WARNING "  ApMon not found, skipping ApMon backend")
+endif()
+
+if(CURL_FOUND)
+    message(STATUS "  Compiling InfluxDB HTTP and UDP backend")
+    add_definitions(-D_WITH_INFLUX)
+    list(APPEND SRCS src/Backends/InfluxDB.cxx)
+else()
+    message(WARNING "  libcurl not found, skipping InfluxDB backend")
+endif()
+
+# Produce the final Version.h using template Version.h.in and substituting variables.
+# We don't want to polute our source tree with it, thus putting it in binary tree.
+configure_file("include/${MODULE_NAME}/Version.h.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/include/${MODULE_NAME}/Version.h"
+        @ONLY
+        )
+
+include_directories(
+        ${CMAKE_CURRENT_BINARY_DIR}/include
+)
 
 configure_file(examples/config-default.ini examples/config-default.ini COPYONLY)
 
-# This sets the include directory for the reference project. This is
-# the -I flag in gcc. All the includes should be in this variable To
-# add new directories to the include path, just add them in this list
-# (after a space), or add an include_directories statement in a
-# subdirectory's CMakeLists.
-include_directories(
-    ${PROJECT_SOURCE_DIR}/include
-    ${PROJECT_BINARY_DIR}/include   # add the binary tree to the search path so that we will find Version.h
-    ${Boost_INCLUDE_DIRS}
-    ${Configuration_INCLUDE_DIRS}
+set(LIBRARY_NAME DataCollector)
+set(BUCKET_NAME o2_monitoring_bucket)
+O2_GENERATE_LIBRARY()
+
+set(TEST_SRCS
+        test/testCollector.cxx
+        test/testDerived.cxx
+        test/testFlume.cxx
+        test/testMetric.cxx
+        test/testProcessDetails.cxx
+        test/testProcessMonitor.cxx
+        )
+
+O2_GENERATE_TESTS(
+        MODULE_LIBRARY_NAME ${LIBRARY_NAME}
+        BUCKET_NAME ${BUCKET_NAME}
+        TEST_SRCS ${TEST_SRCS}
 )
 
-# Mac needed variables (adapt according to your needs)
-set(CMAKE_MACOSX_RPATH ON)
-#set(CMAKE_SKIP_BUILD_RPATH FALSE)
-#set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
-#set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-#set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+set(EXAMPLES
+        examples/1-Basic.cxx
+        examples/2-TaggedMetrics.cxx
+        examples/3-UserDefinedTimestamp
+        examples/4-RateDerivedMetric.cxx
+        examples/5-Benchmark.cxx
+        examples/6-DedicatedInstance.cxx
+        )
 
-enable_testing() # needed on top-level CMakeLists.txt
-add_subdirectory(include)
-add_subdirectory(src)
-add_subdirectory(doc)
-add_subdirectory(test)
-add_subdirectory(examples)
+foreach (example ${EXAMPLES})
 
-# PACKAGING
-# _____________________________________________________________________________
+    get_filename_component(example_name ${example} NAME)
+    string(REGEX REPLACE ".cxx" "" example_name ${example_name})
 
-include(CPackConfig)
+    O2_GENERATE_EXECUTABLE(
+            EXE_NAME ${example_name}
+            SOURCES ${example}
+            MODULE_LIBRARY_NAME ${LIBRARY_NAME}
+            BUCKET_NAME ${BUCKET_NAME}
+    )
 
-#
-# CMAKE PACKAGING (for other CMake projects to use this one easily)
-# _____________________________________________________________________________
-
-include(PackageConfigurator)
+endforeach()
