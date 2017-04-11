@@ -24,10 +24,6 @@ project(Monitoring)
 # Load some basic macros which are needed later on
 include(O2Utils)
 include(MonitoringDependencies)
-include(O2) # to be removed
-
-link_o2_subproject(Common)
-link_o2_subproject(InfoLogger)
 
 # Set the default build type to "RelWithDebInfo"
 if(NOT CMAKE_BUILD_TYPE)

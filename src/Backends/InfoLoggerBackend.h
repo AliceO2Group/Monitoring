@@ -7,7 +7,7 @@
 #define ALICEO2_MONITORING_CORE_INFOLOGGER_BACKEND_H
 
 #include "Monitoring/Backend.h"
-#include <InfoLogger/InfoLogger.hxx>
+//#include <InfoLogger/InfoLogger.hxx>
 #include <string>
 
 namespace AliceO2
@@ -48,7 +48,7 @@ class InfoLoggerBackend final : public Backend
 
     std::string tagString; ///< Global tagset (common for each metric)
 
-    AliceO2::InfoLogger::InfoLogger mInfoLogger;
+    //AliceO2::InfoLogger::InfoLogger mInfoLogger;
 };
 
 } // namespace Backends

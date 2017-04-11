@@ -17,11 +17,10 @@ o2_define_bucket(
         o2_monitoring_bucket
 
         DEPENDENCIES
-        Common
-        InfoLogger
         ${Configuration_LIBRARIES}
         ${Boost_SYSTEM_LIBRARY}
         ${Boost_FILESYSTEM_LIBRARY}
+        ${Boost_PROGRAM_OPTIONS_LIBRARY}
         ${extra_deps}
 
         SYSTEMINCLUDE_DIRECTORIES

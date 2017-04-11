@@ -17,8 +17,6 @@ namespace Monitoring
 namespace Backends
 {
 
-using AliceO2::InfoLogger::InfoLogger;
-
 inline unsigned long InfoLoggerBackend::convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp)
 {
   return std::chrono::duration_cast <std::chrono::milliseconds>(
@@ -48,10 +46,10 @@ void InfoLoggerBackend::send(const Metric& metric)
     }
     metricTags += tag.name + "=" + tag.value;
   }
-  mInfoLogger << InfoLogger::Severity::Debug << "InfoLoggerMonitoring : " << metric.getName() << ", "
+  MonLogger::Get() << "InfoLoggerMonitoring : " << metric.getName() << ", "
     << metric.getValue() << " Type: " << metric.getType() << ", " 
     << convertTimestamp(metric.getTimestamp()) << ", " << tagString << " " << metricTags
-    << InfoLogger::endm;
+    << MonLogger::End();
 }
 
 } // namespace Backends
