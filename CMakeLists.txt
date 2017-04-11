@@ -145,7 +145,7 @@ include_directories(
 
 configure_file(examples/config-default.ini examples/config-default.ini COPYONLY)
 
-set(LIBRARY_NAME DataCollector)
+set(LIBRARY_NAME Monitoring)
 set(BUCKET_NAME o2_monitoring_bucket)
 O2_GENERATE_LIBRARY()
 
