@@ -55,15 +55,6 @@ ENDIF ()
 # Add compiler flags for warnings and (more importantly) fPIC and debug symbols
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra -fPIC")
 
-
-# TODO RECONSIDER THE THINGS BELOW AFTER EXTRACTION TO ITS OWN REPO
-# Make sure we tell the topdir CMakeLists that we exist (if build from topdir)
-get_directory_property(hasParent PARENT_DIRECTORY)
-if(hasParent)
-    set(PROJECT_${PROJECT_NAME} true PARENT_SCOPE)
-endif()
-include(PackageConfigurator)
-
 add_subdirectory(doc)
 
 
@@ -144,6 +135,8 @@ configure_file(examples/config-default.ini examples/config-default.ini COPYONLY)
 set(LIBRARY_NAME Monitoring)
 set(BUCKET_NAME o2_monitoring_bucket)
 O2_GENERATE_LIBRARY()
+
+enable_testing()
 
 set(TEST_SRCS
         test/testCollector.cxx
