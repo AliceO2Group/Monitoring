@@ -1,15 +1,10 @@
-# Monitoring module
+# Monitoring
 
 Monitoring module allows to:
 + inject user specific metrics
 + monitor process itself (cpu / memory)
 
-## Installation
-
-### aliBuild installation
-Not yet supported.
-
-### Manual installation
+## Manual installation
 Manual installation of the O<sup>2</sup> Monitroing module and its dependencies.
 
 ### Dependencies
@@ -26,14 +21,14 @@ Optional dependencies:
 #### Boost
 It is assumed that Boost is present in your system. For more information see [Boost Getting Started](http://www.boost.org/doc/libs/1_63_0/more/getting_started/unix-variants.html) page.
 
-#### O2 O<sup>2</sup> Configuration module
+#### O<sup>2</sup> Configuration module
 ~~~
 git clone https://github.com/AliceO2Group/Configuration.git
 cd Configuration; mkdir build; cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=<installdir>
 make -j
 make install
-~~
+~~~
 
 #### libcurl
 It should be present in your system or available in package manager, otherwise see: https://curl.haxx.se/download.html
