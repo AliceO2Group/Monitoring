@@ -4,24 +4,21 @@ Monitoring module allows to:
 + inject user specific metrics
 + monitor process itself (cpu / memory)
 
+## aliBuild installation
+~~~
+aliBuild init Monitoring@master
+aliDoctor Monitoring
+aliBuild --defaults o2 build Monitoring
+alienv load Monitoring/latest
+~~~
+
 ## Manual installation
 Manual installation of the O<sup>2</sup> Monitroing module and its dependencies.
 
-### Dependencies
-Required dependencies:
-
-* Boost (unit test framework, program options, system, filesystem)
-* O<sup>2</sup> Configuration module
-
-Optional dependencies:
-
-* libcurl
-* ApMon
-
-#### Boost
+### Boost
 It is assumed that Boost is present in your system. For more information see [Boost Getting Started](http://www.boost.org/doc/libs/1_63_0/more/getting_started/unix-variants.html) page.
 
-#### O<sup>2</sup> Configuration module
+### O<sup>2</sup> Configuration module
 ~~~
 git clone https://github.com/AliceO2Group/Configuration.git
 cd Configuration; mkdir build; cd build
@@ -30,10 +27,10 @@ make -j
 make install
 ~~~
 
-#### libcurl
+### libcurl (optional)
 It should be present in your system or available in package manager, otherwise see: https://curl.haxx.se/download.html
 
-#### ApMon
+### ApMon (optional)
 ~~~
 wget http://monalisa.caltech.edu/download/apmon/ApMon_cpp-2.2.8.tar.gz
 ./configure --prefix=<installdir>
