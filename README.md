@@ -4,6 +4,57 @@ Monitoring module allows to:
 + inject user specific metrics
 + monitor process itself (cpu / memory)
 
+## Installation
+
+### aliBuild installation
+Not yet supported.
+
+### Manual installation
+Manual installation of the O<sup>2</sup> Monitroing module and its dependencies.
+
+### Dependencies
+Required dependencies:
+
+* Boost (unit test framework, program options, system, filesystem)
+* O<sup>2</sup> Configuration module
+
+Optional dependencies:
+
+* libcurl
+* ApMon
+
+#### Boost
+It is assumed that Boost is present in your system. For more information see [Boost Getting Started](http://www.boost.org/doc/libs/1_63_0/more/getting_started/unix-variants.html) page.
+
+#### O2 O<sup>2</sup> Configuration module
+~~~
+git clone https://github.com/AliceO2Group/Configuration.git
+cd Configuration; mkdir build; cd build
+cmake .. -DCMAKE_INSTALL_PREFIX=<installdir>
+make -j
+make install
+~~
+
+#### libcurl
+It should be present in your system or available in package manager, otherwise see: https://curl.haxx.se/download.html
+
+#### ApMon
+~~~
+wget http://monalisa.caltech.edu/download/apmon/ApMon_cpp-2.2.8.tar.gz
+./configure --prefix=<installdir>
+make -j
+make install
+~~~
+
+### Monitoring module
+~~~
+git clone https://github.com/AliceO2Group/Monitoring.git
+cd Monitoring; mkdir build; cd build
+cmake .. -DCMAKE_INSTALL_PREFIX=<installdir>
+make -j
+make install
+~~~
+
 ## Metrics
 Metrics consist of 4 parameters: name, value, timestamp and tags.I
 
