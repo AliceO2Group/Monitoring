@@ -5,6 +5,11 @@ Monitoring module allows to:
 + monitor process itself (cpu / memory)
 
 ## aliBuild installation
+If you don't have [aliBuild](https://alisw.github.io/alibuild/)
+~~~
+pip install alibuild
+~~~
+And then
 ~~~
 aliBuild init Monitoring@master
 aliDoctor Monitoring
