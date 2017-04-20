@@ -7,6 +7,10 @@
 
 #include <unistd.h>
 
+#ifdef _OS_MAC
+#include <mach-o/dyld.h>
+#endif
+
 namespace AliceO2
 {
 /// ALICE O2 Monitoring system
@@ -28,14 +32,25 @@ inline void ProcessDetails::generatePid()
 inline void ProcessDetails::generateProcessName()
 {
   char buff[255];
+  #ifdef _OS_LINUX
   ssize_t len = ::readlink("/proc/self/exe", buff, sizeof(buff)-1);
   if (len != -1) {
     buff[len] = '\0';
     mProcessName = std::string(buff);
-    mProcessName = mProcessName.substr(mProcessName.find_last_of("/") + 1);
   }
-  else {
+  #endif
+
+  #ifdef _OS_MAC
+  uint32_t size = sizeof(buff);
+  if (_NSGetExecutablePath(buff, &size) == 0) {
+    mProcessName = std::string(buff);
+  }
+  #endif
+
+  if (mProcessName.empty()) {
     mProcessName = "!";
+  } else {
+    mProcessName = mProcessName.substr(mProcessName.find_last_of("/") + 1);
   }
 }
 
