@@ -2,11 +2,11 @@
 Monitoring module allows to inject user defined metrics and monitor the process itself. It supports multiple backends, protocols and data formats.
 
 ## aliBuild installation
-Install [aliBuild](https://alisw.github.io/alibuild/) first
+Install [aliBuild](https://alisw.github.io/alibuild/) first.
 ~~~
 pip install alibuild
 ~~~
-Then follow instructions below
+Then follow instructions below.
 ~~~
 aliBuild init Monitoring@master
 aliDoctor Monitoring
@@ -32,7 +32,7 @@ make install
 See [README](https://github.com/AliceO2Group/Configuration#manual-installation) if you're missing any Configuration dependencies.
 
 ### libcurl (optional)
-It should be present in your system or available in package manager, otherwise see: https://curl.haxx.se/download.html
+It should be present in your system or available in package manager, otherwise go to [curl download page](see: https://curl.haxx.se/download.html).
 
 ### ApMon (optional)
 ~~~
@@ -110,7 +110,7 @@ To enable process monitoring *ProcessMonitor.enable* flag in configuration file 
 + **pcpu** - cpu utilization of the process in "##.#" format. Currently, it is the CPU time used divided by the time the process has been running (cputime/realtime ratio), expressed as a percentage.  It will not add up to 100% unless you are lucky
 + **pmem** - ratio of the process's resident set size  to the physical memory on the machine, expressed as a percentage
 + **bytesReceived** - the total number of bytes of data received by the process (per interface)
-+ **bytesTransmitted** - the total number of bytes of data transmitted by the process (per interface)
++ **bytesTransmitted** - the total number of bytes of data transmitted by the process (per interface).
 
 ## Monitoring backends
 Metrics are pushed to one or multiple backends. The module currently supports three backends - see table below. Enabling/Disabling backends is done via configuration file.
@@ -119,8 +119,8 @@ Metrics are pushed to one or multiple backends. The module currently supports th
 | ---------------- |:------------------------------:|:----------------------------:|:--------------------------:| --------------:|
 | InfluxDB         | InfluxDB time series database  | HTTP / UDP (InfluxDB Line Protocol) | cURL / boost asio   | Supported by InfluxDB Line Protocol |
 | ApMonBackend     | MonALISA Serivce               | UDP                          | ApMon                      | Default tags concatenated with entity; Metric tags concatenated with name |
-| InfoLoggerBackned| O2 Logging module              | -                            | -                          | Added to the end of message |
-| Flume            | Collects, aggragate monitoring data | UDP (JSON)              | boost asio                 | In Flume Event header Flume Event |
+| InfoLoggerBackned| O2 Logging module              | -                            | (as log message)           | Added to the end of message |
+| Flume            | Collects, aggragate monitoring data | UDP (JSON)              | boost asio                 | In Flume Event header |
 
 Instruction how to install and configure server-sides backends are available in [Server-side backend installation and configuration](#server-side-backend-installation-and-configuration) section.
 
