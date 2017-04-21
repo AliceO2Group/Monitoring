@@ -1,15 +1,12 @@
 # Monitoring
-
-Monitoring module allows to:
-+ inject user specific metrics
-+ monitor process itself (cpu / memory)
+Monitoring module allows to inject user defined metrics and monitor the process itself. It supports multiple backends, protocols and data formats.
 
 ## aliBuild installation
-If you don't have [aliBuild](https://alisw.github.io/alibuild/)
+Install [aliBuild](https://alisw.github.io/alibuild/) first
 ~~~
 pip install alibuild
 ~~~
-And then
+Then follow instructions below
 ~~~
 aliBuild init Monitoring@master
 aliDoctor Monitoring
@@ -31,6 +28,8 @@ cmake .. -DCMAKE_INSTALL_PREFIX=<installdir>
 make -j
 make install
 ~~~
+
+See [README](https://github.com/AliceO2Group/Configuration#manual-installation) if you're missing any Configuration dependencies.
 
 ### libcurl (optional)
 It should be present in your system or available in package manager, otherwise see: https://curl.haxx.se/download.html
@@ -62,45 +61,44 @@ Metrics consist of 4 parameters: name, value, timestamp and tags.I
 | timestamp      | chrono::time_point&lt;std::chrono::system_clock&gt; | no       | current timestamp     |
 | tags           | vector<Tag>                                   | no       | -**                |
 
-**Default tag set is generated per process and its attached to each metric:
+**Default tag set is process specific and included in each metric:
 + hostname
 + PID
 + process name
 
-See how backends handle tags in  *Monitoring backends* section.
+See how backends handle tags in  [Monitoring backends](#monitoring-backends) section.
 
 ## Creating monitring instance
-The most recommended way of getting (reference to) monitoring instance is via *MonitoringFactory*.
-Before using the factory Configure method must be call providing path to cofiguration file/backend. It should be called only once per process (following calls will not have any effect).
+1. The recommended way of getting (reference to) monitoring instance is via *MonitoringFactory*.
+Before using the factory *Configure* method must be called providing URI to configuration file or backend. It should be called only once per process (following calls will not have any effect).
 ```cpp
 AliceO2::Monitoring::MonitoringFactory::Configure("file://../Monitoring/examples/SampleConfig.ini");
 AliceO2::Monitoring::MonitoringFactory::Get();
 ```
 
-The second way is getting dedicated instance. It should be used only when different configuration path needs to be passed within the same process.
+2. A second way allows to create dedicated monitoring instance. It's useful only when different configuration URI is needed within the same process.
 ```cpp
 Monitoring::Create("file://../Monitoring/examples/SampleConfig.ini");
 ```
 
-See *Getting started* before writting any code.
-
-## Sending metric
+## Sending a metric
 Metric can be sent by one of following ways:
-+ By creating and moving metric object: 
-   + *send(Metric&& metric)*. 
-   In addition there are two methods that can be invoked on Metric object:
-   + *addTags(std::vector&lt;Tag&gt;&& tags)*
-   + *setTimestamp(std::chrono::time_point&lt;std::chrono::system_clock&gt;& timestamp)*
-+ By providing all required metric parameters (name and value):
-   +  *send(T value, std::string name)*
-   In addition there are two suplementary methods that can be chained:
-     + *sendTagged(T value, std::string name, std::vector&lt;Tag&gt;&& tags)*
-     + *sendTimed(T value, std::string name, std::chrono::time_point&lt;std::chrono::system_clock&gt;& timestamp)*
+1. By creating and moving metric object:
+   + `send(Metric&& metric)`
 
-See *Getting started* section to learn usage.
+   In addition, two additional methods can be chained:
+   + `addTags(std::vector&lt;Tag&gt;&& tags)`
+   + `setTimestamp(std::chrono::time_point&lt;std::chrono::system_clock&gt;& timestamp)`
+
+2. By providing metric parameters:
+   + `send(T value, std::string name)`
+   + `sendTagged(T value, std::string name, std::vector&lt;Tag&gt;&& tags)`
+   + `sendTimed(T value, std::string name, std::chrono::time_point&lt;std::chrono::system_clock&gt;& timestamp)`
+
+See [Getting started](#getting-started) section to learn more.
 
 ## Derived metrics
-Library can calculate Derived metrics - use  *addDerivedMetric(std::string name, DerivedMetricMode mode)* with one of two available modes:
+The module can also calculate derived metrics - use  *addDerivedMetric(std::string name, DerivedMetricMode mode)* with one of two available modes:
 + *DerivedMetricMode::RATE* - rate between two following metrics;
 + *DerivedMetricMode::AVERAGE* - average value of all metrics stored in cache;
 
