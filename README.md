@@ -244,15 +244,18 @@ collector->send({10, "myMetric"});
 
 ### MonALISA Service
 To install and configure the MonALISA service (1 central server):
-+ yum install monalisa-service
-+ copy config/ml_env to /opt/monalisa-service/Service/CMD/
-+ copy config/ml.properties to /opt/monalisa-service/Service/myFarm/
-+ copy config/myFarm.conf to /opt/monalisa-service/Service/myFarm/
-+ add following line to iptables and restart it: -A INPUT -p udp -m state --state NEW -m udp --dport 8884 -m comment --comment "MonALISA UDP packets" -j ACCEPT
-+ /sbin/service MLD start
++ `yum install monalisa-service`
++ copy `config/ml_env` to `/opt/monalisa-service/Service/CMD/`
++ copy `config/ml.properties` to `/opt/monalisa-service/Service/myFarm/`
++ copy `config/myFarm.conf` to `/opt/monalisa-service/Service/myFarm/`
++ add following line to iptables and restart it: `-A INPUT -p udp -m state --state NEW -m udp --dport 8884 -m comment --comment "MonALISA UDP packets" -j ACCEPT`
++ `/sbin/service MLD start`
 
 ### InfluxDB
-Instructions are available at (InfluxDB page)[https://docs.influxdata.com/influxdb/v1.2/introduction/installation/]
+Instructions are available at [InfluxDB page](https://docs.influxdata.com/influxdb/v1.2/introduction/installation/).
 
 ### InfoLogger
 The InfoLogger module is shared library which is linked during compilation time.
+
+### Flume
+See [Flume User Guide](https://flume.apache.org/FlumeUserGuide.html) documentation.
