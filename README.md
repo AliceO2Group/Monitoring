@@ -1,15 +1,12 @@
 # Monitoring
-
-Monitoring module allows to:
-+ inject user specific metrics
-+ monitor process itself (cpu / memory)
+Monitoring module allows to inject user defined metrics and monitor the process itself. It supports multiple backends, protocols and data formats.
 
 ## aliBuild installation
-If you don't have [aliBuild](https://alisw.github.io/alibuild/)
+Install [aliBuild](https://alisw.github.io/alibuild/) first.
 ~~~
 pip install alibuild
 ~~~
-And then
+Then follow instructions below.
 ~~~
 aliBuild init Monitoring@master
 aliDoctor Monitoring
@@ -32,8 +29,10 @@ make -j
 make install
 ~~~
 
+See [README](https://github.com/AliceO2Group/Configuration#manual-installation) if you're missing any Configuration dependencies.
+
 ### libcurl (optional)
-It should be present in your system or available in package manager, otherwise see: https://curl.haxx.se/download.html
+It should be present in your system or available in package manager, otherwise go to [curl download page](see: https://curl.haxx.se/download.html).
 
 ### ApMon (optional)
 ~~~
@@ -62,71 +61,68 @@ Metrics consist of 4 parameters: name, value, timestamp and tags.I
 | timestamp      | chrono::time_point&lt;std::chrono::system_clock&gt; | no       | current timestamp     |
 | tags           | vector<Tag>                                   | no       | -**                |
 
-**Default tag set is generated per process and its attached to each metric:
+**Default tag set is process specific and included in each metric:
 + hostname
 + PID
 + process name
 
-See how backends handle tags in  *Monitoring backends* section.
+See how backends handle tags in  [Monitoring backends](#monitoring-backends) section.
 
 ## Creating monitring instance
-The most recommended way of getting (reference to) monitoring instance is via *MonitoringFactory*.
-Before using the factory Configure method must be call providing path to cofiguration file/backend. It should be called only once per process (following calls will not have any effect).
+1. The recommended way of getting (reference to) monitoring instance is via *MonitoringFactory*.
+Before using the factory *Configure* method must be called providing URI to configuration file or backend. It should be called only once per process (following calls will not have any effect).
 ```cpp
 AliceO2::Monitoring::MonitoringFactory::Configure("file://../Monitoring/examples/SampleConfig.ini");
 AliceO2::Monitoring::MonitoringFactory::Get();
 ```
 
-The second way is getting dedicated instance. It should be used only when different configuration path needs to be passed within the same process.
+2. A second way allows to create dedicated monitoring instance. It's useful only when different configuration URI is needed within the same process.
 ```cpp
 Monitoring::Create("file://../Monitoring/examples/SampleConfig.ini");
 ```
 
-See *Getting started* before writting any code.
-
-## Sending metric
+## Sending a metric
 Metric can be sent by one of following ways:
-+ By creating and moving metric object: 
-   + *send(Metric&& metric)*. 
-   In addition there are two methods that can be invoked on Metric object:
-   + *addTags(std::vector&lt;Tag&gt;&& tags)*
-   + *setTimestamp(std::chrono::time_point&lt;std::chrono::system_clock&gt;& timestamp)*
-+ By providing all required metric parameters (name and value):
-   +  *send(T value, std::string name)*
-   In addition there are two suplementary methods that can be chained:
-     + *sendTagged(T value, std::string name, std::vector&lt;Tag&gt;&& tags)*
-     + *sendTimed(T value, std::string name, std::chrono::time_point&lt;std::chrono::system_clock&gt;& timestamp)*
+1. By creating and moving metric object:
+   + `send(Metric&& metric)`
 
-See *Getting started* section to learn usage.
+   In addition, two additional methods can be chained:
+   + `addTags(std::vector<Tag>&& tags)`
+   + `setTimestamp(std::chrono::time_point<std::chrono::system_clock>& timestamp)`
+
+2. By providing metric parameters:
+   + `send(T value, std::string name)`
+   + `sendTagged(T value, std::string name, std::vector<Tag>&& tags)`
+   + `sendTimed(T value, std::string name, std::chrono::time_point<std::chrono::system_clock>& timestamp)`
+
+See [Getting started](#getting-started) section to learn more.
 
 ## Derived metrics
-Library can calculate Derived metrics - use  *addDerivedMetric(std::string name, DerivedMetricMode mode)* with one of two available modes:
-+ *DerivedMetricMode::RATE* - rate between two following metrics;
-+ *DerivedMetricMode::AVERAGE* - average value of all metrics stored in cache;
+The module can also calculate derived metrics. To do so, use `addDerivedMetric(std::string name, DerivedMetricMode mode)` with one of two available modes:
++ `DerivedMetricMode::RATE` - rate between two following metrics;
++ `DerivedMetricMode::AVERAGE` - average value of all metrics stored in cache;
 
-Derived metrics are generated as new value arrives. 
-Derived metric will have suffix added to its name.
+Derived metrics are generated each time as new value is passed to the module. Their names are suffixed with derived mode.
 
 ## Processes monitoring
-To enable process monitoring *ProcessMonitor.enable* flag in configuration file must be set to 1 (see section Configuration file).
-The following metrics are generated every N seconds (N can be specified in the config - *ProcessMonitor.interval*):
-1. etime - elapsed time since the process was started, in the form [[DD-]hh:]mm:ss
-2. pcpu - cpu utilization of the process in "##.#" format. Currently, it is the CPU time used divided by the time the process has been running (cputime/realtime ratio), expressed as a percentage.  It will not add up to 100% unless you are lucky
-3. pmem - ratio of the process's resident set size  to the physical memory on the machine, expressed as a percentage
-4. bytesReceived - the total number of bytes of data received by the process (per interface)
-5. bytesTransmitted - the total number of bytes of data transmitted by the process (per interface)
+To enable process monitoring *ProcessMonitor.enable* flag in configuration file must be set to 1 - see [Configuration file](#configuration-file) section. The following metrics are generated every N seconds (N can be specified in the config - *ProcessMonitor.interval*):
++ **etime** - elapsed time since the process was started, in the form [[DD-]hh:]mm:ss
++ **pcpu** - cpu utilization of the process in "##.#" format. Currently, it is the CPU time used divided by the time the process has been running (cputime/realtime ratio), expressed as a percentage.  It will not add up to 100% unless you are lucky
++ **pmem** - ratio of the process's resident set size  to the physical memory on the machine, expressed as a percentage
++ **bytesReceived** - the total number of bytes of data received by the process (per interface)
++ **bytesTransmitted** - the total number of bytes of data transmitted by the process (per interface).
 
 ## Monitoring backends
-Metrics are pushed to one or multiple backends. The library currently supports three backends - see table below. Enabling/Disabling backends is done via configuration file.
+Metrics are pushed to one or multiple backends. The module currently supports three backends - see table below. Enabling/Disabling backends is done via configuration file.
 
 | Backend name     | Description                    | Transport                    | Client-side requirements   | Handling tags  |
 | ---------------- |:------------------------------:|:----------------------------:|:--------------------------:| --------------:|
-| InfluxDB         | InfluxDB time series database  | HTTP / UDP                   | cURL / boost asio          | Supported by the backend |
+| InfluxDB         | InfluxDB time series database  | HTTP / UDP (InfluxDB Line Protocol) | cURL / boost asio   | Supported by InfluxDB Line Protocol |
 | ApMonBackend     | MonALISA Serivce               | UDP                          | ApMon                      | Default tags concatenated with entity; Metric tags concatenated with name |
-| InfoLoggerBackned| O2 Logging module              | -                            | -                          | Displayed in the end |
-| Flume            | Collects, aggragate monitoring data | HTTP/JSON               | cURL                       | In header (Flume Event) |
+| InfoLoggerBackned| O2 Logging module              | -                            | (as log message)           | Added to the end of message |
+| Flume            | Collects, aggragate monitoring data | UDP (JSON)              | boost asio                 | In Flume Event header |
 
-Instruction how to install and configure server-sides backends are available in *Server-side backend installation and configuration* chapter.
+Instruction how to install and configure server-sides backends are available in [Server-side backend installation and configuration](#server-side-backend-installation-and-configuration) section.
 
 ## Configuration file
 + AppMon
@@ -146,14 +142,14 @@ Instruction how to install and configure server-sides backends are available in 
   + hostname
 + ProcessMonitor
   + enable - enable process monitor
-  + interval - updates interval 
+  + interval - updates interval[]
 + DerivedMetrics
   + maxCacheSize - maximum size of vector
 
-See sample in examples/SampleConfig.ini
+See sample in [examples/config-default.ini](https://github.com/awegrzyn/Monitoring/blob/master/examples/config-default.ini).
 
 ## Getting started
-Examples are available in *example* directory.
+Examples are available in [example](https://github.com/awegrzyn/Monitoring/tree/master/examples) directory.
 
 ### Sending user defined metric - examples/1-Basic.cxx
 ```cpp
@@ -189,7 +185,7 @@ Monitoring::Get().send(Metric{10, "myMetric"}.addTags({{"tag1", "value1"}, {"tag
 ```
 
 ### Sending metric with user defined timestamp - examples/3-UserDefinedTimestamp.cxx
-By default timestamp is set by the library, but user can overwrite it manually.
+By default timestamp is set by the module, but user can overwrite it manually.
 ```cpp
 // configure monitoring (only once per process), pass configuration path as parameter
 Monitoring::Configure("file:///home/awegrzyn/hackathon/Monitoring/examples/SampleConfig.ini");
@@ -213,7 +209,7 @@ Monitoring::Get().send(Metric{40, "myCrazyMetric"}.setTimestamp(timestamp));
 ```
 
 ###  Derived metrics - examples/4-RateDerivedMetric.cxx
-The Library can calculate derived metrics: average value and rate.
+The module can calculate derived metrics: average value and rate.
 ```cpp
 // configure monitoring (only once per process), pass configuration path as parameter
 Monitoring::Configure("file:///home/awegrzyn/hackathon/Monitoring/examples/SampleConfig.ini");
@@ -246,22 +242,20 @@ collector->send({10, "myMetric"});
 
 ## Server-side backend installation and configuration
 
-### MonALISA
-##### MonALISA Service
+### MonALISA Service
 To install and configure the MonALISA service (1 central server):
-+ yum install monalisa-service
-+ copy config/ml_env to /opt/monalisa-service/Service/CMD/
-+ copy config/ml.properties to /opt/monalisa-service/Service/myFarm/
-+ copy config/myFarm.conf to /opt/monalisa-service/Service/myFarm/
-+ add following line to iptables and restart it: -A INPUT -p udp -m state --state NEW -m udp --dport 8884 -m comment --comment "MonALISA UDP packets" -j ACCEPT
-+ /sbin/service MLD start
-
-##### MonALISA Client
-To install the MonALISA Client run:
-+ yum install monalisa-client
++ `yum install monalisa-service`
++ copy `config/ml_env` to `/opt/monalisa-service/Service/CMD/`
++ copy `config/ml.properties` to `/opt/monalisa-service/Service/myFarm/`
++ copy `config/myFarm.conf` to `/opt/monalisa-service/Service/myFarm/`
++ add following line to iptables and restart it: `-A INPUT -p udp -m state --state NEW -m udp --dport 8884 -m comment --comment "MonALISA UDP packets" -j ACCEPT`
++ `/sbin/service MLD start`
 
 ### InfluxDB
-Instructions are avaliable here: https://docs.influxdata.com/influxdb/v1.2/introduction/installation/
+Instructions are available at [InfluxDB page](https://docs.influxdata.com/influxdb/v1.2/introduction/installation/).
 
 ### InfoLogger
-There is no installation/configuration procedure needed.
+The InfoLogger module is shared library which is linked during compilation time.
+
+### Flume
+See [Flume User Guide](https://flume.apache.org/FlumeUserGuide.html) documentation.
