@@ -18,8 +18,10 @@ int main(int argc, char *argv[]) {
   // myMetric is the name of the metric
   //  
   // 1. by copying values
-  Monitoring::Get().send(10, "myMetric");
+  Monitoring::Get().send(10, "myMetricInt");
+  Monitoring::Get().send(10.10, "myMetricFloat");
   
   // 2. by creating and moving metric object
-  Monitoring::Get().send({10, "myMetric"});
+  Monitoring::Get().send({10, "myMetricInt"});
+  Monitoring::Get().send({10.10, "myMetricFloat"});
 }	

@@ -62,6 +62,10 @@ void InfluxDB::send(const Metric& metric)
     value.insert(value.begin(), '"');
     value.insert(value.end(), '"');
   }
+
+  if (metric.getType() == MetricType::INT) {
+    value.insert(value.end(), 'i');
+  }
   std::string name = metric.getName();
   escape(name);
 
