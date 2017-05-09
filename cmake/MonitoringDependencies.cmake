@@ -5,25 +5,29 @@ find_package(CURL)
 find_package(Configuration REQUIRED)
 
 set(extra_deps "")
-if(APMON_FOUND)
+set(extra_deps_include "")
+if (APMON_FOUND)
     list(APPEND extra_deps ${APMON_LIBRARIES})
-endif()
-if(CURL_FOUND)
+    list(APPEND extra_deps_include ${APMON_INCLUDE_DIRS})
+endif ()
+if (CURL_FOUND)
     list(APPEND extra_deps ${CURL_LIBRARIES})
-endif()
+    list(APPEND extra_deps_include ${CURL_INCLUDE_DIRS})
+endif ()
 
 o2_define_bucket(
-        NAME
-        o2_monitoring_bucket
+    NAME
+    o2_monitoring_bucket
 
-        DEPENDENCIES
-        ${Configuration_LIBRARIES}
-        ${Boost_SYSTEM_LIBRARY}
-        ${Boost_FILESYSTEM_LIBRARY}
-        ${Boost_PROGRAM_OPTIONS_LIBRARY}
-        ${extra_deps}
+    DEPENDENCIES
+    ${Configuration_LIBRARIES}
+    ${Boost_SYSTEM_LIBRARY}
+    ${Boost_FILESYSTEM_LIBRARY}
+    ${Boost_PROGRAM_OPTIONS_LIBRARY}
+    ${extra_deps}
 
-        SYSTEMINCLUDE_DIRECTORIES
-        ${Boost_INCLUDE_DIRS}
-        ${Configuration_INCLUDE_DIRS}
+    SYSTEMINCLUDE_DIRECTORIES
+    ${Boost_INCLUDE_DIRS}
+    ${Configuration_INCLUDE_DIRS}
+    ${extra_deps_include}
 )
