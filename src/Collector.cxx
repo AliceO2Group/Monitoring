@@ -115,7 +115,6 @@ void Collector::setDefaultTags()
 {
   ProcessDetails details{};
   for (auto& b: mBackends) {
-    b->addGlobalTag("pid", std::to_string(details.getPid()));
     b->addGlobalTag("hostname", details.getHostname());
     b->addGlobalTag("name", details.getProcessName());
   }
