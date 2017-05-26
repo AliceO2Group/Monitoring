@@ -39,11 +39,11 @@ std::vector<Metric> ProcessMonitor::getNetworkUsage()
     auto position = line.find(":");
     auto secondPosition = line.find(":", position + 1);
     metrics.emplace_back(Metric{
-      static_cast<uint64_t>(std::stoull(line.substr(position + 1, secondPosition - position - 1))),
+      static_cast<int64_t>(std::stoll(line.substr(position + 1, secondPosition - position - 1))),
       "bytesReceived"}.addTags({{"if", line.substr(0, position)}})
     );
     metrics.emplace_back(Metric{
-      static_cast<uint64_t>(std::stoull(line.substr(secondPosition + 1, line.size()))),
+      static_cast<int64_t>(std::stoll(line.substr(secondPosition + 1, line.size()))),
       "bytesTransmitted"}.addTags({{"if", line.substr(0, position)}})
     );
   }

@@ -50,11 +50,11 @@ BOOST_AUTO_TEST_CASE(retrieveString)
 
 BOOST_AUTO_TEST_CASE(retrieveUnsignedLongLong)
 {
-  uint64_t value = 10000000000000LL;
+  int64_t value = 10000000000000LL;
   std::string name("metric name");
   AliceO2::Monitoring::Metric metricInstance(value,  name );
 
-  BOOST_CHECK_EQUAL(boost::get<uint64_t>(metricInstance.getValue()), 10000000000000LL);
+  BOOST_CHECK_EQUAL(boost::get<int64_t>(metricInstance.getValue()), 10000000000000LL);
   BOOST_CHECK_EQUAL(metricInstance.getType(), 3);
 }
 
