@@ -6,6 +6,8 @@
 #include "Monitoring/DerivedMetrics.h"
 #include "Exceptions/MonitoringInternalException.h"
 #include <boost/lexical_cast.hpp>
+#include <boost/variant/variant.hpp>
+#include <boost/variant/apply_visitor.hpp>
 #include <chrono>
 #include <iostream>
 #include <map>
@@ -13,6 +15,7 @@
 #include <string>
 #include <vector>
 #include "MonLogger.h"
+#include "VariantVisitorRate.h"
 
 namespace AliceO2
 {
