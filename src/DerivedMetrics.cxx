@@ -47,17 +47,21 @@ Metric DerivedMetrics::calculateRate(std::string name)
   if (search == mCache.end() || size < 2) {
     throw MonitoringInternalException("DerivedMetrics/Calculate rate", "Not enough values");
   }
-  std::chrono::duration<float> timestampDifference = (search->second.at(size - 1).getTimestamp() 
-                                                   - search->second.at(size - 2).getTimestamp());
-  
 
-  double last = boost::lexical_cast<double>(search->second.at(size - 1).getValue());
-  double beforelast = boost::lexical_cast<double>(search->second.at(size - 2).getValue());
+  auto timestampDifference = std::chrono::duration_cast<std::chrono::milliseconds>(
+    search->second.at(size - 1).getTimestamp()
+    - search->second.at(size - 2).getTimestamp()
+  );
+  boost::variant< int, std::string, double, int64_t > current = search->second.at(size - 1).getValue();
+  boost::variant< int, std::string, double, int64_t > previous = search->second.at(size - 2).getValue();
+  int timestampCount = timestampDifference.count();
+
   // disallow dividing by 0
-  if (timestampDifference.count() == 0) {
+  if (timestampCount == 0) {
     throw MonitoringInternalException("DerivedMetrics/Calculate rate", "Division by 0");
   }
-  double rate = (last - beforelast ) / timestampDifference.count();
+
+  boost::variant< int, std::string, double, int64_t > rate =  boost::apply_visitor(VariantVisitor(timestampCount), current, previous);
   return Metric{rate, name + "Rate"};
 }
 
