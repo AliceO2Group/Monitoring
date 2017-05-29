@@ -71,7 +71,7 @@ void InfluxDB::send(const Metric& metric)
 
   std::stringstream convert;
   convert << name << "," << tagSet << metricTags << " value=" << value << " " << convertTimestamp(metric.getTimestamp());
-  
+
   try {
     transport->send(convert.str());
   } catch (MonitoringInternalException&) {
