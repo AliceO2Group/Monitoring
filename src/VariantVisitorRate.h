@@ -4,29 +4,38 @@ namespace AliceO2
 namespace Monitoring 
 {
 
-class VariantVisitor : public boost::static_visitor<boost::variant<int, std::string, double, int64_t>>
+class VariantVisitorRate : public boost::static_visitor<boost::variant<int, std::string, double, int64_t>>
 {
 private:
+  /// Timestamp difference in milliseconds
   int timestampCount;
+
 public:
-  VariantVisitor(int count) {
-    timestampCount = count;
+  /// Creates variant visitor functor
+  /// \param count  timestamp difference in milliseconds
+  VariantVisitorRate(int count) : timestampCount(count) {
   }
 
+  /// Overloads operator() to avoid operating on strings
+  /// \throws MonitoringInternalException
   boost::variant<int, std::string, double, int64_t> operator()(const std::string& a, const std::string& b) const {
-    std::cout << "skipping string" << std::endl;
+    throw MonitoringInternalException("DerivedMetrics/VariantRateVisitor", "Cannot operate on string values");
   }
 
+  /// Calculates rate only when two arguments of the same type are passed
+  /// \return calculated rate in Hz
   template<typename T>
   boost::variant<int, std::string, double, int64_t> operator()(const T& a, const T& b) const {
     return (1000*(a - b)) / timestampCount;
   }
 
+  /// If arguments have different type an exception is raised
+  /// \throws MonitoringInternalException
   template<typename T, typename U>
   boost::variant<int, std::string, double, int64_t> operator()(const T& a, const U& b) const {
-    throw std::invalid_argument("can't operate on different types");
+    throw MonitoringInternalException("DerivedMetrics/VariantRateVisitor", "Cannot operate on different types");
   }
 };
 
-}
-}
+} // namespace Monitoring
+} // namespace AliceO2
