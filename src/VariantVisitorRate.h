@@ -4,7 +4,7 @@ namespace AliceO2
 namespace Monitoring 
 {
 
-class VariantVisitorRate : public boost::static_visitor<boost::variant<int, std::string, double, int64_t>>
+class VariantVisitorRate : public boost::static_visitor<boost::variant<int, std::string, double, uint64_t>>
 {
 private:
   /// Timestamp difference in milliseconds
