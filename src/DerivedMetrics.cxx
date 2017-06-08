@@ -61,7 +61,7 @@ Metric DerivedMetrics::calculateRate(std::string name)
     throw MonitoringInternalException("DerivedMetrics/Calculate rate", "Division by 0");
   }
 
-  boost::variant< int, std::string, double, int64_t > rate =  boost::apply_visitor(VariantVisitorRate(timestampCount), current, previous);
+  auto rate =  boost::apply_visitor(VariantVisitorRate(timestampCount), current, previous);
   return Metric{rate, name + "Rate"};
 }
 

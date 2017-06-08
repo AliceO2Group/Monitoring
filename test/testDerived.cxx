@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE(derivedRateInt)
       AliceO2::Monitoring::Metric metric(result.value, name);
       AliceO2::Monitoring::Metric derived = derivedHandler.processMetric(metric);
       BOOST_CHECK_EQUAL(derived.getName(), "metricIntRate");
-      BOOST_CHECK_EQUAL(boost::get<int>(derived.getValue()), result.rate);
+      BOOST_CHECK_EQUAL(boost::get<double>(derived.getValue()), result.rate);
     } catch(MonitoringInternalException &e) {
       BOOST_TEST(e.what() == std::string("Not enough values"));
     }
@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE(derivedRateInt64_t) {
       AliceO2::Monitoring::Metric metric(result.value, name);
       AliceO2::Monitoring::Metric derived = derivedHandler.processMetric(metric);
       BOOST_CHECK_EQUAL(derived.getName(), "metricInt64_tRate");
-      BOOST_CHECK_EQUAL(boost::get<int64_t>(derived.getValue()), result.rate);
+      BOOST_CHECK_EQUAL(boost::get<double>(derived.getValue()), result.rate);
     } catch(MonitoringInternalException &e) {
       BOOST_TEST(e.what() == std::string("Not enough values"));
     }

@@ -18,21 +18,21 @@ public:
 
   /// Overloads operator() to avoid operating on strings
   /// \throws MonitoringInternalException
-  boost::variant<int, std::string, double, int64_t> operator()(const std::string& a, const std::string& b) const {
+  double operator()(const std::string& a, const std::string& b) const {
     throw MonitoringInternalException("DerivedMetrics/VariantRateVisitor", "Cannot operate on string values");
   }
 
   /// Calculates rate only when two arguments of the same type are passed
   /// \return calculated rate in Hz
   template<typename T>
-  boost::variant<int, std::string, double, int64_t> operator()(const T& a, const T& b) const {
-    return (1000*(a - b)) / timestampCount;
+  double operator()(const T& a, const T& b) const {
+    return static_cast<double>((1000*(a - b)) / timestampCount);
   }
 
   /// If arguments have different type an exception is raised
   /// \throws MonitoringInternalException
   template<typename T, typename U>
-  boost::variant<int, std::string, double, int64_t> operator()(const T& a, const U& b) const {
+  double operator()(const T& a, const U& b) const {
     throw MonitoringInternalException("DerivedMetrics/VariantRateVisitor", "Cannot operate on different types");
   }
 };
