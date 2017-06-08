@@ -31,9 +31,9 @@ std::string Zabbix::metricToZabbix(const Metric& metric)
   // create JSON payload
   boost::property_tree::ptree request, dataArray, data;
   //data.put<std::string>("clock", std::to_string(convertTimestamp(metric.getTimestamp())));
+  data.put<std::string>("host", hostname);
   data.put<std::string>("key", metric.getName());
   data.put<std::string>("value", boost::lexical_cast<std::string>(metric.getValue()));
-  data.put<std::string>("host", hostname);
 
   dataArray.push_back(std::make_pair("", data));
   request.put<std::string>("request", "sender data");
@@ -48,17 +48,17 @@ std::string Zabbix::metricToZabbix(const Metric& metric)
   noWhiteSpaces.insert(18, " ");
 
   // prepare Zabbix header
-  int32_t length = noWhiteSpaces.length();
-  unsigned char header[] = {
+  uint32_t length = noWhiteSpaces.length();
+  std::vector<unsigned char> header = {
     'Z', 'B', 'X', 'D', '\x01',
-    (length & 0xFF),
-    ((length >> 8) & 0x00FF),
-    ((length >> 16) & 0x0000FF),
-    ((length >> 24) & 0x000000FF),
+    static_cast<unsigned char>(length & 0xFF),
+    static_cast<unsigned char>((length >> 8) & 0x00FF),
+    static_cast<unsigned char>((length >> 16) & 0x0000FF),
+    static_cast<unsigned char>((length >> 24) & 0x000000FF),
     '\x00','\x00','\x00','\x00'
   };
 
-  return std::string(reinterpret_cast<const char *>(header), 13) + noWhiteSpaces;
+  return std::string(header.begin(), header.end()) + noWhiteSpaces;
 }
 
 void Zabbix::send(const Metric& metric) {  
@@ -66,6 +66,7 @@ void Zabbix::send(const Metric& metric) {
     transport->send(metricToZabbix(metric));
   } catch (MonitoringInternalException&) {
   }
+  //transport->read();
 }
 
 void Zabbix::addGlobalTag(std::string name, std::string value)

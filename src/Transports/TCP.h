@@ -37,7 +37,8 @@ class TCP : public TransportInterface
  
     /// Sends metric via UDP
     /// \param lineMessage   r-value string formated
-    void send(std::string&& message) override;   
+    void send(std::string&& message) override;
+    void read();
 
   private:
     /// Boost Asio I/O functionality

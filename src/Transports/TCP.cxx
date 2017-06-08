@@ -5,6 +5,7 @@
 
 #include "TCP.h"
 #include <string>
+#include <iostream>
 
 namespace AliceO2
 {
@@ -36,6 +37,19 @@ TCP::TCP(const std::string &hostname, int port) :
 void TCP::send(std::string&& message)
 {
   mSocket.send(boost::asio::buffer(message));
+}
+
+void TCP::read(/*unsigned int bytes*/) {
+  // dummy read!
+  for (;;) {
+    boost::system::error_code error;
+    boost::array<char, 128> buf;
+    size_t len = mSocket.read_some(boost::asio::buffer(buf), error);
+    if (error == boost::asio::error::eof) {
+      break;
+    }
+    std::cout.write(buf.data(), len);
+  }
 }
 
 } // namespace Transports
