@@ -52,8 +52,8 @@ Metric DerivedMetrics::calculateRate(std::string name)
     search->second.at(size - 1).getTimestamp()
     - search->second.at(size - 2).getTimestamp()
   );
-  boost::variant< int, std::string, double, int64_t > current = search->second.at(size - 1).getValue();
-  boost::variant< int, std::string, double, int64_t > previous = search->second.at(size - 2).getValue();
+  boost::variant< int, std::string, double, uint64_t > current = search->second.at(size - 1).getValue();
+  boost::variant< int, std::string, double, uint64_t > previous = search->second.at(size - 2).getValue();
   int timestampCount = timestampDifference.count();
 
   // disallow dividing by 0

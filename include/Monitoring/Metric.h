@@ -43,16 +43,16 @@ class Metric
     Metric(double value, const std::string& name, std::chrono::time_point<std::chrono::system_clock> timestamp = Metric::getCurrentTimestamp());
 
     /// Initialize class variables
-    /// \param value            metric value (int64_t)
+    /// \param value            metric value (uint64_t)
     /// \param name             metric name
     /// \param timestamp        metric timestamp in milliseconds
-    Metric(int64_t value, const std::string& name, std::chrono::time_point<std::chrono::system_clock> timestamp = Metric::getCurrentTimestamp());
+    Metric(uint64_t value, const std::string& name, std::chrono::time_point<std::chrono::system_clock> timestamp = Metric::getCurrentTimestamp());
 
     /// Initialize class variables, required by derived metrics logic
     /// \param value            metric value (boost variant)
     /// \param name             metric name
     /// \param timestamp        metric timestamp in milliseconds
-    Metric(boost::variant< int, std::string, double, int64_t >, const std::string& name, std::chrono::time_point<std::chrono::system_clock> timestamp = Metric::getCurrentTimestamp());
+    Metric(boost::variant< int, std::string, double, uint64_t >, const std::string& name, std::chrono::time_point<std::chrono::system_clock> timestamp = Metric::getCurrentTimestamp());
 
     /// Default destructor
     ~Metric() = default;
@@ -67,7 +67,7 @@ class Metric
 	
     /// Value getter
     /// \return metric value
-    boost::variant< int, std::string, double, int64_t > getValue() const;
+    boost::variant< int, std::string, double, uint64_t > getValue() const;
 
     /// Value type getter
     /// \return type of value stores inside metric : 0 - int, 1 - std::string, 2 - double
@@ -93,7 +93,7 @@ class Metric
 
   private:
     /// Metric value
-    boost::variant< int, std::string, double, int64_t > mValue;
+    boost::variant< int, std::string, double, uint64_t > mValue;
 
     /// Metric name
     std::string mName;

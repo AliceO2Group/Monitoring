@@ -79,14 +79,14 @@ BOOST_AUTO_TEST_CASE(derivedRateDouble) {
   }
 }
 
-BOOST_AUTO_TEST_CASE(derivedRateInt64_t) {
+BOOST_AUTO_TEST_CASE(derivedRateUint64_t) {
   struct RateResults {
-    int64_t value;
-    int64_t rate;
+    uint64_t value;
+    uint64_t rate;
   };
   std::vector<RateResults> results = {{165535, 0 }, {165545, 100}, {165555, 100}, {165575, 200}, {165585, 100}, {165590, 50}};
   AliceO2::Monitoring::DerivedMetrics derivedHandler(100);
-  std::string name("metricInt64_t");
+  std::string name("metricUint64_t");
   derivedHandler.registerMetric(name, AliceO2::Monitoring::DerivedMetricMode::RATE);
   
   for (auto const result : results) {
@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE(derivedRateInt64_t) {
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
       AliceO2::Monitoring::Metric metric(result.value, name);
       AliceO2::Monitoring::Metric derived = derivedHandler.processMetric(metric);
-      BOOST_CHECK_EQUAL(derived.getName(), "metricInt64_tRate");
+      BOOST_CHECK_EQUAL(derived.getName(), "metricUint64_tRate");
       BOOST_CHECK_EQUAL(boost::get<double>(derived.getValue()), result.rate);
     } catch(MonitoringInternalException &e) {
       BOOST_TEST(e.what() == std::string("Not enough values"));

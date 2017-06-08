@@ -57,7 +57,7 @@ Metrics consist of 4 parameters: name, value, timestamp and tags.I
 | Parameter name | Type                                          | Required | Default          |
 | -------------- |:---------------------------------------------:|:--------:| ----------------:|
 | name           | string                                        | yes      | -                |
-| value          | int / double / string / int64_t    | yes      | -                |
+| value          | int / double / string / uint64_t    | yes      | -                |
 | timestamp      | chrono::time_point&lt;std::chrono::system_clock&gt; | no       | current timestamp     |
 | tags           | vector<Tag>                                   | no       | -**                |
 
