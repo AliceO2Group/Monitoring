@@ -6,6 +6,7 @@
 #include "TCP.h"
 #include <string>
 #include <iostream>
+#include "Exceptions/MonitoringInternalException.h"
 
 namespace AliceO2
 {
@@ -30,17 +31,20 @@ TCP::TCP(const std::string &hostname, int port) :
     mSocket.connect(*resolverIterator++, error);
   }
   if (error) {
-    throw boost::system::system_error(error);
+    throw MonitoringInternalException("TCP connection", error.message());
   } 
 }
 
 void TCP::send(std::string&& message)
 {
-  mSocket.send(boost::asio::buffer(message));
+  try {
+    mSocket.send(boost::asio::buffer(message));
+  } catch(const boost::system::system_error& e) {
+    throw MonitoringInternalException("TCP send", e.what());
+  }
 }
 
-void TCP::read(/*unsigned int bytes*/) {
-  // dummy read!
+void TCP::read() {
   for (;;) {
     boost::system::error_code error;
     boost::array<char, 128> buf;

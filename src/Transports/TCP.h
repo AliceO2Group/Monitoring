@@ -38,6 +38,8 @@ class TCP : public TransportInterface
     /// Sends metric via UDP
     /// \param lineMessage   r-value string formated
     void send(std::string&& message) override;
+
+    /// Dummy read method - Forwards read out buffer to cout
     void read();
 
   private:

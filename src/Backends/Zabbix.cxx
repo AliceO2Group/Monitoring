@@ -26,14 +26,24 @@ Zabbix::Zabbix(const std::string &hostname, int port)
                        << " ("<< hostname << ":" << port << ")" << MonLogger::End();
 }
 
+inline std::string Zabbix::convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp)
+{
+  std::string converted = std::to_string(
+    std::chrono::duration_cast <std::chrono::nanoseconds>(
+    timestamp.time_since_epoch()
+  ).count());
+  converted.erase(converted.begin()+10, converted.end());
+  return converted;
+}
+
 std::string Zabbix::metricToZabbix(const Metric& metric)
 {
   // create JSON payload
   boost::property_tree::ptree request, dataArray, data;
-  //data.put<std::string>("clock", std::to_string(convertTimestamp(metric.getTimestamp())));
   data.put<std::string>("host", hostname);
   data.put<std::string>("key", metric.getName());
   data.put<std::string>("value", boost::lexical_cast<std::string>(metric.getValue()));
+  data.put<std::string>("clock", convertTimestamp(metric.getTimestamp()));
 
   dataArray.push_back(std::make_pair("", data));
   request.put<std::string>("request", "sender data");
@@ -61,12 +71,11 @@ std::string Zabbix::metricToZabbix(const Metric& metric)
   return std::string(header.begin(), header.end()) + noWhiteSpaces;
 }
 
-void Zabbix::send(const Metric& metric) {  
+void Zabbix::send(const Metric& metric) {
   try {
     transport->send(metricToZabbix(metric));
   } catch (MonitoringInternalException&) {
   }
-  //transport->read();
 }
 
 void Zabbix::addGlobalTag(std::string name, std::string value)

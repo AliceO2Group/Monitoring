@@ -45,9 +45,19 @@ class Zabbix final : public Backend
     void addGlobalTag(std::string name, std::string value) override;
   
   private:
+    /// TCP transport
     std::unique_ptr<Transports::TCP> transport;
+
+    /// Hostname as it's required by Zabbix protocol
     std::string hostname;
+
+    /// Prepares Zabbix protocol message
     std::string metricToZabbix(const Metric& metric);
+
+    /// Converts timestamp into unix format
+    /// \param timestamp chrono system_clock timestamp
+    /// \return unix timestamp
+    std::string convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp);
 };
 
 } // namespace Backends
