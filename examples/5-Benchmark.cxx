@@ -29,6 +29,7 @@ int main(int argc, char *argv[]) {
   desc.add_options()
     ("sleep", boost::program_options::value<int>(), "Thread sleep in microseconds")
     ("config", boost::program_options::value<std::string>()->required(), "Config file path")
+    ("id", boost::program_options::value<std::string>(), "Instance ID")
   ;
   
   boost::program_options::variables_map vm;
@@ -40,7 +41,6 @@ int main(int argc, char *argv[]) {
   }
 
   try {
-    // configure monitoring (once per process), pass configuration path as parameter
     Monitoring::Configure("file://" + vm["config"].as<std::string>());
   } catch (std::string &e) {
     std::cout << "Configuration file not found.\n" << e << std::endl;
