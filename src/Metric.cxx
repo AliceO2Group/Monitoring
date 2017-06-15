@@ -13,7 +13,7 @@ namespace AliceO2
 {
 /// ALICE O2 Monitoring system
 namespace Monitoring
-{
+
 
 std::chrono::time_point<std::chrono::system_clock> Metric::getTimestamp() const
 {
