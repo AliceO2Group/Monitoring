@@ -1,6 +1,34 @@
 # Monitoring
 Monitoring module allows to inject user defined metrics and monitor the process itself. It supports multiple backends, protocols and data formats.
 
+## RPM installation
+1. Install `CERN-CA-certs` package
+~~~
+yum install CERN-CA-certs
+~~~
+2. Add alisw repository
+~~~
+cat > /etc/yum.repos.d/alisw-el7.repo <<EOF
+[alisw-el7]
+name=ALICE Software - EL7
+baseurl=https://ali-ci.cern.ch/repo/RPMS/el7.x86_64/
+enabled=1
+gpgcheck=0
+EOF
+~~~
+3. Install RPM package
+~~~
+yum install alisw-Monitoring+v1.3.0-1.x86_64
+~~~
+4. Configure Modules (this command can be placed in `.bashrc` file)
+~~~
+export MODULEPATH=/opt/alisw/el7/modulefiles:$MODULEPATH
+~~~
+5. Load enviroment
+~~~
+eval `modulecmd bash load flpproto/v0.1.1-1`
+~~~
+
 ## aliBuild installation
 Install [aliBuild](https://alisw.github.io/alibuild/) first.
 ~~~
