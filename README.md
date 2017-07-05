@@ -6,7 +6,7 @@ Monitoring module allows to inject user defined metrics and monitor the process 
 ~~~
 yum install CERN-CA-certs
 ~~~
-2. Add alisw repository
+2. Add `alisw` repository
 ~~~
 cat > /etc/yum.repos.d/alisw-el7.repo <<EOF
 [alisw-el7]
