@@ -1,6 +1,35 @@
 # Monitoring
 Monitoring module allows to inject user defined metrics and monitor the process itself. It supports multiple backends, protocols and data formats.
 
+## RPM installation
+1. Install `CERN-CA-certs` package
+~~~
+yum install CERN-CA-certs
+~~~
+2. Add `alisw` repository
+~~~
+cat > /etc/yum.repos.d/alisw-el7.repo <<EOF
+[alisw-el7]
+name=ALICE Software - EL7
+baseurl=https://ali-ci.cern.ch/repo/RPMS/el7.x86_64/
+enabled=1
+gpgcheck=0
+EOF
+~~~
+3. Install RPM package
+~~~
+yum install alisw-Monitoring+v1.3.0-1.x86_64
+~~~
+4. Configure Modules
+~~~
+export MODULEPATH=/opt/alisw/el7/modulefiles:$MODULEPATH
+~~~
+5. Load enviroment
+~~~
+eval `modulecmd bash load Monitoring/v1.3.0-1`
+~~~
+6. The installation directory is: `/opt/alisw/el7/Monitoring/v1.3.0-1`
+
 ## aliBuild installation
 Install [aliBuild](https://alisw.github.io/alibuild/) first.
 ~~~
@@ -15,7 +44,7 @@ alienv load Monitoring/latest
 ~~~
 
 ## Manual installation
-Manual installation of the O<sup>2</sup> Monitroing module and its dependencies.
+Manual installation of the O<sup>2</sup> Monitoring module and its dependencies.
 
 ### Boost
 It is assumed that Boost is present in your system. For more information see [Boost Getting Started](http://www.boost.org/doc/libs/1_63_0/more/getting_started/unix-variants.html) page.
@@ -68,7 +97,7 @@ Metrics consist of 4 parameters: name, value, timestamp and tags.I
 
 See how backends handle tags in  [Monitoring backends](#monitoring-backends) section.
 
-## Creating monitring instance
+## Creating monitoring instance
 1. The recommended way of getting (reference to) monitoring instance is via *MonitoringFactory*.
 Before using the factory *Configure* method must be called providing URI to configuration file or backend. It should be called only once per process (following calls will not have any effect).
 ```cpp
