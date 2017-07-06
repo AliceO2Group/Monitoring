@@ -148,7 +148,7 @@ Metrics are pushed to one or multiple backends. The module currently supports th
 | ---------------- |:------------------------------:|:----------------------------:|:--------------------------:| --------------:|
 | InfluxDB         | InfluxDB time series database  | HTTP / UDP (InfluxDB Line Protocol) | cURL / boost asio   | Supported by InfluxDB Line Protocol |
 | ApMonBackend     | MonALISA Serivce               | UDP                          | ApMon                      | Default tags concatenated with entity; Metric tags concatenated with name |
-| InfoLoggerBackned| O2 Logging module              | -                            | (as log message)           | Added to the end of message |
+| InfoLoggerBackned| Temporary replaced by internal logging              | -                            | (as log message)           | Added to the end of message |
 | Flume            | Collects, aggragate monitoring data | UDP (JSON)              | boost asio                 | In Flume Event header |
 | Zabbix           | Via Zabbix trapper item        | TCP (Zabbix protocol)        | boost asio                 | Not supported |
 
@@ -286,10 +286,28 @@ To install and configure the MonALISA service (1 central server):
 + `/sbin/service MLD start`
 
 ### InfluxDB
-Instructions are available at [InfluxDB page](https://docs.influxdata.com/influxdb/v1.2/introduction/installation/).
+1. Install InfluxDB package
+~~~
+yum install influxdb
+~~~
+2. Edit configuration file: `/etc/influxdb/influxdb.conf`
 
-### InfoLogger
-The InfoLogger module is shared library which is linked during compilation time.
+
+More details available at [InfluxDB page](https://docs.influxdata.com/influxdb/v1.2/introduction/installation/).
 
 ### Flume
+1. Download Apache Flume [latest release](http://www.apache.org/dyn/closer.lua/flume/1.7.0/apache-flume-1.7.0-bin.tar.gz)
+2. Unpack file
+~~~
+tar -xvzf apache-flume-1.7.0-bin.tar.gz
+~~~
+3. Install custom source of sink from [MonitoringCustomComponents repo]( https://github.com/AliceO2Group/MonitoringCustomComponents)
+
 See [Flume User Guide](https://flume.apache.org/FlumeUserGuide.html) documentation.
+
+
+### Grafana
+
+### Zabbix
+
+
