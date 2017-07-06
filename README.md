@@ -296,7 +296,7 @@ yum install influxdb
 More details available at [InfluxDB page](https://docs.influxdata.com/influxdb/v1.2/introduction/installation/).
 
 ### Flume
-1. Download Apache Flume [latest release](http://www.apache.org/dyn/closer.lua/flume/1.7.0/apache-flume-1.7.0-bin.tar.gz)
+1. Download [latest release](http://www.apache.org/dyn/closer.lua/flume/1.7.0/apache-flume-1.7.0-bin.tar.gz) of Apache Flume
 2. Unpack file
 ~~~
 tar -xvzf apache-flume-1.7.0-bin.tar.gz
@@ -305,9 +305,49 @@ tar -xvzf apache-flume-1.7.0-bin.tar.gz
 
 See [Flume User Guide](https://flume.apache.org/FlumeUserGuide.html) documentation.
 
-
 ### Grafana
+1. Install Grafana package
+~~~
+yum install grafana
+~~~
+
 
 ### Zabbix
+1. Install Zabbix package
+~~~
+yum install zabbix-server-mysql zabbix-web-mysql
+~~~
+2. Create zabbix user and database
+~~~
+$ mysql -uroot -p<root_password>
+mysql> create database zabbix character set utf8 collate utf8_bin;
+mysql> grant all privileges on zabbix.* to zabbix@localhost identified by '<password>';
+~~~
 
+3. Import initial database schema
+~~~
+zcat /usr/share/doc/zabbix-server-mysql-3.2.6/create.sql.gz | mysql -uzabbix -p zabbix
+~~~
+4. Set database details in `/etc/zabbix/zabbix_server.conf` file
+~~~
+DBHost=localhost
+DBName=zabbix
+DBUser=zabbix
+DBPassword=<password>
+~~~
+5. Edit SELinux policy
+~~~
+setsebool -P httpd_can_connect_zabbix on
+~~~
+6. Open HTTP(s) and Zabbix related ports
+~~~
+firewall-cmd --zone=public --add-port 10051/tcp --permanent
+firewall-cmd --add-service=http --zone=public --permanent
+firewall-cmd --add-service=https --zone=public --permanent
+firewall-cmd --reload
+~~~
 
+7. Start Zabbix server
+~~~
+systemctl start zabbix-server
+~~~
