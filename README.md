@@ -313,10 +313,25 @@ yum install grafana
 
 
 ### Zabbix
-1. Install Zabbix package
+0. Add Zabbix repository
 ~~~
-yum install zabbix-server-mysql zabbix-web-mysql
+rpm -ivh https://repo.zabbix.com/zabbix/3.2/rhel/7/x86_64/zabbix-release-3.2-1.el7.noarch.rpm
 ~~~
+
+1. Install Zabbix packages
+~~~
+yum install zabbix-server-mysql zabbix-web-mysql mariadb-server
+~~~
+2. Start MariaDB
+~~~
+systemctl enable mariadb
+systemctl start mariadb
+~~~
+3. Configure MariaDB via wizzard
+~~~
+mysql_secure_installation
+~~~
+
 2. Create zabbix user and database
 ~~~
 $ mysql -uroot -p<root_password>
@@ -326,7 +341,8 @@ mysql> grant all privileges on zabbix.* to zabbix@localhost identified by '<pass
 
 3. Import initial database schema
 ~~~
-zcat /usr/share/doc/zabbix-server-mysql-3.2.6/create.sql.gz | mysql -uzabbix -p zabbix
+gunzip /usr/share/doc/zabbix-server-mysql-3.0.9/create.sql.gz
+cat /usr/share/doc/zabbix-server-mysql-3.0.9/create.sql | mysql -uzabbix -p zabbix
 ~~~
 4. Set database details in `/etc/zabbix/zabbix_server.conf` file
 ~~~
