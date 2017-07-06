@@ -145,6 +145,7 @@ set(TEST_SRCS
         test/testDerived.cxx
         test/testFlume.cxx
         test/testMetric.cxx
+	test/testZabbix.cxx
         test/testProcessDetails.cxx
         test/testProcessMonitor.cxx
         )
