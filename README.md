@@ -121,6 +121,7 @@ Metrics are pushed to one or multiple backends. The module currently supports th
 | ApMonBackend     | MonALISA Serivce               | UDP                          | ApMon                      | Default tags concatenated with entity; Metric tags concatenated with name |
 | InfoLoggerBackned| O2 Logging module              | -                            | (as log message)           | Added to the end of message |
 | Flume            | Collects, aggragate monitoring data | UDP (JSON)              | boost asio                 | In Flume Event header |
+| Zabbix           | Via Zabbix trapper item        | TCP (Zabbix protocol)        | boost asio                 | Not supported |
 
 Instruction how to install and configure server-sides backends are available in [Server-side backend installation and configuration](#server-side-backend-installation-and-configuration) section.
 
@@ -139,6 +140,10 @@ Instruction how to install and configure server-sides backends are available in 
 + Flume
   + enable - enable Flume HTTP backend
   + port 
+  + hostname
++ Zabbix
+  + enable - enable Zabbix backend
+  + port
   + hostname
 + ProcessMonitor
   + enable - enable process monitor

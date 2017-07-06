@@ -48,7 +48,7 @@ class Zabbix final : public Backend
     /// TCP transport
     std::unique_ptr<Transports::TCP> transport;
 
-    /// Hostname as it's required by Zabbix protocol
+    /// Hostname as required by Zabbix protocol
     std::string hostname;
 
     /// Prepares Zabbix protocol message
