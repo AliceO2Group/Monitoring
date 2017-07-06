@@ -18,6 +18,7 @@
 #include "Exceptions/MonitoringInternalException.h"
 #include "Backends/InfoLoggerBackend.h"
 #include "Backends/Flume.h"
+#include "Backends/Zabbix.h"
 
 #ifdef _WITH_APPMON
 #include "Backends/ApMonBackend.h"
@@ -87,6 +88,16 @@ Collector::Collector(const std::string& configPath)
   }
   else {
     MonLogger::Get() << "Flume backend disabled" << MonLogger::End();
+  }
+
+  if (configFile->get<int>("Zabbix/enable").value_or(0) == 1) {
+    mBackends.emplace_back(std::make_unique<Backends::Zabbix>(
+      configFile->get<std::string>("Zabbix/hostname").value(),
+      configFile->get<int>("Zabbix/port").value()
+    )); 
+  }
+  else {
+    MonLogger::Get() << "Zabbix backend disabled" << MonLogger::End();
   }
 
 #ifdef _OS_LINUX  

@@ -71,12 +71,14 @@ set(SRCS
         src/Collector.cxx
         src/Metric.cxx
         src/Backends/InfoLoggerBackend.cxx
+	src/Backends/Zabbix.cxx
         src/Backends/Flume.cxx
         src/DerivedMetrics.cxx
         src/ProcessMonitor.cxx
         src/ProcessDetails.cxx
         src/MonitoringFactory.cxx
         src/Transports/UDP.cxx
+	src/Transports/TCP.cxx
         src/Transports/HTTP.cxx
         src/Exceptions/MonitoringException.cxx
         src/Exceptions/MonitoringInternalException.cxx
@@ -143,6 +145,7 @@ set(TEST_SRCS
         test/testDerived.cxx
         test/testFlume.cxx
         test/testMetric.cxx
+	test/testZabbix.cxx
         test/testProcessDetails.cxx
         test/testProcessMonitor.cxx
         )
