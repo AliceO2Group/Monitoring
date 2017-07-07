@@ -1,7 +1,22 @@
 # Monitoring
 Monitoring module allows to inject user defined metrics and monitor the process itself. It supports multiple backends, protocols and data formats.
 
-## RPM installation
+## Table of contents
+1. [Installation](#installation)
+  + [RPM (CentOS 7 only)](#rpm-centos-7-only)
+  + [aliBuild](#alibuild)
+  + [Manual](#manual)
+2. [Getting started](#getting-started)
+3. [Code snippets](#code-snippets)
+4. [System monitoring and server-side backends installation and configuration](#system-monitoring-and-server-side-backends-installation-and-configuration)
+  + [collectD](#collectd)
+  + [MonALISA Service](#monalisa-service)
+  + [Flume](#flume)
+  + [Grafana](#grafana)
+  + [Zabbix](#zabbix)
+
+## Installation
+### RPM (CentOS 7 only)
 1. Install `CERN-CA-certs` package
 ~~~
 yum install CERN-CA-certs
@@ -30,7 +45,7 @@ eval `modulecmd bash load Monitoring/v1.3.0-1`
 ~~~
 6. The installation directory is: `/opt/alisw/el7/Monitoring/v1.3.0-1`
 
-## aliBuild installation
+### aliBuild
 Install [aliBuild](https://alisw.github.io/alibuild/) first.
 ~~~
 pip install alibuild
@@ -43,13 +58,13 @@ aliBuild --defaults o2 build Monitoring
 alienv load Monitoring/latest
 ~~~
 
-## Manual installation
+### Manual
 Manual installation of the O<sup>2</sup> Monitoring module and its dependencies.
 
-### Boost
+#### Boost
 It is assumed that Boost is present in your system. For more information see [Boost Getting Started](http://www.boost.org/doc/libs/1_63_0/more/getting_started/unix-variants.html) page.
 
-### O<sup>2</sup> Configuration module
+#### O<sup>2</sup> Configuration module
 ~~~
 git clone https://github.com/AliceO2Group/Configuration.git
 cd Configuration; mkdir build; cd build
@@ -60,10 +75,10 @@ make install
 
 See [README](https://github.com/AliceO2Group/Configuration#manual-installation) if you're missing any Configuration dependencies.
 
-### libcurl (optional)
+#### libcurl (optional)
 It should be present in your system or available in package manager, otherwise go to [curl download page](see: https://curl.haxx.se/download.html).
 
-### ApMon (optional)
+#### ApMon (optional)
 ~~~
 wget http://monalisa.caltech.edu/download/apmon/ApMon_cpp-2.2.8.tar.gz
 ./configure --prefix=<installdir>
@@ -71,7 +86,7 @@ make -j
 make install
 ~~~
 
-### Monitoring module
+#### Monitoring module
 ~~~
 git clone https://github.com/AliceO2Group/Monitoring.git
 cd Monitoring; mkdir build; cd build
@@ -80,7 +95,8 @@ make -j
 make install
 ~~~
 
-## Metrics
+## Getting started
+### Metrics
 Metrics consist of 4 parameters: name, value, timestamp and tags.I
 
 | Parameter name | Type                                          | Required | Default          |
@@ -95,9 +111,7 @@ Metrics consist of 4 parameters: name, value, timestamp and tags.I
 + PID
 + process name
 
-See how backends handle tags in  [Monitoring backends](#monitoring-backends) section.
-
-## Creating monitoring instance
+### Creating monitoring instance
 1. The recommended way of getting (reference to) monitoring instance is via *MonitoringFactory*.
 Before using the factory *Configure* method must be called providing URI to configuration file or backend. It should be called only once per process (following calls will not have any effect).
 ```cpp
@@ -110,7 +124,7 @@ AliceO2::Monitoring::MonitoringFactory::Get();
 Monitoring::Create("file://../Monitoring/examples/SampleConfig.ini");
 ```
 
-## Sending a metric
+### Sending a metric
 Metric can be sent by one of following ways:
 1. By creating and moving metric object:
    + `send(Metric&& metric)`
@@ -124,8 +138,6 @@ Metric can be sent by one of following ways:
    + `sendTagged(T value, std::string name, std::vector<Tag>&& tags)`
    + `sendTimed(T value, std::string name, std::chrono::time_point<std::chrono::system_clock>& timestamp)`
 
-See [Getting started](#getting-started) section to learn more.
-
 ## Derived metrics
 The module can also calculate derived metrics. To do so, use `addDerivedMetric(std::string name, DerivedMetricMode mode)` with one of two available modes:
 + `DerivedMetricMode::RATE` - rate between two following metrics;
@@ -133,7 +145,7 @@ The module can also calculate derived metrics. To do so, use `addDerivedMetric(s
 
 Derived metrics are generated each time as new value is passed to the module. Their names are suffixed with derived mode.
 
-## Processes monitoring
+### Processes monitoring
 To enable process monitoring *ProcessMonitor.enable* flag in configuration file must be set to 1 - see [Configuration file](#configuration-file) section. The following metrics are generated every N seconds (N can be specified in the config - *ProcessMonitor.interval*):
 + **etime** - elapsed time since the process was started, in the form [[DD-]hh:]mm:ss
 + **pcpu** - cpu utilization of the process in "##.#" format. Currently, it is the CPU time used divided by the time the process has been running (cputime/realtime ratio), expressed as a percentage.  It will not add up to 100% unless you are lucky
@@ -141,7 +153,7 @@ To enable process monitoring *ProcessMonitor.enable* flag in configuration file 
 + **bytesReceived** - the total number of bytes of data received by the process (per interface)
 + **bytesTransmitted** - the total number of bytes of data transmitted by the process (per interface).
 
-## Monitoring backends
+### Monitoring backends
 Metrics are pushed to one or multiple backends. The module currently supports three backends - see table below. Enabling/Disabling backends is done via configuration file.
 
 | Backend name     | Description                    | Transport                    | Client-side requirements   | Handling tags  |
@@ -152,9 +164,7 @@ Metrics are pushed to one or multiple backends. The module currently supports th
 | Flume            | Collects, aggragate monitoring data | UDP (JSON)              | boost asio                 | In Flume Event header |
 | Zabbix           | Via Zabbix trapper item        | TCP (Zabbix protocol)        | boost asio                 | Not supported |
 
-Instruction how to install and configure server-sides backends are available in [Server-side backend installation and configuration](#server-side-backend-installation-and-configuration) section.
-
-## Configuration file
+### Configuration file
 + AppMon
   + enable - enable AppMon (MonALISA) backend
   + pathToConfig - path to AppMon configuration file
@@ -182,8 +192,8 @@ Instruction how to install and configure server-sides backends are available in 
 
 See sample in [examples/config-default.ini](https://github.com/awegrzyn/Monitoring/blob/master/examples/config-default.ini).
 
-## Getting started
-Examples are available in [example](https://github.com/awegrzyn/Monitoring/tree/master/examples) directory.
+## Code snippets
+Code snippets are available in [example](https://github.com/awegrzyn/Monitoring/tree/master/examples) directory.
 
 ### Sending user defined metric - examples/1-Basic.cxx
 ```cpp
@@ -274,36 +284,134 @@ collector->send(10, "myMetric");
 collector->send({10, "myMetric"});
 ```
 
-## Server-side backend installation and configuration
+
+## System monitoring and server-side backends installation and configuration
+This guide explains manual installation. For `ansible` deployment see [AliceO2Group/system-configuration](https://gitlab.cern.ch/AliceO2Group/system-configuration/tree/master/ansible) gitlab repo.
+
+### collectD
+1. Install collectd package
+~~~
+yum install collectd
+~~~
+2. Configure `network` plugin: `/etc/collectd.d/network.conf` in order to push metrics to InfluxDB instance
+Replace `<influxdb-host>` with InfluxDB hostname
+~~~
+<Plugin network>
+  Server "<influxdb-host>" "25826"
+</Plugin>
+~~~
+3. Configure `cpu` module: `/etc/collectd.d/cpu.conf`
+~~~
+LoadPlugin cpu
+<Plugin cpu>
+  ReportByCpu true
+  ReportByState true
+  ValuesPercentage true
+</Plugin>
+~~~
+4. Configure `disk` plugin: `/etc/collectd.d/disk.conf`
+~~~
+LoadPlugin disk
+<Plugin disk>
+  Disk "/[hs]d[a-f][0-9]?$/"
+  IgnoreSelected false
+  UseBSDName false
+  UdevNameAttr "DEVNAME"
+</Plugin>
+~~~
+5. Configure `interface` plugin: `/etc/collectd.d/interface.conf`
+~~~
+LoadPlugin interface
+~~~
+6. Configure `load` plugin: `/etc/collectd.d/load.conf`
+~~~
+LoadPlugin interface
+~~~
+7. Configure `memory` plugin: `/etc/collectd.d/memory.conf`
+~~~
+LoadPlugin memory
+~~~
+8. Configure `uptime` plugin: `/etc/collectd.d/uptime.conf`
+~~~
+LoadPlugin uptime
+~~~
+9. Start collectd
+~~~
+systemctl start collectd.service
+systemctl enable collectd.service
+~~~
 
 ### MonALISA Service
-To install and configure the MonALISA service (1 central server):
-+ `yum install monalisa-service`
-+ copy `config/ml_env` to `/opt/monalisa-service/Service/CMD/`
-+ copy `config/ml.properties` to `/opt/monalisa-service/Service/myFarm/`
-+ copy `config/myFarm.conf` to `/opt/monalisa-service/Service/myFarm/`
-+ add following line to iptables and restart it: `-A INPUT -p udp -m state --state NEW -m udp --dport 8884 -m comment --comment "MonALISA UDP packets" -j ACCEPT`
-+ `/sbin/service MLD start`
+Follow official [MonALISA Service Installation Guide](http://monalisa.caltech.edu/monalisa__Documentation__Service_Installation_Guide.html).
+
 
 ### InfluxDB
 1. Install InfluxDB package
 ~~~
 yum install influxdb
 ~~~
-2. Edit configuration file: `/etc/influxdb/influxdb.conf`
+2. Add UDP endpoint to configuration file `/etc/influxdb/influxdb.conf` with database name `test` and UDP port number `8088`.
+~~~
+[[udp]]
+  enabled = true
+  bind-address = ":8088"
+  database = "test"
+  batch-size = 5000
+  batch-timeout = "1s"
+  batch-pending = 100
+  read-buffer = 8388608
+~~~
+3. Open UDP port `8088`
+~~~
+firewall-cmd --zone=public --permanent --add-port=8088/udp
+firewall-cmd --reload
+~~~
 
+4. (Change to non-standard storage directory: `/mnt/db`)
+Edit same file configuration: `/etc/influxdb/influxdb.conf`)
+~~~
+[meta]
+  dir = "/mnt/db/meta"
+[data]
+  dir = "/mnt/db/data"
+  ...
+  wal-dir = "/mnt/influx/wal"
+[hinted-handoff]
+  ...
+  dir = "/mnt/db/hh"
+~~~
+Set correct directory permission
+~~~
+chown influxdb:influxdb /mnt/influx
+chown influxdb:influxdb /mnt/db
+~~~
 
+5. Start InfluxDB
+~~~
+systemctl start influxdb
+~~~
+6. Create database `test`
+~~~
+influx
+influx> create database test
+~~~
 More details available at [InfluxDB page](https://docs.influxdata.com/influxdb/v1.2/introduction/installation/).
 
 ### Flume
-1. Download [latest release](http://www.apache.org/dyn/closer.lua/flume/1.7.0/apache-flume-1.7.0-bin.tar.gz) of Apache Flume
+1. Download [latest release](http://www-eu.apache.org/dist/flume/1.7.0/apache-flume-1.7.0-bin.tar.gz) of Apache Flume
 2. Unpack file
 ~~~
 tar -xvzf apache-flume-1.7.0-bin.tar.gz
 ~~~
-3. Install custom source of sink from [MonitoringCustomComponents repo]( https://github.com/AliceO2Group/MonitoringCustomComponents)
+3. Install custom source and/or sink from [MonitoringCustomComponents repo]( https://github.com/AliceO2Group/MonitoringCustomComponents)
+4. Adjust configuration file according to source/sink instructions. The sample configuration file is available in `conf/flume-conf.properties.template`.
+4. Launch Flume using following command:
+~~~
+$ bin/flume-ng agent -n <agent-name> -c conf -f conf/<flume-confing>
+~~~
+Set correct `<agent-name>` and `<flume-confing>` name.
 
-See [Flume User Guide](https://flume.apache.org/FlumeUserGuide.html) documentation.
+See [Flume User Guide](https://flume.apache.org/FlumeUserGuide.html) documentation for more details.
 
 ### Grafana
 1. Install Grafana package
@@ -313,6 +421,7 @@ yum install grafana
 
 
 ### Zabbix
+#### Installation
 0. Add Zabbix repository
 ~~~
 rpm -ivh https://repo.zabbix.com/zabbix/3.2/rhel/7/x86_64/zabbix-release-3.2-1.el7.noarch.rpm
@@ -327,23 +436,28 @@ yum install zabbix-server-mysql zabbix-web-mysql mariadb-server
 systemctl enable mariadb
 systemctl start mariadb
 ~~~
-3. Configure MariaDB via wizzard
+3. Configure MariaDB via wizard
+Set database `<root_password>`.
 ~~~
 mysql_secure_installation
 ~~~
 
 2. Create zabbix user and database
+Replace `<root_password>` with root database password.
+Replace `<password>` with password you want to set to zabbix database account.
 ~~~
 $ mysql -uroot -p<root_password>
-mysql> create database zabbix character set utf8 collate utf8_bin;
-mysql> grant all privileges on zabbix.* to zabbix@localhost identified by '<password>';
+create database zabbix character set utf8 collate utf8_bin;
+grant all privileges on zabbix.* to zabbix@localhost identified by '<password>';
 ~~~
 
 3. Import initial database schema
+Find out the version of `zabbix-server-mysql` package by running `rpm -q zabbix-server-mysql`.
 ~~~
-gunzip /usr/share/doc/zabbix-server-mysql-3.0.9/create.sql.gz
-cat /usr/share/doc/zabbix-server-mysql-3.0.9/create.sql | mysql -uzabbix -p zabbix
+gunzip /usr/share/doc/zabbix-server-mysql-3.2.6/create.sql.gz
+cat /usr/share/doc/zabbix-server-mysql-3.2.6/create.sql | mysql -uzabbix -p zabbix
 ~~~
+
 4. Set database details in `/etc/zabbix/zabbix_server.conf` file
 ~~~
 DBHost=localhost
@@ -357,7 +471,7 @@ setsebool -P httpd_can_connect_zabbix on
 ~~~
 6. Open HTTP(s) and Zabbix related ports
 ~~~
-firewall-cmd --zone=public --add-port 10051/tcp --permanent
+firewall-cmd --zone=public --add-port 10051/tcp --permanentt
 firewall-cmd --add-service=http --zone=public --permanent
 firewall-cmd --add-service=https --zone=public --permanent
 firewall-cmd --reload
@@ -366,4 +480,12 @@ firewall-cmd --reload
 7. Start Zabbix server
 ~~~
 systemctl start zabbix-server
+systemctl enable zabbix-server
 ~~~
+
+#### Host and metric configuration
+1. Open Zabbix web interface
+2. Go to `Configuration` -> `Hosts`
+3. Go to `Create a new host` to add a host that is allowed to push metrics. Use `Linux servers` as group. Agent interface can be set as `127.0.0.1:10050`.
+4. Go to `Items` tab to create a metric that will be accepted by Zabbix.
+Set `Type` to `Zabbix trapper`. Set proper `Type information`.
