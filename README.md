@@ -426,15 +426,17 @@ firewall-cmd --reload
 ~~~
 
 2. Edit configuration file: `/etc/grafana/grafana.ini`
+See official documentation: http://docs.grafana.org/installation/configuration/
 
 3. (Enable SSL)
-+ Set protocol to `https` in configuration file
++ Set protocol to `https`, `ssl_mode` to `skip-verify` in configuration file
 + Generate private key and certificate via [CERN Certification Authority](https://ca.cern.ch/ca/host/HostCertificates.aspx)
 + Set `cert_file` and `cert_key` value in configuration file
 
 4. (Configure LDAP-based login: `/etc/grafana/ldap.toml`)
 See official documentation at Grafana webpage: http://docs.grafana.org/installation/ldap/
-5. Start grafana
+
+5. Start Grafana
 ~~~
 systemctl start grafana-server
 ~~~
