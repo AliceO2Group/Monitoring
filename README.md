@@ -419,6 +419,25 @@ See [Flume User Guide](https://flume.apache.org/FlumeUserGuide.html) documentati
 yum install grafana
 ~~~
 
+2. Open port 3000
+~~~
+firewall-cmd --zone=public --add-port 3000/tcp --permanentt
+firewall-cmd --reload
+~~~
+
+2. Edit configuration file: `/etc/grafana/grafana.ini`
+
+3. (Enable SSL)
++ Set protocol to `https` in configuration file
++ Generate private key and certificate via [CERN Certification Authority](https://ca.cern.ch/ca/host/HostCertificates.aspx)
++ Set `cert_file` and `cert_key` value in configuration file
+
+4. (Configure LDAP-based login: `/etc/grafana/ldap.toml`)
+See official documentation at Grafana webpage: http://docs.grafana.org/installation/ldap/
+5. Start grafana
+~~~
+systemctl start grafana-server
+~~~
 
 ### Zabbix
 #### Installation
