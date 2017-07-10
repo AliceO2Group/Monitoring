@@ -17,38 +17,43 @@ Monitoring module allows to inject user defined metrics and monitor the process 
 
 ## Installation
 ### RPM (CentOS 7 only)
-1. Install `CERN-CA-certs` package
+Install `CERN-CA-certs` package
 ~~~
-yum install CERN-CA-certs
+sudo yum -y install CERN-CA-certs
 ~~~
-2. Add `alisw` repository
+Add `alisw` repository
 ~~~
-cat > /etc/yum.repos.d/alisw-el7.repo <<EOF
+su -c 'cat > /etc/yum.repos.d/alisw-el7.repo <<EOF
 [alisw-el7]
 name=ALICE Software - EL7
 baseurl=https://ali-ci.cern.ch/repo/RPMS/el7.x86_64/
 enabled=1
 gpgcheck=0
-EOF
+EOF'
 ~~~
-3. Install RPM package
+Install RPM package
 ~~~
-yum install alisw-Monitoring+v1.3.0-1.x86_64
+sudo yum -y install alisw-Monitoring+v1.3.0-1.x86_64
 ~~~
-4. Configure Modules
+Configure Modules
 ~~~
 export MODULEPATH=/opt/alisw/el7/modulefiles:$MODULEPATH
 ~~~
-5. Load enviroment
+Load enviroment
 ~~~
 eval `modulecmd bash load Monitoring/v1.3.0-1`
 ~~~
-6. The installation directory is: `/opt/alisw/el7/Monitoring/v1.3.0-1`
+The installation directory is: `/opt/alisw/el7/Monitoring/v1.3.0-1`
 
 ### aliBuild
+Install `pip` and `git` packages
+~~
+sudo yum -y install python-pip git
+~~
+
 Install [aliBuild](https://alisw.github.io/alibuild/) first.
 ~~~
-pip install alibuild
+sudo pip install alibuild
 ~~~
 Then follow instructions below.
 ~~~
@@ -115,13 +120,13 @@ Metrics consist of 4 parameters: name, value, timestamp and tags.I
 1. The recommended way of getting (reference to) monitoring instance is via *MonitoringFactory*.
 Before using the factory *Configure* method must be called providing URI to configuration file or backend. It should be called only once per process (following calls will not have any effect).
 ```cpp
-AliceO2::Monitoring::MonitoringFactory::Configure("file://../Monitoring/examples/SampleConfig.ini");
+AliceO2::Monitoring::MonitoringFactory::Configure("file://../Monitoring/examples/config-default.ini");
 AliceO2::Monitoring::MonitoringFactory::Get();
 ```
 
 2. A second way allows to create dedicated monitoring instance. It's useful only when different configuration URI is needed within the same process.
 ```cpp
-Monitoring::Create("file://../Monitoring/examples/SampleConfig.ini");
+Monitoring::Create("file://../Monitoring/examples/config-default.ini");
 ```
 
 ### Sending a metric
@@ -198,7 +203,7 @@ Code snippets are available in [example](https://github.com/awegrzyn/Monitoring/
 ### Sending user defined metric - examples/1-Basic.cxx
 ```cpp
 // configure monitoring (once per process), pass configuration path as parameter
-Monitoring::Configure("file:///home/awegrzyn/hackathon/Monitoring/examples/SampleConfig.ini");
+Monitoring::Configure("file:///home/awegrzyn/hackathon/Monitoring/examples/config-default.ini");
 
 // now send an application specific metric
 // 10 is the value
@@ -214,7 +219,7 @@ Monitoring::Get().send({10, "myMetric"});
 ### Sending tagged metric - examples/2-TaggedMetrics.cxx
 ```cpp
 // configure monitoring (only once per process), pass configuration path as parameter
-Monitoring::Configure("file:///home/awegrzyn/hackathon/Monitoring/examples/SampleConfig.ini");
+Monitoring::Configure("file:///home/awegrzyn/hackathon/Monitoring/examples/config-default.ini");
 
 // now send an application specific metric with additional tags
 // 10 is the value
@@ -232,7 +237,7 @@ Monitoring::Get().send(Metric{10, "myMetric"}.addTags({{"tag1", "value1"}, {"tag
 By default timestamp is set by the module, but user can overwrite it manually.
 ```cpp
 // configure monitoring (only once per process), pass configuration path as parameter
-Monitoring::Configure("file:///home/awegrzyn/hackathon/Monitoring/examples/SampleConfig.ini");
+Monitoring::Configure("file:///home/awegrzyn/hackathon/Monitoring/examples/config-default.ini");
 
 // current timestamp
 std::chrono::time_point<std::chrono::system_clock> timestamp = std::chrono::system_clock::now();
@@ -256,7 +261,7 @@ Monitoring::Get().send(Metric{40, "myCrazyMetric"}.setTimestamp(timestamp));
 The module can calculate derived metrics: average value and rate.
 ```cpp
 // configure monitoring (only once per process), pass configuration path as parameter
-Monitoring::Configure("file:///home/awegrzyn/hackathon/Monitoring/examples/SampleConfig.ini");
+Monitoring::Configure("file:///home/awegrzyn/hackathon/Monitoring/examples/config-default.ini");
 
 // derived metric :  rate
 Monitoring::Get().addDerivedMetric("myMetric", AliceO2::Monitoring::DerivedMetricMode::RATE);
@@ -271,7 +276,7 @@ Monitoring::Get().send(50, "myMetric");
 ### Dedicated monitoring instance - examples/6-DedicatedInstance.cxx
 ```cpp
 // create dedicated monitoring instance, pass confuguration path as parameter
-auto collector = Monitoring::Create("file:///home/awegrzyn/hackathon/Monitoring/examples/SampleConfig.ini");
+auto collector = Monitoring::Create("file:///home/awegrzyn/hackathon/Monitoring/examples/config-default.ini");
 
 // now send an application specific metric
 // 10 is the value
@@ -293,8 +298,7 @@ This guide explains manual installation. For `ansible` deployment see [AliceO2Gr
 ~~~
 yum install collectd
 ~~~
-2. Configure `network` plugin: `/etc/collectd.d/network.conf` in order to push metrics to InfluxDB instance
-Replace `<influxdb-host>` with InfluxDB hostname
+2. Configure `network` plugin: `/etc/collectd.d/network.conf` in order to push metrics to InfluxDB instance. Replace `<influxdb-host>` with InfluxDB hostname.
 ~~~
 <Plugin network>
   Server "<influxdb-host>" "25826"
