@@ -278,23 +278,26 @@ collector->send({10, "myMetric"});
 This guide explains manual installation. For `ansible` deployment see [AliceO2Group/system-configuration](https://gitlab.cern.ch/AliceO2Group/system-configuration/tree/master/ansible) gitlab repo.
 
 ### collectD
-1. Install collectd package
++ Install collectd package
 ~~~
 sudo yum -y install collectd
 ~~~
-2. Edit configuration file: `/etc/collectd.conf`
+
++ Edit configuration file: `/etc/collectd.conf`
 ~~~
 Interval     10
 Include "/etc/collectd.d"
 ~~~
-2. Configure `network` plugin: `/etc/collectd.d/network.conf` in order to push metrics to InfluxDB instance. Replace `<influxdb-host>` with InfluxDB hostname.
+
++ Configure `network` plugin: `/etc/collectd.d/network.conf` in order to push metrics to InfluxDB instance. Replace `<influxdb-host>` with InfluxDB hostname.
 ~~~
 LoadPlugin network
 <Plugin network>
   Server "<influxdb-host>" "25826"
 </Plugin>
 ~~~
-3. Configure `cpu` module: `/etc/collectd.d/cpu.conf`
+
++ Configure `cpu` module: `/etc/collectd.d/cpu.conf`
 ~~~
 LoadPlugin cpu
 <Plugin cpu>
@@ -303,7 +306,8 @@ LoadPlugin cpu
   ValuesPercentage true
 </Plugin>
 ~~~
-4. Configure `disk` plugin: `/etc/collectd.d/disk.conf`
+
++ Configure `disk` plugin: `/etc/collectd.d/disk.conf`
 ~~~
 LoadPlugin disk
 <Plugin disk>
@@ -313,34 +317,35 @@ LoadPlugin disk
   UdevNameAttr "DEVNAME"
 </Plugin>
 ~~~
-5. Configure `interface` plugin: `/etc/collectd.d/interface.conf`
+
++ Configure `interface` plugin: `/etc/collectd.d/interface.conf`
 ~~~
 LoadPlugin interface
 ~~~
-6. Configure `load` plugin: `/etc/collectd.d/load.conf`
+
++ Configure `load` plugin: `/etc/collectd.d/load.conf`
 ~~~
 LoadPlugin interface
 ~~~
-7. Configure `memory` plugin: `/etc/collectd.d/memory.conf`
+
++ Configure `memory` plugin: `/etc/collectd.d/memory.conf`
 ~~~
 LoadPlugin memory
 ~~~
-8. Configure `uptime` plugin: `/etc/collectd.d/uptime.conf`
+
++ Configure `uptime` plugin: `/etc/collectd.d/uptime.conf`
 ~~~
 LoadPlugin uptime
 ~~~
-9. Start collectd
+
++ Start collectd
 ~~~
 sudo systemctl start collectd.service
 sudo systemctl enable collectd.service
 ~~~
 
-### MonALISA Service
-Follow official [MonALISA Service Installation Guide](http://monalisa.caltech.edu/monalisa__Documentation__Service_Installation_Guide.html).
-
-
 ### InfluxDB
-0. Add `influxdb` repo
++ Add `influxdb` repo
 ~~~
 su -c 'cat > /etc/yum.repos.d/influxdb.repo <<EOF
 [influxdb]
@@ -352,11 +357,12 @@ gpgkey = https://repos.influxdata.com/influxdb.key
 EOF'
 ~~~
 
-1. Install InfluxDB package
++ Install InfluxDB package
 ~~~
 sudo yum -y install influxdb collectd
 ~~~
-2. Add UDP endpoint for application related metric by editing configuration file `/etc/influxdb/influxdb.conf` with database name `test` and UDP port number `8088`.
+
++ Add UDP endpoint for application related metric by editing configuration file `/etc/influxdb/influxdb.conf` with database name `test` and UDP port number `8088`.
 ~~~
 [[udp]]
   enabled = true
@@ -368,7 +374,7 @@ sudo yum -y install influxdb collectd
   read-buffer = 8388608
 ~~~
 
-3. Add endpoint for `collectd` metric
++ Add endpoint for `collectd` metric
 ~~~
 [[collectd]]
   enabled = true
@@ -377,56 +383,43 @@ sudo yum -y install influxdb collectd
   typesdb = "/usr/share/collectd/types.db"
 ~~~
 
-3. Open UDP port `25826` and `8088`
++ Open UDP port `25826` and `8088`
 ~~~
-firewall-cmd --zone=public --permanent --add-port=8088/udp
-firewall-cmd --zone=public --permanent --add-port=25826/udp
-firewall-cmd --reload
-~~~
-
-4. (Change to non-standard storage directory: `/mnt/db`)
-Edit same file configuration: `/etc/influxdb/influxdb.conf`)
-~~~
-[meta]
-  dir = "/mnt/db/meta"
-[data]
-  dir = "/mnt/db/data"
-  ...
-  wal-dir = "/mnt/influx/wal"
-[hinted-handoff]
-  ...
-  dir = "/mnt/db/hh"
-~~~
-Set correct directory permission
-~~~
-chown influxdb:influxdb /mnt/influx
-chown influxdb:influxdb /mnt/db
+sudo firewall-cmd --zone=public --permanent --add-port=8088/udp
+sudo firewall-cmd --zone=public --permanent --add-port=25826/udp
+sudo firewall-cmd --reload
 ~~~
 
-5. Start InfluxDB
++ Start InfluxDB
 ~~~
 sudo systemctl start influxdb
 ~~~
-6. Create database `test`
+
++ Create database `test` and `system-monitoring`
 ~~~
 influx
 influx> create database test
+influx> create database system-monitoring
 ~~~
 More details available at [InfluxDB page](https://docs.influxdata.com/influxdb/v1.2/introduction/installation/).
 
 ### Flume
-0. Install Java package
++ Install Java
 ~~~
 sudo yum -y install java
 ~~~
-1. Download [latest release](http://www-eu.apache.org/dist/flume/1.7.0/apache-flume-1.7.0-bin.tar.gz) of Apache Flume
-2. Unpack file
+
++ Download [latest release](http://www-eu.apache.org/dist/flume/1.7.0/apache-flume-1.7.0-bin.tar.gz) of Apache Flume
+
++ Unpack file
 ~~~
 tar -xvzf apache-flume-1.7.0-bin.tar.gz
 ~~~
-3. Install custom source and/or sink from [MonitoringCustomComponents repo]( https://github.com/AliceO2Group/MonitoringCustomComponents)
-4. Adjust configuration file according to source/sink instructions. The sample configuration file is available in `conf/flume-conf.properties.template`.
-4. Launch Flume using following command:
+
++ Install custom source and/or sink from [MonitoringCustomComponents repo]( https://github.com/AliceO2Group/MonitoringCustomComponents)
+Adjust configuration file according to source/sink instructions. The sample configuration file is available in `conf/flume-conf.properties.template`.
+
++ Launch Flume using following command:
 ~~~
 $ bin/flume-ng agent -n <agent-name> -c conf -f conf/<flume-confing>
 ~~~
@@ -435,61 +428,67 @@ Set correct `<agent-name>` and `<flume-confing>` name.
 See [Flume User Guide](https://flume.apache.org/FlumeUserGuide.html) documentation for more details.
 
 ### Grafana
-0. Add Grafana repo
+
++ Add Grafana repo
 ~~~
 curl -s https://packagecloud.io/install/repositories/grafana/stable/script.rpm.sh | sudo bash
 ~~~
 
-1. Install Grafana package
++ Install Grafana package
 ~~~
 sudo yum -y install grafana
 ~~~
 
-2. Open port 3000
++ Open port 3000
 ~~~
-firewall-cmd --zone=public --add-port 3000/tcp --permanent
-firewall-cmd --reload
+sudo firewall-cmd --zone=public --add-port 3000/tcp --permanent
+sudo firewall-cmd --reload
 ~~~
 
-2. Changed default `admin_user` and `admin_password`: `/etc/grafana/grafana.ini`
++ Change default `admin_user` and `admin_password`: `/etc/grafana/grafana.ini`
 See more regarding configuration file in the official documentation: http://docs.grafana.org/installation/configuration/
 
-3. (Enable SSL)
-+ Set protocol to `https`, `ssl_mode` to `skip-verify` in configuration file
-+ Generate private key and certificate via [CERN Certification Authority](https://ca.cern.ch/ca/host/HostCertificates.aspx)
-+ Set `cert_file` and `cert_key` value in configuration file
++ (Enable SSL)
+  + Set protocol to `https`, `ssl_mode` to `skip-verify` in configuration file
+  + Generate private key and certificate via [CERN Certification Authority](https://ca.cern.ch/ca/host/HostCertificates.aspx)
+  + Set `cert_file` and `cert_key` value in configuration file
 
-4. (Configure LDAP-based login: `/etc/grafana/ldap.toml`)
-See official documentation at Grafana webpage: http://docs.grafana.org/installation/ldap/
++ (Configure LDAP-based login: `/etc/grafana/ldap.toml`)
+See official documentation at the Grafana webpage: http://docs.grafana.org/installation/ldap/
 
-5. Start Grafana
++ Start Grafana
 ~~~
-systemctl start grafana-server
+sudo systemctl start grafana-server
 ~~~
+
+### MonALISA Service
+Follow official [MonALISA Service Installation Guide](http://monalisa.caltech.edu/monalisa__Documentation__Service_Installation_Guide.html).
 
 ### Zabbix
 #### Installation
-0. Add Zabbix repository
++ Add Zabbix repository
 ~~~
-rpm -ivh https://repo.zabbix.com/zabbix/3.2/rhel/7/x86_64/zabbix-release-3.2-1.el7.noarch.rpm
+sudo rpm -ivh https://repo.zabbix.com/zabbix/3.2/rhel/7/x86_64/zabbix-release-3.2-1.el7.noarch.rpm
 ~~~
 
-1. Install Zabbix packages
++ Install Zabbix packages
 ~~~
-yum install zabbix-server-mysql zabbix-web-mysql mariadb-server
+sudo yum -y install zabbix-server-mysql zabbix-web-mysql mariadb-server
 ~~~
-2. Start MariaDB
+
++ Start MariaDB
 ~~~
-systemctl enable mariadb
-systemctl start mariadb
+sudo systemctl enable mariadb
+sudo systemctl start mariadb
 ~~~
-3. Configure MariaDB via wizard
+
++ Configure MariaDB via wizard
 Set database `<root_password>`.
 ~~~
 mysql_secure_installation
 ~~~
 
-2. Create zabbix user and database
++ Create zabbix user and database
 Replace `<root_password>` with root database password.
 Replace `<password>` with password you want to set to zabbix database account.
 ~~~
@@ -498,41 +497,42 @@ create database zabbix character set utf8 collate utf8_bin;
 grant all privileges on zabbix.* to zabbix@localhost identified by '<password>';
 ~~~
 
-3. Import initial database schema
++ Import initial database schema
 Find out the version of `zabbix-server-mysql` package by running `rpm -q zabbix-server-mysql`.
 ~~~
 gunzip /usr/share/doc/zabbix-server-mysql-3.2.6/create.sql.gz
 cat /usr/share/doc/zabbix-server-mysql-3.2.6/create.sql | mysql -uzabbix -p zabbix
 ~~~
 
-4. Set database details in `/etc/zabbix/zabbix_server.conf` file
++ Set database details in `/etc/zabbix/zabbix_server.conf` file
 ~~~
 DBHost=localhost
 DBName=zabbix
 DBUser=zabbix
 DBPassword=<password>
 ~~~
-5. Edit SELinux policy
+
++ Edit SELinux policy
 ~~~
-setsebool -P httpd_can_connect_zabbix on
-~~~
-6. Open HTTP(s) and Zabbix related ports
-~~~
-firewall-cmd --zone=public --add-port 10051/tcp --permanentt
-firewall-cmd --add-service=http --zone=public --permanent
-firewall-cmd --add-service=https --zone=public --permanent
-firewall-cmd --reload
+sudo setsebool -P httpd_can_connect_zabbix on
 ~~~
 
-7. Start Zabbix server
++ Open HTTP(s) and Zabbix related ports
 ~~~
-systemctl start zabbix-server
-systemctl enable zabbix-server
+sudo firewall-cmd --zone=public --add-port 10051/tcp --permanentt
+sudo firewall-cmd --add-service=http --zone=public --permanent
+sudo firewall-cmd --add-service=https --zone=public --permanent
+sudo firewall-cmd --reload
+~~~
+
++ Start Zabbix server
+~~~
+sudo systemctl start zabbix-server
+sudo systemctl enable zabbix-server
 ~~~
 
 #### Host and metric configuration
-1. Open Zabbix web interface
-2. Go to `Configuration` -> `Hosts`
-3. Go to `Create a new host` to add a host that is allowed to push metrics. Use `Linux servers` as group. Agent interface can be set as `127.0.0.1:10050`.
-4. Go to `Items` tab to create a metric that will be accepted by Zabbix.
-Set `Type` to `Zabbix trapper`. Set proper `Type information`.
++ Open Zabbix web interface
++ Go to `Configuration` -> `Hosts`
++ Go to `Create a new host` to add a host that is allowed to push metrics. Use `Linux servers` as group. Agent interface can be set as `127.0.0.1:10050`.
++ Go to `Items` tab to create a metric that will be accepted by Zabbix. Set `Type` to `Zabbix trapper`. Set proper `Type information`.
