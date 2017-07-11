@@ -47,9 +47,9 @@ The installation directory is: `/opt/alisw/el7/Monitoring/v1.3.0-1`
 
 ### aliBuild
 Install `pip` and `git` packages
-~~
-sudo yum -y install python-pip git
-~~
+~~~
+sudo yum -y install python-pip git gcc-c++ bison flex bzip2-devel ncurses-devel
+~~~
 
 Install [aliBuild](https://alisw.github.io/alibuild/) first.
 ~~~
@@ -64,34 +64,18 @@ alienv load Monitoring/latest
 ~~~
 
 ### Manual
-Manual installation of the O<sup>2</sup> Monitoring module and its dependencies.
+Manual installation of the O<sup>2</sup> Monitoring module.
 
-#### Boost
-It is assumed that Boost is present in your system. For more information see [Boost Getting Started](http://www.boost.org/doc/libs/1_63_0/more/getting_started/unix-variants.html) page.
+#### Requirements
+* C++ compiler with C++14 support, eg.: 
+  +* `gcc-c++` package from `devtoolset-6` on CentOS 7
+  +* `clang++` on Mac OS
+* Boost >= 1.56
+* libcurl
+* [ApMon](http://monalisa.caltech.edu/monalisa__Download__ApMon.html) (optional)
+* [Configuration module](https://github.com/AliceO2Group/Configuration#manual-installation)
 
-#### O<sup>2</sup> Configuration module
-~~~
-git clone https://github.com/AliceO2Group/Configuration.git
-cd Configuration; mkdir build; cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=<installdir>
-make -j
-make install
-~~~
-
-See [README](https://github.com/AliceO2Group/Configuration#manual-installation) if you're missing any Configuration dependencies.
-
-#### libcurl (optional)
-It should be present in your system or available in package manager, otherwise go to [curl download page](see: https://curl.haxx.se/download.html).
-
-#### ApMon (optional)
-~~~
-wget http://monalisa.caltech.edu/download/apmon/ApMon_cpp-2.2.8.tar.gz
-./configure --prefix=<installdir>
-make -j
-make install
-~~~
-
-#### Monitoring module
+#### Monitoring module compilation
 ~~~
 git clone https://github.com/AliceO2Group/Monitoring.git
 cd Monitoring; mkdir build; cd build
