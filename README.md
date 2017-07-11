@@ -17,11 +17,11 @@ Monitoring module allows to inject user defined metrics and monitor the process 
 
 ## Installation
 ### RPM (CentOS 7 only)
-Install `CERN-CA-certs` package
+Install `CERN-CA-certs` package (required by `alisw` repo)
 ~~~
 sudo yum -y install CERN-CA-certs
 ~~~
-Add `alisw` repository
+Add `alisw` repo
 ~~~
 su -c 'cat > /etc/yum.repos.d/alisw-el7.repo <<EOF
 [alisw-el7]
@@ -31,7 +31,7 @@ enabled=1
 gpgcheck=0
 EOF'
 ~~~
-Install RPM package
+Install Monitoring RPM package
 ~~~
 sudo yum -y install alisw-Monitoring+v1.3.0-1.x86_64
 ~~~
@@ -46,12 +46,12 @@ eval `modulecmd bash load Monitoring/v1.3.0-1`
 The installation directory is: `/opt/alisw/el7/Monitoring/v1.3.0-1`
 
 ### aliBuild
-Install `pip` and `git` packages
+Install required packages for aliBuild installation
 ~~~
 sudo yum -y install python-pip git gcc-c++ bison flex bzip2-devel ncurses-devel
 ~~~
 
-Install [aliBuild](https://alisw.github.io/alibuild/) first.
+Install [aliBuild](https://alisw.github.io/alibuild/) via `pip`
 ~~~
 sudo pip install alibuild
 ~~~
