@@ -280,7 +280,12 @@ This guide explains manual installation. For `ansible` deployment see [AliceO2Gr
 ### collectD
 1. Install collectd package
 ~~~
-yum install collectd
+sudo yum -y install collectd
+~~~
+2. Edit configuration file: `/etc/collectd.conf`
+~~~
+Interval     10
+Include "/etc/collectd.d"
 ~~~
 2. Configure `network` plugin: `/etc/collectd.d/network.conf` in order to push metrics to InfluxDB instance. Replace `<influxdb-host>` with InfluxDB hostname.
 ~~~
@@ -325,8 +330,8 @@ LoadPlugin uptime
 ~~~
 9. Start collectd
 ~~~
-systemctl start collectd.service
-systemctl enable collectd.service
+sudo systemctl start collectd.service
+sudo systemctl enable collectd.service
 ~~~
 
 ### MonALISA Service
@@ -334,11 +339,23 @@ Follow official [MonALISA Service Installation Guide](http://monalisa.caltech.ed
 
 
 ### InfluxDB
+0. Add `influxdb` repo
+~~~
+su -c 'cat <<EOF | sudo tee /etc/yum.repos.d/influxdb.repo
+[influxdb]
+name = InfluxDB Repository - RHEL \$releasever
+baseurl = https://repos.influxdata.com/rhel/\$releasever/\$basearch/stable
+enabled = 1
+gpgcheck = 1
+gpgkey = https://repos.influxdata.com/influxdb.key
+EOF'
+~~~
+
 1. Install InfluxDB package
 ~~~
-yum install influxdb
+sudo yum -y install influxdb collectd
 ~~~
-2. Add UDP endpoint to configuration file `/etc/influxdb/influxdb.conf` with database name `test` and UDP port number `8088`.
+2. Add UDP endpoint for application related metric by editing configuration file `/etc/influxdb/influxdb.conf` with database name `test` and UDP port number `8088`.
 ~~~
 [[udp]]
   enabled = true
@@ -349,9 +366,20 @@ yum install influxdb
   batch-pending = 100
   read-buffer = 8388608
 ~~~
-3. Open UDP port `8088`
+
+3. Add endpoint for `collectd` metric
+~~~
+[[collectd]]
+  enabled = true
+  bind-address = ":25826"
+  database = "system-monitoring"
+  typesdb = "/usr/share/collectd/types.db"
+~~~
+
+3. Open UDP port `25826` and `8088`
 ~~~
 firewall-cmd --zone=public --permanent --add-port=8088/udp
+firewall-cmd --zone=public --permanent --add-port=25826/udp
 firewall-cmd --reload
 ~~~
 
@@ -376,7 +404,7 @@ chown influxdb:influxdb /mnt/db
 
 5. Start InfluxDB
 ~~~
-systemctl start influxdb
+sudo systemctl start influxdb
 ~~~
 6. Create database `test`
 ~~~
