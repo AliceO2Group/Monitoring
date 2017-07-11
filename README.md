@@ -289,6 +289,7 @@ Include "/etc/collectd.d"
 ~~~
 2. Configure `network` plugin: `/etc/collectd.d/network.conf` in order to push metrics to InfluxDB instance. Replace `<influxdb-host>` with InfluxDB hostname.
 ~~~
+LoadPlugin network
 <Plugin network>
   Server "<influxdb-host>" "25826"
 </Plugin>
@@ -414,6 +415,10 @@ influx> create database test
 More details available at [InfluxDB page](https://docs.influxdata.com/influxdb/v1.2/introduction/installation/).
 
 ### Flume
+0. Install Java package
+~~~
+sudo yum -y install java
+~~~
 1. Download [latest release](http://www-eu.apache.org/dist/flume/1.7.0/apache-flume-1.7.0-bin.tar.gz) of Apache Flume
 2. Unpack file
 ~~~
@@ -437,7 +442,7 @@ yum install grafana
 
 2. Open port 3000
 ~~~
-firewall-cmd --zone=public --add-port 3000/tcp --permanentt
+firewall-cmd --zone=public --add-port 3000/tcp --permanent
 firewall-cmd --reload
 ~~~
 
