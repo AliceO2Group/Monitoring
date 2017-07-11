@@ -342,7 +342,7 @@ Follow official [MonALISA Service Installation Guide](http://monalisa.caltech.ed
 ### InfluxDB
 0. Add `influxdb` repo
 ~~~
-su -c 'cat <<EOF | sudo tee /etc/yum.repos.d/influxdb.repo
+su -c 'cat > /etc/yum.repos.d/influxdb.repo <<EOF
 [influxdb]
 name = InfluxDB Repository - RHEL \$releasever
 baseurl = https://repos.influxdata.com/rhel/\$releasever/\$basearch/stable
@@ -435,9 +435,14 @@ Set correct `<agent-name>` and `<flume-confing>` name.
 See [Flume User Guide](https://flume.apache.org/FlumeUserGuide.html) documentation for more details.
 
 ### Grafana
+0. Add Grafana repo
+~~~
+curl -s https://packagecloud.io/install/repositories/grafana/stable/script.rpm.sh | sudo bash
+~~~
+
 1. Install Grafana package
 ~~~
-yum install grafana
+sudo yum -y install grafana
 ~~~
 
 2. Open port 3000
@@ -446,8 +451,8 @@ firewall-cmd --zone=public --add-port 3000/tcp --permanent
 firewall-cmd --reload
 ~~~
 
-2. Edit configuration file: `/etc/grafana/grafana.ini`
-See official documentation: http://docs.grafana.org/installation/configuration/
+2. Changed default `admin_user` and `admin_password`: `/etc/grafana/grafana.ini`
+See more regarding configuration file in the official documentation: http://docs.grafana.org/installation/configuration/
 
 3. (Enable SSL)
 + Set protocol to `https`, `ssl_mode` to `skip-verify` in configuration file
