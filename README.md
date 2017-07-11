@@ -8,7 +8,7 @@ Monitoring module allows to inject user defined metrics and monitor the process 
   * [Manual](#manual)
 2. [Getting started](#getting-started)
 3. [Code snippets](#code-snippets)
-4. [System monitoring and server-side backends installation and configuration](#system-monitoring-and-server-side-backends-installation-and-configuration)
+4. [System monitoring and server-side backends installation and configuration](#system-monitoring-server-side-backends-installation-and-configuration)
   * [collectD](#collectd)
   * [MonALISA Service](#monalisa-service)
   * [Flume](#flume)
@@ -50,7 +50,7 @@ eval `modulecmd bash load Monitoring/v1.3.0-1`
 The installation directory is: `/opt/alisw/el7/Monitoring/v1.3.0-1`
 
 ### aliBuild
-+ Install required packages for aliBuild installation
++ Install packages required by aliBuild
 ~~~
 sudo yum -y install python-pip git gcc-c++ bison flex bzip2-devel ncurses-devel
 ~~~
@@ -60,7 +60,7 @@ sudo yum -y install python-pip git gcc-c++ bison flex bzip2-devel ncurses-devel
 sudo pip install alibuild
 ~~~
 
-+ Then follow instructions below.
++ Then follow instructions below
 ~~~
 aliBuild init Monitoring@master
 aliDoctor Monitoring
@@ -91,7 +91,7 @@ make install
 
 ## Getting started
 ### Metrics
-Metrics consist of 4 parameters: name, value, timestamp and tags.I
+Metrics consist of 4 parameters: name, value, timestamp and tags.
 
 | Parameter name | Type                                          | Required | Default          |
 | -------------- |:---------------------------------------------:|:--------:| ----------------:|
@@ -106,20 +106,20 @@ Metrics consist of 4 parameters: name, value, timestamp and tags.I
 + process name
 
 ### Creating monitoring instance
-1. The recommended way of getting (reference to) monitoring instance is via *MonitoringFactory*.
-Before using the factory *Configure* method must be called providing URI to configuration file or backend. It should be called only once per process (following calls will not have any effect).
+1. The recommended way of getting (reference to) monitoring instance is *MonitoringFactory*.
+Before using the factory *Configure* method must be called providing URI to configuration file or central backend. This method should be called only once per process (following calls will not have any effect).
 ```cpp
 AliceO2::Monitoring::MonitoringFactory::Configure("file://../Monitoring/examples/config-default.ini");
 AliceO2::Monitoring::MonitoringFactory::Get();
 ```
 
-2. A second way allows to create dedicated monitoring instance. It's useful only when different configuration URI is needed within the same process.
+2. Second way creates dedicated monitoring instance. It's only recommended to use when different configuration URI is needed within the same process.
 ```cpp
 Monitoring::Create("file://../Monitoring/examples/config-default.ini");
 ```
 
 ### Sending a metric
-Metric can be sent by one of following ways:
+Metric can be sent by one of the following ways:
 1. By creating and moving metric object:
    + `send(Metric&& metric)`
 
@@ -133,11 +133,11 @@ Metric can be sent by one of following ways:
    + `sendTimed(T value, std::string name, std::chrono::time_point<std::chrono::system_clock>& timestamp)`
 
 ## Derived metrics
-The module can also calculate derived metrics. To do so, use `addDerivedMetric(std::string name, DerivedMetricMode mode)` with one of two available modes:
+The module can calculate derived metrics. To do so, use `addDerivedMetric(std::string name, DerivedMetricMode mode)` with one of two available modes:
 + `DerivedMetricMode::RATE` - rate between two following metrics;
 + `DerivedMetricMode::AVERAGE` - average value of all metrics stored in cache;
 
-Derived metrics are generated each time as new value is passed to the module. Their names are suffixed with derived mode.
+Derived metrics are generated each time as new value is passed to the module. Their names are suffixed with derived mode name.
 
 ### Processes monitoring
 To enable process monitoring *ProcessMonitor.enable* flag in configuration file must be set to 1 - see [Configuration file](#configuration-file) section. The following metrics are generated every N seconds (N can be specified in the config - *ProcessMonitor.interval*):
@@ -279,7 +279,7 @@ collector->send({10, "myMetric"});
 ```
 
 
-## System monitoring and server-side backends installation and configuration
+## System monitoring, server-side backends installation and configuration
 This guide explains manual installation. For `ansible` deployment see [AliceO2Group/system-configuration](https://gitlab.cern.ch/AliceO2Group/system-configuration/tree/master/ansible) gitlab repo.
 
 ### collectD
@@ -294,7 +294,7 @@ Interval     10
 Include "/etc/collectd.d"
 ~~~
 
-+ Configure `network` plugin: `/etc/collectd.d/network.conf` in order to push metrics to InfluxDB instance. Replace `<influxdb-host>` with InfluxDB hostname.
++ Configure `network` write plugin: `/etc/collectd.d/network.conf` in order to push metrics to InfluxDB instance. Replace `<influxdb-host>` with InfluxDB hostname.
 ~~~
 LoadPlugin network
 <Plugin network>
@@ -367,7 +367,7 @@ EOF'
 sudo yum -y install influxdb collectd
 ~~~
 
-+ Add UDP endpoint for application related metric by editing configuration file `/etc/influxdb/influxdb.conf` with database name `test` and UDP port number `8088`.
++ Add UDP endpoint for application related metrics by editing configuration file `/etc/influxdb/influxdb.conf` with database name `test` and UDP port number `8088`.
 ~~~
 [[udp]]
   enabled = true
@@ -379,7 +379,7 @@ sudo yum -y install influxdb collectd
   read-buffer = 8388608
 ~~~
 
-+ Add endpoint for `collectd` metric
++ Add an endpoint for `collectd`
 ~~~
 [[collectd]]
   enabled = true
@@ -421,7 +421,7 @@ sudo yum -y install java
 tar -xvzf apache-flume-1.7.0-bin.tar.gz
 ~~~
 
-+ Install custom source and/or sink from [MonitoringCustomComponents repo]( https://github.com/AliceO2Group/MonitoringCustomComponents)
++ Install custom source and/or sink from [MonitoringCustomComponents repo]( https://github.com/AliceO2Group/MonitoringCustomComponents).
 Adjust configuration file according to source/sink instructions. The sample configuration file is available in `conf/flume-conf.properties.template`.
 
 + Launch Flume using following command:
@@ -450,7 +450,7 @@ sudo firewall-cmd --zone=public --add-port 3000/tcp --permanent
 sudo firewall-cmd --reload
 ~~~
 
-+ Change default `admin_user` and `admin_password`: `/etc/grafana/grafana.ini`
++ Change default `admin_user` and `admin_password`: `/etc/grafana/grafana.ini`.
 See more regarding configuration file in the official documentation: http://docs.grafana.org/installation/configuration/
 
 + (Enable SSL)
