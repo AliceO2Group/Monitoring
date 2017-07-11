@@ -67,13 +67,13 @@ alienv load Monitoring/latest
 Manual installation of the O<sup>2</sup> Monitoring module.
 
 #### Requirements
-* C++ compiler with C++14 support, eg.: 
-  +* `gcc-c++` package from `devtoolset-6` on CentOS 7
-  +* `clang++` on Mac OS
-* Boost >= 1.56
-* libcurl
-* [ApMon](http://monalisa.caltech.edu/monalisa__Download__ApMon.html) (optional)
-* [Configuration module](https://github.com/AliceO2Group/Configuration#manual-installation)
++ C++ compiler with C++14 support, eg.:
+  + `gcc-c++` package from `devtoolset-6` on CentOS 7
+  + `clang++` on Mac OS
++ Boost >= 1.56
++ libcurl
++ [ApMon](http://monalisa.caltech.edu/monalisa__Download__ApMon.html) (optional)
++ [Configuration module](https://github.com/AliceO2Group/Configuration#manual-installation)
 
 #### Monitoring module compilation
 ~~~
