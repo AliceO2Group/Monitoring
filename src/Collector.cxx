@@ -47,6 +47,7 @@ Collector::Collector(const std::string& configPath)
   else {
     MonLogger::Get() << "InfoLogger backend disabled" << MonLogger::End();
   }
+  error->thisWillFail();
 #ifdef _WITH_APPMON
   if (configFile->get<int>("ApMon/enable").value_or(0) == 1) {
     mBackends.emplace_back(std::make_unique<Backends::ApMonBackend>(
