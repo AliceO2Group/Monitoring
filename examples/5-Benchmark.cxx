@@ -11,6 +11,8 @@ using Monitoring = AliceO2::Monitoring::MonitoringFactory;
 
 int main(int argc, char *argv[]) {
   int sleep = 1000000;
+  int count = 0;
+
   std::string stringMetric = "stringMetric";
   std::string doubleMetric = "doubleMetric";
   std::string intMetric = "intMetric";
@@ -28,6 +30,7 @@ int main(int argc, char *argv[]) {
   boost::program_options::options_description desc("Allowed options");
   desc.add_options()
     ("sleep", boost::program_options::value<int>(), "Thread sleep in microseconds")
+    ("count", boost::program_options::value<int>(), "Number of metric bunches (x2)")
     ("config", boost::program_options::value<std::string>()->required(), "Config file path")
     ("id", boost::program_options::value<std::string>(), "Instance ID")
   ;
@@ -40,6 +43,10 @@ int main(int argc, char *argv[]) {
     sleep = vm["sleep"].as<int>();
   }
 
+  if (vm.count("count")) {
+    count = vm["count"].as<int>();
+  }
+
   try {
     Monitoring::Configure("file://" + vm["config"].as<std::string>());
   } catch (std::string &e) {
@@ -47,7 +54,13 @@ int main(int argc, char *argv[]) {
     std::exit(EXIT_FAILURE);
   }  
 
-  for (;;) {
+  int add = 0;
+  if (count != 0) {
+    count--;
+    add = 1;
+  }
+
+  for (int i = 0; i <= count; i += add) {
     Monitoring::Get().send(stringValue, stringMetric);
     Monitoring::Get().send(doubleValue, doubleMetric);
     Monitoring::Get().send(intValue, intMetric);
