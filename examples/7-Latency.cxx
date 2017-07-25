@@ -13,8 +13,6 @@ using namespace AliceO2::Monitoring;
 
 int main(int argc, char *argv[]) {
   Monitoring::Configure("file://" + GetConfigFromCmdLine(argc, argv));
-  
-  Metric latency{999, "latencyTestMetric"};
   auto timestamp = std::chrono::system_clock::now();
   
   Monitoring::Get().send(
