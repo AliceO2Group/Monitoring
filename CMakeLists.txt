@@ -163,6 +163,7 @@ set(EXAMPLES
         examples/4-RateDerivedMetric.cxx
         examples/5-Benchmark.cxx
         examples/6-DedicatedInstance.cxx
+        examples/7-Latency.cxx
         )
 
 foreach (example ${EXAMPLES})
