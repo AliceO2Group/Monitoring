@@ -34,9 +34,8 @@ int main(int argc, char *argv[]) {
     std::exit(EXIT_FAILURE);
   }
 
-  auto timestamp = std::chrono::system_clock::now();
-  
   for (;;) {
+    auto timestamp = std::chrono::system_clock::now();
     Monitoring::Get().send(
       Metric{999, "latencyTestMetric"}.addTags(
         {{"libraryTimestamp", std::to_string(
