@@ -49,6 +49,11 @@ void InfluxDB::escape(std::string& escaped)
   boost::replace_all(escaped, " ", "\\ ");
 }
 
+void InfluxDB::sendMultiple(std::string name, std::vector<Metric>&& metrics)
+{
+  std::cout << "sending multiple" << std::endl;
+}
+
 void InfluxDB::send(const Metric& metric)
 {
   std::string metricTags{};

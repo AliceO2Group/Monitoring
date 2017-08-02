@@ -57,6 +57,7 @@ class Collector
     /// If metric has been added to DerivedMetric the derived metric is calculated (see addDerivedMetric method)
     /// \param metric            r-value to metric object
     void send(Metric&& metric);
+    void send(std::string name, std::vector<Metric>&& metrics);
 
     /// Sends a metric with tagset to all avaliabes backends
     /// If metric has been added to DerivedMetric the derived metric is calculated (see addDerivedMetric method)

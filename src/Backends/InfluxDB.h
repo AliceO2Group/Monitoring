@@ -49,7 +49,7 @@ class InfluxDB final : public Backend
     /// Sends metric to InfluxDB instance via one transport
     /// \param metric    reference to metric object
     void send(const Metric& metric) override;
-
+    void sendMultiple(std::string name, std::vector<Metric>&& metrics);
     /// Adds tag
     /// \param name      tag name
     /// \param value     tag value

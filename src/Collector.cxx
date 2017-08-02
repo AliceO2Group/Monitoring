@@ -154,6 +154,23 @@ void Collector::addDerivedMetric(std::string name, DerivedMetricMode mode) {
   mDerivedHandler->registerMetric(name, mode);
 }
 
+void Collector::send(std::string measurement, std::vector<Metric>&& metrics)
+{
+  for (auto& b: mBackends) {
+    if (dynamic_cast<Backends::InfluxDB*>(b.get())) {
+      std::cout << "InfluxDB" << std::endl;
+      dynamic_cast<Backends::InfluxDB*>(b.get())->sendMultiple(measurement, std::move(metrics));
+       
+    } else {
+      std::cout << "Other" << std::endl;
+      for (auto& m : metrics) {
+        //m->setName(measurement + m->getName());
+        send(std::move(m));
+      }
+    }
+  }
+}
+
 void Collector::send(Metric&& metric)
 {
   for (auto& b: mBackends) {
