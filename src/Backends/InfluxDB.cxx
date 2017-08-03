@@ -51,7 +51,22 @@ void InfluxDB::escape(std::string& escaped)
 
 void InfluxDB::sendMultiple(std::string name, std::vector<Metric>&& metrics)
 {
-  std::cout << "sending multiple" << std::endl;
+  escape(name);
+  std::stringstream convert;
+  convert << name << "," << tagSet << " ";
+
+  for (const auto& metric : metrics) {
+    std::string value = boost::lexical_cast<std::string>(metric.getValue());
+    prepareValue(value, metric.getType());
+    convert << metric.getName() << "=" << value << ",";
+  }
+  convert.seekp(-1, std::ios_base::end);
+  convert << " " <<  convertTimestamp(metrics.back().getTimestamp());
+
+  try {
+    transport->send(convert.str());
+  } catch (MonitoringInternalException&) {
+  }
 }
 
 void InfluxDB::send(const Metric& metric)
@@ -62,15 +77,7 @@ void InfluxDB::send(const Metric& metric)
   }
 
   std::string value = boost::lexical_cast<std::string>(metric.getValue());
-  if (metric.getType() == MetricType::STRING) {
-    escape(value);
-    value.insert(value.begin(), '"');
-    value.insert(value.end(), '"');
-  }
-
-  if (metric.getType() == MetricType::INT) {
-    value.insert(value.end(), 'i');
-  }
+  prepareValue(value, metric.getType());
   std::string name = metric.getName();
   escape(name);
 
@@ -80,6 +87,19 @@ void InfluxDB::send(const Metric& metric)
   try {
     transport->send(convert.str());
   } catch (MonitoringInternalException&) {
+  }
+}
+
+void InfluxDB::prepareValue(std::string& value, int type)
+{
+  if (type == MetricType::STRING) {
+    escape(value);
+    value.insert(value.begin(), '"');
+    value.insert(value.end(), '"');
+  }
+
+  if (type == MetricType::INT) {
+    value.insert(value.end(), 'i');
   }
 }
 

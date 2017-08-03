@@ -79,7 +79,7 @@ Collector::Collector(const std::string& configPath)
     MonLogger::Get() << "InfluxDB/HTTP backend disabled" << MonLogger::End();
   }
 #endif
-
+  
   if (configFile->get<int>("Flume/enable").value_or(0) == 1) {
     mBackends.emplace_back(std::make_unique<Backends::Flume>(
       configFile->get<std::string>("Flume/hostname").value(),
@@ -156,24 +156,34 @@ void Collector::addDerivedMetric(std::string name, DerivedMetricMode mode) {
 
 void Collector::send(std::string measurement, std::vector<Metric>&& metrics)
 {
+  // find InfluxDB index
+  size_t influxIndex = -1;
   for (auto& b: mBackends) {
     if (dynamic_cast<Backends::InfluxDB*>(b.get())) {
-      std::cout << "InfluxDB" << std::endl;
-      dynamic_cast<Backends::InfluxDB*>(b.get())->sendMultiple(measurement, std::move(metrics));
-       
-    } else {
-      std::cout << "Other" << std::endl;
-      for (auto& m : metrics) {
-        //m->setName(measurement + m->getName());
-        send(std::move(m));
-      }
+      influxIndex = &b-&mBackends[0];
     }
+  }
+  // send single metric to InfluxDB
+  dynamic_cast<Backends::InfluxDB*>(
+    mBackends[influxIndex].get())->sendMultiple(measurement, std::move(metrics)
+  );
+
+  // send multiple metric to all other backends (prepend metric name with measurement name)
+  for (auto& m : metrics) {
+    std::string tempName = m.getName();
+    m.setName(measurement + "-" + m.getName());
+    send(std::move(m), influxIndex);
+    m.setName(tempName);
   }
 }
 
-void Collector::send(Metric&& metric)
+void Collector::send(Metric&& metric, std::size_t skipBackend)
 {
+  std::size_t index = 0;
   for (auto& b: mBackends) {
+    if (index++ == skipBackend) {
+      continue;
+    }
     b->send(metric);
   }
   if (mDerivedHandler->isRegistered(metric.getName())) {

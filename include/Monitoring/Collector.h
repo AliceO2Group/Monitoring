@@ -56,7 +56,12 @@ class Collector
     /// Sends a metric to all avaliabes backends
     /// If metric has been added to DerivedMetric the derived metric is calculated (see addDerivedMetric method)
     /// \param metric            r-value to metric object
-    void send(Metric&& metric);
+    void send(Metric&& metric, std::size_t skipBackend = -1);
+
+    /// Sends multiple metrics to as a single measurement
+    /// If it's not supported by backend it fallbacks into sending multiple metrics
+    /// \param name		measurement name
+    /// \param metrics		list of metrics
     void send(std::string name, std::vector<Metric>&& metrics);
 
     /// Sends a metric with tagset to all avaliabes backends
