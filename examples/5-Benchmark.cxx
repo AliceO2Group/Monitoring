@@ -25,6 +25,7 @@ int main(int argc, char *argv[]) {
     ("config", boost::program_options::value<std::string>()->required(), "Config file path")
     ("id", boost::program_options::value<std::string>(), "Instance ID")
     ("count", boost::program_options::value<int>(), "Number of metric bunches (x3)")
+    ("multiple", boost::program_options::bool_switch()->default_value(false), "Sends multiple metrics per measurement")
   ;
   
   boost::program_options::variables_map vm;
@@ -52,10 +53,21 @@ int main(int argc, char *argv[]) {
     add = 1;
   }
 
-  for (int i = 0; i <= count; i += add) {
-    Monitoring::Get().send({"string" + std::to_string(intDist(mt)), "stringMetric"});
-    Monitoring::Get().send({doubleDist(mt), "doubleMetric"});
-    Monitoring::Get().send({intDist(mt), "intMetric"});
-    std::this_thread::sleep_for(std::chrono::microseconds(sleep));
+  if (!vm["multiple"].as<bool>()) {
+    for (int i = 0; i <= count; i += add) {
+      Monitoring::Get().send({"string" + std::to_string(intDist(mt)), "stringMetric"});
+      Monitoring::Get().send({doubleDist(mt), "doubleMetric"});
+      Monitoring::Get().send({intDist(mt), "intMetric"});
+      std::this_thread::sleep_for(std::chrono::microseconds(sleep));
+    }
+  } else {
+    for (int i = 0; i <= count; i += add) {
+      Monitoring::Get().send("benchmarkMeasurement",{
+        {"string" + std::to_string(intDist(mt)), "stringMetric"},
+        {doubleDist(mt), "doubleMetric"},
+        {intDist(mt), "intMetric"}
+      });
+      std::this_thread::sleep_for(std::chrono::microseconds(sleep));
+    }
   }
 }

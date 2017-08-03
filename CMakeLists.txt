@@ -164,6 +164,7 @@ set(EXAMPLES
         examples/5-Benchmark.cxx
         examples/6-DedicatedInstance.cxx
         examples/7-Latency.cxx
+        examples/8-Multiple.cxx
         )
 
 foreach (example ${EXAMPLES})
