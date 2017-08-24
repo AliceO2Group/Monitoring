@@ -45,8 +45,8 @@ class Zabbix final : public Backend
     void addGlobalTag(std::string name, std::string value) override;
   
   private:
-    /// TCP transport
-    std::unique_ptr<Transports::TCP> transport;
+    std::string socketHostname;
+    int socketPort;
 
     /// Hostname as required by Zabbix protocol
     std::string hostname;

@@ -20,8 +20,8 @@ namespace Backends
 {
 
 Zabbix::Zabbix(const std::string &hostname, int port)
+ : socketHostname(hostname), socketPort(port)
 { 
-  transport = std::make_unique<Transports::TCP>(hostname, port);
   MonLogger::Get() << "Zabbix/TCP backend initialized"
                        << " ("<< hostname << ":" << port << ")" << MonLogger::End();
 }
@@ -73,6 +73,7 @@ std::string Zabbix::metricToZabbix(const Metric& metric)
 
 void Zabbix::send(const Metric& metric) {
   try {
+    std::unique_ptr<Transports::TCP> transport = std::make_unique<Transports::TCP>(socketHostname, socketPort);
     transport->send(metricToZabbix(metric));
   } catch (MonitoringInternalException&) {
   }
