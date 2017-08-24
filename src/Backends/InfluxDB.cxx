@@ -49,11 +49,11 @@ void InfluxDB::escape(std::string& escaped)
   boost::replace_all(escaped, " ", "\\ ");
 }
 
-void InfluxDB::sendMultiple(std::string name, std::vector<Metric>&& metrics)
+void InfluxDB::sendMultiple(std::string measurement, std::vector<Metric>&& metrics)
 {
-  escape(name);
+  escape(measurement);
   std::stringstream convert;
-  convert << name << "," << tagSet << " ";
+  convert << measurement << "," << tagSet << " ";
 
   for (const auto& metric : metrics) {
     std::string value = boost::lexical_cast<std::string>(metric.getValue());

@@ -9,6 +9,7 @@
 #include "Monitoring/Backend.h"
 #include "../Transports/TCP.h"
 #include "../MonLogger.h"
+#include <boost/property_tree/json_parser.hpp>
 #include <chrono>
 #include <string>
 
@@ -39,20 +40,32 @@ class Zabbix final : public Backend
     /// \param metric    reference to metric object
     void send(const Metric& metric) override;
 
+    /// Sends multiple metric in single packet
+    /// \param name     measurement name
+    /// \param metrics  list of metrics
+    void sendMultiple(std::string measurement, std::vector<Metric>&& metrics) override;
+
     /// Adds tag
     /// \param name      tag name
     /// \param value     tag value
     void addGlobalTag(std::string name, std::string value) override;
   
   private:
+    /// Zabbix server hostname
     std::string socketHostname;
+
+    /// Zabbix sever port
     int socketPort;
 
     /// Hostname as required by Zabbix protocol
     std::string hostname;
 
+    /// Sends Zabbix formatted message over TCP
+    /// \param message 	Zabbix message
+    void sendOverTcp(std::string&& message);
+
     /// Prepares Zabbix protocol message
-    std::string metricToZabbix(const Metric& metric);
+    std::string createMessage(const boost::property_tree::ptree& dataArray);
 
     /// Converts timestamp into unix format
     /// \param timestamp chrono system_clock timestamp

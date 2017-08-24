@@ -53,7 +53,7 @@ class InfluxDB final : public Backend
     /// Sends multiple values in single measurement
     /// \param name 	measurement name
     /// \param metrics 	list of metrics
-    void sendMultiple(std::string name, std::vector<Metric>&& metrics);
+    void sendMultiple(std::string measurement, std::vector<Metric>&& metrics);
 
     /// Adds tag
     /// \param name      tag name

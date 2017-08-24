@@ -31,9 +31,15 @@ class InfoLoggerBackend final : public Backend
     /// Default destructor
     ~InfoLoggerBackend() = default;
 
-    /// Sends metric to InfluxDB
+    /// Sends metric to InfoLogger library
     /// \param metric           reference to metric object    
     void send(const Metric& metric) override;
+
+    /// Sends multiple metric at once
+    /// Not supported by the backend therefore it falls back to sending metric one by one
+    /// \param name     measurement name
+    /// \param metrics  list of metrics
+    void sendMultiple(std::string measurement, std::vector<Metric>&& metrics) override;
 
     /// Adds tag
     /// \param name         tag name
