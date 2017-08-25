@@ -5,7 +5,6 @@
 
 #include "Zabbix.h"
 #include <boost/lexical_cast.hpp>
-#include <boost/property_tree/json_parser.hpp>
 #include <string>
 #include "../Transports/TCP.h"
 #include "../Exceptions/MonitoringInternalException.h"
@@ -20,8 +19,8 @@ namespace Backends
 {
 
 Zabbix::Zabbix(const std::string &hostname, int port)
+ : socketHostname(hostname), socketPort(port)
 { 
-  transport = std::make_unique<Transports::TCP>(hostname, port);
   MonLogger::Get() << "Zabbix/TCP backend initialized"
                        << " ("<< hostname << ":" << port << ")" << MonLogger::End();
 }
@@ -36,29 +35,46 @@ inline std::string Zabbix::convertTimestamp(const std::chrono::time_point<std::c
   return converted;
 }
 
-std::string Zabbix::metricToZabbix(const Metric& metric)
+void Zabbix::send(const Metric& metric)
 {
   // create JSON payload
-  boost::property_tree::ptree request, dataArray, data;
+  boost::property_tree::ptree dataArray, data;
   data.put<std::string>("host", hostname);
   data.put<std::string>("key", metric.getName());
   data.put<std::string>("value", boost::lexical_cast<std::string>(metric.getValue()));
   data.put<std::string>("clock", convertTimestamp(metric.getTimestamp()));
-
   dataArray.push_back(std::make_pair("", data));
+  sendOverTcp(createMessage(dataArray));
+}
+
+void Zabbix::sendMultiple(std::string measurement, std::vector<Metric>&& metrics)
+{
+  boost::property_tree::ptree dataArray;
+  for (auto& metric : metrics) {
+    boost::property_tree::ptree data;
+    data.put<std::string>("host", hostname);
+    data.put<std::string>("key", metric.getName());
+    data.put<std::string>("value", boost::lexical_cast<std::string>(metric.getValue()));
+    data.put<std::string>("clock", convertTimestamp(metric.getTimestamp()));
+    dataArray.push_back(std::make_pair("", data));
+  }
+  sendOverTcp(createMessage(dataArray));
+}
+
+std::string Zabbix::createMessage(const boost::property_tree::ptree& dataArray) {
+  boost::property_tree::ptree request;
   request.put<std::string>("request", "sender data");
   request.add_child("data", dataArray);
 
-  std::stringstream ss; 
+  std::stringstream ss;
   write_json(ss, request);
-  
-  std::string noWhiteSpaces = ss.str();
-  noWhiteSpaces.erase(std::remove_if( noWhiteSpaces.begin(), noWhiteSpaces.end(), 
-      [](char c){ return (c =='\r' || c =='\t' || c == ' ' || c == '\n');}), noWhiteSpaces.end() );
-  noWhiteSpaces.insert(18, " ");
 
-  // prepare Zabbix header
-  uint32_t length = noWhiteSpaces.length();
+  std::string message = ss.str();
+  message.erase(std::remove_if( message.begin(), message.end(),
+      [](char c){ return (c =='\r' || c =='\t' || c == ' ' || c == '\n');}), message.end() );
+  message.insert(18, " ");
+
+  uint32_t length = message.length();
   std::vector<unsigned char> header = {
     'Z', 'B', 'X', 'D', '\x01',
     static_cast<unsigned char>(length & 0xFF),
@@ -67,13 +83,13 @@ std::string Zabbix::metricToZabbix(const Metric& metric)
     static_cast<unsigned char>((length >> 24) & 0x000000FF),
     '\x00','\x00','\x00','\x00'
   };
-
-  return std::string(header.begin(), header.end()) + noWhiteSpaces;
+  return std::string(header.begin(), header.end()) + message;
 }
 
-void Zabbix::send(const Metric& metric) {
+void Zabbix::sendOverTcp(std::string&& message) {
   try {
-    transport->send(metricToZabbix(metric));
+    std::unique_ptr<Transports::TCP> transport = std::make_unique<Transports::TCP>(socketHostname, socketPort);
+    transport->send(std::move(message));
   } catch (MonitoringInternalException&) {
   }
 }

@@ -37,7 +37,7 @@ class Flume final : public Backend
     /// Default destructor
     ~Flume() = default;
 
-    // Convert timestamp to unsigned long as required by Flume
+    /// Convert timestamp to unsigned long as required by Flume
     /// \param 		 chrono time_point timestamp
     /// \return  	 timestamp in nanoseconds
     inline unsigned long convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp);
@@ -45,6 +45,13 @@ class Flume final : public Backend
     /// Sends metric to InfluxDB instance via one transport
     /// \param metric    reference to metric object
     void send(const Metric& metric) override;
+
+    /// Sends multiple metric in single packet
+    /// Not supported by the backend therefore it falls back to sending metric one by one
+    /// TODO: changed required in Flume Source
+    /// \param name     measurement name
+    /// \param metrics  list of metrics 
+    void sendMultiple(std::string measurement, std::vector<Metric>&& metrics) override;
 
     /// Adds tag
     /// \param name      tag name

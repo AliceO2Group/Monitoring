@@ -42,6 +42,16 @@ void ApMonBackend::addGlobalTag(std::string name, std::string value)
   entity += value;
 }
 
+void ApMonBackend::sendMultiple(std::string measurement, std::vector<Metric>&& metrics)
+{
+  for (auto& m : metrics) {
+    std::string tempName = m.getName();
+    m.setName(measurement + "-" + m.getName());
+    send(m);
+    m.setName(tempName);
+  }
+}
+
 void ApMonBackend::send(const Metric& metric)
 {
   std::string name = metric.getName();

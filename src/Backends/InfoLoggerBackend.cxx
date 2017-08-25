@@ -37,6 +37,16 @@ void InfoLoggerBackend::addGlobalTag(std::string name, std::string value)
   tagString += name + "=" + value;
 }
 
+void InfoLoggerBackend::sendMultiple(std::string measurement, std::vector<Metric>&& metrics)
+{
+  for (auto& m : metrics) {
+    std::string tempName = m.getName();
+    m.setName(measurement + "-" + m.getName());
+    send(m);
+    m.setName(tempName);
+  }
+}
+
 void InfoLoggerBackend::send(const Metric& metric)
 {
   std::string metricTags{};

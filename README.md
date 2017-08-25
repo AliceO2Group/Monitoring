@@ -156,6 +156,8 @@ Metric can be sent by one of the following ways:
    + `send(T value, std::string name)`
    + `sendTagged(T value, std::string name, std::vector<Tag>&& tags)`
    + `sendTimed(T value, std::string name, std::chrono::time_point<std::chrono::system_clock>& timestamp)`
+3. Sending multiple metrics (only InfluxDB and Zabbix are supported, other backends fallback into sending metrics one by one)
+   + `void send(std::string name, std::vector<Metric>&& metrics)`
 
 ## Derived metrics
 The module can calculate derived metrics. To do so, use `addDerivedMetric(std::string name, DerivedMetricMode mode)` with one of two available modes:
@@ -303,6 +305,17 @@ collector->send(10, "myMetric");
 collector->send({10, "myMetric"});
 ```
 
+### Sending multiple metrics at once - examples/8-Multiple.cxx
+```cpp
+// configure monitoring (only once per process), pass configuration path as parameter
+Monitoring::Configure("file:///home/awegrzyn/hackathon/Monitoring/examples/config-default.ini");
+
+// Send two metrics at once as a single measurement
+Monitoring::Get().send("measurementName", {
+  {10, "myMetricInt"},
+  {10.10, "myMetricFloat"}
+});
+```
 
 ## System monitoring, server-side backends installation and configuration
 This guide explains manual installation. For `ansible` deployment see [AliceO2Group/system-configuration](https://gitlab.cern.ch/AliceO2Group/system-configuration/tree/master/ansible) gitlab repo.
