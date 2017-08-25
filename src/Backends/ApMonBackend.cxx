@@ -48,6 +48,10 @@ void ApMonBackend::sendMultiple(std::string measurement, std::vector<Metric>&& m
   paramNames = (char **)std::malloc(noMetrics * sizeof(char *));
   paramValues = (char **)std::malloc(noMetrics * sizeof(char *));
   valueTypes = (int *)std::malloc(noMetrics * sizeof(int));
+  // the scope of values must be the same as sendTimedParameters method
+  int intValue;
+  double doubleValue;
+  std::string stringValue;
 
   for (int i = 0; i < noMetrics; i++) {
     paramNames[i] = const_cast<char*>(metrics[i].getName().c_str());
@@ -55,24 +59,24 @@ void ApMonBackend::sendMultiple(std::string measurement, std::vector<Metric>&& m
       case MetricType::INT :
       {
         valueTypes[i] = XDR_INT32;
-        int value = boost::get<int>(metrics[i].getValue());
-        paramValues[i] = reinterpret_cast<char*>(&value);
+        intValue = boost::get<int>(metrics[i].getValue());
+        paramValues[i] = reinterpret_cast<char*>(&intValue);
       }
       break;
 
       case MetricType::STRING :
       {
         valueTypes[i] = XDR_STRING;
-        std::string value = boost::get<std::string>(metrics[i].getValue());
-        paramValues[i] = const_cast<char*>(value.c_str());
+        stringValue = boost::get<std::string>(metrics[i].getValue());
+        paramValues[i] = const_cast<char*>(stringValue.c_str());
       }
       break;
 
       case MetricType::DOUBLE :
       {
         valueTypes[i] = XDR_REAL64;
-        double value = boost::get<double>(metrics[i].getValue());
-        paramValues[i] = reinterpret_cast<char*>(&value);
+        doubleValue = boost::get<double>(metrics[i].getValue());
+        paramValues[i] = reinterpret_cast<char*>(&doubleValue);
       }
       break;
     }
