@@ -31,9 +31,7 @@ ApMonBackend::ApMonBackend(const std::string& configurationFile)
 
 inline int ApMonBackend::convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp)
 {
-  return std::chrono::duration_cast <std::chrono::milliseconds>(
-    timestamp.time_since_epoch()
-  ).count();
+  return static_cast<int>(std::chrono::system_clock::to_time_t(timestamp));
 }
 
 void ApMonBackend::addGlobalTag(std::string name, std::string value)
@@ -44,12 +42,52 @@ void ApMonBackend::addGlobalTag(std::string name, std::string value)
 
 void ApMonBackend::sendMultiple(std::string measurement, std::vector<Metric>&& metrics)
 {
-  for (auto& m : metrics) {
-    std::string tempName = m.getName();
-    m.setName(measurement + "-" + m.getName());
-    send(m);
-    m.setName(tempName);
+  int noMetrics = metrics.size();
+  char **paramNames, **paramValues;
+  int *valueTypes;
+  paramNames = (char **)std::malloc(noMetrics * sizeof(char *));
+  paramValues = (char **)std::malloc(noMetrics * sizeof(char *));
+  valueTypes = (int *)std::malloc(noMetrics * sizeof(int));
+  // the scope of values must be the same as sendTimedParameters method
+  int intValue;
+  double doubleValue;
+  std::string stringValue;
+
+  for (int i = 0; i < noMetrics; i++) {
+    paramNames[i] = const_cast<char*>(metrics[i].getName().c_str());
+    switch(metrics[i].getType()) {
+      case MetricType::INT :
+      {
+        valueTypes[i] = XDR_INT32;
+        intValue = boost::get<int>(metrics[i].getValue());
+        paramValues[i] = reinterpret_cast<char*>(&intValue);
+      }
+      break;
+
+      case MetricType::STRING :
+      {
+        valueTypes[i] = XDR_STRING;
+        stringValue = boost::get<std::string>(metrics[i].getValue());
+        paramValues[i] = const_cast<char*>(stringValue.c_str());
+      }
+      break;
+
+      case MetricType::DOUBLE :
+      {
+        valueTypes[i] = XDR_REAL64;
+        doubleValue = boost::get<double>(metrics[i].getValue());
+        paramValues[i] = reinterpret_cast<char*>(&doubleValue);
+      }
+      break;
+    }
   }
+
+  mApMon->sendTimedParameters(const_cast<char*>(entity.c_str()), const_cast<char*>(entity.c_str()),
+    noMetrics, paramNames, valueTypes, paramValues, convertTimestamp(metrics[0].getTimestamp()));
+
+  std::free(paramNames);
+  std::free(paramValues);
+  std::free(valueTypes);
 }
 
 void ApMonBackend::send(const Metric& metric)

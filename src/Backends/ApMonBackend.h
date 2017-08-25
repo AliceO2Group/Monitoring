@@ -43,7 +43,6 @@ class ApMonBackend final : public Backend
     void send(const Metric& metric) override;
 
     /// Sends multiple metric in single packet
-    /// Not supported by the backend therefore it falls back to sending metric one by one
     /// \param name     measurement name
     /// \param metrics  list of metrics
     void sendMultiple(std::string measurement, std::vector<Metric>&& metrics) override;
