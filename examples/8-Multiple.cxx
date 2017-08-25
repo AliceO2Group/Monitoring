@@ -13,5 +13,5 @@ int main(int argc, char *argv[]) {
   // configure monitoring (once per process), pass configuration path as parameter
   Monitoring::Configure("file://" + GetConfigFromCmdLine(argc, argv));
 
-  Monitoring::Get().send("measurementName", {{10, "myMetricInt"}, {10.10, "myMetricFloat"}});
+  Monitoring::Get().send("measurementName", {{20, "myMetricIntMultiple"}, {20.30, "myMetricFloatMultple"}});
 }
