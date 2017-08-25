@@ -31,9 +31,7 @@ ApMonBackend::ApMonBackend(const std::string& configurationFile)
 
 inline int ApMonBackend::convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp)
 {
-  return std::chrono::duration_cast <std::chrono::milliseconds>(
-    timestamp.time_since_epoch()
-  ).count();
+  return static_cast<int>(std::chrono::system_clock::to_time_t(timestamp));
 }
 
 void ApMonBackend::addGlobalTag(std::string name, std::string value)
@@ -44,12 +42,12 @@ void ApMonBackend::addGlobalTag(std::string name, std::string value)
 
 void ApMonBackend::sendMultiple(std::string measurement, std::vector<Metric>&& metrics)
 {
-  size_t noMetrics = metrics.size();
+  int noMetrics = metrics.size();
   char **paramNames, **paramValues;
   int *valueTypes;
-  paramNames = (char **)malloc(noMetrics * sizeof(char *));
-  paramValues = (char **)malloc(noMetrics * sizeof(char *));
-  valueTypes = (int *)malloc(noMetrics * sizeof(int));
+  paramNames = (char **)std::malloc(noMetrics * sizeof(char *));
+  paramValues = (char **)std::malloc(noMetrics * sizeof(char *));
+  valueTypes = (int *)std::malloc(noMetrics * sizeof(int));
 
   for (int i = 0; i < noMetrics; i++) {
     paramNames[i] = const_cast<char*>(metrics[i].getName().c_str());
@@ -78,10 +76,14 @@ void ApMonBackend::sendMultiple(std::string measurement, std::vector<Metric>&& m
       }
       break;
     }
-
-    mApMon->sendTimedParameters(const_cast<char*>(entity.c_str()), const_cast<char*>(entity.c_str()),
-     noMetrics, paramNames, valueTypes, paramValues, convertTimestamp(metrics[0].getTimestamp()));
   }
+
+  mApMon->sendTimedParameters(const_cast<char*>(entity.c_str()), const_cast<char*>(entity.c_str()),
+    noMetrics, paramNames, valueTypes, paramValues, convertTimestamp(metrics[0].getTimestamp()));
+
+  std::free(paramNames);
+  std::free(paramValues);
+  std::free(valueTypes);
 }
 
 void ApMonBackend::send(const Metric& metric)
