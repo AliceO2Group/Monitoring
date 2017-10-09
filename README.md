@@ -214,12 +214,12 @@ Metrics are pushed to one or multiple backends. The module currently supports th
 See sample in [examples/config-default.ini](https://github.com/AliceO2Group/Monitoring/blob/master/examples/config-default.ini).
 
 ## Code snippets
-Code snippets are available in [example](https://github.com/awegrzyn/Monitoring/tree/master/examples) directory.
+Code snippets are available in [example](https://github.com/AliceO2Group/Monitoring/tree/master/examples) directory.
 
 ### Sending user defined metric - examples/1-Basic.cxx
 ```cpp
 // configure monitoring (once per process), pass configuration path as parameter
-Monitoring::Configure("file:///home/awegrzyn/hackathon/Monitoring/examples/config-default.ini");
+Monitoring::Configure("file://../examples/config-default.ini");
 
 // now send an application specific metric
 // 10 is the value
@@ -235,7 +235,7 @@ Monitoring::Get().send({10, "myMetric"});
 ### Sending tagged metric - examples/2-TaggedMetrics.cxx
 ```cpp
 // configure monitoring (only once per process), pass configuration path as parameter
-Monitoring::Configure("file:///home/awegrzyn/hackathon/Monitoring/examples/config-default.ini");
+Monitoring::Configure("file://../examples/config-default.ini");
 
 // now send an application specific metric with additional tags
 // 10 is the value
@@ -253,7 +253,7 @@ Monitoring::Get().send(Metric{10, "myMetric"}.addTags({{"tag1", "value1"}, {"tag
 By default timestamp is set by the module, but user can overwrite it manually.
 ```cpp
 // configure monitoring (only once per process), pass configuration path as parameter
-Monitoring::Configure("file:///home/awegrzyn/hackathon/Monitoring/examples/config-default.ini");
+Monitoring::Configure("file://..examples/config-default.ini");
 
 // current timestamp
 std::chrono::time_point<std::chrono::system_clock> timestamp = std::chrono::system_clock::now();
@@ -277,7 +277,7 @@ Monitoring::Get().send(Metric{40, "myCrazyMetric"}.setTimestamp(timestamp));
 The module can calculate derived metrics: average value and rate.
 ```cpp
 // configure monitoring (only once per process), pass configuration path as parameter
-Monitoring::Configure("file:///home/awegrzyn/hackathon/Monitoring/examples/config-default.ini");
+Monitoring::Configure("file://../examples/config-default.ini");
 
 // derived metric :  rate
 Monitoring::Get().addDerivedMetric("myMetric", AliceO2::Monitoring::DerivedMetricMode::RATE);
@@ -292,7 +292,7 @@ Monitoring::Get().send(50, "myMetric");
 ### Dedicated monitoring instance - examples/6-DedicatedInstance.cxx
 ```cpp
 // create dedicated monitoring instance, pass confuguration path as parameter
-auto collector = Monitoring::Create("file:///home/awegrzyn/hackathon/Monitoring/examples/config-default.ini");
+auto collector = Monitoring::Create("file://../examples/config-default.ini");
 
 // now send an application specific metric
 // 10 is the value
@@ -308,7 +308,7 @@ collector->send({10, "myMetric"});
 ### Sending multiple metrics at once - examples/8-Multiple.cxx
 ```cpp
 // configure monitoring (only once per process), pass configuration path as parameter
-Monitoring::Configure("file:///home/awegrzyn/hackathon/Monitoring/examples/config-default.ini");
+Monitoring::Configure("file://../examples/config-default.ini");
 
 // Send two metrics at once as a single measurement
 Monitoring::Get().send("measurementName", {
