@@ -211,7 +211,7 @@ Metrics are pushed to one or multiple backends. The module currently supports th
 + DerivedMetrics
   + maxCacheSize - maximum size of vector
 
-See sample in [examples/config-default.ini](https://github.com/awegrzyn/Monitoring/blob/master/examples/config-default.ini).
+See sample in [examples/config-default.ini](https://github.com/AliceO2Group/Monitoring/blob/master/examples/config-default.ini).
 
 ## Code snippets
 Code snippets are available in [example](https://github.com/awegrzyn/Monitoring/tree/master/examples) directory.
