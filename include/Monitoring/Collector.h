@@ -64,22 +64,6 @@ class Collector
     /// \param metrics		list of metrics
     void send(std::string name, std::vector<Metric>&& metrics);
 
-    /// Sends a metric with tagset to all avaliabes backends
-    /// If metric has been added to DerivedMetric the derived metric is calculated (see addDerivedMetric method)
-    /// \param value            metric value
-    /// \param name             metric name
-    /// \param tags             vector of tags associated with metric
-    template<typename T>
-    void sendTagged(T value, std::string name, std::vector<Tag>&& tags);
-
-    /// Sends a timed-metric to all avaliabes backends
-    /// If metric has been added to DerivedMetric the derived metric is calculated (see addDerivedMetric method)
-    /// \param value            metric value
-    /// \param name             metric name
-    /// \param timestamp        metric timestamp in miliseconds, if not provided getCurrentTimestamp provides current value
-    template<typename T>
-    void sendTimed(T value, std::string name, std::chrono::time_point<std::chrono::system_clock>& timestamp);
-
     /// Adds metric to derived metric list - each time the metric arrives the derived metric is calculated and pushed to all backends
     /// Following processing modes are supported: DerivedMetricMode::RATE, DerivedMetricMode::AVERAGE
     /// \param name             metric name

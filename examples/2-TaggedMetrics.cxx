@@ -18,10 +18,5 @@ int main(int argc, char *argv[]) {
   // 10 is the value
   // myMetric is the name of the metric
   // then vector of key-value tags
-  //
-  // 1. by copying value and name and moving tags
-  Monitoring::Get().sendTagged(10, "myMetric", {{"tag1", "value1"}, {"tag2", "value2"}});
-
-  // 2. by moving value, name and tags
   Monitoring::Get().send(Metric{10, "myMetric"}.addTags({{"tag1", "value1"}, {"tag2", "value2"}}));
 }
