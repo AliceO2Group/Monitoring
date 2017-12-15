@@ -114,6 +114,26 @@ Collector::Collector(const std::string& configPath)
   setDefaultTags();
 }
 
+Collector::Collector() {
+  mBackends.emplace_back(std::make_unique<Backends::InfoLoggerBackend>());
+
+#ifdef _OS_LINUX
+  mProcessMonitor = std::make_unique<ProcessMonitor>();
+  int interval = 5;
+  mMonitorRunning = true;
+  mMonitorThread = std::thread(&Collector::processMonitorLoop, this, interval);
+  MonLogger::Get() << "Process Monitor : Automatic updates enabled" << MonLogger::End();
+#endif
+
+  mDerivedHandler = std::make_unique<DerivedMetrics>(1000);
+  setDefaultTags();
+}
+
+template<typename S>
+void Collector::addBackend(std::string url) {
+  std::cout << url << std::endl;
+}
+
 Collector::~Collector()
 {
   mMonitorRunning = false;
@@ -187,5 +207,10 @@ template void Collector::send(double, std::string);
 template void Collector::send(std::string, std::string);
 template void Collector::send(uint64_t, std::string);
 
+template void Collector::addBackend<Backends::InfluxDB>(std::string);
+template void Collector::addBackend<Backends::Flume>(std::string);
+template void Collector::addBackend<Backends::InfoLoggerBackend>(std::string);
+template void Collector::addBackend<Backends::Zabbix>(std::string);
+template void Collector::addBackend<Backends::ApMonBackend>(std::string);
 } // namespace Monitoring
 } // namespace AliceO2

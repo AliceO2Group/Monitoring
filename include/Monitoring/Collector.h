@@ -19,6 +19,18 @@
 #include "Monitoring/DerivedMetrics.h"
 #include "Monitoring/ProcessMonitor.h"
 
+#include "../../src/Backends/InfoLoggerBackend.h"
+#include "../../src/Backends/Flume.h"
+#include "../../src/Backends/Zabbix.h"
+
+#ifdef _WITH_APPMON
+#include "../../src/Backends/ApMonBackend.h"
+#endif
+
+#ifdef _WITH_INFLUX
+#include "../../src/Backends/InfluxDB.h"
+#endif
+
 namespace AliceO2
 {
 /// ALICE O2 Monitoring system
@@ -42,7 +54,12 @@ class Collector
     /// Instantiates derived metrics processor (see DerivedMetrics class) and process monitor (see ProcessMonitor).
     /// \param configPath 	path to configuration
     Collector(const std::string& configPath);
-    
+
+    Collector();
+
+    template<typename S>
+    void addBackend(std::string url);
+
     /// Joins process monitor thread if possible
     ~Collector();
 

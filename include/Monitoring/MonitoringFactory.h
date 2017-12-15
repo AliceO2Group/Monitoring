@@ -29,7 +29,7 @@ class MonitoringFactory
     /// This method should be invoked only once per process (following calls with be ommited)
     /// \param configPath    configuration path
     static void Configure(const std::string& configPath);
-
+    
     /// Creates dedicated instance of Monitoring Collector
     /// \param configPath    configuration path
     /// \return              smart pointer to Collector instance
