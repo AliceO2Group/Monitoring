@@ -11,7 +11,6 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <Configuration/ConfigurationFactory.h>
 
 #include "MonLogger.h"
 #include "ProcessDetails.h"
@@ -36,6 +35,7 @@ namespace Monitoring
 
 Collector::Collector(const std::string& configPath)
 {
+/*
   MonLogger::Get() << "Creating Monitoring instance from configuration: "
     << configPath << MonLogger::End();
 
@@ -112,6 +112,7 @@ Collector::Collector(const std::string& configPath)
 
   mDerivedHandler = std::make_unique<DerivedMetrics>(configFile->get<int>("DerivedMetrics/maxCacheSize").value_or(0));
   setDefaultTags();
+*/
 }
 
 Collector::Collector() {
@@ -211,6 +212,8 @@ template void Collector::addBackend<Backends::InfluxDB>(std::string);
 template void Collector::addBackend<Backends::Flume>(std::string);
 template void Collector::addBackend<Backends::InfoLoggerBackend>(std::string);
 template void Collector::addBackend<Backends::Zabbix>(std::string);
+#ifdef _WITH_APPMON
 template void Collector::addBackend<Backends::ApMonBackend>(std::string);
+#endif
 } // namespace Monitoring
 } // namespace AliceO2

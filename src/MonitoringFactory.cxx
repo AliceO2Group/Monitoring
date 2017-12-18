@@ -6,7 +6,6 @@
 #include "Monitoring/MonitoringFactory.h"
 #include "Exceptions/MonitoringException.h"
 #include "MonLogger.h"
-#include <Configuration/ConfigurationFactory.h>
 
 namespace AliceO2 
 {
@@ -19,8 +18,8 @@ std::string MonitoringFactory::configPath = "";
 void MonitoringFactory::Configure(const std::string& configPath)
 {
   if (MonitoringFactory::configPath.empty()) {
-    MonitoringFactory::configPath = configPath;
-    Configuration::ConfigurationFactory::getConfiguration(configPath);
+    //MonitoringFactory::configPath = configPath;
+    //Configuration::ConfigurationFactory::getConfiguration(configPath);
   }
   else {
     MonLogger::Get() << "Reconfiguration of Monitoring forebidden! Valid configuration path: "
