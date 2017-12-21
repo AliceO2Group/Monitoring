@@ -19,20 +19,20 @@ namespace Monitoring
 namespace Backends
 {
 
-InfluxDB::InfluxDB(const std::string &hostname, int port)
+InfluxDB::InfluxDB(const http::url& uri)
 { 
-  transport = std::make_unique<Transports::UDP>(hostname, port);
-  MonLogger::Get() << "InfluxDB/UDP backend initialized"
-                       << " ("<< hostname << ":" << port << ")" << MonLogger::End();
-}
-
-InfluxDB::InfluxDB(const std::string &hostname, int port, const std::string& database)
-{
-  transport = std::make_unique<Transports::HTTP>(
-    "http://" + hostname + ":" + std::to_string(port) + "/write?db=" + database
-  );
-  MonLogger::Get() << "InfluxDB/HTTP backend initialized" << " ("<< hostname 
-                       << ":" << port << "/write?db=" << database << ")" << MonLogger::End();
+  if (uri.protocol.substr(uri.protocol.size() - 3) == "udp") {
+    transport = std::make_unique<Transports::UDP>(uri.host, uri.port);
+    MonLogger::Get() << "InfluxDB/UDP backend initialized"
+                     << " ("<< uri.host << ":" << uri.port << ")" << MonLogger::End();
+  }
+  if (uri.protocol.substr(uri.protocol.size() - 4) == "http") {
+    transport = std::make_unique<Transports::HTTP>(
+      uri.protocol + uri.host + ":" + std::to_string(uri.port) + "/?" + uri.search
+    );
+    MonLogger::Get() << "InfluxDB/HTTP backend initialized" << " (" << uri.protocol + uri.host
+                     << ":" <<  std::to_string(uri.port) << "/?" << uri.search << ")" << MonLogger::End();
+  }
 }
 
 inline unsigned long InfluxDB::convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp)

@@ -31,7 +31,7 @@ class Zabbix final : public Backend
     /// Constructor, uses UDP transport
     /// \param hostname  InfluxDB UDP endpoint hostname
     /// \param port      InfluxDB UDP endpoint port number
-    Zabbix(const std::string &hostname, int port);
+    Zabbix(const http::url& uri);
 
     /// Default destructor
     ~Zabbix() = default;

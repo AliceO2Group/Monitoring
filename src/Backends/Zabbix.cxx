@@ -18,11 +18,11 @@ namespace Monitoring
 namespace Backends
 {
 
-Zabbix::Zabbix(const std::string &hostname, int port)
- : socketHostname(hostname), socketPort(port)
+Zabbix::Zabbix(const http::url& uri)
+ : socketHostname(uri.host), socketPort(uri.port)
 { 
   MonLogger::Get() << "Zabbix/TCP backend initialized"
-                       << " ("<< hostname << ":" << port << ")" << MonLogger::End();
+                       << " ("<< uri.host << ":" << uri.port << ")" << MonLogger::End();
 }
 
 inline std::string Zabbix::convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp)

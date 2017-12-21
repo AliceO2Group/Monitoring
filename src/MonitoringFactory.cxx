@@ -4,8 +4,21 @@
 ///
 
 #include "Monitoring/MonitoringFactory.h"
-#include "Exceptions/MonitoringException.h"
+#include <functional>
+#include <stdexcept>
 #include "MonLogger.h"
+
+#include "Backends/InfoLoggerBackend.h"
+#include "Backends/Flume.h"
+#include "Backends/Zabbix.h"
+
+#ifdef _WITH_APPMON
+#include "Backends/ApMonBackend.h"
+#endif
+
+#ifdef _WITH_INFLUX
+#include "Backends/InfluxDB.h"
+#endif
 
 namespace AliceO2 
 {
@@ -13,31 +26,44 @@ namespace AliceO2
 namespace Monitoring 
 {
 
-std::string MonitoringFactory::configPath = "";
-
-void MonitoringFactory::Configure(const std::string& configPath)
-{
-  if (MonitoringFactory::configPath.empty()) {
-    //MonitoringFactory::configPath = configPath;
-    //Configuration::ConfigurationFactory::getConfiguration(configPath);
-  }
-  else {
-    MonLogger::Get() << "Reconfiguration of Monitoring forebidden! Valid configuration path: "
-      << MonitoringFactory::configPath  << MonLogger::End();
-  }
+template <typename T>
+void addBackend(Collector* collector, const http::url& uri) {
+   /* TODO !!!
+   splited = url.protocol.split("-");
+   if (splited.size() > 2) {
+     uri.protocol = splited[splited.size() - 1];
+   }
+   */
+   collector->addBackend<T>(uri);
 }
 
-Collector& MonitoringFactory::Get()
+std::unique_ptr<Collector> MonitoringFactory::Get(std::string url)
 {
-  if (MonitoringFactory::configPath.empty()) {
-    throw MonitoringException("MonitoringFactory", "Monitoring hasn't been configured");
-  }
-  static Collector instance(MonitoringFactory::configPath);
-  return instance;
-}
+  auto collector = std::make_unique<Collector>();
+  http::url parsedUrl = http::ParseHttpUrl(url);
 
-std::unique_ptr<Collector> MonitoringFactory::Create(const std::string& configPath) {
-  return std::make_unique<Collector>(configPath);
+  if (parsedUrl.protocol.empty()) {
+    throw std::runtime_error("Ill-formed URI");
+  }
+
+  static const std::map<std::string, std::function<void(Collector* collector, const http::url&)>> map = {
+      {"infologger", addBackend<Backends::InfoLoggerBackend>},
+      {"influxdb-udp", addBackend<Backends::InfluxDB>},
+      {"influxdb-http", addBackend<Backends::InfluxDB>},
+      #ifdef _WITH_APPMON
+      {"monalisa", addBackend<Backends::ApMonBackend>},
+      #endif
+      {"flume", addBackend<Backends::Flume>},
+      {"zabbix", addBackend<Backends::Zabbix>}
+  };  
+
+  auto iterator = map.find(parsedUrl.protocol);
+  if (iterator != map.end()) {
+    iterator->second(collector.get(), parsedUrl);
+    return collector;
+  } else {
+    throw std::runtime_error("Unrecognized backend " + parsedUrl.protocol);
+  }
 }
 
 } // namespace Monitoring
