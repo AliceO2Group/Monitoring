@@ -150,21 +150,21 @@ set(TEST_SRCS
         test/testProcessMonitor.cxx
         )
 
-O2_GENERATE_TESTS(
-        MODULE_LIBRARY_NAME ${LIBRARY_NAME}
-        BUCKET_NAME ${BUCKET_NAME}
-        TEST_SRCS ${TEST_SRCS}
-)
+#O2_GENERATE_TESTS(
+#        MODULE_LIBRARY_NAME ${LIBRARY_NAME}
+#        BUCKET_NAME ${BUCKET_NAME}
+#        TEST_SRCS ${TEST_SRCS}
+#)
 
 set(EXAMPLES
         examples/1-Basic.cxx
-        examples/2-TaggedMetrics.cxx
-        examples/3-UserDefinedTimestamp
-        examples/4-RateDerivedMetric.cxx
-        examples/5-Benchmark.cxx
-        examples/6-DedicatedInstance.cxx
-        examples/7-Latency.cxx
-        examples/8-Multiple.cxx
+#        examples/2-TaggedMetrics.cxx
+#        examples/3-UserDefinedTimestamp
+#        examples/4-RateDerivedMetric.cxx
+#        examples/5-Benchmark.cxx
+#        examples/6-DedicatedInstance.cxx
+#        examples/7-Latency.cxx
+#        examples/8-Multiple.cxx
         )
 
 foreach (example ${EXAMPLES})
