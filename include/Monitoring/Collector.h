@@ -26,11 +26,11 @@ namespace AliceO2
 namespace Monitoring 
 {
 
-/// Collects metrics and dispatches them to selected backends. Monitors process itself.
+/// Collects metrics from user and dispatches them to selected Monitoring backends. It also monitors the process itself.
 ///
 /// Collects user-defined metrics (see Metric class) and pushes them through all selected backends (see Backend).
-/// Supports feature of calculating derived metrics, such as rate and average value (see #addDerivedMetric method).
-/// Adds default tags to each metric: PID, proces name, hostname.
+/// Calculates derived metrics, such as rate and average value (see #addDerivedMetric method).
+/// Adds default tags to each metric: proces name, hostname.
 /// Monitors the process itself - including memory, cpu usage and running time (see ProcessMonitor).
 class Collector
 {
@@ -43,6 +43,7 @@ class Collector
     /// Instantiates derived metrics processor (see DerivedMetrics class) and process monitor (see ProcessMonitor).
     Collector();
 
+    /// Creates backend and appends it to backend list
     template <typename T>
     void addBackend(const http::url& uri);
 
@@ -74,7 +75,6 @@ class Collector
     void addDerivedMetric(std::string name, DerivedMetricMode mode);
 
   private:
-    static std::string configPath;
     /// Derived metrics handler
     /// \see class DerivedMetrics
     std::unique_ptr<DerivedMetrics> mDerivedHandler;

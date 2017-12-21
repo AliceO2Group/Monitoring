@@ -150,11 +150,11 @@ set(TEST_SRCS
         test/testProcessMonitor.cxx
         )
 
-#O2_GENERATE_TESTS(
-#        MODULE_LIBRARY_NAME ${LIBRARY_NAME}
-#        BUCKET_NAME ${BUCKET_NAME}
-#        TEST_SRCS ${TEST_SRCS}
-#)
+O2_GENERATE_TESTS(
+        MODULE_LIBRARY_NAME ${LIBRARY_NAME}
+        BUCKET_NAME ${BUCKET_NAME}
+        TEST_SRCS ${TEST_SRCS}
+)
 
 set(EXAMPLES
         examples/1-Basic.cxx

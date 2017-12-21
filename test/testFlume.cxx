@@ -1,4 +1,5 @@
 #include "../src/Backends/Flume.h"
+#include "../src/UriParser/UriParser.h"
 
 #define BOOST_TEST_MODULE testFlume
 #include <boost/test/included/unit_test.hpp>
@@ -10,7 +11,8 @@ namespace Test {
 
 BOOST_AUTO_TEST_CASE(checkJsonEncoding)
 {
-  AliceO2::Monitoring::Backends::Flume flumeBackend("localhost", 1000);
+  std::string url = "flume://localhost:1000";
+  AliceO2::Monitoring::Backends::Flume flumeBackend(http::ParseHttpUrl(url));
   AliceO2::Monitoring::Metric metric{10, "myCrazyMetric"};
   flumeBackend.send(metric);
 }

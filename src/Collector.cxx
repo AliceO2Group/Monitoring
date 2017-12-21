@@ -76,6 +76,7 @@ void Collector::processMonitorLoop(int interval)
   while (mMonitorRunning) {
     std::this_thread::sleep_for (std::chrono::milliseconds(interval*10));
     if ((++loopCount % 100) != 0) continue;
+    /// TODO!!! send all the merics as a single measurement
     // send pmem, pcpu, etime
     for (auto&& metric : mProcessMonitor->getPidStatus()) {
       send(std::move(metric));
