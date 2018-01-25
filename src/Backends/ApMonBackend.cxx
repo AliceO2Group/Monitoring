@@ -25,7 +25,7 @@ ApMonBackend::ApMonBackend(const http::url& uri)
     MonLogger::Get() << "ApMon backend initialized" << MonLogger::End();
   }
   catch (std::runtime_error &e) {
-    throw MonitoringException("ApMonBackend initialization", std::string(e.what()) + " (" + configurationFile + ")");
+    throw MonitoringException("ApMonBackend initialization", std::string(e.what()));
   }
 }
 

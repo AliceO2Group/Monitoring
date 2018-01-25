@@ -27,7 +27,7 @@ namespace Monitoring
 {
 
 template <typename T>
-void addBackend(Collector* collector, const http::url& uri) {
+void addBackend(Collector* collector, http::url uri) {
     auto const position = uri.protocol.find_last_of('-');
     if (position != std::string::npos) {
       uri.protocol = uri.protocol.substr(position + 1);
