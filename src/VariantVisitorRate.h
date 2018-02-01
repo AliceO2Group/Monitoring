@@ -18,7 +18,7 @@ public:
 
   /// Overloads operator() to avoid operating on strings
   /// \throws MonitoringInternalException
-  double operator()(const std::string& a, const std::string& b) const {
+  double operator()(const std::string&, const std::string&) const {
     throw MonitoringInternalException("DerivedMetrics/VariantRateVisitor", "Cannot operate on string values");
   }
 
@@ -32,7 +32,7 @@ public:
   /// If arguments have different type an exception is raised
   /// \throws MonitoringInternalException
   template<typename T, typename U>
-  double operator()(const T& a, const U& b) const {
+  double operator()(const T&, const U&) const {
     throw MonitoringInternalException("DerivedMetrics/VariantRateVisitor", "Cannot operate on different types");
   }
 };
