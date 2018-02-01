@@ -18,7 +18,6 @@
 
 #include "Backends/InfoLoggerBackend.h"
 #include "Backends/Flume.h"
-#include "Backends/Zabbix.h"
 
 #ifdef _WITH_APPMON
 #include "Backends/ApMonBackend.h"
@@ -131,6 +130,5 @@ template void Collector::addBackend<Backends::ApMonBackend>(const http::url&);
 #endif
 template void Collector::addBackend<Backends::InfluxDB>(const http::url&);
 template void Collector::addBackend<Backends::Flume>(const http::url&);
-template void Collector::addBackend<Backends::Zabbix>(const http::url&);
 } // namespace Monitoring
 } // namespace AliceO2

@@ -11,7 +11,6 @@
 
 #include "Backends/InfoLoggerBackend.h"
 #include "Backends/Flume.h"
-#include "Backends/Zabbix.h"
 
 #ifdef _WITH_APPMON
 #include "Backends/ApMonBackend.h"
@@ -46,7 +45,6 @@ std::unique_ptr<Collector> MonitoringFactory::Get(std::string urlsString)
       {"monalisa", addBackend<Backends::ApMonBackend>},
       #endif
       {"flume", addBackend<Backends::Flume>},
-      {"zabbix", addBackend<Backends::Zabbix>}
   };  
 
   auto collector = std::make_unique<Collector>();
