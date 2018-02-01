@@ -63,11 +63,11 @@ std::unique_ptr<Collector> MonitoringFactory::Get(std::string urlsString)
     auto iterator = map.find(parsedUrl.protocol);
     if (iterator != map.end()) {
       iterator->second(collector.get(), parsedUrl);
-      return collector;
     } else {
       throw std::runtime_error("Unrecognized backend " + parsedUrl.protocol);
     }
   }
+  return collector;
 }
 
 } // namespace Monitoring
