@@ -2,9 +2,9 @@
 #include <chrono>
 #include <thread>
 
-#define BOOST_TEST_MODULE testMetric
-#include <boost/test/included/unit_test.hpp>
-
+#define BOOST_TEST_MODULE Test Monitoring Metric
+#define BOOST_TEST_DYN_LINK
+#include <boost/test/unit_test.hpp>
 
 namespace AliceO2 {
 namespace Monitoring {

@@ -4,9 +4,9 @@
 #include <thread>
 #include <vector>
 
-#define BOOST_TEST_MODULE testDerived
-#include <boost/test/included/unit_test.hpp>
-
+#define BOOST_TEST_MODULE Test Monitoring DerivedMetrics
+#define BOOST_TEST_DYN_LINK
+#include <boost/test/unit_test.hpp>
 
 namespace AliceO2 {
 namespace Monitoring {
@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE(derivedRateInt)
       AliceO2::Monitoring::Metric metric(result.value, name);
       AliceO2::Monitoring::Metric derived = derivedHandler.processMetric(metric);
       BOOST_CHECK_EQUAL(derived.getName(), "metricIntRate");
-      BOOST_CHECK_EQUAL(boost::get<double>(derived.getValue()), result.rate);
+      BOOST_WARN_CLOSE(boost::get<double>(derived.getValue()), result.rate, 1.0);
     } catch(MonitoringInternalException &e) {
       BOOST_TEST(e.what() == std::string("Not enough values"));
     }
@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE(derivedRateDouble) {
       AliceO2::Monitoring::Metric metric(result.value, name);
       AliceO2::Monitoring::Metric derived = derivedHandler.processMetric(metric);
       BOOST_CHECK_EQUAL(derived.getName(), "metricDoubleRate");
-      BOOST_CHECK_CLOSE(boost::get<double>(derived.getValue()), result.rate, 0.1);
+      BOOST_WARN_CLOSE(boost::get<double>(derived.getValue()), result.rate, 1.0);
     } catch(MonitoringInternalException &e) {
       BOOST_TEST(e.what() == std::string("Not enough values"));
     }
@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE(derivedRateUint64_t) {
       AliceO2::Monitoring::Metric metric(result.value, name);
       AliceO2::Monitoring::Metric derived = derivedHandler.processMetric(metric);
       BOOST_CHECK_EQUAL(derived.getName(), "metricUint64_tRate");
-      BOOST_CHECK_EQUAL(boost::get<double>(derived.getValue()), result.rate);
+      BOOST_WARN_CLOSE(boost::get<double>(derived.getValue()), result.rate, 1.0);
     } catch(MonitoringInternalException &e) {
       BOOST_TEST(e.what() == std::string("Not enough values"));
     }
