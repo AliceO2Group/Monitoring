@@ -9,7 +9,8 @@
 using Monitoring = AliceO2::Monitoring::MonitoringFactory;
 
 int main() {
-  // configure monitoring (once per process), pass configuration path as parameter
+  // Configure monitoring
+  // Pass string with list of URLs as parameter
   auto collector = Monitoring::Get("infologger://");
   
   // now send an application specific metric

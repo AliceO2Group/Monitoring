@@ -132,8 +132,6 @@ include_directories(
         ${CMAKE_CURRENT_BINARY_DIR}/include
 )
 
-configure_file(examples/config-default.ini examples/config-default.ini COPYONLY)
-
 set(LIBRARY_NAME Monitoring)
 set(BUCKET_NAME o2_monitoring_bucket)
 O2_GENERATE_LIBRARY()
@@ -158,13 +156,12 @@ O2_GENERATE_TESTS(
 
 set(EXAMPLES
         examples/1-Basic.cxx
-#        examples/2-TaggedMetrics.cxx
-#        examples/3-UserDefinedTimestamp
-#        examples/4-RateDerivedMetric.cxx
-#        examples/5-Benchmark.cxx
-#        examples/6-DedicatedInstance.cxx
-#        examples/7-Latency.cxx
-#        examples/8-Multiple.cxx
+        examples/2-TaggedMetrics.cxx
+        examples/3-UserDefinedTimestamp
+        examples/4-RateDerivedMetric.cxx
+        examples/5-Benchmark.cxx
+        examples/7-Latency.cxx
+        examples/8-Multiple.cxx
         )
 
 foreach (example ${EXAMPLES})
