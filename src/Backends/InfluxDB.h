@@ -27,16 +27,10 @@ namespace Backends
 class InfluxDB final : public Backend
 {
   public:
-    /// Constructor, uses UDP transport
+    /// Constructor for both HTTP and  UDP transports
     /// \param hostname  InfluxDB UDP endpoint hostname
     /// \param port      InfluxDB UDP endpoint port number
-    InfluxDB(const std::string &hostname, int port);
-
-    /// Constructor, uses HTTP trasnport
-    /// \param hostname  InfluxDB HTTP endpoint hostanme
-    /// \param port      InfluxDB HTTP endpoint port number
-    /// \param database  InfluxDB database name
-    InfluxDB(const std::string &hostname, int port, const std::string& database);
+    InfluxDB(const http::url& uri);
 
     /// Default destructor
     ~InfluxDB() = default;
@@ -53,7 +47,7 @@ class InfluxDB final : public Backend
     /// Sends multiple values in single measurement
     /// \param name 	measurement name
     /// \param metrics 	list of metrics
-    void sendMultiple(std::string measurement, std::vector<Metric>&& metrics);
+    void sendMultiple(std::string measurement, std::vector<Metric>&& metrics) override;
 
     /// Adds tag
     /// \param name      tag name

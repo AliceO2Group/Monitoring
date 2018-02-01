@@ -32,7 +32,7 @@ class Flume final : public Backend
     /// Constructor, uses UDP transport
     /// \param hostname  Flume HTTP endpoint hostanme
     /// \param port      Flume HTTP endpoint port number
-    Flume(const std::string &hostname, int port);
+    Flume(const http::url& uri);
 
     /// Default destructor
     ~Flume() = default;

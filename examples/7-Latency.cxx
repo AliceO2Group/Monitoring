@@ -4,7 +4,6 @@
 ///
 
 #include "Monitoring/MonitoringFactory.h"
-#include "ExampleBoilerplate.cxx"
 #include <boost/program_options.hpp>
 #include <random>
 
@@ -16,7 +15,7 @@ int main(int argc, char *argv[]) {
   boost::program_options::options_description desc("Allowed options");
   desc.add_options()
     ("sleep", boost::program_options::value<int>(), "Thread sleep in microseconds")
-    ("config", boost::program_options::value<std::string>()->required(), "Config file path")
+    ("url", boost::program_options::value<std::string>()->required(), "URL to monitoring backend (or list of comma seperated URLs)")
   ;
 
   boost::program_options::variables_map vm;
@@ -27,16 +26,11 @@ int main(int argc, char *argv[]) {
     sleep = vm["sleep"].as<int>();
   }
 
-  try {
-    Monitoring::Configure("file://" + vm["config"].as<std::string>());
-  } catch (std::string &e) {
-    std::cout << "Configuration file not found.\n" << e << std::endl;
-    std::exit(EXIT_FAILURE);
-  }
+  auto collector = Monitoring::Get(vm["url"].as<std::string>());
 
   for (;;) {
     auto timestamp = std::chrono::system_clock::now();
-    Monitoring::Get().send(
+    collector->send(
       Metric{999, "latencyTestMetric"}.addTags(
         {{"libraryTimestamp", std::to_string(
           std::chrono::duration_cast <std::chrono::nanoseconds>(timestamp.time_since_epoch()).count()

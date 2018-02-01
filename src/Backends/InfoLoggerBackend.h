@@ -26,7 +26,7 @@ class InfoLoggerBackend final : public Backend
 {
   public:
     /// Default constructor
-    InfoLoggerBackend();
+    InfoLoggerBackend(const http::url& uri);
  
     /// Default destructor
     ~InfoLoggerBackend() = default;

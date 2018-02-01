@@ -2,7 +2,6 @@ find_package(Boost COMPONENTS unit_test_framework program_options system filesys
 find_package(Git QUIET)
 find_package(APMON)
 find_package(CURL)
-find_package(Configuration REQUIRED)
 
 set(extra_deps "")
 set(extra_deps_include "")
@@ -20,7 +19,6 @@ o2_define_bucket(
     o2_monitoring_bucket
 
     DEPENDENCIES
-    ${Configuration_LIBRARIES}
     ${Boost_SYSTEM_LIBRARY}
     ${Boost_FILESYSTEM_LIBRARY}
     ${Boost_PROGRAM_OPTIONS_LIBRARY}
@@ -28,6 +26,5 @@ o2_define_bucket(
 
     SYSTEMINCLUDE_DIRECTORIES
     ${Boost_INCLUDE_DIRS}
-    ${Configuration_INCLUDE_DIRS}
     ${extra_deps_include}
 )

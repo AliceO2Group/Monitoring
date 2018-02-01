@@ -147,16 +147,11 @@ Monitoring::Create("file://../Monitoring/examples/config-default.ini");
 Metric can be sent by one of the following ways:
 1. By creating and moving metric object:
    + `send(Metric&& metric)`
-
-   In addition, two additional methods can be chained:
+   Two additional methods can be chained:
    + `addTags(std::vector<Tag>&& tags)`
    + `setTimestamp(std::chrono::time_point<std::chrono::system_clock>& timestamp)`
 
-2. By providing metric parameters:
-   + `send(T value, std::string name)`
-   + `sendTagged(T value, std::string name, std::vector<Tag>&& tags)`
-   + `sendTimed(T value, std::string name, std::chrono::time_point<std::chrono::system_clock>& timestamp)`
-3. Sending multiple metrics (only InfluxDB and Zabbix are supported, other backends fallback into sending metrics one by one)
+2. Sending multiple metrics (only InfluxDB and Zabbix are supported, other backends fallback into sending metrics one by one)
    + `void send(std::string name, std::vector<Metric>&& metrics)`
 
 ## Derived metrics
@@ -241,11 +236,6 @@ Monitoring::Configure("file://../examples/config-default.ini");
 // 10 is the value
 // myMetric is the name of the metric
 // then vector of key-value tags
-//  
-// 1. by copying value and name and moving tags
-Monitoring::Get().sendTagged(10, "myMetric", {{"tag1", "value1"}, {"tag2", "value2"}});
-
-// 2. by moving value, name and tags
 Monitoring::Get().send(Metric{10, "myMetric"}.addTags({{"tag1", "value1"}, {"tag2", "value2"}}))
 ```
 
@@ -261,13 +251,6 @@ std::chrono::time_point<std::chrono::system_clock> timestamp = std::chrono::syst
 // now send an application specific metric
 // 10 is the value timestamp
 // myCrazyMetric is the name of the metric
-//  
-// 1. by copying all parameters
-Monitoring::Get().sendTimed(10, "myCrazyMetric", timestamp);
-std::this_thread::sleep_for(std::chrono::seconds(1));
-Monitoring::Get().sendTimed(40, "myCrazyMetric", timestamp);
-  
-  // 2. by moving
 Monitoring::Get().send(Metric{10, "myCrazyMetric"}.setTimestamp(timestamp));
 std::this_thread::sleep_for(std::chrono::seconds(1));
 Monitoring::Get().send(Metric{40, "myCrazyMetric"}.setTimestamp(timestamp));

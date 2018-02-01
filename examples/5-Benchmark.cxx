@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
   boost::program_options::options_description desc("Allowed options");
   desc.add_options()
     ("sleep", boost::program_options::value<int>(), "Thread sleep in microseconds")
-    ("config", boost::program_options::value<std::string>()->required(), "Config file path")
+    ("url", boost::program_options::value<std::string>()->required(), "URL to monitoring backend (or list of comma seperated URLs)")
     ("id", boost::program_options::value<std::string>(), "Instance ID")
     ("count", boost::program_options::value<int>(), "Number of metric bunches (x3)")
     ("multiple", boost::program_options::bool_switch()->default_value(false), "Sends multiple metrics per measurement")
@@ -40,12 +40,7 @@ int main(int argc, char *argv[]) {
     count = vm["count"].as<int>();
   }
 
-  try {
-    Monitoring::Configure("file://" + vm["config"].as<std::string>());
-  } catch (std::string &e) {
-    std::cout << "Configuration file not found.\n" << e << std::endl;
-    std::exit(EXIT_FAILURE);
-  }
+  auto collector = Monitoring::Get(vm["url"].as<std::string>());
 
   int add = 0;
   if (count != 0) {
@@ -55,14 +50,14 @@ int main(int argc, char *argv[]) {
 
   if (!vm["multiple"].as<bool>()) {
     for (int i = 0; i <= count; i += add) {
-      Monitoring::Get().send({"string" + std::to_string(intDist(mt)), "stringMetric"});
-      Monitoring::Get().send({doubleDist(mt), "doubleMetric"});
-      Monitoring::Get().send({intDist(mt), "intMetric"});
+      collector->send({"string" + std::to_string(intDist(mt)), "stringMetric"});
+      collector->send({doubleDist(mt), "doubleMetric"});
+      collector->send({intDist(mt), "intMetric"});
       std::this_thread::sleep_for(std::chrono::microseconds(sleep));
     }
   } else {
     for (int i = 0; i <= count; i += add) {
-      Monitoring::Get().send("benchmarkMeasurement",{
+      collector->send("benchmarkMeasurement",{
         {"string" + std::to_string(intDist(mt)), "stringMetric"},
         {doubleDist(mt), "doubleMetric"},
         {intDist(mt), "intMetric"}

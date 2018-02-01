@@ -1,9 +1,6 @@
 #include "../include/Monitoring/MonitoringFactory.h"
 #include <chrono>
-#include <thread>
 #include <vector>
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem/operations.hpp>
 
 #define BOOST_TEST_MODULE testCollector
 #include <boost/test/included/unit_test.hpp>
@@ -16,16 +13,15 @@ using Monitoring = AliceO2::Monitoring::MonitoringFactory;
 
 BOOST_AUTO_TEST_CASE(createCollector)
 {
-  boost::filesystem::path configPath = boost::filesystem::canonical("..");
-  Monitoring::Configure("file://" + configPath.string() + "/examples/config-default.ini");
+  auto collector = Monitoring::Get("infologger://");
 
   int intMetric = 10; 
   std::string stringMetric("monitoringString");
   double doubleMetric = static_cast <double> (rand()) / static_cast <double> (RAND_MAX);
 
-  Monitoring::Get().send(intMetric, "myCrazyMetricI");
-  Monitoring::Get().send(stringMetric, "myCrazyMetricS");
-  Monitoring::Get().send(doubleMetric, "myCrazyMetricD");
+  collector->send(intMetric, "myCrazyMetricI");
+  collector->send(stringMetric, "myCrazyMetricS");
+  collector->send(doubleMetric, "myCrazyMetricD");
 }
 
 BOOST_AUTO_TEST_CASE(testSymbols)

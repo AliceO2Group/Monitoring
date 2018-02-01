@@ -32,7 +32,7 @@ class ApMonBackend final : public Backend
   public:
     /// Constructs AppMon backend
     /// \param configurationFile 	filepath to ApMonBackend configuration file
-    ApMonBackend(const std::string& configurationFile);
+    ApMonBackend(const http::url& uri);
 
     /// Default destructor
     ~ApMonBackend() = default;

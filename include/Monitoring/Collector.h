@@ -18,6 +18,7 @@
 #include "Monitoring/Backend.h"
 #include "Monitoring/DerivedMetrics.h"
 #include "Monitoring/ProcessMonitor.h"
+#include "../../src/UriParser/UriParser.h"
 
 namespace AliceO2
 {
@@ -25,11 +26,11 @@ namespace AliceO2
 namespace Monitoring 
 {
 
-/// Collects metrics and dispatches them to selected backends. Monitors process itself.
+/// Collects metrics from user and dispatches them to selected Monitoring backends. It also monitors the process itself.
 ///
 /// Collects user-defined metrics (see Metric class) and pushes them through all selected backends (see Backend).
-/// Supports feature of calculating derived metrics, such as rate and average value (see #addDerivedMetric method).
-/// Adds default tags to each metric: PID, proces name, hostname.
+/// Calculates derived metrics, such as rate and average value (see #addDerivedMetric method).
+/// Adds default tags to each metric: proces name, hostname.
 /// Monitors the process itself - including memory, cpu usage and running time (see ProcessMonitor).
 class Collector
 {
@@ -40,9 +41,12 @@ class Collector
   
     /// Initializes backends based on passed configuration.
     /// Instantiates derived metrics processor (see DerivedMetrics class) and process monitor (see ProcessMonitor).
-    /// \param configPath 	path to configuration
-    Collector(const std::string& configPath);
-    
+    Collector();
+
+    /// Creates backend and appends it to backend list
+    template <typename T>
+    void addBackend(const http::url& uri);
+
     /// Joins process monitor thread if possible
     ~Collector();
 
@@ -64,22 +68,6 @@ class Collector
     /// \param metrics		list of metrics
     void send(std::string name, std::vector<Metric>&& metrics);
 
-    /// Sends a metric with tagset to all avaliabes backends
-    /// If metric has been added to DerivedMetric the derived metric is calculated (see addDerivedMetric method)
-    /// \param value            metric value
-    /// \param name             metric name
-    /// \param tags             vector of tags associated with metric
-    template<typename T>
-    void sendTagged(T value, std::string name, std::vector<Tag>&& tags);
-
-    /// Sends a timed-metric to all avaliabes backends
-    /// If metric has been added to DerivedMetric the derived metric is calculated (see addDerivedMetric method)
-    /// \param value            metric value
-    /// \param name             metric name
-    /// \param timestamp        metric timestamp in miliseconds, if not provided getCurrentTimestamp provides current value
-    template<typename T>
-    void sendTimed(T value, std::string name, std::chrono::time_point<std::chrono::system_clock>& timestamp);
-
     /// Adds metric to derived metric list - each time the metric arrives the derived metric is calculated and pushed to all backends
     /// Following processing modes are supported: DerivedMetricMode::RATE, DerivedMetricMode::AVERAGE
     /// \param name             metric name
@@ -87,7 +75,6 @@ class Collector
     void addDerivedMetric(std::string name, DerivedMetricMode mode);
 
   private:
-    static std::string configPath;
     /// Derived metrics handler
     /// \see class DerivedMetrics
     std::unique_ptr<DerivedMetrics> mDerivedHandler;
