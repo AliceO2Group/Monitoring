@@ -178,96 +178,13 @@ Metrics are pushed to one or multiple backends. The module currently supports th
 | Flume            | Collects, aggragate monitoring data | UDP (JSON)              | boost asio                 | In Flume Event header |
 
 ## Code snippets
-Code snippets are available in [example](https://github.com/AliceO2Group/Monitoring/tree/master/examples) directory.
+Code snippets are available in [examples](examples/) directory.
 
-### Sending user defined metric - examples/1-Basic.cxx
-```cpp
-// configure monitoring (once per process), pass configuration path as parameter
-Monitoring::Configure("file://../examples/config-default.ini");
-
-// now send an application specific metric
-// 10 is the value
-// myMetric is the name of the metric
-//  
-// 1. by copying values
-Monitoring::Get().send(10, "myMetric");
-  
-// 2. by creating and moving metric object
-Monitoring::Get().send({10, "myMetric"});
-```
-
-### Sending tagged metric - examples/2-TaggedMetrics.cxx
-```cpp
-// configure monitoring (only once per process), pass configuration path as parameter
-Monitoring::Configure("file://../examples/config-default.ini");
-
-// now send an application specific metric with additional tags
-// 10 is the value
-// myMetric is the name of the metric
-// then vector of key-value tags
-Monitoring::Get().send(Metric{10, "myMetric"}.addTags({{"tag1", "value1"}, {"tag2", "value2"}}))
-```
-
-### Sending metric with user defined timestamp - examples/3-UserDefinedTimestamp.cxx
-By default timestamp is set by the module, but user can overwrite it manually.
-```cpp
-// configure monitoring (only once per process), pass configuration path as parameter
-Monitoring::Configure("file://..examples/config-default.ini");
-
-// current timestamp
-std::chrono::time_point<std::chrono::system_clock> timestamp = std::chrono::system_clock::now();
-     
-// now send an application specific metric
-// 10 is the value timestamp
-// myCrazyMetric is the name of the metric
-Monitoring::Get().send(Metric{10, "myCrazyMetric"}.setTimestamp(timestamp));
-std::this_thread::sleep_for(std::chrono::seconds(1));
-Monitoring::Get().send(Metric{40, "myCrazyMetric"}.setTimestamp(timestamp));
-```
-
-###  Derived metrics - examples/4-RateDerivedMetric.cxx
-The module can calculate derived metrics: average value and rate.
-```cpp
-// configure monitoring (only once per process), pass configuration path as parameter
-Monitoring::Configure("file://../examples/config-default.ini");
-
-// derived metric :  rate
-Monitoring::Get().addDerivedMetric("myMetric", AliceO2::Monitoring::DerivedMetricMode::RATE);
-
-// now send at least two metrics to see the result
-Monitoring::Get().send(10, "myMetric");
-Monitoring::Get().send(20, "myMetric");
-Monitoring::Get().send(30, "myMetric");
-Monitoring::Get().send(50, "myMetric");
-```
-
-### Dedicated monitoring instance - examples/6-DedicatedInstance.cxx
-```cpp
-// create dedicated monitoring instance, pass confuguration path as parameter
-auto collector = Monitoring::Create("file://../examples/config-default.ini");
-
-// now send an application specific metric
-// 10 is the value
-// myMetric is the name of the metric
-//  
-// 1. by copying values
-collector->send(10, "myMetric");
-  
-// 2. by creating and moving metric object
-collector->send({10, "myMetric"});
-```
-
-### Sending multiple metrics at once - examples/8-Multiple.cxx
-```cpp
-// configure monitoring (only once per process), pass configuration path as parameter
-Monitoring::Configure("file://../examples/config-default.ini");
-
-// Send two metrics at once as a single measurement
-Monitoring::Get().send("measurementName", {
-  {10, "myMetricInt"},
-  {10.10, "myMetricFloat"}
-});
-```
+ + Sending metric - [examples/1-Basic.cxx](examples/1-Basic.cxx)
+ + Sending metric with custom taggs - [examples/2-TaggedMetrics.cxx](examples/2-TaggedMetrics.cxx)
+ + Sending metric with user defined timestamp - [examples/3-UserDefinedTimestamp.cxx](examples/3-UserDefinedTimestamp.cxx)
+ + Calculating derived metrics - [examples/4-RateDerivedMetric.cxx](examples/4-RateDerivedMetric.cxx)
+ + Sending multiple values in a single metric - [examples/8-Multiple.cxx](examples/8-Multiple.cxx)
 
 ## System monitoring, server-side backends installation and configuration
 This guide explains manual installation. For `ansible` deployment see [AliceO2Group/system-configuration](https://gitlab.cern.ch/AliceO2Group/system-configuration/tree/master/ansible) gitlab repo.
