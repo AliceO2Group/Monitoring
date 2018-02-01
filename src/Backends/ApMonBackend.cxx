@@ -34,13 +34,13 @@ inline int ApMonBackend::convertTimestamp(const std::chrono::time_point<std::chr
   return static_cast<int>(std::chrono::system_clock::to_time_t(timestamp));
 }
 
-void ApMonBackend::addGlobalTag(std::string name, std::string value)
+void ApMonBackend::addGlobalTag(std::string, std::string value)
 {
   if (!entity.empty()) entity += ".";
   entity += value;
 }
 
-void ApMonBackend::sendMultiple(std::string measurement, std::vector<Metric>&& metrics)
+void ApMonBackend::sendMultiple(std::string, std::vector<Metric>&& metrics)
 {
   int noMetrics = metrics.size();
   char **paramNames, **paramValues;
