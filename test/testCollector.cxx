@@ -2,8 +2,9 @@
 #include <chrono>
 #include <vector>
 
-#define BOOST_TEST_MODULE testCollector
-#include <boost/test/included/unit_test.hpp>
+#define BOOST_TEST_MODULE Test Monitoring Colletor
+#define BOOST_TEST_DYN_LINK
+#include <boost/test/unit_test.hpp>
 
 namespace AliceO2 {
 namespace Monitoring {

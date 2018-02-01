@@ -1,8 +1,8 @@
 #include "../include/Monitoring/ProcessMonitor.h"
 
-#define BOOST_TEST_MODULE testProcessMonitor
-#include <boost/test/included/unit_test.hpp>
-
+#define BOOST_TEST_MODULE Test Monitoring ProcessMonitor
+#define BOOST_TEST_DYN_LINK
+#include <boost/test/unit_test.hpp>
 
 namespace AliceO2 {
 namespace Monitoring {
