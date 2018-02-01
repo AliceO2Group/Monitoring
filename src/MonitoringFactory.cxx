@@ -6,6 +6,7 @@
 #include "Monitoring/MonitoringFactory.h"
 #include <functional>
 #include <stdexcept>
+#include <boost/algorithm/string.hpp>
 #include "MonLogger.h"
 
 #include "Backends/InfoLoggerBackend.h"
@@ -35,15 +36,8 @@ void addBackend(Collector* collector, http::url uri) {
    collector->addBackend<T>(uri);
 }
 
-std::unique_ptr<Collector> MonitoringFactory::Get(std::string url)
+std::unique_ptr<Collector> MonitoringFactory::Get(std::string urlsString)
 {
-  auto collector = std::make_unique<Collector>();
-  http::url parsedUrl = http::ParseHttpUrl(url);
-
-  if (parsedUrl.protocol.empty()) {
-    throw std::runtime_error("Ill-formed URI");
-  }
-
   static const std::map<std::string, std::function<void(Collector* collector, const http::url&)>> map = {
       {"infologger", addBackend<Backends::InfoLoggerBackend>},
       {"influxdb-udp", addBackend<Backends::InfluxDB>},
@@ -55,12 +49,24 @@ std::unique_ptr<Collector> MonitoringFactory::Get(std::string url)
       {"zabbix", addBackend<Backends::Zabbix>}
   };  
 
-  auto iterator = map.find(parsedUrl.protocol);
-  if (iterator != map.end()) {
-    iterator->second(collector.get(), parsedUrl);
-    return collector;
-  } else {
-    throw std::runtime_error("Unrecognized backend " + parsedUrl.protocol);
+  auto collector = std::make_unique<Collector>();
+
+  std::vector<std::string> urls;
+  boost::split(urls, urlsString, boost::is_any_of(","));
+
+  for (auto url : urls) {
+    http::url parsedUrl = http::ParseHttpUrl(url);
+    if (parsedUrl.protocol.empty()) {
+      throw std::runtime_error("Ill-formed URI");
+    }
+
+    auto iterator = map.find(parsedUrl.protocol);
+    if (iterator != map.end()) {
+      iterator->second(collector.get(), parsedUrl);
+      return collector;
+    } else {
+      throw std::runtime_error("Unrecognized backend " + parsedUrl.protocol);
+    }
   }
 }
 

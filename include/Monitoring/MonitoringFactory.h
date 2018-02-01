@@ -23,7 +23,7 @@ class MonitoringFactory
 
     /// Provide single instance on Monitoring Collector (singleton)
     /// \return              renerence to Collector instance
-    static std::unique_ptr<Collector> Get(std::string url);
+    static std::unique_ptr<Collector> Get(std::string urlsString);
 
   private:
     /// Private constructor disallows to create instance of Factory
