@@ -13,7 +13,6 @@ Monitoring module allows to inject user defined metrics and monitor the process 
   * [MonALISA Service](#monalisa-service)
   * [Flume](#flume)
   * [Grafana](#grafana)
-  * [Zabbix](#zabbix)
 
 ## Installation
 ### RPM (CentOS 7 only)
@@ -103,7 +102,6 @@ Manual installation of the O<sup>2</sup> Monitoring module.
 + Boost >= 1.56
 + libcurl
 + [ApMon](http://monalisa.caltech.edu/monalisa__Download__ApMon.html) (optional)
-+ [Configuration module](https://github.com/AliceO2Group/Configuration#manual-installation)
 
 #### Monitoring module compilation
 ~~~
@@ -151,7 +149,7 @@ Metric can be sent by one of the following ways:
    + `addTags(std::vector<Tag>&& tags)`
    + `setTimestamp(std::chrono::time_point<std::chrono::system_clock>& timestamp)`
 
-2. Sending multiple metrics (only InfluxDB and Zabbix are supported, other backends fallback into sending metrics one by one)
+2. Sending multiple metrics (only InfluxDB is supported, other backends fallback into sending metrics one by one)
    + `void send(std::string name, std::vector<Metric>&& metrics)`
 
 ## Derived metrics
@@ -178,35 +176,6 @@ Metrics are pushed to one or multiple backends. The module currently supports th
 | ApMonBackend     | MonALISA Serivce               | UDP                          | ApMon                      | Default tags concatenated with entity; Metric tags concatenated with name |
 | InfoLoggerBackned| Temporary replaced by internal logging              | -                            | (as log message)           | Added to the end of message |
 | Flume            | Collects, aggragate monitoring data | UDP (JSON)              | boost asio                 | In Flume Event header |
-| Zabbix           | Via Zabbix trapper item        | TCP (Zabbix protocol)        | boost asio                 | Not supported |
-
-### Configuration file
-+ AppMon
-  + enable - enable AppMon (MonALISA) backend
-  + pathToConfig - path to AppMon configuration file
-+ InfluxDB
-  + enableUDP - enable InfluxDB UDP endpoint
-  + enableHTTP - enable InfluxDB HTTP endpoint
-  + hostname - InfluxDB hostname
-  + port - InfluxDB port
-  + db - name of database
-+ InfoLoggerBackend
-  + enable - enable InfoLogger backend
-+ Flume
-  + enable - enable Flume HTTP backend
-  + port 
-  + hostname
-+ Zabbix
-  + enable - enable Zabbix backend
-  + port
-  + hostname
-+ ProcessMonitor
-  + enable - enable process monitor
-  + interval - updates interval[]
-+ DerivedMetrics
-  + maxCacheSize - maximum size of vector
-
-See sample in [examples/config-default.ini](https://github.com/AliceO2Group/Monitoring/blob/master/examples/config-default.ini).
 
 ## Code snippets
 Code snippets are available in [example](https://github.com/AliceO2Group/Monitoring/tree/master/examples) directory.
@@ -490,76 +459,3 @@ systemctl start grafana-server
 
 ### MonALISA Service
 Follow official [MonALISA Service Installation Guide](http://monalisa.caltech.edu/monalisa__Documentation__Service_Installation_Guide.html).
-
-### Zabbix
-#### Installation
-+ Add Zabbix repository **(as root)**
-~~~
-rpm -ivh https://repo.zabbix.com/zabbix/3.2/rhel/7/x86_64/zabbix-release-3.2-1.el7.noarch.rpm
-~~~
-
-+ Install Zabbix packages **(as root)**
-~~~
-yum -y install zabbix-server-mysql zabbix-web-mysql mariadb-server
-~~~
-
-+ Start MariaDB **(as root)**
-~~~
-systemctl enable mariadb
-systemctl start mariadb
-~~~
-
-+ Configure MariaDB via wizard
-Set database `<root_password>`.
-~~~
-mysql_secure_installation
-~~~
-
-+ Create zabbix user and database
-Replace `<root_password>` with root database password.
-Replace `<password>` with password you want to set to zabbix database account.
-~~~
-$ mysql -uroot -p<root_password>
-create database zabbix character set utf8 collate utf8_bin;
-grant all privileges on zabbix.* to zabbix@localhost identified by '<password>';
-~~~
-
-+ Import initial database schema
-Find out the version of `zabbix-server-mysql` package by running `rpm -q zabbix-server-mysql`.
-~~~
-gunzip /usr/share/doc/zabbix-server-mysql-3.2.6/create.sql.gz
-cat /usr/share/doc/zabbix-server-mysql-3.2.6/create.sql | mysql -uzabbix -p zabbix
-~~~
-
-+ Set database details in `/etc/zabbix/zabbix_server.conf` file **(as root)**
-~~~
-DBHost=localhost
-DBName=zabbix
-DBUser=zabbix
-DBPassword=<password>
-~~~
-
-+ Edit SELinux policy **(as root)**
-~~~
-setsebool -P httpd_can_connect_zabbix on
-~~~
-
-+ Open HTTP(s) and Zabbix related ports **(as root)**
-~~~
-firewall-cmd --zone=public --add-port 10051/tcp --permanentt
-firewall-cmd --add-service=http --zone=public --permanent
-firewall-cmd --add-service=https --zone=public --permanent
-firewall-cmd --reload
-~~~
-
-+ Start Zabbix server **(as root)**
-~~~
-systemctl start zabbix-server
-systemctl enable zabbix-server
-~~~
-
-#### Host and metric configuration
-+ Open Zabbix web interface
-+ Go to `Configuration` -> `Hosts`
-+ Go to `Create a new host` to add a host that is allowed to push metrics. Use `Linux servers` as group. Agent interface can be set as `127.0.0.1:10050`.
-+ Go to `Items` tab to create a metric that will be accepted by Zabbix. Set `Type` to `Zabbix trapper`. Set proper `Type information`.
