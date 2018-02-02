@@ -3,20 +3,17 @@ Monitoring module allows to inject user defined metrics and monitor the process 
 
 ## Table of contents
 1. [Installation](#installation)
-  * [RPM (CentOS 7 only)](#rpm-centos-7-only)
-  * [aliBuild](#alibuild)
-  * [Manual](#manual)
 2. [Getting started](#getting-started)
+3. [Features and additional information](#features-and-additional-information)
 3. [Code snippets](#code-snippets)
 4. [System monitoring and server-side backends installation and configuration](#system-monitoring-server-side-backends-installation-and-configuration)
-  * [collectD](#collectd)
-  * [MonALISA Service](#monalisa-service)
-  * [Flume](#flume)
-  * [Grafana](#grafana)
-  * [Zabbix](#zabbix)
 
 ## Installation
 ### RPM (CentOS 7 only)
+<details>
+ <summary><strong>Click here if you don't have <i>allsw</i> repo configured</strong></summary>
+<br>
+
 + Install `CERN-CA-certs` package (required by `alisw` repo) **(as root)**
 ~~~
 yum -y install CERN-CA-certs
@@ -32,10 +29,12 @@ enabled=1
 gpgcheck=0
 EOF
 ~~~
+</details>
+<br>
 
 + Install Monitoring RPM package **(as root)**
 ~~~
-yum -y install alisw-Monitoring+v1.3.0-1.x86_64
+yum -y install alisw-Monitoring+v1.4.0-1.x86_64
 ~~~
 
 + Configure Modules
@@ -45,11 +44,15 @@ export MODULEPATH=/opt/alisw/el7/modulefiles:$MODULEPATH
 
 + Load enviroment
 ~~~
-eval `modulecmd bash load Monitoring/v1.3.0-1`
+eval `modulecmd bash load Monitoring/v1.4.0-1`
 ~~~
-The installation directory is: `/opt/alisw/el7/Monitoring/v1.3.0-1`
+The installation directory is: `/opt/alisw/el7/Monitoring/v1.4.0-1`
 
 ### aliBuild
+<details>
+ <summary><strong>Click here if you don't have <i>aliBuild</i> installed</strong></summary>
+<br>
+
 + Enable Software Collections in order to install `devtoolset-6` which includes `gcc 6.2.0` **(as root)**
 ~~~
 yum install -y centos-release-scl
@@ -79,15 +82,22 @@ pip install alibuild matplotlib numpy certifi ipython==5.4.1 ipywidgets   \
 source /opt/rh/devtoolset-6/enable
 ~~~
 
-+ Then proceed with compilation via `aliBuild`
++ Set `alienv` root directory and load the environment
+~~~
+mkdir alice; cd alice
+ALICE_WORK_DIR=`pwd`/sw; eval "`alienv shell-helper`"
+~~~
+</details>
+<br>
+
++ Compile `Monitoring` and its dependecies via `aliBuild`
 ~~~
 aliBuild init Monitoring@master
 aliBuild build Monitoring --defaults o2-daq
 ~~~
 
-+ Set `alienv` root directory and load the environment. Run the following commands in the same directory as `aliBuild`.
++ Load the enviroment for Monitoring (in the `alice` directory)
 ~~~
-ALICE_WORK_DIR=`pwd`/sw; eval "`alienv shell-helper`"
 alienv load Monitoring/latest
 ~~~
 
@@ -103,7 +113,6 @@ Manual installation of the O<sup>2</sup> Monitoring module.
 + Boost >= 1.56
 + libcurl
 + [ApMon](http://monalisa.caltech.edu/monalisa__Download__ApMon.html) (optional)
-+ [Configuration module](https://github.com/AliceO2Group/Configuration#manual-installation)
 
 #### Monitoring module compilation
 ~~~
@@ -115,6 +124,61 @@ make install
 ~~~
 
 ## Getting started
+### Monitoring instance
+The recommended way of getting (`unique_ptr` to) monitoring instance is `Get`ing it from  `MonitoringFactory` by passing `URI(s)` as a parameter (comma seperated if more than one).
+```cpp
+AliceO2::Monitoring::MonitoringFactory::Get("backend[-protocol]://host:port[?query]");
+```
+See table below to find out how to create `URI` for each backend:
+
+| Backend name | Transport | URI backend[-protocol] | URI query        |
+| ------------ |:---------:|:----------------------:| ----------------:|
+| InfluxDB     | HTTP      | `influxdb-http`        | `/write?db=<db>` |
+| InfluxDB     | UDP       | `influxdb-udp`         | -                |
+| ApMon        | UDP       | `monalisa`             | -                |
+| InfoLogger   | -         | `infologger`           | -                |
+| Flume        | UDP       | `flume`                | -                |
+
+### Sending metric
+Simplified `send` method:
+```
+send(T value, std::string name)
+```
+
+Or more advanced overload of `send`:
+```cpp
+send(Metric&& metric)
+```
+
+For example:
+```cpp
+collector->send(10, "myMetricInt");
+collector->send({10, "myMetricInt"});
+```
+
+### Custom metric
+Two additional methods can be chained the to `send(Metric&& metric)` in order to __insert custom tags__ or __set custom timestamp__:
+   + `addTags(std::vector<Tag>&& tags)`
+   + `setTimestamp(std::chrono::time_point<std::chrono::system_clock>& timestamp)`
+
+For example:
+```cpp
+collector->send(Metric{10, "myMetric"}.addTags({{"tag1", "value1"}, {"tag2", "value2"}}));
+collector->send(Metric{10, "myCrazyMetric"}.setTimestamp(timestamp));
+```
+
+### Multiple values
+It's also possible to send multiple values in a single metric (only InfluxDB is currently supported, other backends fallback into sending metrics one by one)
+```cpp
+void send(std::string name, std::vector<Metric>&& metrics)
+```
+
+For example:
+```cpp
+collector->send("measurementName", {{20, "myMetricIntMultiple"}, {20.30, "myMetricFloatMultple"}});
+```
+
+## Features and additional information
 ### Metrics
 Metrics consist of 4 parameters: name, value, timestamp and tags.
 
@@ -130,38 +194,14 @@ Metrics consist of 4 parameters: name, value, timestamp and tags.
 + PID
 + process name
 
-### Creating monitoring instance
-1. The recommended way of getting (reference to) monitoring instance is *MonitoringFactory*.
-Before using the factory *Configure* method must be called providing URI to configuration file or central backend. This method should be called only once per process (following calls will not have any effect).
-```cpp
-AliceO2::Monitoring::MonitoringFactory::Configure("file://../Monitoring/examples/config-default.ini");
-AliceO2::Monitoring::MonitoringFactory::Get();
-```
-
-2. Second way creates dedicated monitoring instance. It's only recommended to use when different configuration URI is needed within the same process.
-```cpp
-Monitoring::Create("file://../Monitoring/examples/config-default.ini");
-```
-
-### Sending a metric
-Metric can be sent by one of the following ways:
-1. By creating and moving metric object:
-   + `send(Metric&& metric)`
-   Two additional methods can be chained:
-   + `addTags(std::vector<Tag>&& tags)`
-   + `setTimestamp(std::chrono::time_point<std::chrono::system_clock>& timestamp)`
-
-2. Sending multiple metrics (only InfluxDB and Zabbix are supported, other backends fallback into sending metrics one by one)
-   + `void send(std::string name, std::vector<Metric>&& metrics)`
-
-## Derived metrics
+### Calculating derived metrics
 The module can calculate derived metrics. To do so, use `addDerivedMetric(std::string name, DerivedMetricMode mode)` with one of two available modes:
 + `DerivedMetricMode::RATE` - rate between two following metrics;
 + `DerivedMetricMode::AVERAGE` - average value of all metrics stored in cache;
 
 Derived metrics are generated each time as new value is passed to the module. Their names are suffixed with derived mode name.
 
-### Processes monitoring
+### Mmonitoring process
 To enable process monitoring *ProcessMonitor.enable* flag in configuration file must be set to 1 - see [Configuration file](#configuration-file) section. The following metrics are generated every N seconds (N can be specified in the config - *ProcessMonitor.interval*):
 + **etime** - elapsed time since the process was started, in the form [[DD-]hh:]mm:ss
 + **pcpu** - cpu utilization of the process in "##.#" format. Currently, it is the CPU time used divided by the time the process has been running (cputime/realtime ratio), expressed as a percentage.  It will not add up to 100% unless you are lucky
@@ -169,136 +209,14 @@ To enable process monitoring *ProcessMonitor.enable* flag in configuration file 
 + **bytesReceived** - the total number of bytes of data received by the process (per interface)
 + **bytesTransmitted** - the total number of bytes of data transmitted by the process (per interface).
 
-### Monitoring backends
-Metrics are pushed to one or multiple backends. The module currently supports three backends - see table below. Enabling/Disabling backends is done via configuration file.
-
-| Backend name     | Description                    | Transport                    | Client-side requirements   | Handling tags  |
-| ---------------- |:------------------------------:|:----------------------------:|:--------------------------:| --------------:|
-| InfluxDB         | InfluxDB time series database  | HTTP / UDP (InfluxDB Line Protocol) | cURL / boost asio   | Supported by InfluxDB Line Protocol |
-| ApMonBackend     | MonALISA Serivce               | UDP                          | ApMon                      | Default tags concatenated with entity; Metric tags concatenated with name |
-| InfoLoggerBackned| Temporary replaced by internal logging              | -                            | (as log message)           | Added to the end of message |
-| Flume            | Collects, aggragate monitoring data | UDP (JSON)              | boost asio                 | In Flume Event header |
-| Zabbix           | Via Zabbix trapper item        | TCP (Zabbix protocol)        | boost asio                 | Not supported |
-
-### Configuration file
-+ AppMon
-  + enable - enable AppMon (MonALISA) backend
-  + pathToConfig - path to AppMon configuration file
-+ InfluxDB
-  + enableUDP - enable InfluxDB UDP endpoint
-  + enableHTTP - enable InfluxDB HTTP endpoint
-  + hostname - InfluxDB hostname
-  + port - InfluxDB port
-  + db - name of database
-+ InfoLoggerBackend
-  + enable - enable InfoLogger backend
-+ Flume
-  + enable - enable Flume HTTP backend
-  + port 
-  + hostname
-+ Zabbix
-  + enable - enable Zabbix backend
-  + port
-  + hostname
-+ ProcessMonitor
-  + enable - enable process monitor
-  + interval - updates interval[]
-+ DerivedMetrics
-  + maxCacheSize - maximum size of vector
-
-See sample in [examples/config-default.ini](https://github.com/AliceO2Group/Monitoring/blob/master/examples/config-default.ini).
-
 ## Code snippets
-Code snippets are available in [example](https://github.com/AliceO2Group/Monitoring/tree/master/examples) directory.
+Code snippets are available in [examples](examples/) directory.
 
-### Sending user defined metric - examples/1-Basic.cxx
-```cpp
-// configure monitoring (once per process), pass configuration path as parameter
-Monitoring::Configure("file://../examples/config-default.ini");
-
-// now send an application specific metric
-// 10 is the value
-// myMetric is the name of the metric
-//  
-// 1. by copying values
-Monitoring::Get().send(10, "myMetric");
-  
-// 2. by creating and moving metric object
-Monitoring::Get().send({10, "myMetric"});
-```
-
-### Sending tagged metric - examples/2-TaggedMetrics.cxx
-```cpp
-// configure monitoring (only once per process), pass configuration path as parameter
-Monitoring::Configure("file://../examples/config-default.ini");
-
-// now send an application specific metric with additional tags
-// 10 is the value
-// myMetric is the name of the metric
-// then vector of key-value tags
-Monitoring::Get().send(Metric{10, "myMetric"}.addTags({{"tag1", "value1"}, {"tag2", "value2"}}))
-```
-
-### Sending metric with user defined timestamp - examples/3-UserDefinedTimestamp.cxx
-By default timestamp is set by the module, but user can overwrite it manually.
-```cpp
-// configure monitoring (only once per process), pass configuration path as parameter
-Monitoring::Configure("file://..examples/config-default.ini");
-
-// current timestamp
-std::chrono::time_point<std::chrono::system_clock> timestamp = std::chrono::system_clock::now();
-     
-// now send an application specific metric
-// 10 is the value timestamp
-// myCrazyMetric is the name of the metric
-Monitoring::Get().send(Metric{10, "myCrazyMetric"}.setTimestamp(timestamp));
-std::this_thread::sleep_for(std::chrono::seconds(1));
-Monitoring::Get().send(Metric{40, "myCrazyMetric"}.setTimestamp(timestamp));
-```
-
-###  Derived metrics - examples/4-RateDerivedMetric.cxx
-The module can calculate derived metrics: average value and rate.
-```cpp
-// configure monitoring (only once per process), pass configuration path as parameter
-Monitoring::Configure("file://../examples/config-default.ini");
-
-// derived metric :  rate
-Monitoring::Get().addDerivedMetric("myMetric", AliceO2::Monitoring::DerivedMetricMode::RATE);
-
-// now send at least two metrics to see the result
-Monitoring::Get().send(10, "myMetric");
-Monitoring::Get().send(20, "myMetric");
-Monitoring::Get().send(30, "myMetric");
-Monitoring::Get().send(50, "myMetric");
-```
-
-### Dedicated monitoring instance - examples/6-DedicatedInstance.cxx
-```cpp
-// create dedicated monitoring instance, pass confuguration path as parameter
-auto collector = Monitoring::Create("file://../examples/config-default.ini");
-
-// now send an application specific metric
-// 10 is the value
-// myMetric is the name of the metric
-//  
-// 1. by copying values
-collector->send(10, "myMetric");
-  
-// 2. by creating and moving metric object
-collector->send({10, "myMetric"});
-```
-
-### Sending multiple metrics at once - examples/8-Multiple.cxx
-```cpp
-// configure monitoring (only once per process), pass configuration path as parameter
-Monitoring::Configure("file://../examples/config-default.ini");
-
-// Send two metrics at once as a single measurement
-Monitoring::Get().send("measurementName", {
-  {10, "myMetricInt"},
-  {10.10, "myMetricFloat"}
-});
-```
+ + Sending metric - [examples/1-Basic.cxx](examples/1-Basic.cxx)
+ + Sending metric with custom taggs - [examples/2-TaggedMetrics.cxx](examples/2-TaggedMetrics.cxx)
+ + Sending metric with user defined timestamp - [examples/3-UserDefinedTimestamp.cxx](examples/3-UserDefinedTimestamp.cxx)
+ + Calculating derived metrics - [examples/4-RateDerivedMetric.cxx](examples/4-RateDerivedMetric.cxx)
+ + Sending multiple values in a single metric - [examples/8-Multiple.cxx](examples/8-Multiple.cxx)
 
 ## System monitoring, server-side backends installation and configuration
 This guide explains manual installation. For `ansible` deployment see [AliceO2Group/system-configuration](https://gitlab.cern.ch/AliceO2Group/system-configuration/tree/master/ansible) gitlab repo.
@@ -490,76 +408,3 @@ systemctl start grafana-server
 
 ### MonALISA Service
 Follow official [MonALISA Service Installation Guide](http://monalisa.caltech.edu/monalisa__Documentation__Service_Installation_Guide.html).
-
-### Zabbix
-#### Installation
-+ Add Zabbix repository **(as root)**
-~~~
-rpm -ivh https://repo.zabbix.com/zabbix/3.2/rhel/7/x86_64/zabbix-release-3.2-1.el7.noarch.rpm
-~~~
-
-+ Install Zabbix packages **(as root)**
-~~~
-yum -y install zabbix-server-mysql zabbix-web-mysql mariadb-server
-~~~
-
-+ Start MariaDB **(as root)**
-~~~
-systemctl enable mariadb
-systemctl start mariadb
-~~~
-
-+ Configure MariaDB via wizard
-Set database `<root_password>`.
-~~~
-mysql_secure_installation
-~~~
-
-+ Create zabbix user and database
-Replace `<root_password>` with root database password.
-Replace `<password>` with password you want to set to zabbix database account.
-~~~
-$ mysql -uroot -p<root_password>
-create database zabbix character set utf8 collate utf8_bin;
-grant all privileges on zabbix.* to zabbix@localhost identified by '<password>';
-~~~
-
-+ Import initial database schema
-Find out the version of `zabbix-server-mysql` package by running `rpm -q zabbix-server-mysql`.
-~~~
-gunzip /usr/share/doc/zabbix-server-mysql-3.2.6/create.sql.gz
-cat /usr/share/doc/zabbix-server-mysql-3.2.6/create.sql | mysql -uzabbix -p zabbix
-~~~
-
-+ Set database details in `/etc/zabbix/zabbix_server.conf` file **(as root)**
-~~~
-DBHost=localhost
-DBName=zabbix
-DBUser=zabbix
-DBPassword=<password>
-~~~
-
-+ Edit SELinux policy **(as root)**
-~~~
-setsebool -P httpd_can_connect_zabbix on
-~~~
-
-+ Open HTTP(s) and Zabbix related ports **(as root)**
-~~~
-firewall-cmd --zone=public --add-port 10051/tcp --permanentt
-firewall-cmd --add-service=http --zone=public --permanent
-firewall-cmd --add-service=https --zone=public --permanent
-firewall-cmd --reload
-~~~
-
-+ Start Zabbix server **(as root)**
-~~~
-systemctl start zabbix-server
-systemctl enable zabbix-server
-~~~
-
-#### Host and metric configuration
-+ Open Zabbix web interface
-+ Go to `Configuration` -> `Hosts`
-+ Go to `Create a new host` to add a host that is allowed to push metrics. Use `Linux servers` as group. Agent interface can be set as `127.0.0.1:10050`.
-+ Go to `Items` tab to create a metric that will be accepted by Zabbix. Set `Type` to `Zabbix trapper`. Set proper `Type information`.
