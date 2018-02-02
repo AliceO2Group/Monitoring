@@ -34,7 +34,7 @@ EOF
 
 + Install Monitoring RPM package **(as root)**
 ~~~
-yum -y install alisw-Monitoring+v1.4.0-1.x86_64
+yum -y install alisw-Monitoring+v1.5.0-1.x86_64
 ~~~
 
 + Configure Modules
@@ -44,9 +44,9 @@ export MODULEPATH=/opt/alisw/el7/modulefiles:$MODULEPATH
 
 + Load enviroment
 ~~~
-eval `modulecmd bash load Monitoring/v1.4.0-1`
+eval `modulecmd bash load Monitoring/v1.5.0-1`
 ~~~
-The installation directory is: `/opt/alisw/el7/Monitoring/v1.4.0-1`
+The installation directory is: `/opt/alisw/el7/Monitoring/v1.5.0-1`
 
 ### aliBuild
 <details>
