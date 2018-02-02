@@ -34,7 +34,7 @@ EOF
 
 + Install Monitoring RPM package **(as root)**
 ~~~
-yum -y install alisw-Monitoring+v1.3.0-1.x86_64
+yum -y install alisw-Monitoring+v1.4.0-1.x86_64
 ~~~
 
 + Configure Modules
@@ -44,11 +44,14 @@ export MODULEPATH=/opt/alisw/el7/modulefiles:$MODULEPATH
 
 + Load enviroment
 ~~~
-eval `modulecmd bash load Monitoring/v1.3.0-1`
+eval `modulecmd bash load Monitoring/v1.4.0-1`
 ~~~
-The installation directory is: `/opt/alisw/el7/Monitoring/v1.3.0-1`
+The installation directory is: `/opt/alisw/el7/Monitoring/v1.4.0-1`
 
 ### aliBuild
+<details>
+ <summary>Follow these steps if you don't have `aliBuild` installed</summary>
+
 + Enable Software Collections in order to install `devtoolset-6` which includes `gcc 6.2.0` **(as root)**
 ~~~
 yum install -y centos-release-scl
@@ -78,15 +81,21 @@ pip install alibuild matplotlib numpy certifi ipython==5.4.1 ipywidgets   \
 source /opt/rh/devtoolset-6/enable
 ~~~
 
-+ Then proceed with compilation via `aliBuild`
++ Set `alienv` root directory and load the environment
+~~~
+mkdir alice; cd alice
+ALICE_WORK_DIR=`pwd`/sw; eval "`alienv shell-helper`"
+~~~
+</details>
+
++ Compile `Monitoring` and its dependecies via `aliBuild`
 ~~~
 aliBuild init Monitoring@master
 aliBuild build Monitoring --defaults o2-daq
 ~~~
 
-+ Set `alienv` root directory and load the environment. Run the following commands in the same directory as `aliBuild`.
++ Load the enviroment for Monitoring (in the `alice` directory)
 ~~~
-ALICE_WORK_DIR=`pwd`/sw; eval "`alienv shell-helper`"
 alienv load Monitoring/latest
 ~~~
 
