@@ -141,7 +141,7 @@ See table below to find out how to create `URI` for each backend:
 
 ### Sending metric
 Simplified `send` method:
-```
+```cpp
 send(T value, std::string name)
 ```
 
@@ -201,7 +201,7 @@ The module can calculate derived metrics. To do so, use `addDerivedMetric(std::s
 
 Derived metrics are generated each time as new value is passed to the module. Their names are suffixed with derived mode name.
 
-### Mmonitoring process
+### Monitoring process
 To enable process monitoring *ProcessMonitor.enable* flag in configuration file must be set to 1 - see [Configuration file](#configuration-file) section. The following metrics are generated every N seconds (N can be specified in the config - *ProcessMonitor.interval*):
 + **etime** - elapsed time since the process was started, in the form [[DD-]hh:]mm:ss
 + **pcpu** - cpu utilization of the process in "##.#" format. Currently, it is the CPU time used divided by the time the process has been running (cputime/realtime ratio), expressed as a percentage.  It will not add up to 100% unless you are lucky
