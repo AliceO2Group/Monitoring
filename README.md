@@ -9,6 +9,10 @@ Monitoring module allows to inject user defined metrics and monitor the process 
 
 ## Installation
 ### RPM (CentOS 7 only)
+<details>
+ <summary><strong>Follow these steps if you don't have <i>allsw</i> repo configured</strong> (content collapsed)</summary>
+<br>
+
 + Install `CERN-CA-certs` package (required by `alisw` repo) **(as root)**
 ~~~
 yum -y install CERN-CA-certs
@@ -24,6 +28,8 @@ enabled=1
 gpgcheck=0
 EOF
 ~~~
+</details>
+<br>
 
 + Install Monitoring RPM package **(as root)**
 ~~~
@@ -43,7 +49,7 @@ The installation directory is: `/opt/alisw/el7/Monitoring/v1.4.0-1`
 
 ### aliBuild
 <details>
- <summary><strong>Follow these steps if you don't have `aliBuild` installed</strong></summary>
+ <summary><strong>Follow these steps if you don't have <i>aliBuild</i> installed</strong></summary>
 <br>
 
 + Enable Software Collections in order to install `devtoolset-6` which includes `gcc 6.2.0` **(as root)**
