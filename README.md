@@ -4,13 +4,14 @@ Monitoring module allows to inject user defined metrics and monitor the process 
 ## Table of contents
 1. [Installation](#installation)
 2. [Getting started](#getting-started)
+3. [Features and additional information](#features-and-additional-information)
 3. [Code snippets](#code-snippets)
 4. [System monitoring and server-side backends installation and configuration](#system-monitoring-server-side-backends-installation-and-configuration)
 
 ## Installation
 ### RPM (CentOS 7 only)
 <details>
- <summary><strong>Follow these steps if you don't have <i>allsw</i> repo configured</strong> (content collapsed)</summary>
+ <summary><strong>Click here if you don't have <i>allsw</i> repo configured</strong></summary>
 <br>
 
 + Install `CERN-CA-certs` package (required by `alisw` repo) **(as root)**
@@ -49,7 +50,7 @@ The installation directory is: `/opt/alisw/el7/Monitoring/v1.4.0-1`
 
 ### aliBuild
 <details>
- <summary><strong>Follow these steps if you don't have <i>aliBuild</i> installed</strong></summary>
+ <summary><strong>Click here if you don't have <i>aliBuild</i> installed</strong></summary>
 <br>
 
 + Enable Software Collections in order to install `devtoolset-6` which includes `gcc 6.2.0` **(as root)**
@@ -123,6 +124,32 @@ make install
 ~~~
 
 ## Getting started
+### Monitoring instance
+The recommended way of getting (unique_ptr to) monitoring instance is `Get`ing it from  *MonitoringFactory* by passing `URI(s)` as a parameter (comma seperated if more than one).
+```cpp
+AliceO2::Monitoring::MonitoringFactory::Get("backend[-protocol]://host:port[?query]");
+```
+See table below to find out how to create URI for each backend:
+| Backend name | Transport | URI scheme      | URI query        |
+| -------------|:---------:|:---------------:| ----------------:|
+| InfluxDB     | HTTP      | `influxdb-http` | `/write?db=<db>` |
+| InfluxDB     | UDP       | `influxdb-udp`  | -                |
+| ApMon        | UDP       | `monalisa`      | -                |
+| InfoLogger   | -         | `infologger`    | -                |
+| Flume        | UDP       | `flume`         | -                
+
+### Sending metric
+Metric can be sent by one of the following ways:
+1. By creating and moving metric object:
+   + `send(Metric&& metric)`
+   Two additional methods can be chained:
+   + `addTags(std::vector<Tag>&& tags)`
+   + `setTimestamp(std::chrono::time_point<std::chrono::system_clock>& timestamp)`
+
+2. Sending multiple metrics (only InfluxDB is supported, other backends fallback into sending metrics one by one)
+   + `void send(std::string name, std::vector<Metric>&& metrics)`
+
+## Features and additional information
 ### Metrics
 Metrics consist of 4 parameters: name, value, timestamp and tags.
 
@@ -138,54 +165,20 @@ Metrics consist of 4 parameters: name, value, timestamp and tags.
 + PID
 + process name
 
-### Creating monitoring instance
-1. The recommended way of getting (reference to) monitoring instance is *MonitoringFactory*.
-Before using the factory *Configure* method must be called providing URI to configuration file or central backend. This method should be called only once per process (following calls will not have any effect).
-```cpp
-AliceO2::Monitoring::MonitoringFactory::Configure("file://../Monitoring/examples/config-default.ini");
-AliceO2::Monitoring::MonitoringFactory::Get();
-```
-
-2. Second way creates dedicated monitoring instance. It's only recommended to use when different configuration URI is needed within the same process.
-```cpp
-Monitoring::Create("file://../Monitoring/examples/config-default.ini");
-```
-
-### Sending a metric
-Metric can be sent by one of the following ways:
-1. By creating and moving metric object:
-   + `send(Metric&& metric)`
-   Two additional methods can be chained:
-   + `addTags(std::vector<Tag>&& tags)`
-   + `setTimestamp(std::chrono::time_point<std::chrono::system_clock>& timestamp)`
-
-2. Sending multiple metrics (only InfluxDB is supported, other backends fallback into sending metrics one by one)
-   + `void send(std::string name, std::vector<Metric>&& metrics)`
-
-## Derived metrics
+### Calculating derived metrics
 The module can calculate derived metrics. To do so, use `addDerivedMetric(std::string name, DerivedMetricMode mode)` with one of two available modes:
 + `DerivedMetricMode::RATE` - rate between two following metrics;
 + `DerivedMetricMode::AVERAGE` - average value of all metrics stored in cache;
 
 Derived metrics are generated each time as new value is passed to the module. Their names are suffixed with derived mode name.
 
-### Processes monitoring
+### Mmonitoring process
 To enable process monitoring *ProcessMonitor.enable* flag in configuration file must be set to 1 - see [Configuration file](#configuration-file) section. The following metrics are generated every N seconds (N can be specified in the config - *ProcessMonitor.interval*):
 + **etime** - elapsed time since the process was started, in the form [[DD-]hh:]mm:ss
 + **pcpu** - cpu utilization of the process in "##.#" format. Currently, it is the CPU time used divided by the time the process has been running (cputime/realtime ratio), expressed as a percentage.  It will not add up to 100% unless you are lucky
 + **pmem** - ratio of the process's resident set size  to the physical memory on the machine, expressed as a percentage
 + **bytesReceived** - the total number of bytes of data received by the process (per interface)
 + **bytesTransmitted** - the total number of bytes of data transmitted by the process (per interface).
-
-### Monitoring backends
-Metrics are pushed to one or multiple backends. The module currently supports three backends - see table below. Enabling/Disabling backends is done via configuration file.
-
-| Backend name     | Description                    | Transport                    | Client-side requirements   | Handling tags  |
-| ---------------- |:------------------------------:|:----------------------------:|:--------------------------:| --------------:|
-| InfluxDB         | InfluxDB time series database  | HTTP / UDP (InfluxDB Line Protocol) | cURL / boost asio   | Supported by InfluxDB Line Protocol |
-| ApMonBackend     | MonALISA Serivce               | UDP                          | ApMon                      | Default tags concatenated with entity; Metric tags concatenated with name |
-| InfoLoggerBackned| Temporary replaced by internal logging              | -                            | (as log message)           | Added to the end of message |
-| Flume            | Collects, aggragate monitoring data | UDP (JSON)              | boost asio                 | In Flume Event header |
 
 ## Code snippets
 Code snippets are available in [examples](examples/) directory.
