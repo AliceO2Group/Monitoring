@@ -52,6 +52,7 @@ The installation directory is: `/opt/alisw/el7/Monitoring/v1.4.0-1`
 <details>
  <summary><strong>Follow these steps if you don't have `aliBuild` installed</strong></summary>
 <br>
+
 + Enable Software Collections in order to install `devtoolset-6` which includes `gcc 6.2.0` **(as root)**
 ~~~
 yum install -y centos-release-scl
