@@ -50,7 +50,8 @@ The installation directory is: `/opt/alisw/el7/Monitoring/v1.4.0-1`
 
 ### aliBuild
 <details>
- <summary>Follow these steps if you don't have `aliBuild` installed</summary>
+ <summary><strong>Follow these steps if you don't have `aliBuild` installed</strong></summary>
+
 
 + Enable Software Collections in order to install `devtoolset-6` which includes `gcc 6.2.0` **(as root)**
 ~~~
@@ -87,6 +88,7 @@ mkdir alice; cd alice
 ALICE_WORK_DIR=`pwd`/sw; eval "`alienv shell-helper`"
 ~~~
 </details>
+
 
 + Compile `Monitoring` and its dependecies via `aliBuild`
 ~~~
