@@ -3,16 +3,9 @@ Monitoring module allows to inject user defined metrics and monitor the process 
 
 ## Table of contents
 1. [Installation](#installation)
-  * [RPM (CentOS 7 only)](#rpm-centos-7-only)
-  * [aliBuild](#alibuild)
-  * [Manual](#manual)
 2. [Getting started](#getting-started)
 3. [Code snippets](#code-snippets)
 4. [System monitoring and server-side backends installation and configuration](#system-monitoring-server-side-backends-installation-and-configuration)
-  * [collectD](#collectd)
-  * [MonALISA Service](#monalisa-service)
-  * [Flume](#flume)
-  * [Grafana](#grafana)
 
 ## Installation
 ### RPM (CentOS 7 only)
