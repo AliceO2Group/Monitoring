@@ -125,30 +125,56 @@ make install
 
 ## Getting started
 ### Monitoring instance
-The recommended way of getting (unique_ptr to) monitoring instance is `Get`ing it from  *MonitoringFactory* by passing `URI(s)` as a parameter (comma seperated if more than one).
+The recommended way of getting (`unique_ptr` to) monitoring instance is `Get`ing it from  `MonitoringFactory` by passing `URI(s)` as a parameter (comma seperated if more than one).
 ```cpp
 AliceO2::Monitoring::MonitoringFactory::Get("backend[-protocol]://host:port[?query]");
 ```
-See table below to find out how to create URI for each backend:
+See table below to find out how to create `URI` for each backend:
 
-| Backend name | Transport | URI scheme      | URI query        |
-| ------------ |:---------:|:---------------:| ----------------:|
-| InfluxDB     | HTTP      | `influxdb-http` | `/write?db=<db>` |
-| InfluxDB     | UDP       | `influxdb-udp`  | -                |
-| ApMon        | UDP       | `monalisa`      | -                |
-| InfoLogger   | -         | `infologger`    | -                |
-| Flume        | UDP       | `flume`         | -                |
+| Backend name | Transport | URI backend[-protocol] | URI query        |
+| ------------ |:---------:|:----------------------:| ----------------:|
+| InfluxDB     | HTTP      | `influxdb-http`        | `/write?db=<db>` |
+| InfluxDB     | UDP       | `influxdb-udp`         | -                |
+| ApMon        | UDP       | `monalisa`             | -                |
+| InfoLogger   | -         | `infologger`           | -                |
+| Flume        | UDP       | `flume`                | -                |
 
 ### Sending metric
-Metric can be sent by one of the following ways:
-1. By creating and moving metric object:
-   + `send(Metric&& metric)`
-   Two additional methods can be chained:
-   + `addTags(std::vector<Tag>&& tags)`
-   + `setTimestamp(std::chrono::time_point<std::chrono::system_clock>& timestamp)`
+Metric can be simply `send` by:
+```
+send(T value, std::string name)
+```
 
-2. Sending multiple metrics (only InfluxDB is supported, other backends fallback into sending metrics one by one)
-   + `void send(std::string name, std::vector<Metric>&& metrics)`
+Or more advanced overload of `send`:
+```
+send(Metric&& metric)
+```
+
+For example:
+```
+collector->send(10, "myMetricInt");
+collector->send({10, "myMetricInt"});
+```
+
+Two additional methods can be chained the to `send(Metric&& metric)`:
+   + `addTags(std::vector<Tag>&& tags)` - insert additional tags
+   + `setTimestamp(std::chrono::time_point<std::chrono::system_clock>& timestamp)` - set custom timestamp
+
+For example:
+```
+collector->send(Metric{10, "myMetric"}.addTags({{"tag1", "value1"}, {"tag2", "value2"}}));
+collector->send(Metric{10, "myCrazyMetric"}.setTimestamp(timestamp));
+```
+
+It's also possible to send multiple values in a single metric (only InfluxDB is currently supported, other backends fallback into sending metrics one by one)
+```
+void send(std::string name, std::vector<Metric>&& metrics)
+```
+
+For example:
+```
+collector->send("measurementName", {{20, "myMetricIntMultiple"}, {20.30, "myMetricFloatMultple"}});
+```
 
 ## Features and additional information
 ### Metrics
