@@ -130,13 +130,14 @@ The recommended way of getting (unique_ptr to) monitoring instance is `Get`ing i
 AliceO2::Monitoring::MonitoringFactory::Get("backend[-protocol]://host:port[?query]");
 ```
 See table below to find out how to create URI for each backend:
+
 | Backend name | Transport | URI scheme      | URI query        |
-| -------------|:---------:|:---------------:| ----------------:|
+| ------------ |:---------:|:---------------:| ----------------:|
 | InfluxDB     | HTTP      | `influxdb-http` | `/write?db=<db>` |
 | InfluxDB     | UDP       | `influxdb-udp`  | -                |
 | ApMon        | UDP       | `monalisa`      | -                |
 | InfoLogger   | -         | `infologger`    | -                |
-| Flume        | UDP       | `flume`         | -                
+| Flume        | UDP       | `flume`         | -                |
 
 ### Sending metric
 Metric can be sent by one of the following ways:
