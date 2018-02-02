@@ -140,39 +140,40 @@ See table below to find out how to create `URI` for each backend:
 | Flume        | UDP       | `flume`                | -                |
 
 ### Sending metric
-Metric can be simply `send` by:
+Simplified `send` method:
 ```
 send(T value, std::string name)
 ```
 
 Or more advanced overload of `send`:
-```
+```cpp
 send(Metric&& metric)
 ```
 
 For example:
-```
+```cpp
 collector->send(10, "myMetricInt");
 collector->send({10, "myMetricInt"});
 ```
 
-Two additional methods can be chained the to `send(Metric&& metric)`:
-   + `addTags(std::vector<Tag>&& tags)` - insert additional tags
-   + `setTimestamp(std::chrono::time_point<std::chrono::system_clock>& timestamp)` - set custom timestamp
+### Customized metric
+Two additional methods can be chained the to `send(Metric&& metric)` in order to __insert custom tags__ or __set custom timestamp__:
+   + `addTags(std::vector<Tag>&& tags)`
+   + `setTimestamp(std::chrono::time_point<std::chrono::system_clock>& timestamp)`
 
 For example:
-```
+```cpp
 collector->send(Metric{10, "myMetric"}.addTags({{"tag1", "value1"}, {"tag2", "value2"}}));
 collector->send(Metric{10, "myCrazyMetric"}.setTimestamp(timestamp));
 ```
 
 It's also possible to send multiple values in a single metric (only InfluxDB is currently supported, other backends fallback into sending metrics one by one)
-```
+```cpp
 void send(std::string name, std::vector<Metric>&& metrics)
 ```
 
 For example:
-```
+```cpp
 collector->send("measurementName", {{20, "myMetricIntMultiple"}, {20.30, "myMetricFloatMultple"}});
 ```
 
