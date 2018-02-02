@@ -156,7 +156,7 @@ collector->send(10, "myMetricInt");
 collector->send({10, "myMetricInt"});
 ```
 
-### Customized metric
+### Custom metric
 Two additional methods can be chained the to `send(Metric&& metric)` in order to __insert custom tags__ or __set custom timestamp__:
    + `addTags(std::vector<Tag>&& tags)`
    + `setTimestamp(std::chrono::time_point<std::chrono::system_clock>& timestamp)`
@@ -167,6 +167,7 @@ collector->send(Metric{10, "myMetric"}.addTags({{"tag1", "value1"}, {"tag2", "va
 collector->send(Metric{10, "myCrazyMetric"}.setTimestamp(timestamp));
 ```
 
+### Multiple values
 It's also possible to send multiple values in a single metric (only InfluxDB is currently supported, other backends fallback into sending metrics one by one)
 ```cpp
 void send(std::string name, std::vector<Metric>&& metrics)
