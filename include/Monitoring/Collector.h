@@ -74,6 +74,10 @@ class Collector
     /// \param mode             mode
     void addDerivedMetric(std::string name, DerivedMetricMode mode);
 
+    /// Enables process monitoring
+    /// \param interval		refresh interval
+    void enableProcessMonitoring(int interval = 5);
+
   private:
     /// Derived metrics handler
     /// \see class DerivedMetrics
