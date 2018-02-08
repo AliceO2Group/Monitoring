@@ -6,7 +6,8 @@
 #ifndef ALICEO2_MONITORING_BACKENDS_INFLUXDB_H
 #define ALICEO2_MONITORING_BACKENDS_INFLUXDB_H
 
-#include "Monitoring/Backend.h"
+#include "../Backend.h"
+#include "../UriParser/UriParser.h"
 #include "../Transports/TransportInterface.h"
 #include "../MonLogger.h"
 #include <chrono>

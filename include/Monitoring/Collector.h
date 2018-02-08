@@ -15,9 +15,9 @@
 #include <tuple>
 #include <vector>
 
-#include "Monitoring/Backend.h"
-#include "Monitoring/DerivedMetrics.h"
-#include "Monitoring/ProcessMonitor.h"
+#include "../../src/Backend.h"
+#include "../../src/DerivedMetrics.h"
+#include "../../src/ProcessMonitor.h"
 #include "../../src/UriParser/UriParser.h"
 
 namespace AliceO2
@@ -73,6 +73,10 @@ class Collector
     /// \param name             metric name
     /// \param mode             mode
     void addDerivedMetric(std::string name, DerivedMetricMode mode);
+
+    /// Enables process monitoring
+    /// \param interval		refresh interval
+    void enableProcessMonitoring(int interval = 5);
 
   private:
     /// Derived metrics handler

@@ -3,7 +3,7 @@
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 ///
 
-#include "Monitoring/ProcessMonitor.h"
+#include "ProcessMonitor.h"
 #include "Exceptions/MonitoringInternalException.h"
 #include <boost/algorithm/string/classification.hpp> 
 #include <boost/algorithm/string/split.hpp>

@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
   }
 
   auto collector = Monitoring::Get(vm["url"].as<std::string>());
-
+  collector->enableProcessMonitoring(1);
   int add = 0;
   if (count != 0) {
     count--;

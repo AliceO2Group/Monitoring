@@ -34,16 +34,19 @@ namespace Monitoring
 {
 
 Collector::Collector() {
-#ifdef _OS_LINUX
   mProcessMonitor = std::make_unique<ProcessMonitor>();
-  int interval = 5;
+  mDerivedHandler = std::make_unique<DerivedMetrics>(1000);
+  setDefaultTags();
+}
+
+void Collector::enableProcessMonitoring(int interval) {
+#ifdef _OS_LINUX
   mMonitorRunning = true;
   mMonitorThread = std::thread(&Collector::processMonitorLoop, this, interval);
   MonLogger::Get() << "Process Monitor : Automatic updates enabled" << MonLogger::End();
+#else
+  MonLogger::Get() << "!! Process Monitor : Automatic updates not supported" << MonLogger::End();
 #endif
-
-  mDerivedHandler = std::make_unique<DerivedMetrics>(1000);
-  setDefaultTags();
 }
 
 template <typename T>

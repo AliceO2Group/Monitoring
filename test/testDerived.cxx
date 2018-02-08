@@ -1,4 +1,4 @@
-#include "../include/Monitoring/DerivedMetrics.h"
+#include "../src/DerivedMetrics.h"
 #include "../src/Exceptions/MonitoringInternalException.h"
 #include <chrono>
 #include <thread>
