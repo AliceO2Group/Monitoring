@@ -18,7 +18,6 @@
 #include "Monitoring/Backend.h"
 #include "Monitoring/DerivedMetrics.h"
 #include "Monitoring/ProcessMonitor.h"
-#include "../../src/UriParser/UriParser.h"
 
 namespace AliceO2
 {
@@ -44,8 +43,7 @@ class Collector
     Collector();
 
     /// Creates backend and appends it to backend list
-    template <typename T>
-    void addBackend(const http::url& uri);
+    void addBackend(std::unique_ptr<Backend> backend);
 
     /// Joins process monitor thread if possible
     ~Collector();

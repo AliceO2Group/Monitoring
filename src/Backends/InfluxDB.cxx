@@ -19,21 +19,20 @@ namespace Monitoring
 namespace Backends
 {
 
-InfluxDB::InfluxDB(const http::url& uri)
-{ 
-  if (uri.protocol == "udp") {
-    transport = std::make_unique<Transports::UDP>(uri.host, uri.port);
-    MonLogger::Get() << "InfluxDB/UDP backend initialized"
-                     << " ("<< uri.host << ":" << uri.port << ")" << MonLogger::End();
-  } else if (uri.protocol == "http") {
-    transport = std::make_unique<Transports::HTTP>(
-      uri.protocol + "://" + uri.host + ":" + std::to_string(uri.port) + "/?" + uri.search
-    );
-    MonLogger::Get() << "InfluxDB/HTTP backend initialized" << " (" << uri.protocol << "://" << uri.host
-                     << ":" <<  std::to_string(uri.port) << "/?" << uri.search << ")" << MonLogger::End();
-  } else {
-    MonLogger::Get() << "InfluxDB: Unrecognized transport protocol: " << uri.protocol << MonLogger::End();
-  }
+InfluxDB::InfluxDB(const std::string& host, unsigned int port)
+{
+  transport = std::make_unique<Transports::UDP>(host, port);
+  MonLogger::Get() << "InfluxDB/UDP backend initialized"
+                   << " ("<< host << ":" << port << ")" << MonLogger::End();
+}
+
+InfluxDB::InfluxDB(const std::string& host, unsigned int port, const std::string& path)
+{
+  transport = std::make_unique<Transports::HTTP>(
+    "http://" + host + ":" + std::to_string(port) + "/?" + path
+  );
+  MonLogger::Get() << "InfluxDB/HTTP backend initialized" << " (" << "http://" << host
+                   << ":" <<  std::to_string(port) << "/?" << path << ")" << MonLogger::End();
 }
 
 inline unsigned long InfluxDB::convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp)

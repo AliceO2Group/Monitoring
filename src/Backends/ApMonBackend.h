@@ -11,7 +11,6 @@
 #include <memory>
 #include <ApMon.h>
 #include "Monitoring/Backend.h"
-#include "../UriParser/UriParser.h"
 
 namespace AliceO2
 {
@@ -33,7 +32,7 @@ class ApMonBackend final : public Backend
   public:
     /// Constructs AppMon backend
     /// \param configurationFile 	filepath to ApMonBackend configuration file
-    ApMonBackend(const http::url& uri);
+    ApMonBackend(const std::string& path);
 
     /// Default destructor
     ~ApMonBackend() = default;

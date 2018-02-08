@@ -49,9 +49,8 @@ void Collector::enableProcessMonitoring(int interval) {
 #endif
 }
 
-template <typename T>
-void Collector::addBackend(const http::url& uri) {
-   mBackends.emplace_back(std::make_unique<T>(uri));
+void Collector::addBackend(std::unique_ptr<Backend> backend) {
+   mBackends.push_back(std::move(backend));
 }
 
 Collector::~Collector()
@@ -127,11 +126,5 @@ template void Collector::send(int, std::string);
 template void Collector::send(double, std::string);
 template void Collector::send(std::string, std::string);
 template void Collector::send(uint64_t, std::string);
-template void Collector::addBackend<Backends::InfoLoggerBackend>(const http::url&);
-#ifdef _WITH_APPMON
-template void Collector::addBackend<Backends::ApMonBackend>(const http::url&);
-#endif
-template void Collector::addBackend<Backends::InfluxDB>(const http::url&);
-template void Collector::addBackend<Backends::Flume>(const http::url&);
 } // namespace Monitoring
 } // namespace AliceO2
