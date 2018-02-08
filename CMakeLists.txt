@@ -135,6 +135,7 @@ set(LIBRARY_NAME Monitoring)
 set(BUCKET_NAME o2_monitoring_bucket)
 O2_GENERATE_LIBRARY()
 
+
 enable_testing()
 
 set(TEST_SRCS
@@ -144,7 +145,11 @@ set(TEST_SRCS
         test/testMetric.cxx
         test/testProcessDetails.cxx
         test/testProcessMonitor.cxx
+	test/testInfluxDb.cxx
         )
+if(APMON_FOUND)
+  list(APPEND TEST_SRCS test/testApMon.cxx)
+endif()
 
 O2_GENERATE_TESTS(
         MODULE_LIBRARY_NAME ${LIBRARY_NAME}
