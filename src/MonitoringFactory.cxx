@@ -8,6 +8,7 @@
 #include <stdexcept>
 #include <boost/algorithm/string.hpp>
 #include "MonLogger.h"
+#include "UriParser/UriParser.h"
 
 #include "Backends/InfoLoggerBackend.h"
 #include "Backends/Flume.h"
@@ -26,25 +27,40 @@ namespace AliceO2
 namespace Monitoring 
 {
 
-template <typename T>
-void addBackend(Collector* collector, http::url uri) {
-    auto const position = uri.protocol.find_last_of('-');
-    if (position != std::string::npos) {
-      uri.protocol = uri.protocol.substr(position + 1);
-    }
-   collector->addBackend<T>(uri);
+void addInfoLogger(Collector* collector, http::url uri) {
+  collector->addBackend(std::make_unique<Backends::InfoLoggerBackend>());
+}
+void addInfluxDb(Collector* collector, http::url uri) {
+  auto const position = uri.protocol.find_last_of('-');
+  if (position != std::string::npos) {
+    uri.protocol = uri.protocol.substr(position + 1);
+  }
+  if (uri.protocol == "udp") {
+    collector->addBackend(std::make_unique<Backends::InfluxDB>(uri.host, uri.port));
+  }
+  if (uri.protocol == "http") {
+    collector->addBackend(std::make_unique<Backends::InfluxDB>(uri.host, uri.port, uri.search));
+  }
+}
+void addApMon(Collector* collector, http::url uri) {
+#ifdef _WITH_APPMON
+  collector->addBackend(std::make_unique<Backends::ApMonBackend>(uri.path));
+#else
+  throw std::runtime_error("ApMon backend is not enabled");
+#endif
+}
+void addFlume(Collector* collector, http::url uri) {
+  collector->addBackend(std::make_unique<Backends::Flume>(uri.host, uri.port));
 }
 
 std::unique_ptr<Collector> MonitoringFactory::Get(std::string urlsString)
 {
   static const std::map<std::string, std::function<void(Collector* collector, const http::url&)>> map = {
-      {"infologger", addBackend<Backends::InfoLoggerBackend>},
-      {"influxdb-udp", addBackend<Backends::InfluxDB>},
-      {"influxdb-http", addBackend<Backends::InfluxDB>},
-      #ifdef _WITH_APPMON
-      {"monalisa", addBackend<Backends::ApMonBackend>},
-      #endif
-      {"flume", addBackend<Backends::Flume>},
+      {"infologger", addInfoLogger},
+      {"influxdb-udp", addInfluxDb},
+      {"influxdb-http", addInfluxDb},
+      {"apmon", addApMon},
+      {"flume", addFlume},
   };  
 
   auto collector = std::make_unique<Collector>();

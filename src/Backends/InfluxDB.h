@@ -6,8 +6,7 @@
 #ifndef ALICEO2_MONITORING_BACKENDS_INFLUXDB_H
 #define ALICEO2_MONITORING_BACKENDS_INFLUXDB_H
 
-#include "../Backend.h"
-#include "../UriParser/UriParser.h"
+#include "Monitoring/Backend.h"
 #include "../Transports/TransportInterface.h"
 #include "../MonLogger.h"
 #include <chrono>
@@ -31,7 +30,13 @@ class InfluxDB final : public Backend
     /// Constructor for both HTTP and  UDP transports
     /// \param hostname  InfluxDB UDP endpoint hostname
     /// \param port      InfluxDB UDP endpoint port number
-    InfluxDB(const http::url& uri);
+    InfluxDB(const std::string& host, unsigned int port);
+
+    /// Constructor for both HTTP and  UDP transports
+    /// \param hostname  InfluxDB UDP endpoint hostname
+    /// \param port      InfluxDB UDP endpoint port number
+    /// \param path	 Query path
+    InfluxDB(const std::string& host, unsigned int port, const std::string& path);
 
     /// Default destructor
     ~InfluxDB() = default;

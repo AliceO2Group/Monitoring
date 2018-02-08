@@ -12,7 +12,8 @@ namespace Test {
 BOOST_AUTO_TEST_CASE(checkJsonEncoding)
 {
   std::string url = "flume://localhost:1000";
-  AliceO2::Monitoring::Backends::Flume flumeBackend(http::ParseHttpUrl(url));
+  auto parsed = http::ParseHttpUrl(url);
+  AliceO2::Monitoring::Backends::Flume flumeBackend(parsed.host, parsed.port);
   AliceO2::Monitoring::Metric metric{10, "myCrazyMetric"};
   flumeBackend.send(metric);
 }

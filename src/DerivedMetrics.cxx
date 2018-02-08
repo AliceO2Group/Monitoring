@@ -2,7 +2,7 @@
 /// \file DerivedMetrics.cxx
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 ///
-#include "DerivedMetrics.h"
+#include "Monitoring/DerivedMetrics.h"
 #include "Exceptions/MonitoringInternalException.h"
 #include <boost/lexical_cast.hpp>
 #include <boost/variant/variant.hpp>

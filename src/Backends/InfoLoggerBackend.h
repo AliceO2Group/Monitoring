@@ -6,8 +6,7 @@
 #ifndef ALICEO2_MONITORING_CORE_INFOLOGGER_BACKEND_H
 #define ALICEO2_MONITORING_CORE_INFOLOGGER_BACKEND_H
 
-#include "../Backend.h"
-#include "../UriParser/UriParser.h"
+#include "Monitoring/Backend.h"
 //#include <InfoLogger/InfoLogger.hxx>
 #include <string>
 
@@ -27,7 +26,7 @@ class InfoLoggerBackend final : public Backend
 {
   public:
     /// Default constructor
-    InfoLoggerBackend(const http::url& uri);
+    InfoLoggerBackend();
  
     /// Default destructor
     ~InfoLoggerBackend() = default;

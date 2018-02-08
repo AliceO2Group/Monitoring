@@ -18,10 +18,10 @@ namespace Monitoring
 namespace Backends
 {
 
-ApMonBackend::ApMonBackend(const http::url& uri)
+ApMonBackend::ApMonBackend(const std::string& path)
 {
   try {
-    mApMon = std::make_unique<ApMon>(const_cast<char*>(uri.path.c_str()));
+    mApMon = std::make_unique<ApMon>(const_cast<char*>(path.c_str()));
     MonLogger::Get() << "ApMon backend initialized" << MonLogger::End();
   }
   catch (std::runtime_error &e) {

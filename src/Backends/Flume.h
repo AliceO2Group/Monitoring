@@ -6,8 +6,7 @@
 #ifndef ALICEO2_MONITORING_BACKENDS_FLUME_H
 #define ALICEO2_MONITORING_BACKENDS_FLUME_H
 
-#include "../Backend.h"
-#include "../UriParser/UriParser.h"
+#include "Monitoring/Backend.h"
 #include "../Transports/TransportInterface.h"
 #include "../MonLogger.h"
 #include <boost/property_tree/ptree.hpp>
@@ -33,7 +32,7 @@ class Flume final : public Backend
     /// Constructor, uses UDP transport
     /// \param hostname  Flume HTTP endpoint hostanme
     /// \param port      Flume HTTP endpoint port number
-    Flume(const http::url& uri);
+    Flume(const std::string& host, unsigned int port);
 
     /// Default destructor
     ~Flume() = default;
