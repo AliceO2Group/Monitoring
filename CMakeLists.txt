@@ -146,8 +146,10 @@ set(TEST_SRCS
         test/testProcessDetails.cxx
         test/testProcessMonitor.cxx
 	test/testInfluxDb.cxx
-        test/testApMon.cxx
         )
+if(APMON_FOUND)
+  list(APPEND TEST_SRCS test/testApMon.cxx)
+endif()
 
 O2_GENERATE_TESTS(
         MODULE_LIBRARY_NAME ${LIBRARY_NAME}
