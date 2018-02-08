@@ -11,7 +11,8 @@ namespace Test {
 BOOST_AUTO_TEST_CASE(createProcessDetails)
 {
   AliceO2::Monitoring::ProcessDetails processDetails;
-  processDetails.getPid();
+  auto pid = processDetails.getPid();
+  BOOST_CHECK(pid > 1);
   processDetails.getProcessName();
   processDetails.getHostname();
 }
