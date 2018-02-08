@@ -202,7 +202,11 @@ The module can calculate derived metrics. To do so, use `addDerivedMetric(std::s
 Derived metrics are generated each time as new value is passed to the module. Their names are suffixed with derived mode name.
 
 ### Monitoring process
-To enable process monitoring *ProcessMonitor.enable* flag in configuration file must be set to 1 - see [Configuration file](#configuration-file) section. The following metrics are generated every N seconds (N can be specified in the config - *ProcessMonitor.interval*):
+To enable process monitoring use
+```
+enableProcessMonitoring([interval in seconds]);
+```
+The following metrics are generated every interval:
 + **etime** - elapsed time since the process was started, in the form [[DD-]hh:]mm:ss
 + **pcpu** - cpu utilization of the process in "##.#" format. Currently, it is the CPU time used divided by the time the process has been running (cputime/realtime ratio), expressed as a percentage.  It will not add up to 100% unless you are lucky
 + **pmem** - ratio of the process's resident set size  to the physical memory on the machine, expressed as a percentage
