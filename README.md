@@ -202,8 +202,8 @@ The module can calculate derived metrics. To do so, use `addDerivedMetric(std::s
 Derived metrics are generated each time as new value is passed to the module. Their names are suffixed with derived mode name.
 
 ### Monitoring process
-To enable process monitoring use
-```
+Currently process monitoring is supported only on Linux. To enable it use:
+```cpp
 enableProcessMonitoring([interval in seconds]);
 ```
 The following metrics are generated every interval:
