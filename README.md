@@ -135,7 +135,7 @@ See table below to find out how to create `URI` for each backend:
 | ------------ |:---------:|:----------------------:| ----------------:|
 | InfluxDB     | HTTP      | `influxdb-http`        | `/write?db=<db>` |
 | InfluxDB     | UDP       | `influxdb-udp`         | -                |
-| ApMon        | UDP       | `monalisa`             | -                |
+| ApMon        | UDP       | `apmon`                | -                |
 | InfoLogger   | -         | `infologger`           | -                |
 | Flume        | UDP       | `flume`                | -                |
 
