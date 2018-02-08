@@ -7,6 +7,7 @@
 #define ALICEO2_MONITORING_BACKENDS_FLUME_H
 
 #include "../Backend.h"
+#include "../UriParser/UriParser.h"
 #include "../Transports/TransportInterface.h"
 #include "../MonLogger.h"
 #include <boost/property_tree/ptree.hpp>

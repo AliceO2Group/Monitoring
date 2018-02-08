@@ -9,7 +9,6 @@
 #include <chrono>
 #include <string>
 #include "Monitoring/Metric.h"
-#include "../../src/UriParser/UriParser.h"
 
 namespace AliceO2
 {
