@@ -1,4 +1,4 @@
-#include "../include/Monitoring/ProcessMonitor.h"
+#include "../src/ProcessMonitor.h"
 
 #define BOOST_TEST_MODULE Test Monitoring ProcessMonitor
 #define BOOST_TEST_DYN_LINK

@@ -15,9 +15,9 @@
 #include <tuple>
 #include <vector>
 
-#include "Monitoring/Backend.h"
-#include "Monitoring/DerivedMetrics.h"
-#include "Monitoring/ProcessMonitor.h"
+#include "../../src/Backend.h"
+#include "../../src/DerivedMetrics.h"
+#include "../../src/ProcessMonitor.h"
 #include "../../src/UriParser/UriParser.h"
 
 namespace AliceO2

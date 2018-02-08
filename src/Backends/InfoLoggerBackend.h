@@ -6,7 +6,7 @@
 #ifndef ALICEO2_MONITORING_CORE_INFOLOGGER_BACKEND_H
 #define ALICEO2_MONITORING_CORE_INFOLOGGER_BACKEND_H
 
-#include "Monitoring/Backend.h"
+#include "../Backend.h"
 //#include <InfoLogger/InfoLogger.hxx>
 #include <string>
 

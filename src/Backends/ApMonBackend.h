@@ -10,7 +10,7 @@
 #include <chrono>
 #include <memory>
 #include <ApMon.h>
-#include "Monitoring/Backend.h"
+#include "../Backend.h"
 
 namespace AliceO2
 {
