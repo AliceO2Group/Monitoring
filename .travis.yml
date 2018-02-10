@@ -11,6 +11,4 @@ matrix:
       osx_image: xcode9.2
 before_script: 
   - mkdir build
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; sudo apt-get update -q; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; sudo apt-get install -y cmake cmake-data g++ gcc make automake autoconf libtool libboost-all-dev; fi
 script: cd build && cmake .. && make -j && make test
