@@ -6,7 +6,7 @@ matrix:
       addons:
         apt:
           packages:
-            - libboost-dev
+            - libboost-all-dev
     - os: osx
       osx_image: xcode9.2
 before_script: 
