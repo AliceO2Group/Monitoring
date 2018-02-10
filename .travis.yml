@@ -17,7 +17,7 @@ matrix:
     - os: osx
       osx_image: xcode9.2
 before_script: 
- - mkdir build
- - cmake --version
- - g++ --version
+  - mkdir build
+  - cmake --version
+  - g++ --version
 script: cd build && cmake .. && make -j && make test
