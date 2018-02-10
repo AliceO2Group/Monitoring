@@ -11,4 +11,5 @@ matrix:
       osx_image: xcode9.2
 before_script: 
   - mkdir build
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; export CXXFLAGS=-std=c++11; fi
 script: cd build && cmake .. && make -j && make test
