@@ -3,10 +3,6 @@ language: cpp
 dist: trusty
 matrix:
   include:
-    - os: linux
-      addons:
-        apt:
-          packages: libboost-all-dev
     - os: osx
       osx_image: xcode9.2
     - os: osx
