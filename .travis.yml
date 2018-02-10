@@ -9,9 +9,14 @@ matrix:
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get update -qq; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then wget https://dl.bintray.com/boostorg/release/1.66.0/source/boost_1_66_0.tar.gz; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then tar xvf boost_1_66_0.tar.gz; fi
 install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install -qq g++-6; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-6 90; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cd boost_1_66_0; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./bootstrap.sh --with-libraries=unit_test_framework,program_options,system,filesystem; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./b2 link=shared threading=multi variant=release; fi
 before_script: 
   - mkdir build
 script:
