@@ -3,21 +3,8 @@ language: cpp
 matrix:
   include:
     - os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-            - george-edison55-precise-backports
-          packages:
-            - g++-7
-            - cmake-data
-            - cmake
-      env:
-        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
     - os: osx
       osx_image: xcode9.2
 before_script: 
   - mkdir build
-  - cmake --version
-  - g++ --version
 script: cd build && cmake .. && make -j && make test
