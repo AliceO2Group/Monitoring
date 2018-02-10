@@ -1,8 +1,12 @@
-sudo: true
+sudo: false
 language: cpp
 matrix:
   include:
     - os: linux
+      addons:
+        apt:
+          packages:
+            - libboost-all-dev
     - os: osx
       osx_image: xcode9.2
 before_script: 
