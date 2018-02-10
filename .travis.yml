@@ -25,3 +25,5 @@ script:
   - cmake ..
   - make -j
   - make test
+notifications:
+  email: false
