@@ -16,7 +16,7 @@ install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-6 90; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cd boost_1_66_0; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./bootstrap.sh --with-libraries=test,program_options,system,filesystem; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./b2 -j 4 install; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo ./b2 -j 4 install; fi
 before_script: 
   - mkdir build
 script:
