@@ -76,6 +76,22 @@ class Collector
     /// \param interval		refresh interval
     void enableProcessMonitoring(int interval = 5);
 
+    /// Increment value of a metric (or initialize if not exists)
+    /// \@param value		incremental value
+    /// \@param name		name of the metric
+    template<typename T>
+    void increment(T value, std::string name);
+
+    /// Start timing
+    /// Set a start timestamp
+    /// \@param name 		metric name
+    /// \@param timeout		timeout
+    void startTimer(std::string name, std::chrono::seconds timeout = std::chrono_literals::30s);
+
+    /// Stop timing
+    /// Set a stop timestamp, calculate delta and send value
+    /// \@param name 		metric name
+    void stopTimer(std::string name);
   private:
     /// Derived metrics handler
     /// \see class DerivedMetrics
