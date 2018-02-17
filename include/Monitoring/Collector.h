@@ -13,6 +13,7 @@
 #include <string>
 #include <thread>
 #include <tuple>
+#include <unordered_map>
 #include <vector>
 
 #include "Monitoring/Backend.h"
@@ -86,7 +87,7 @@ class Collector
     /// Set a start timestamp
     /// \@param name 		metric name
     /// \@param timeout		timeout
-    void startTimer(std::string name, std::chrono::seconds timeout = std::chrono_literals::30s);
+    void startTimer(std::string name, std::chrono::seconds timeout);
 
     /// Stop timing
     /// Set a stop timestamp, calculate delta and send value
@@ -99,6 +100,9 @@ class Collector
 
     /// Vector of backends (where metrics are passed to)
     std::vector <std::unique_ptr<Backend>> mBackends;
+
+    /// Cache for the metric increment feature
+    std::unordered_map <std::string, Metric> mIncrementCache;
 
     /// States whether Process Monitor thread is running
     std::atomic<bool> mMonitorRunning;
@@ -115,6 +119,9 @@ class Collector
 
     /// Sets default tags that are applied to all metrics: PID, proces name, hostname
     void setDefaultTags();
+
+    template<typename T>
+    Metric&& incrementMetric(T value, std::string name);
 };
 
 } // namespace Monitoring
