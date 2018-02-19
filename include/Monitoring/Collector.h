@@ -13,6 +13,7 @@
 #include <string>
 #include <thread>
 #include <tuple>
+#include <unordered_map>
 #include <vector>
 
 #include "Monitoring/Backend.h"
@@ -76,6 +77,22 @@ class Collector
     /// \param interval		refresh interval
     void enableProcessMonitoring(int interval = 5);
 
+    /// Increment value of a metric (or initialize if not exists)
+    /// \@param value		incremental value
+    /// \@param name		name of the metric
+    template<typename T>
+    void increment(T value, std::string name);
+
+    /// Starts timing
+    /// Sets a start timestamp and timeout
+    /// \@param name 		metric name
+    /// \@param timeout		timeout
+    void startTimer(std::string name, std::chrono::duration<std::chrono::seconds> timeout);
+
+    /// Stops timing
+    /// Sets stop timestamp, calculates delta and sends value
+    /// \@param name 		metric name
+    void stopTimer(std::string name);
   private:
     /// Derived metrics handler
     /// \see class DerivedMetrics
@@ -83,6 +100,9 @@ class Collector
 
     /// Vector of backends (where metrics are passed to)
     std::vector <std::unique_ptr<Backend>> mBackends;
+
+    /// Cache for the metric increment feature
+    std::unordered_map <std::string, Metric> mIncrementCache;
 
     /// States whether Process Monitor thread is running
     std::atomic<bool> mMonitorRunning;
@@ -99,6 +119,10 @@ class Collector
 
     /// Sets default tags that are applied to all metrics: PID, proces name, hostname
     void setDefaultTags();
+
+    /// Increments metrics, stores calculated value in cache
+    template<typename T>
+    Metric&& incrementMetric(T value, std::string name);
 };
 
 } // namespace Monitoring

@@ -163,6 +163,7 @@ set(EXAMPLES
         examples/3-UserDefinedTimestamp
         examples/4-RateDerivedMetric.cxx
         examples/5-Benchmark.cxx
+        examples/6-Increment.cxx
         examples/7-Latency.cxx
         examples/8-Multiple.cxx
         )

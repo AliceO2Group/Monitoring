@@ -10,6 +10,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "MonLogger.h"
@@ -47,6 +48,27 @@ void Collector::enableProcessMonitoring(int interval) {
 #else
   MonLogger::Get() << "!! Process Monitor : Automatic updates not supported" << MonLogger::End();
 #endif
+}
+
+template<typename T>
+Metric&& Collector::incrementMetric(T value, std::string name) {
+  auto search = mIncrementCache.find(name);
+  if (search == mIncrementCache.end()) {
+    Metric result = Metric{value, name};
+    mIncrementCache.insert(std::make_pair(name, result));
+    return std::move(result);
+  }
+  T current = boost::lexical_cast<T>(search->second.getValue());
+  current += value;
+  Metric result = Metric{current, name};
+  mIncrementCache.erase(search);
+  mIncrementCache.insert(std::make_pair(name, result));
+  return std::move(result);
+}
+
+template<typename T>
+void Collector::increment(T value, std::string name) {
+  send(incrementMetric(value, name));
 }
 
 void Collector::addBackend(std::unique_ptr<Backend> backend) {
@@ -126,5 +148,8 @@ template void Collector::send(int, std::string);
 template void Collector::send(double, std::string);
 template void Collector::send(std::string, std::string);
 template void Collector::send(uint64_t, std::string);
+template void Collector::increment(int, std::string);
+template void Collector::increment(double, std::string);
+template void Collector::increment(uint64_t, std::string);
 } // namespace Monitoring
 } // namespace AliceO2
