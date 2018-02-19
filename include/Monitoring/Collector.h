@@ -87,7 +87,7 @@ class Collector
     /// Sets a start timestamp and timeout
     /// \@param name 		metric name
     /// \@param timeout		timeout
-    void startTimer(std::string name, std::chrono::duration timeout);
+    void startTimer(std::string name, std::chrono::duration<std::chrono::seconds> timeout);
 
     /// Stops timing
     /// Sets stop timestamp, calculates delta and sends value
