@@ -20,4 +20,5 @@ int main() {
   // 1. by copying values
   collector->increment(10, "myIncrementMetric");
   collector->increment(5, "myIncrementMetric");
+  collector->increment(15, "myIncrementMetric");
 }	

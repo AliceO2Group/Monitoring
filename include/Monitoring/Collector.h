@@ -83,14 +83,14 @@ class Collector
     template<typename T>
     void increment(T value, std::string name);
 
-    /// Start timing
-    /// Set a start timestamp
+    /// Starts timing
+    /// Sets a start timestamp and timeout
     /// \@param name 		metric name
     /// \@param timeout		timeout
-    void startTimer(std::string name, std::chrono::seconds timeout);
+    void startTimer(std::string name, std::chrono::duration timeout);
 
-    /// Stop timing
-    /// Set a stop timestamp, calculate delta and send value
+    /// Stops timing
+    /// Sets stop timestamp, calculates delta and sends value
     /// \@param name 		metric name
     void stopTimer(std::string name);
   private:
@@ -120,6 +120,7 @@ class Collector
     /// Sets default tags that are applied to all metrics: PID, proces name, hostname
     void setDefaultTags();
 
+    /// Increments metrics, stores calculated value in cache
     template<typename T>
     Metric&& incrementMetric(T value, std::string name);
 };

@@ -150,5 +150,6 @@ template void Collector::send(std::string, std::string);
 template void Collector::send(uint64_t, std::string);
 template void Collector::increment(int, std::string);
 template void Collector::increment(double, std::string);
+template void Collector::increment(uint64_t, std::string);
 } // namespace Monitoring
 } // namespace AliceO2
