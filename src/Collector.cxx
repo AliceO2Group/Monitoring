@@ -51,19 +51,16 @@ void Collector::enableProcessMonitoring(int interval) {
 }
 
 template<typename T>
-Metric&& Collector::incrementMetric(T value, std::string name) {
+Metric Collector::incrementMetric(T value, std::string name) {
   auto search = mIncrementCache.find(name);
-  if (search == mIncrementCache.end()) {
-    Metric result = Metric{value, name};
-    mIncrementCache.insert(std::make_pair(name, result));
-    return std::move(result);
+  if (search != mIncrementCache.end()) {
+    T current = boost::lexical_cast<T>(search->second.getValue());
+    value += current;
+    mIncrementCache.erase(search);
   }
-  T current = boost::lexical_cast<T>(search->second.getValue());
-  current += value;
-  Metric result = Metric{current, name};
-  mIncrementCache.erase(search);
+  Metric result = Metric{value, name};
   mIncrementCache.insert(std::make_pair(name, result));
-  return std::move(result);
+  return result;
 }
 
 template<typename T>

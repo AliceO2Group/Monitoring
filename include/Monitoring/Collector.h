@@ -122,7 +122,7 @@ class Collector
 
     /// Increments metrics, stores calculated value in cache
     template<typename T>
-    Metric&& incrementMetric(T value, std::string name);
+    Metric incrementMetric(T value, std::string name);
 };
 
 } // namespace Monitoring
