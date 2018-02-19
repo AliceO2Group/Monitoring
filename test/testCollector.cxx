@@ -32,11 +32,11 @@ BOOST_AUTO_TEST_CASE(testIncrement)
   int value = 5;
   double dValue = 5.1;
   auto collector = Monitoring::Get("infologger://");
-  collector->incrementMetric(value, "test");// value);
-  collector->incrementMetric(value, "test");// value*2);
-  collector->incrementMetric(dValue, "test2");// dValue);
-  collector->incrementMetric(dValue, "test2");// dValue*2);
-  collector->incrementMetric(value, "test");// value*3);
+  collector->increment(value, "test");// value);
+  collector->increment(value, "test");// value*2);
+  collector->increment(dValue, "test2");// dValue);
+  collector->increment(dValue, "test2");// dValue*2);
+  collector->increment(value, "test");// value*3);
 }
 
 BOOST_AUTO_TEST_CASE(testSymbols)
