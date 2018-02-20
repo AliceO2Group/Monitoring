@@ -12,10 +12,10 @@
 #include <boost/variant.hpp>
 #include "Tag.h"
 
-namespace AliceO2
+namespace o2
 {
 /// ALICE O2 Monitoring system
-namespace Monitoring
+namespace monitoring
 {
 
 enum MetricType { INT = 0, STRING = 1, DOUBLE = 2, UINT64_T = 3 };
@@ -109,7 +109,7 @@ class Metric
     std::vector<Tag> tagSet;
 };
 
-} // namespace Monitoring
-} // namespace AliceO2
+} // namespace monitoring
+} // namespace o2
 
 #endif // ALICEO2_MONITORING_CORE_METRIC_H

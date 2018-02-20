@@ -7,10 +7,10 @@
 #include <sstream>
 #include "../MonLogger.h"
 
-namespace AliceO2
+namespace o2
 {
 /// ALICE O2 Monitoring system
-namespace Monitoring
+namespace monitoring
 {
 
 MonitoringException::MonitoringException(const std::string& source, const std::string& message) :
@@ -29,5 +29,5 @@ const char* MonitoringException::what() const throw()
   return message.c_str();
 }
 
-} // Monitroing
-} // AliceO2
+} // namespace monitroing
+} // namespace o2

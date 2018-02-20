@@ -9,18 +9,18 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/lexical_cast.hpp>
 
-namespace AliceO2
+namespace o2
 {
 /// ALICE O2 Monitoring system
-namespace Monitoring
+namespace monitoring
 {
 /// Monitoring backends
-namespace Backends
+namespace backends
 {
 
 Flume::Flume(const std::string& host, unsigned int port)
 {
-  mTransport = std::make_unique<Transports::UDP>(host, port);
+  mTransport = std::make_unique<transports::UDP>(host, port);
   MonLogger::Get() << "Flume/UDP backend initialized"
                    << " ("<< host << ":" << port << ")" << MonLogger::End();
 }
@@ -72,6 +72,6 @@ void Flume::addGlobalTag(std::string name, std::string value)
   globalHeader.put<std::string>(name, value);
 }
 
-} // namespace Backends
-} // namespace Monitoring
-} // namespace AliceO2
+} // namespace backends
+} // namespace monitoring
+} // namespace o2

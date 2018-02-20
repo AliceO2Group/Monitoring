@@ -1,7 +1,7 @@
-namespace AliceO2 
+namespace o2
 {
 // ALICE O2 Monitoring system
-namespace Monitoring 
+namespace monitoring
 {
 
 class VariantVisitorRate : public boost::static_visitor<boost::variant<int, std::string, double, uint64_t>>
@@ -37,5 +37,5 @@ public:
   }
 };
 
-} // namespace Monitoring
-} // namespace AliceO2
+} // namespace monitoring
+} // namespace o2

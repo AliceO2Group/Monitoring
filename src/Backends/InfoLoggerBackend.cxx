@@ -8,13 +8,13 @@
 #include <iostream>
 #include "../MonLogger.h"
 
-namespace AliceO2
+namespace o2
 {
 /// ALICE O2 Monitoring system
-namespace Monitoring
+namespace monitoring
 {
 /// Monitoring backends
-namespace Backends
+namespace backends
 {
 
 inline unsigned long InfoLoggerBackend::convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp)
@@ -62,6 +62,6 @@ void InfoLoggerBackend::send(const Metric& metric)
     << MonLogger::End();
 }
 
-} // namespace Backends
-} // namespace Monitoring
-} // namespace AliceO2
+} // namespace backends
+} // namespace monitoring
+} // namespace o2

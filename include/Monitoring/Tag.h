@@ -8,10 +8,10 @@
 
 #include <string>
 
-namespace AliceO2
+namespace o2
 {
 /// ALICE O2 Monitoring system
-namespace Monitoring
+namespace monitoring
 {
 
 /// \brief Represent key-value metric tag
@@ -22,7 +22,7 @@ class Tag
     std::string value;
 };
 
-} // namespace Monitoring
-} // namespace AliceO2
+} // namespace monitoring
+} // namespace o2
 
 #endif // ALICEO2_MONITORING_CORE_TAG_H

@@ -16,10 +16,10 @@
 #include "MonLogger.h"
 #include "VariantVisitorRate.h"
 
-namespace AliceO2
+namespace o2
 {
 /// ALICE O2 Monitoring system
-namespace Monitoring 
+namespace monitoring
 {
 
 DerivedMetrics::DerivedMetrics(const unsigned int cacheSize) : mMaxVectorSize(cacheSize) 
@@ -102,5 +102,5 @@ Metric DerivedMetrics::processMetric(Metric& metric)
   }
 }
 
-} // namespace Monitoring
-} // namespace AliceO2
+} // namespace monitoring
+} // namespace o2

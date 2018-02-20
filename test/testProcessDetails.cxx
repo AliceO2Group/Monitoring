@@ -4,13 +4,13 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
-namespace AliceO2 {
-namespace Monitoring {
+namespace o2 {
+namespace monitoring {
 namespace Test {
 
 BOOST_AUTO_TEST_CASE(createProcessDetails)
 {
-  AliceO2::Monitoring::ProcessDetails processDetails;
+  o2::monitoring::ProcessDetails processDetails;
   auto pid = processDetails.getPid();
   BOOST_CHECK(pid > 1);
   processDetails.getProcessName();
@@ -18,5 +18,5 @@ BOOST_AUTO_TEST_CASE(createProcessDetails)
 }
 
 } // namespace Test
-} // namespace Monitoring
-} // namespace AliceO2
+} // namespace monitoring
+} // namespace o2

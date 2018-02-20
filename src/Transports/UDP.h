@@ -14,13 +14,13 @@
 #include <chrono>
 #include <string>
 
-namespace AliceO2
+namespace o2
 {
 /// ALICE O2 Monitoring system
-namespace Monitoring
+namespace monitoring
 {
 /// Monitoring transports
-namespace Transports
+namespace transports
 {
 
 /// Transport that sends string formatted metrics via UDP
@@ -51,8 +51,8 @@ class UDP : public TransportInterface
 
 };
 
-} // namespace Transports
-} // namespace Monitoring
-} // namespace AliceO2
+} // namespace transports
+} // namespace monitoring
+} // namespace o2
 
 #endif // ALICEO2_MONITORING_TRANSPORTS_UDP_H

@@ -1,9 +1,9 @@
 ///
-/// \file Collector.cxx
+/// \file Monitoring.cxx
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 ///
 
-#include "Monitoring/Collector.h"
+#include "Monitoring/Monitoring.h"
 
 #include <boost/lexical_cast.hpp>
 #include <chrono>
@@ -28,22 +28,22 @@
 #include "Backends/InfluxDB.h"
 #endif
 
-namespace AliceO2 
+namespace o2 
 {
 /// ALICE O2 Monitoring system
-namespace Monitoring 
+namespace monitoring 
 {
 
-Collector::Collector() {
+Monitoring::Monitoring() {
   mProcessMonitor = std::make_unique<ProcessMonitor>();
   mDerivedHandler = std::make_unique<DerivedMetrics>(1000);
   setDefaultTags();
 }
 
-void Collector::enableProcessMonitoring(int interval) {
+void Monitoring::enableProcessMonitoring(int interval) {
 #ifdef _OS_LINUX
   mMonitorRunning = true;
-  mMonitorThread = std::thread(&Collector::processMonitorLoop, this, interval);
+  mMonitorThread = std::thread(&Monitoring::processMonitorLoop, this, interval);
   MonLogger::Get() << "Process Monitor : Automatic updates enabled" << MonLogger::End();
 #else
   MonLogger::Get() << "!! Process Monitor : Automatic updates not supported" << MonLogger::End();
@@ -51,7 +51,7 @@ void Collector::enableProcessMonitoring(int interval) {
 }
 
 template<typename T>
-Metric Collector::incrementMetric(T value, std::string name) {
+Metric Monitoring::incrementMetric(T value, std::string name) {
   auto search = mIncrementCache.find(name);
   if (search != mIncrementCache.end()) {
     T current = boost::lexical_cast<T>(search->second.getValue());
@@ -64,15 +64,15 @@ Metric Collector::incrementMetric(T value, std::string name) {
 }
 
 template<typename T>
-void Collector::increment(T value, std::string name) {
+void Monitoring::increment(T value, std::string name) {
   send(incrementMetric(value, name));
 }
 
-void Collector::addBackend(std::unique_ptr<Backend> backend) {
+void Monitoring::addBackend(std::unique_ptr<Backend> backend) {
    mBackends.push_back(std::move(backend));
 }
 
-Collector::~Collector()
+Monitoring::~Monitoring()
 {
   mMonitorRunning = false;
   if (mMonitorThread.joinable()) {
@@ -80,7 +80,7 @@ Collector::~Collector()
   }
 }
 
-void Collector::setDefaultTags()
+void Monitoring::setDefaultTags()
 {
   ProcessDetails details{};
   for (auto& b: mBackends) {
@@ -89,7 +89,7 @@ void Collector::setDefaultTags()
   }
 }
 
-void Collector::processMonitorLoop(int interval)
+void Monitoring::processMonitorLoop(int interval)
 {
   // loopCount - no need to wait full sleep time to terminame the thread
   int loopCount = 0;
@@ -109,18 +109,18 @@ void Collector::processMonitorLoop(int interval)
   }
 }
 
-void Collector::addDerivedMetric(std::string name, DerivedMetricMode mode) {
+void Monitoring::addDerivedMetric(std::string name, DerivedMetricMode mode) {
   mDerivedHandler->registerMetric(name, mode);
 }
 
-void Collector::send(std::string measurement, std::vector<Metric>&& metrics)
+void Monitoring::send(std::string measurement, std::vector<Metric>&& metrics)
 {
   for (auto& b: mBackends) {
     b->sendMultiple(measurement, std::move(metrics));
   }
 }
 
-void Collector::send(Metric&& metric)
+void Monitoring::send(Metric&& metric)
 {
   for (auto& b: mBackends) {
     b->send(metric);
@@ -136,17 +136,17 @@ void Collector::send(Metric&& metric)
 }
 
 template<typename T>
-void Collector::send(T value, std::string name)
+void Monitoring::send(T value, std::string name)
 {
   send({value, name});
 }
 
-template void Collector::send(int, std::string);
-template void Collector::send(double, std::string);
-template void Collector::send(std::string, std::string);
-template void Collector::send(uint64_t, std::string);
-template void Collector::increment(int, std::string);
-template void Collector::increment(double, std::string);
-template void Collector::increment(uint64_t, std::string);
-} // namespace Monitoring
-} // namespace AliceO2
+template void Monitoring::send(int, std::string);
+template void Monitoring::send(double, std::string);
+template void Monitoring::send(std::string, std::string);
+template void Monitoring::send(uint64_t, std::string);
+template void Monitoring::increment(int, std::string);
+template void Monitoring::increment(double, std::string);
+template void Monitoring::increment(uint64_t, std::string);
+} // namespace monitoring
+} // namespace o2

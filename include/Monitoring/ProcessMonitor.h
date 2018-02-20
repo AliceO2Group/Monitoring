@@ -16,16 +16,16 @@
 
 #include "Monitoring/Metric.h"
 
-namespace AliceO2
+namespace o2
 {
 /// ALICE O2 Monitoring system
-namespace Monitoring
+namespace monitoring
 {
 
 /// Monitors current process and/or other processes running at the same machien
 class ProcessMonitor
 {
-  friend class Collector;
+  friend class Monitoring;
 
   public:
     /// Prepares externam software commands (ps)
@@ -59,7 +59,7 @@ class ProcessMonitor
     std::string exec(const char* cmd);
 };
 
-} // namespace Monitoring
-} // namespace AliceO2
+} // namespace monitoring
+} // namespace o2
 
 #endif // ALICEO2_MONITORING_CORE_PROCESSMONITOR_H

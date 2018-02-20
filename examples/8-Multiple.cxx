@@ -5,12 +5,12 @@
 
 #include "Monitoring/MonitoringFactory.h"
 
-using Monitoring = AliceO2::Monitoring::MonitoringFactory;
+using Monitoring = o2::monitoring::MonitoringFactory;
 
 int main() {
   // Configure monitoring
   // Pass string with list of URLs as parameter
-  auto collector = Monitoring::Get("infologger://");
+  auto monitoring = Monitoring::Get("infologger://");
 
-  collector->send("measurementName", {{20, "myMetricIntMultiple"}, {20.30, "myMetricFloatMultple"}});
+  monitoring->send("measurementName", {{20, "myMetricIntMultiple"}, {20.30, "myMetricFloatMultple"}});
 }

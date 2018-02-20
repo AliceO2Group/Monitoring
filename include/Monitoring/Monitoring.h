@@ -1,10 +1,10 @@
 ///
-/// \file Collector.h
+/// \file Monitoring.h
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 ///
 
-#ifndef ALICEO2_MONITORING_CORE_COLLECTOR_H
-#define ALICEO2_MONITORING_CORE_COLLECTOR_H
+#ifndef ALICEO2_MONITORING_MONITORING_H
+#define ALICEO2_MONITORING_MONITORING_H
 
 #include <atomic>
 #include <chrono>
@@ -20,10 +20,10 @@
 #include "Monitoring/DerivedMetrics.h"
 #include "Monitoring/ProcessMonitor.h"
 
-namespace AliceO2
+namespace o2
 {
 /// ALICE O2 Monitoring system
-namespace Monitoring 
+namespace monitoring
 {
 
 /// Collects metrics from user and dispatches them to selected Monitoring backends. It also monitors the process itself.
@@ -32,22 +32,22 @@ namespace Monitoring
 /// Calculates derived metrics, such as rate and average value (see #addDerivedMetric method).
 /// Adds default tags to each metric: proces name, hostname.
 /// Monitors the process itself - including memory, cpu usage and running time (see ProcessMonitor).
-class Collector
+class Monitoring
 {
   public:
     /// Disables copy constructor
-    Collector & operator=(const Collector&) = delete;
-    Collector(const Collector&) = delete;
+    Monitoring & operator=(const Monitoring&) = delete;
+    Monitoring(const Monitoring&) = delete;
   
     /// Initializes backends based on passed configuration.
     /// Instantiates derived metrics processor (see DerivedMetrics class) and process monitor (see ProcessMonitor).
-    Collector();
+    Monitoring();
 
     /// Creates backend and appends it to backend list
     void addBackend(std::unique_ptr<Backend> backend);
 
     /// Joins process monitor thread if possible
-    ~Collector();
+    ~Monitoring();
 
     /// Sends a metric to all avaliabes backends
     /// If metric has been added to DerivedMetric the derived metric is calculated (see addDerivedMetric method)
@@ -125,7 +125,7 @@ class Collector
     Metric incrementMetric(T value, std::string name);
 };
 
-} // namespace Monitoring
-} // namespace AliceO2
+} // namespace monitoring
+} // namespace o2
 
-#endif // ALICEO2_MONITORING_CORE_COLLECTOR_H
+#endif // ALICEO2_MONITORING_MONITORING_H

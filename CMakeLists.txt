@@ -68,7 +68,7 @@ set(MODULE_NAME "Monitoring")
 O2_SETUP(NAME ${MODULE_NAME})
 
 set(SRCS
-        src/Collector.cxx
+        src/Monitoring.cxx
         src/Metric.cxx
         src/Backends/InfoLoggerBackend.cxx
         src/Backends/Flume.cxx
@@ -139,7 +139,7 @@ O2_GENERATE_LIBRARY()
 enable_testing()
 
 set(TEST_SRCS
-        test/testCollector.cxx
+        test/testMonitoring.cxx
         test/testDerived.cxx
         test/testFlume.cxx
         test/testMetric.cxx

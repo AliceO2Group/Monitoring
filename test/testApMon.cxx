@@ -8,8 +8,8 @@
 
 #include "../src/Backends/ApMonBackend.h"
 
-namespace AliceO2 {
-namespace Monitoring {
+namespace o2 {
+namespace monitoring {
 namespace Test {
 
 BOOST_AUTO_TEST_CASE(simplySendMetric)
@@ -18,13 +18,13 @@ BOOST_AUTO_TEST_CASE(simplySendMetric)
   std::string url = "apmon://" + configPath.string() + "/test/ApMon.conf";
   auto parsed = http::ParseHttpUrl(url);
   std::cout << parsed.path << std::endl;
-  AliceO2::Monitoring::Backends::ApMonBackend apMonBackend(parsed.path);
-  AliceO2::Monitoring::Metric metric{10, "myCrazyMetric"};
+  o2::monitoring::backends::ApMonBackend apMonBackend(parsed.path);
+  o2::monitoring::Metric metric{10, "myCrazyMetric"};
   apMonBackend.send(metric);
 }
 
 
 
 } // namespace Test
-} // namespace Monitoring
-} // namespace AliceO2
+} // namespace monitoring
+} // namespace o2
