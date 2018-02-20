@@ -28,10 +28,10 @@
 #include "Backends/InfluxDB.h"
 #endif
 
-namespace AliceO2 
+namespace o2 
 {
 /// ALICE O2 Monitoring system
-namespace Monitoring 
+namespace monitoring 
 {
 
 Monitoring::Monitoring() {
@@ -148,5 +148,5 @@ template void Monitoring::send(uint64_t, std::string);
 template void Monitoring::increment(int, std::string);
 template void Monitoring::increment(double, std::string);
 template void Monitoring::increment(uint64_t, std::string);
-} // namespace Monitoring
-} // namespace AliceO2
+} // namespace monitoring
+} // namespace o2

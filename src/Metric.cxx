@@ -9,10 +9,10 @@
 #include <chrono>
 #include <memory>
 
-namespace AliceO2
+namespace o2
 {
 /// ALICE O2 Monitoring system
-namespace Monitoring
+namespace monitoring
 {
 
 std::chrono::time_point<std::chrono::system_clock> Metric::getTimestamp() const
@@ -82,5 +82,5 @@ auto Metric::getCurrentTimestamp() -> decltype(std::chrono::system_clock::now())
   return std::chrono::system_clock::now();
 }
 
-} // namespace Monitoring
-} // namespace AliceO2
+} // namespace monitoring
+} // namespace o2

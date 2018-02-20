@@ -9,13 +9,13 @@
 #include "../MonLogger.h"
 #include "../Exceptions/MonitoringException.h"
 
-namespace AliceO2
+namespace o2
 {
 /// ALICE O2 Monitoring system
-namespace Monitoring 
+namespace monitoring
 {
 /// Monitoring backends
-namespace Backends
+namespace backends
 {
 
 ApMonBackend::ApMonBackend(const std::string& path)
@@ -124,6 +124,6 @@ void ApMonBackend::send(const Metric& metric)
   }
 }
 
-} // namespace Backends
-} // namespace Monitoring
-} // namespace AliceO2
+} // namespace backends
+} // namespace monitoring
+} // namespace o2

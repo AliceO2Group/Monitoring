@@ -10,10 +10,10 @@
 #include <iomanip>
 #include <iostream>
 
-namespace AliceO2
+namespace o2
 {
 /// ALICE O2 Monitoring system
-namespace Monitoring
+namespace monitoring
 {
 
 /// List of possible log severities
@@ -78,7 +78,7 @@ class MonLogger
     MonLogger &operator=(MonLogger&&) = delete;
 };
 
-} // Monitoring
-} // Alice02
+} // namespace monitoring
+} // namespace o2
 
 #endif //MONITORING_MONINFOLOGGER_H

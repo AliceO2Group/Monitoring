@@ -20,10 +20,10 @@
 #include "Monitoring/DerivedMetrics.h"
 #include "Monitoring/ProcessMonitor.h"
 
-namespace AliceO2
+namespace o2
 {
 /// ALICE O2 Monitoring system
-namespace Monitoring 
+namespace monitoring
 {
 
 /// Collects metrics from user and dispatches them to selected Monitoring backends. It also monitors the process itself.
@@ -125,7 +125,7 @@ class Monitoring
     Metric incrementMetric(T value, std::string name);
 };
 
-} // namespace Monitoring
-} // namespace AliceO2
+} // namespace monitoring
+} // namespace o2
 
 #endif // ALICEO2_MONITORING_MONITORING_H

@@ -8,11 +8,11 @@
 
 #include "../include/Monitoring/MonitoringFactory.h"
 
-namespace AliceO2 {
-namespace Monitoring {
+namespace o2 {
+namespace monitoring {
 namespace Test {
 
-using Monitoring = AliceO2::Monitoring::MonitoringFactory;
+using Monitoring = o2::monitoring::MonitoringFactory;
 
 BOOST_AUTO_TEST_CASE(createMonitoring)
 {
@@ -50,5 +50,5 @@ BOOST_AUTO_TEST_CASE(testSymbols)
 }
 
 } // namespace Test
-} // namespace Monitoring
-} // namespace AliceO2
+} // namespace monitoring
+} // namespace o2

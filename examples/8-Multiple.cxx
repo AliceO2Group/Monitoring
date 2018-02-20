@@ -5,7 +5,7 @@
 
 #include "Monitoring/MonitoringFactory.h"
 
-using Monitoring = AliceO2::Monitoring::MonitoringFactory;
+using Monitoring = o2::monitoring::MonitoringFactory;
 
 int main() {
   // Configure monitoring

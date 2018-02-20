@@ -7,7 +7,7 @@
 #include <boost/program_options.hpp>
 #include <random>
 
-using Monitoring = AliceO2::Monitoring::MonitoringFactory;
+using Monitoring = o2::monitoring::MonitoringFactory;
 
 int main(int argc, char *argv[]) {
   int sleep = 1000000;

@@ -11,10 +11,10 @@
 #include <mach-o/dyld.h>
 #endif
 
-namespace AliceO2
+namespace o2
 {
 /// ALICE O2 Monitoring system
-namespace Monitoring
+namespace monitoring
 {
 
 ProcessDetails::ProcessDetails()
@@ -76,5 +76,5 @@ std::string ProcessDetails::getHostname() const
   return mHostname;
 }
 
-} // namespace Monitoring
-} // namespace AliceO2
+} // namespace monitoring
+} // namespace o2

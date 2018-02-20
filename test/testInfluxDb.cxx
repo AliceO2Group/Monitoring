@@ -6,16 +6,16 @@
 #include "../src/Backends/InfluxDB.h"
 
 
-namespace AliceO2 {
-namespace Monitoring {
+namespace o2 {
+namespace monitoring {
 namespace Test {
 /*
 BOOST_AUTO_TEST_CASE(checkJsonEncoding)
 {
   std::string url = "flume://localhost:1000";
   auto parsed = http::ParseHttpUrl(url);
-  AliceO2::Monitoring::Backends::Flume flumeBackend(parsed.host, parsed.port);
-  AliceO2::Monitoring::Metric metric{11, "myCrazyMetric"};
+  o2::monitoring::backends::Flume flumeBackend(parsed.host, parsed.port);
+  o2::monitoring::Metric metric{11, "myCrazyMetric"};
   boost::property_tree::ptree testTree;
   std::stringstream ss;
   ss << flumeBackend.metricToJson(metric);
@@ -29,13 +29,13 @@ BOOST_AUTO_TEST_CASE(simplySendMetric)
 {
   std::string url = "influxdb-udp://localhost:1000";
   auto parsed = http::ParseHttpUrl(url);
-  AliceO2::Monitoring::Backends::InfluxDB influxBackend(parsed.host, parsed.port);
-  AliceO2::Monitoring::Metric metric{10, "myCrazyMetric"};
+  o2::monitoring::backends::InfluxDB influxBackend(parsed.host, parsed.port);
+  o2::monitoring::Metric metric{10, "myCrazyMetric"};
   influxBackend.send(metric);
 }
 
 
 
 } // namespace Test
-} // namespace Monitoring
-} // namespace AliceO2
+} // namespace monitoring
+} // namespace o2

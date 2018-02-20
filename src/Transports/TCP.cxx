@@ -8,13 +8,13 @@
 #include <iostream>
 #include "Exceptions/MonitoringInternalException.h"
 
-namespace AliceO2
+namespace o2
 {
 /// ALICE O2 Monitoring system
-namespace Monitoring
+namespace monitoring
 {
 /// Monitoring transports
-namespace Transports
+namespace transports
 {
 
 TCP::TCP(const std::string &hostname, int port) :
@@ -56,6 +56,6 @@ void TCP::read() {
   }
 }
 
-} // namespace Transports
-} // namespace Monitoring
-} // namespace AliceO2
+} // namespace transports
+} // namespace monitoring
+} // namespace o2

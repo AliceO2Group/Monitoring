@@ -5,7 +5,7 @@
 
 #include "Monitoring/MonitoringFactory.h"
 
-using Monitoring = AliceO2::Monitoring::MonitoringFactory;
+using Monitoring = o2::monitoring::MonitoringFactory;
 
 int main() {
   // Configure monitoring
@@ -13,7 +13,7 @@ int main() {
   auto monitoring = Monitoring::Get("infologger://");
 
   // derived metric :  rate
-  monitoring->addDerivedMetric("myMetric", AliceO2::Monitoring::DerivedMetricMode::RATE);
+  monitoring->addDerivedMetric("myMetric", o2::monitoring::DerivedMetricMode::RATE);
 
   // now send at least two metrics to see the result
   for (int i = 0; i < 101; i += 10) {

@@ -8,10 +8,10 @@
 
 #include "Monitoring/Monitoring.h"
 
-namespace AliceO2
+namespace o2
 {
 /// ALICE O2 Monitoring system
-namespace Monitoring 
+namespace monitoring
 {
 
 class MonitoringFactory
@@ -30,7 +30,7 @@ class MonitoringFactory
     MonitoringFactory() = default;
 };
 
-} // namespace Monitoring
-} // namespace AliceO2
+} // namespace monitoring
+} // namespace o2
 
 #endif // ALICEO2_MONITORING_FACTORY_H

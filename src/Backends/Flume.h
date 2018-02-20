@@ -13,13 +13,13 @@
 #include <chrono>
 #include <string>
 
-namespace AliceO2
+namespace o2
 {
 /// ALICE O2 Monitoring system
-namespace Monitoring
+namespace monitoring
 {
 /// Monitoring backends
-namespace Backends
+namespace backends
 {
 
 /// Backend that sends metrics to custum Apache Flume source
@@ -60,7 +60,7 @@ class Flume final : public Backend
       
   private:
     /// UDP transport
-    std::unique_ptr<Transports::TransportInterface> mTransport;
+    std::unique_ptr<transports::TransportInterface> mTransport;
 
     /// Flume backend global header (for each metric)
     boost::property_tree::ptree globalHeader;
@@ -71,8 +71,8 @@ class Flume final : public Backend
     std::string metricToJson(const Metric& metric); 
 };
 
-} // namespace Backends
-} // namespace Monitoring
-} // namespace AliceO2
+} // namespace backends
+} // namespace monitoring
+} // namespace o2
 
 #endif // ALICEO2_MONITORING_BACKENDS_FLUME_H

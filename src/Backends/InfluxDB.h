@@ -12,13 +12,13 @@
 #include <chrono>
 #include <string>
 
-namespace AliceO2
+namespace o2
 {
 /// ALICE O2 Monitoring system
-namespace Monitoring
+namespace monitoring
 {
 /// Monitoring backends
-namespace Backends
+namespace backends
 {
 
 /// Backend that sends metrics to InfluxDB time-series databse
@@ -61,7 +61,7 @@ class InfluxDB final : public Backend
     void addGlobalTag(std::string name, std::string value) override;
   
   private:
-    std::unique_ptr<Transports::TransportInterface> transport;
+    std::unique_ptr<transports::TransportInterface> transport;
     std::string tagSet; ///< Global tagset (common for each metric)
 
     /// Escapes " ", "," and "=" characters
@@ -74,8 +74,8 @@ class InfluxDB final : public Backend
     void prepareValue(std::string& value, int type);
 };
 
-} // namespace Backends
-} // namespace Monitoring
-} // namespace AliceO2
+} // namespace backends
+} // namespace monitoring
+} // namespace o2
 
 #endif // ALICEO2_MONITORING_BACKENDS_INFLUXDB_H

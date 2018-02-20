@@ -11,10 +11,10 @@
 #include "MonLogger.h"
 #include <sstream>
 
-namespace AliceO2
+namespace o2
 {
 /// ALICE O2 Monitoring system
-namespace Monitoring
+namespace monitoring
 {
 
 ProcessMonitor::ProcessMonitor()
@@ -93,5 +93,5 @@ std::string ProcessMonitor::exec(const char* cmd)
   return result;
 }
 
-} // namespace Monitoring
-} // namespace AliceO2
+} // namespace monitoring
+} // namespace o2

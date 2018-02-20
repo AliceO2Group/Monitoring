@@ -10,13 +10,13 @@
 //#include <InfoLogger/InfoLogger.hxx>
 #include <string>
 
-namespace AliceO2
+namespace o2
 {
 /// ALICE O2 Monitoring system
-namespace Monitoring
+namespace monitoring
 {
 /// Monitoring backends
-namespace Backends
+namespace backends
 {
 
 /// Backend that injects metrics to InfoLogger
@@ -57,8 +57,8 @@ class InfoLoggerBackend final : public Backend
     //AliceO2::InfoLogger::InfoLogger mInfoLogger;
 };
 
-} // namespace Backends
-} // namespace Monitoring
-} // namespace AliceO2
+} // namespace backends
+} // namespace monitoring
+} // namespace o2
 
 #endif // ALICEO2_MONITORING_CORE_INFOLOGGER_BACKEND_H

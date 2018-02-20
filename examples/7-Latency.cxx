@@ -7,7 +7,7 @@
 #include <boost/program_options.hpp>
 #include <random>
 
-using namespace AliceO2::Monitoring;
+using namespace o2::monitoring;
 
 int main(int argc, char *argv[]) {
   int sleep = 10000;

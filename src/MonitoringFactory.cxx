@@ -21,14 +21,14 @@
 #include "Backends/InfluxDB.h"
 #endif
 
-namespace AliceO2 
+namespace o2 
 {
 /// ALICE O2 Monitoring system
-namespace Monitoring 
+namespace monitoring 
 {
 
 void addInfoLogger(Monitoring* monitoring, http::url uri) {
-  monitoring->addBackend(std::make_unique<Backends::InfoLoggerBackend>());
+  monitoring->addBackend(std::make_unique<backends::InfoLoggerBackend>());
 }
 void addInfluxDb(Monitoring* monitoring, http::url uri) {
   auto const position = uri.protocol.find_last_of('-');
@@ -36,21 +36,21 @@ void addInfluxDb(Monitoring* monitoring, http::url uri) {
     uri.protocol = uri.protocol.substr(position + 1);
   }
   if (uri.protocol == "udp") {
-    monitoring->addBackend(std::make_unique<Backends::InfluxDB>(uri.host, uri.port));
+    monitoring->addBackend(std::make_unique<backends::InfluxDB>(uri.host, uri.port));
   }
   if (uri.protocol == "http") {
-    monitoring->addBackend(std::make_unique<Backends::InfluxDB>(uri.host, uri.port, uri.search));
+    monitoring->addBackend(std::make_unique<backends::InfluxDB>(uri.host, uri.port, uri.search));
   }
 }
 void addApMon(Monitoring* monitoring, http::url uri) {
 #ifdef _WITH_APPMON
-  monitoring->addBackend(std::make_unique<Backends::ApMonBackend>(uri.path));
+  monitoring->addBackend(std::make_unique<backends::ApMonBackend>(uri.path));
 #else
   throw std::runtime_error("ApMon backend is not enabled");
 #endif
 }
 void addFlume(Monitoring* monitoring, http::url uri) {
-  monitoring->addBackend(std::make_unique<Backends::Flume>(uri.host, uri.port));
+  monitoring->addBackend(std::make_unique<backends::Flume>(uri.host, uri.port));
 }
 
 std::unique_ptr<Monitoring> MonitoringFactory::Get(std::string urlsString)
@@ -84,5 +84,5 @@ std::unique_ptr<Monitoring> MonitoringFactory::Get(std::string urlsString)
   return monitoring;
 }
 
-} // namespace Monitoring
-} // namespace AliceO
+} // namespace monitoring
+} // namespace o2
