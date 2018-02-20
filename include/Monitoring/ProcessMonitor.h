@@ -25,7 +25,7 @@ namespace Monitoring
 /// Monitors current process and/or other processes running at the same machien
 class ProcessMonitor
 {
-  friend class Collector;
+  friend class Monitoring;
 
   public:
     /// Prepares externam software commands (ps)

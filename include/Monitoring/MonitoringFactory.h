@@ -21,9 +21,9 @@ class MonitoringFactory
     MonitoringFactory & operator=(const MonitoringFactory&) = delete;
     MonitoringFactory(const MonitoringFactory&) = delete;
 
-    /// Provide single instance on Monitoring Collector (singleton)
-    /// \return              renerence to Collector instance
-    static std::unique_ptr<Collector> Get(std::string urlsString);
+    /// Provide single instance on Monitoring Monitoring (singleton)
+    /// \return              renerence to Monitoring instance
+    static std::unique_ptr<Monitoring> Get(std::string urlsString);
 
   private:
     /// Private constructor disallows to create instance of Factory

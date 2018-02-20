@@ -7,7 +7,6 @@
 #include <boost/program_options.hpp>
 #include <random>
 
-using Monitoring = AliceO2::Monitoring::MonitoringFactory;
 using namespace AliceO2::Monitoring;
 
 int main(int argc, char *argv[]) {
@@ -26,7 +25,7 @@ int main(int argc, char *argv[]) {
     sleep = vm["sleep"].as<int>();
   }
 
-  auto monitoring = Monitoring::Get(vm["url"].as<std::string>());
+  auto monitoring = MonitoringFactory::Get(vm["url"].as<std::string>());
 
   for (;;) {
     auto timestamp = std::chrono::system_clock::now();

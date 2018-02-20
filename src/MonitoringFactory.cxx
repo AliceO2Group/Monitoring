@@ -27,10 +27,10 @@ namespace AliceO2
 namespace Monitoring 
 {
 
-void addInfoLogger(Collector* monitoring, http::url uri) {
+void addInfoLogger(Monitoring* monitoring, http::url uri) {
   monitoring->addBackend(std::make_unique<Backends::InfoLoggerBackend>());
 }
-void addInfluxDb(Collector* monitoring, http::url uri) {
+void addInfluxDb(Monitoring* monitoring, http::url uri) {
   auto const position = uri.protocol.find_last_of('-');
   if (position != std::string::npos) {
     uri.protocol = uri.protocol.substr(position + 1);
@@ -42,20 +42,20 @@ void addInfluxDb(Collector* monitoring, http::url uri) {
     monitoring->addBackend(std::make_unique<Backends::InfluxDB>(uri.host, uri.port, uri.search));
   }
 }
-void addApMon(Collector* monitoring, http::url uri) {
+void addApMon(Monitoring* monitoring, http::url uri) {
 #ifdef _WITH_APPMON
   monitoring->addBackend(std::make_unique<Backends::ApMonBackend>(uri.path));
 #else
   throw std::runtime_error("ApMon backend is not enabled");
 #endif
 }
-void addFlume(Collector* monitoring, http::url uri) {
+void addFlume(Monitoring* monitoring, http::url uri) {
   monitoring->addBackend(std::make_unique<Backends::Flume>(uri.host, uri.port));
 }
 
-std::unique_ptr<Collector> MonitoringFactory::Get(std::string urlsString)
+std::unique_ptr<Monitoring> MonitoringFactory::Get(std::string urlsString)
 {
-  static const std::map<std::string, std::function<void(Collector* monitoring, const http::url&)>> map = {
+  static const std::map<std::string, std::function<void(Monitoring* monitoring, const http::url&)>> map = {
       {"infologger", addInfoLogger},
       {"influxdb-udp", addInfluxDb},
       {"influxdb-http", addInfluxDb},
@@ -63,7 +63,7 @@ std::unique_ptr<Collector> MonitoringFactory::Get(std::string urlsString)
       {"flume", addFlume},
   };  
 
-  auto monitoring = std::make_unique<Collector>();
+  auto monitoring = std::make_unique<Monitoring>();
 
   std::vector<std::string> urls;
   boost::split(urls, urlsString, boost::is_any_of(","));

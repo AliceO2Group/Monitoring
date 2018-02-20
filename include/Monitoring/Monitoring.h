@@ -32,22 +32,22 @@ namespace Monitoring
 /// Calculates derived metrics, such as rate and average value (see #addDerivedMetric method).
 /// Adds default tags to each metric: proces name, hostname.
 /// Monitors the process itself - including memory, cpu usage and running time (see ProcessMonitor).
-class Collector
+class Monitoring
 {
   public:
     /// Disables copy constructor
-    Collector & operator=(const Collector&) = delete;
-    Collector(const Collector&) = delete;
+    Monitoring & operator=(const Monitoring&) = delete;
+    Monitoring(const Monitoring&) = delete;
   
     /// Initializes backends based on passed configuration.
     /// Instantiates derived metrics processor (see DerivedMetrics class) and process monitor (see ProcessMonitor).
-    Collector();
+    Monitoring();
 
     /// Creates backend and appends it to backend list
     void addBackend(std::unique_ptr<Backend> backend);
 
     /// Joins process monitor thread if possible
-    ~Collector();
+    ~Monitoring();
 
     /// Sends a metric to all avaliabes backends
     /// If metric has been added to DerivedMetric the derived metric is calculated (see addDerivedMetric method)

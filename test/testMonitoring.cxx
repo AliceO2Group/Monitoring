@@ -14,7 +14,7 @@ namespace Test {
 
 using Monitoring = AliceO2::Monitoring::MonitoringFactory;
 
-BOOST_AUTO_TEST_CASE(createCollector)
+BOOST_AUTO_TEST_CASE(createMonitoring)
 {
   auto monitoring = Monitoring::Get("infologger://");
 
