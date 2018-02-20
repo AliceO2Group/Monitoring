@@ -27,35 +27,35 @@ namespace AliceO2
 namespace Monitoring 
 {
 
-void addInfoLogger(Collector* collector, http::url uri) {
-  collector->addBackend(std::make_unique<Backends::InfoLoggerBackend>());
+void addInfoLogger(Collector* monitoring, http::url uri) {
+  monitoring->addBackend(std::make_unique<Backends::InfoLoggerBackend>());
 }
-void addInfluxDb(Collector* collector, http::url uri) {
+void addInfluxDb(Collector* monitoring, http::url uri) {
   auto const position = uri.protocol.find_last_of('-');
   if (position != std::string::npos) {
     uri.protocol = uri.protocol.substr(position + 1);
   }
   if (uri.protocol == "udp") {
-    collector->addBackend(std::make_unique<Backends::InfluxDB>(uri.host, uri.port));
+    monitoring->addBackend(std::make_unique<Backends::InfluxDB>(uri.host, uri.port));
   }
   if (uri.protocol == "http") {
-    collector->addBackend(std::make_unique<Backends::InfluxDB>(uri.host, uri.port, uri.search));
+    monitoring->addBackend(std::make_unique<Backends::InfluxDB>(uri.host, uri.port, uri.search));
   }
 }
-void addApMon(Collector* collector, http::url uri) {
+void addApMon(Collector* monitoring, http::url uri) {
 #ifdef _WITH_APPMON
-  collector->addBackend(std::make_unique<Backends::ApMonBackend>(uri.path));
+  monitoring->addBackend(std::make_unique<Backends::ApMonBackend>(uri.path));
 #else
   throw std::runtime_error("ApMon backend is not enabled");
 #endif
 }
-void addFlume(Collector* collector, http::url uri) {
-  collector->addBackend(std::make_unique<Backends::Flume>(uri.host, uri.port));
+void addFlume(Collector* monitoring, http::url uri) {
+  monitoring->addBackend(std::make_unique<Backends::Flume>(uri.host, uri.port));
 }
 
 std::unique_ptr<Collector> MonitoringFactory::Get(std::string urlsString)
 {
-  static const std::map<std::string, std::function<void(Collector* collector, const http::url&)>> map = {
+  static const std::map<std::string, std::function<void(Collector* monitoring, const http::url&)>> map = {
       {"infologger", addInfoLogger},
       {"influxdb-udp", addInfluxDb},
       {"influxdb-http", addInfluxDb},
@@ -63,7 +63,7 @@ std::unique_ptr<Collector> MonitoringFactory::Get(std::string urlsString)
       {"flume", addFlume},
   };  
 
-  auto collector = std::make_unique<Collector>();
+  auto monitoring = std::make_unique<Collector>();
 
   std::vector<std::string> urls;
   boost::split(urls, urlsString, boost::is_any_of(","));
@@ -76,12 +76,12 @@ std::unique_ptr<Collector> MonitoringFactory::Get(std::string urlsString)
 
     auto iterator = map.find(parsedUrl.protocol);
     if (iterator != map.end()) {
-      iterator->second(collector.get(), parsedUrl);
+      iterator->second(monitoring.get(), parsedUrl);
     } else {
       throw std::runtime_error("Unrecognized backend " + parsedUrl.protocol);
     }
   }
-  return collector;
+  return monitoring;
 }
 
 } // namespace Monitoring

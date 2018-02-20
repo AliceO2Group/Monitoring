@@ -16,27 +16,27 @@ using Monitoring = AliceO2::Monitoring::MonitoringFactory;
 
 BOOST_AUTO_TEST_CASE(createCollector)
 {
-  auto collector = Monitoring::Get("infologger://");
+  auto monitoring = Monitoring::Get("infologger://");
 
   int intMetric = 10; 
   std::string stringMetric("monitoringString");
   double doubleMetric = static_cast <double> (rand()) / static_cast <double> (RAND_MAX);
 
-  collector->send(intMetric, "myCrazyMetricI");
-  collector->send(stringMetric, "myCrazyMetricS");
-  collector->send(doubleMetric, "myCrazyMetricD");
+  monitoring->send(intMetric, "myCrazyMetricI");
+  monitoring->send(stringMetric, "myCrazyMetricS");
+  monitoring->send(doubleMetric, "myCrazyMetricD");
 }
 
 BOOST_AUTO_TEST_CASE(testIncrement)
 {
   int value = 5;
   double dValue = 5.1;
-  auto collector = Monitoring::Get("infologger://");
-  collector->increment(value, "test");// value);
-  collector->increment(value, "test");// value*2);
-  collector->increment(dValue, "test2");// dValue);
-  collector->increment(dValue, "test2");// dValue*2);
-  collector->increment(value, "test");// value*3);
+  auto monitoring = Monitoring::Get("infologger://");
+  monitoring->increment(value, "test");// value);
+  monitoring->increment(value, "test");// value*2);
+  monitoring->increment(dValue, "test2");// dValue);
+  monitoring->increment(dValue, "test2");// dValue*2);
+  monitoring->increment(value, "test");// value*3);
 }
 
 BOOST_AUTO_TEST_CASE(testSymbols)

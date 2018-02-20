@@ -3,8 +3,8 @@
 ///
 /// \author  Barthelemy von Haller, CERN
 
-#ifndef ALICEO2_MONITORING_CORE_DATA_COLLECTOR_VERSION_H
-#define ALICEO2_MONITORING_CORE_DATA_COLLECTOR_VERSION_H
+#ifndef ALICEO2_MONITORING_CORE_MONITORING_VERSION_H
+#define ALICEO2_MONITORING_CORE_MONITORING_VERSION_H
 
 #include <string>
 #include <sstream>
@@ -13,40 +13,40 @@ namespace AliceO2 {
 namespace Monitoring {
 namespace Core {
 /// The current major version.
-#define DATA_COLLECTOR_VERSION_MAJOR @VERSION_MAJOR@
+#define MONITORING_VERSION_MAJOR @VERSION_MAJOR@
 
 /// The current minor version.
-#define DATA_COLLECTOR_VERSION_MINOR @VERSION_MINOR@
+#define MONITORING_VERSION_MINOR @VERSION_MINOR@
 
 /// The current patch level.
-#define DATA_COLLECTOR_VERSION_PATCH @VERSION_PATCH@
+#define MONITORING_VERSION_PATCH @VERSION_PATCH@
 
 /// The current VCS revision.
-#define DATA_COLLECTOR_VCS_REVISION "@VCS_REVISION@"
+#define MONITORING_VCS_REVISION "@VCS_REVISION@"
 
 /// True if the current version is newer than the given one.
-#define DATA_COLLECTOR_VERSION_GT(MAJOR, MINOR, PATCH) \
-  ((DATA_COLLECTOR_VERSION_MAJOR > MAJOR) ||           \
-   (DATA_COLLECTOR_VERSION_MAJOR ==                    \
-    MAJOR&&(DATA_COLLECTOR_VERSION_MINOR > MINOR || (DATA_COLLECTOR_VERSION_MINOR == MINOR&& DATA_COLLECTOR_VERSION_PATCH > PATCH))))
+#define MONITORING_VERSION_GT(MAJOR, MINOR, PATCH) \
+  ((MONITORING_VERSION_MAJOR > MAJOR) ||           \
+   (MONITORING_VERSION_MAJOR ==                    \
+    MAJOR&&(MONITORING_VERSION_MINOR > MINOR || (MONITORING_VERSION_MINOR == MINOR&& MONITORING_VERSION_PATCH > PATCH))))
 
 /// True if the current version is equal or newer to the given.
-#define DATA_COLLECTOR_VERSION_GE(MAJOR, MINOR, PATCH) \
-  ((DATA_COLLECTOR_VERSION_MAJOR > MAJOR) ||           \
-   (DATA_COLLECTOR_VERSION_MAJOR ==                    \
-    MAJOR&&(DATA_COLLECTOR_VERSION_MINOR > MINOR || (DATA_COLLECTOR_VERSION_MINOR == MINOR&& DATA_COLLECTOR_VERSION_PATCH >= PATCH))))
+#define MONITORING_VERSION_GE(MAJOR, MINOR, PATCH) \
+  ((MONITORING_VERSION_MAJOR > MAJOR) ||           \
+   (MONITORING_VERSION_MAJOR ==                    \
+    MAJOR&&(MONITORING_VERSION_MINOR > MINOR || (MONITORING_VERSION_MINOR == MINOR&& MONITORING_VERSION_PATCH >= PATCH))))
 
 /// True if the current version is older than the given one.
-#define DATA_COLLECTOR_VERSION_LT(MAJOR, MINOR, PATCH) \
-  ((DATA_COLLECTOR_VERSION_MAJOR < MAJOR) ||           \
-   (DATA_COLLECTOR_VERSION_MAJOR ==                    \
-    MAJOR&&(DATA_COLLECTOR_VERSION_MINOR < MINOR || (DATA_COLLECTOR_VERSION_MINOR == MINOR&& DATA_COLLECTOR_VERSION_PATCH < PATCH))))
+#define MONITORING_VERSION_LT(MAJOR, MINOR, PATCH) \
+  ((MONITORING_VERSION_MAJOR < MAJOR) ||           \
+   (MONITORING_VERSION_MAJOR ==                    \
+    MAJOR&&(MONITORING_VERSION_MINOR < MINOR || (MONITORING_VERSION_MINOR == MINOR&& MONITORING_VERSION_PATCH < PATCH))))
 
 /// True if the current version is older or equal to the given.
-#define DATA_COLLECTOR_VERSION_LE(MAJOR, MINOR, PATCH) \
-  ((DATA_COLLECTOR_VERSION_MAJOR < MAJOR) ||           \
-   (DATA_COLLECTOR_VERSION_MAJOR ==                    \
-    MAJOR&&(DATA_COLLECTOR_VERSION_MINOR < MINOR || (DATA_COLLECTOR_VERSION_MINOR == MINOR&& DATA_COLLECTOR_VERSION_PATCH <= PATCH))))
+#define MONITORING_VERSION_LE(MAJOR, MINOR, PATCH) \
+  ((MONITORING_VERSION_MAJOR < MAJOR) ||           \
+   (MONITORING_VERSION_MAJOR ==                    \
+    MAJOR&&(MONITORING_VERSION_MINOR < MINOR || (MONITORING_VERSION_MINOR == MINOR&& MONITORING_VERSION_PATCH <= PATCH))))
 
 /// Information about the current Monitoring version.
 class Version {
@@ -54,40 +54,40 @@ class Version {
     /// @return the current major version of Monitoring.
     static int getMajor()
     {
-    return DATA_COLLECTOR_VERSION_MAJOR;
+    return MONITORING_VERSION_MAJOR;
     }
 
     /// @return the current minor version of Monitoring.
     static int getMinor()
     {
-    return DATA_COLLECTOR_VERSION_MINOR;
+    return MONITORING_VERSION_MINOR;
     }
 
     /// @return the current patch level of Monitoring.
     static int getPatch()
     {
-    return DATA_COLLECTOR_VERSION_PATCH;
+    return MONITORING_VERSION_PATCH;
     }
 
     /// @return the current Monitoring version (MM.mm.pp).
     static std::string getString()
     {
     std::ostringstream version;
-    version << DATA_COLLECTOR_VERSION_MAJOR << '.' << DATA_COLLECTOR_VERSION_MINOR << '.' << DATA_COLLECTOR_VERSION_PATCH;
+    version << MONITORING_VERSION_MAJOR << '.' << MONITORING_VERSION_MINOR << '.' << MONITORING_VERSION_PATCH;
     return version.str();
     }
 
     /// @return the VCS revision.
     static std::string getRevision()
     {
-    return DATA_COLLECTOR_VCS_REVISION;
+    return MONITORING_VCS_REVISION;
     }
 
     /// @return the current Monitoring version plus the VCS revision (MM.mm.pp.rev).
     static std::string getRevString()
     {
     std::ostringstream version;
-    version << getString() << '.' << DATA_COLLECTOR_VCS_REVISION;
+    version << getString() << '.' << MONITORING_VCS_REVISION;
     return version.str();
     }
 };
@@ -96,4 +96,4 @@ class Version {
 } // namespace Monitoring
 } // namespace AliceO2
 
-#endif // ALICEO2_MONITORING_CORE_DATA_COLLECTOR_VERSION_H
+#endif // ALICEO2_MONITORING_CORE_MONITORING_VERSION_H

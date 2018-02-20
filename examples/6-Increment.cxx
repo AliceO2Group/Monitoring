@@ -11,14 +11,14 @@ using Monitoring = AliceO2::Monitoring::MonitoringFactory;
 int main() {
   // Configure monitoring
   // Pass string with list of URLs as parameter
-  auto collector = Monitoring::Get("infologger://");
+  auto monitoring = Monitoring::Get("infologger://");
   
   // now send an application specific metric
   // 10 is the value
   // myMetric is the name of the metric
   //  
   // 1. by copying values
-  collector->increment(10, "myIncrementMetric");
-  collector->increment(5, "myIncrementMetric");
-  collector->increment(15, "myIncrementMetric");
+  monitoring->increment(10, "myIncrementMetric");
+  monitoring->increment(5, "myIncrementMetric");
+  monitoring->increment(15, "myIncrementMetric");
 }	

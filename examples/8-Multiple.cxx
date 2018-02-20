@@ -10,7 +10,7 @@ using Monitoring = AliceO2::Monitoring::MonitoringFactory;
 int main() {
   // Configure monitoring
   // Pass string with list of URLs as parameter
-  auto collector = Monitoring::Get("infologger://");
+  auto monitoring = Monitoring::Get("infologger://");
 
-  collector->send("measurementName", {{20, "myMetricIntMultiple"}, {20.30, "myMetricFloatMultple"}});
+  monitoring->send("measurementName", {{20, "myMetricIntMultiple"}, {20.30, "myMetricFloatMultple"}});
 }

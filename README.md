@@ -152,8 +152,8 @@ send(Metric&& metric)
 
 For example:
 ```cpp
-collector->send(10, "myMetricInt");
-collector->send({10, "myMetricInt"});
+monitoring->send(10, "myMetricInt");
+monitoring->send({10, "myMetricInt"});
 ```
 
 ### Custom metric
@@ -163,8 +163,8 @@ Two additional methods can be chained the to `send(Metric&& metric)` in order to
 
 For example:
 ```cpp
-collector->send(Metric{10, "myMetric"}.addTags({{"tag1", "value1"}, {"tag2", "value2"}}));
-collector->send(Metric{10, "myCrazyMetric"}.setTimestamp(timestamp));
+monitoring->send(Metric{10, "myMetric"}.addTags({{"tag1", "value1"}, {"tag2", "value2"}}));
+monitoring->send(Metric{10, "myCrazyMetric"}.setTimestamp(timestamp));
 ```
 
 ### Multiple values
@@ -175,7 +175,7 @@ void send(std::string name, std::vector<Metric>&& metrics)
 
 For example:
 ```cpp
-collector->send("measurementName", {{20, "myMetricIntMultiple"}, {20.30, "myMetricFloatMultple"}});
+monitoring->send("measurementName", {{20, "myMetricIntMultiple"}, {20.30, "myMetricFloatMultple"}});
 ```
 
 ## Features and additional information

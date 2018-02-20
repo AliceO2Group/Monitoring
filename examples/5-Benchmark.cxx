@@ -40,8 +40,8 @@ int main(int argc, char *argv[]) {
     count = vm["count"].as<int>();
   }
 
-  auto collector = Monitoring::Get(vm["url"].as<std::string>());
-  collector->enableProcessMonitoring(1);
+  auto monitoring = Monitoring::Get(vm["url"].as<std::string>());
+  monitoring->enableProcessMonitoring(1);
   int add = 0;
   if (count != 0) {
     count--;
@@ -50,14 +50,14 @@ int main(int argc, char *argv[]) {
 
   if (!vm["multiple"].as<bool>()) {
     for (int i = 0; i <= count; i += add) {
-      collector->send({"string" + std::to_string(intDist(mt)), "stringMetric"});
-      collector->send({doubleDist(mt), "doubleMetric"});
-      collector->send({intDist(mt), "intMetric"});
+      monitoring->send({"string" + std::to_string(intDist(mt)), "stringMetric"});
+      monitoring->send({doubleDist(mt), "doubleMetric"});
+      monitoring->send({intDist(mt), "intMetric"});
       std::this_thread::sleep_for(std::chrono::microseconds(sleep));
     }
   } else {
     for (int i = 0; i <= count; i += add) {
-      collector->send("benchmarkMeasurement",{
+      monitoring->send("benchmarkMeasurement",{
         {"string" + std::to_string(intDist(mt)), "stringMetric"},
         {doubleDist(mt), "doubleMetric"},
         {intDist(mt), "intMetric"}
