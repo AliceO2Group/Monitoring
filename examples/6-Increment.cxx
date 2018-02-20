@@ -4,7 +4,6 @@
 ///
 
 #include "Monitoring/MonitoringFactory.h"
-#include "Monitoring/Collector.h"
 
 using Monitoring = AliceO2::Monitoring::MonitoringFactory;
 

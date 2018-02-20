@@ -1,9 +1,9 @@
 ///
-/// \file Collector.cxx
+/// \file Monitoring.cxx
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 ///
 
-#include "Monitoring/Collector.h"
+#include "Monitoring/Monitoring.h"
 
 #include <boost/lexical_cast.hpp>
 #include <chrono>

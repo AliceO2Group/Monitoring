@@ -1,10 +1,10 @@
 ///
-/// \file Collector.h
+/// \file Monitoring.h
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 ///
 
-#ifndef ALICEO2_MONITORING_CORE_COLLECTOR_H
-#define ALICEO2_MONITORING_CORE_COLLECTOR_H
+#ifndef ALICEO2_MONITORING_MONITORING_H
+#define ALICEO2_MONITORING_MONITORING_H
 
 #include <atomic>
 #include <chrono>
@@ -128,4 +128,4 @@ class Collector
 } // namespace Monitoring
 } // namespace AliceO2
 
-#endif // ALICEO2_MONITORING_CORE_COLLECTOR_H
+#endif // ALICEO2_MONITORING_MONITORING_H

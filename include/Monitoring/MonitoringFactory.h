@@ -6,7 +6,7 @@
 #ifndef ALICEO2_MONITORING_FACTORY_H
 #define ALICEO2_MONITORING_FACTORY_H
 
-#include "Monitoring/Collector.h"
+#include "Monitoring/Monitoring.h"
 
 namespace AliceO2
 {
