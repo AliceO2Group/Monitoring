@@ -37,7 +37,6 @@ namespace Monitoring
 Collector::Collector() {
   mProcessMonitor = std::make_unique<ProcessMonitor>();
   mDerivedHandler = std::make_unique<DerivedMetrics>(1000);
-  setDefaultTags();
 }
 
 void Collector::enableProcessMonitoring(int interval) {
@@ -69,6 +68,9 @@ void Collector::increment(T value, std::string name) {
 }
 
 void Collector::addBackend(std::unique_ptr<Backend> backend) {
+   ProcessDetails processDetails{};
+   backend->addGlobalTag("hostname", processDetails.getHostname());
+   backend->addGlobalTag("name", processDetails.getProcessName());
    mBackends.push_back(std::move(backend));
 }
 
@@ -77,15 +79,6 @@ Collector::~Collector()
   mMonitorRunning = false;
   if (mMonitorThread.joinable()) {
     mMonitorThread.join();
-  }
-}
-
-void Collector::setDefaultTags()
-{
-  ProcessDetails details{};
-  for (auto& b: mBackends) {
-    b->addGlobalTag("hostname", details.getHostname());
-    b->addGlobalTag("name", details.getProcessName());
   }
 }
 
