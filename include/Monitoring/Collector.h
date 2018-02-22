@@ -117,9 +117,6 @@ class Collector
     /// \param interval 	sleep time in seconds
     void processMonitorLoop(int interval);
 
-    /// Sets default tags that are applied to all metrics: PID, proces name, hostname
-    void setDefaultTags();
-
     /// Increments metrics, stores calculated value in cache
     template<typename T>
     Metric incrementMetric(T value, std::string name);
