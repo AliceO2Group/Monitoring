@@ -5,18 +5,18 @@
 
 #include "Monitoring/MonitoringFactory.h"
 
-using Monitoring = AliceO2::Monitoring::MonitoringFactory;
-using AliceO2::Monitoring::Metric;
+using Monitoring = o2::monitoring::MonitoringFactory;
+using o2::monitoring::Metric;
 
 int main() {
 
   // Configure monitoring
   // Pass string with list of URLs as parameter
-  auto collector = Monitoring::Get("infologger://");
+  auto monitoring = Monitoring::Get("infologger://");
 
   // now send an application specific metric with additional tags
   // 10 is the value
   // myMetric is the name of the metric
   // then vector of key-value tags
-  collector->send(Metric{10, "myMetric"}.addTags({{"tag1", "value1"}, {"tag2", "value2"}}));
+  monitoring->send(Metric{10, "myMetric"}.addTags({{"tag1", "value1"}, {"tag2", "value2"}}));
 }

@@ -13,10 +13,10 @@
 
 #include "Monitoring/Metric.h"
 
-namespace AliceO2
+namespace o2
 {
 /// ALICE O2 Monitoring system
-namespace Monitoring
+namespace monitoring
 {
 	
 /// Available derived metric modes : RATE and AVERAGE values
@@ -74,7 +74,7 @@ class DerivedMetrics
     std::map <std::string, DerivedMetricMode> mRegistered;
 };
 
-} // namespace Monitoring
-} // namespace AliceO2
+} // namespace monitoring
+} // namespace o2
 
 #endif // ALICEO2_MONITORING_CORE_DERIVED_METRICS_H

@@ -10,25 +10,25 @@
 #include "../Transports/HTTP.h"
 #include "../Exceptions/MonitoringInternalException.h"
 
-namespace AliceO2
+namespace o2
 {
 /// ALICE O2 Monitoring system
-namespace Monitoring
+namespace monitoring
 {
 /// Monitoring backends
-namespace Backends
+namespace backends
 {
 
 InfluxDB::InfluxDB(const std::string& host, unsigned int port)
 {
-  transport = std::make_unique<Transports::UDP>(host, port);
+  transport = std::make_unique<transports::UDP>(host, port);
   MonLogger::Get() << "InfluxDB/UDP backend initialized"
                    << " ("<< host << ":" << port << ")" << MonLogger::End();
 }
 
 InfluxDB::InfluxDB(const std::string& host, unsigned int port, const std::string& path)
 {
-  transport = std::make_unique<Transports::HTTP>(
+  transport = std::make_unique<transports::HTTP>(
     "http://" + host + ":" + std::to_string(port) + "/?" + path
   );
   MonLogger::Get() << "InfluxDB/HTTP backend initialized" << " (" << "http://" << host
@@ -110,6 +110,6 @@ void InfluxDB::addGlobalTag(std::string name, std::string value)
   tagSet += name + "=" + value;
 }
 
-} // namespace Backends
-} // namespace Monitoring
-} // namespace AliceO2
+} // namespace backends
+} // namespace monitoring
+} // namespace o2

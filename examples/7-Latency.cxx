@@ -7,8 +7,7 @@
 #include <boost/program_options.hpp>
 #include <random>
 
-using Monitoring = AliceO2::Monitoring::MonitoringFactory;
-using namespace AliceO2::Monitoring;
+using namespace o2::monitoring;
 
 int main(int argc, char *argv[]) {
   int sleep = 10000;
@@ -26,11 +25,11 @@ int main(int argc, char *argv[]) {
     sleep = vm["sleep"].as<int>();
   }
 
-  auto collector = Monitoring::Get(vm["url"].as<std::string>());
+  auto monitoring = MonitoringFactory::Get(vm["url"].as<std::string>());
 
   for (;;) {
     auto timestamp = std::chrono::system_clock::now();
-    collector->send(
+    monitoring->send(
       Metric{999, "latencyTestMetric"}.addTags(
         {{"libraryTimestamp", std::to_string(
           std::chrono::duration_cast <std::chrono::nanoseconds>(timestamp.time_since_epoch()).count()

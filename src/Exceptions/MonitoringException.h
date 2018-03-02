@@ -9,10 +9,10 @@
 #include <exception>
 #include <string>
 
-namespace AliceO2
+namespace o2
 {
 /// ALICE O2 Monitoring system
-namespace Monitoring
+namespace monitoring
 {
 
 class MonitoringException : public std::exception
@@ -28,7 +28,7 @@ private:
     std::string message;
 };
 
-} // Monitoring
-} // AliceO2
+} // namespace monitoring
+} // namespace o2
 
 #endif //ALICEO2_MONITORING_EXCEPTIONS_MONITORING_H

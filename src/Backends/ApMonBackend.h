@@ -12,13 +12,13 @@
 #include <ApMon.h>
 #include "Monitoring/Backend.h"
 
-namespace AliceO2
+namespace o2
 {
 /// ALICE O2 Monitoring system
-namespace Monitoring
+namespace monitoring
 {
 /// Monitoring backends
-namespace Backends
+namespace backends
 {
 
 /// \brief Backend that uses AppMon (MonALISA)
@@ -61,8 +61,8 @@ class ApMonBackend final : public Backend
     std::string entity; ///< MonALISA entity, created out of global tags
 };
 
-} // namespace Backends
-} // namespace Monitoring
-} // namespace AliceO2
+} // namespace backends
+} // namespace monitoring
+} // namespace o2
 
 #endif // ALICEO2_MONITORING_BACKENDS_APMONBACKEND_H

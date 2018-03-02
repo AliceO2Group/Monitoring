@@ -8,13 +8,13 @@
 
 #include <string>
 
-namespace AliceO2
+namespace o2
 {
 /// ALICE O2 Monitoring system
-namespace Monitoring
+namespace monitoring
 {
 /// Monitoring transports
-namespace Transports
+namespace transports
 {
 
 /// Transport interface for backends
@@ -33,8 +33,8 @@ class TransportInterface
     virtual void send(std::string&& message) = 0;
 };
 
-} // namespace Transports
-} // namespace Monitoring
-} // namespace AliceO2
+} // namespace transports
+} // namespace monitoring
+} // namespace o2
 
 #endif // ALICEO2_MONITORING_TRANSPORTS_TRANSPORTINTERFACE_H

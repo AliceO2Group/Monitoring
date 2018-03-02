@@ -6,12 +6,12 @@
 #ifndef ALICEO2_MONITORING_FACTORY_H
 #define ALICEO2_MONITORING_FACTORY_H
 
-#include "Monitoring/Collector.h"
+#include "Monitoring/Monitoring.h"
 
-namespace AliceO2
+namespace o2
 {
 /// ALICE O2 Monitoring system
-namespace Monitoring 
+namespace monitoring
 {
 
 class MonitoringFactory
@@ -21,16 +21,16 @@ class MonitoringFactory
     MonitoringFactory & operator=(const MonitoringFactory&) = delete;
     MonitoringFactory(const MonitoringFactory&) = delete;
 
-    /// Provide single instance on Monitoring Collector (singleton)
-    /// \return              renerence to Collector instance
-    static std::unique_ptr<Collector> Get(std::string urlsString);
+    /// Provide single instance on Monitoring Monitoring (singleton)
+    /// \return              renerence to Monitoring instance
+    static std::unique_ptr<Monitoring> Get(std::string urlsString);
 
   private:
     /// Private constructor disallows to create instance of Factory
     MonitoringFactory() = default;
 };
 
-} // namespace Monitoring
-} // namespace AliceO2
+} // namespace monitoring
+} // namespace o2
 
 #endif // ALICEO2_MONITORING_FACTORY_H

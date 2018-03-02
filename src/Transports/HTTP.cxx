@@ -8,13 +8,13 @@
 #include <boost/algorithm/string.hpp>
 #include <iostream>
 
-namespace AliceO2
+namespace o2
 {
 /// ALICE O2 Monitoring system
-namespace Monitoring
+namespace monitoring
 {
 /// Monitoring transports
-namespace Transports
+namespace transports
 {
 
 HTTP::HTTP(const std::string& url) :
@@ -64,6 +64,6 @@ void HTTP::send(std::string&& post)
   }
 }
 
-} // namespace Transports
-} // namespace Monitoring
-} // namespace AliceO2
+} // namespace transports
+} // namespace monitoring
+} // namespace o2

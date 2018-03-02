@@ -10,10 +10,10 @@
 #include <string>
 #include "Monitoring/Metric.h"
 
-namespace AliceO2
+namespace o2
 {
 /// ALICE O2 Monitoring system
-namespace Monitoring 
+namespace monitoring 
 {
 
 /// Backend pure virtual interface
@@ -39,7 +39,7 @@ class Backend
     virtual void addGlobalTag(std::string name, std::string value) = 0;
 };
 
-} // namespace Monitoring
-} // namespace AliceO2
+} // namespace monitoring
+} // namespace o2
 
 #endif // ALICEO2_MONITORING_CORE_BACKEND_H

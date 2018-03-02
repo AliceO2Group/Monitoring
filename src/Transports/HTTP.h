@@ -12,13 +12,13 @@
 #include <memory>
 #include <string>
 
-namespace AliceO2
+namespace o2
 {
 /// ALICE O2 Monitoring system
-namespace Monitoring
+namespace monitoring
 {
 /// Monitoring transports
-namespace Transports
+namespace transports
 {
 
 /// HTTP POST transport for Monitoring backends
@@ -52,8 +52,8 @@ class HTTP : public TransportInterface
     std::unique_ptr<CURL, decltype(&HTTP::deleteCurl)> curlHandle;
 };
 
-} // namespace Transports
-} // namespace Monitoring
-} // namespace AliceO2
+} // namespace transports
+} // namespace monitoring
+} // namespace o2
 
 #endif // ALICEO2_MONITORING_TRANSPORTS_HTTP_H
