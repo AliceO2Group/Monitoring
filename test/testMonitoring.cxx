@@ -27,6 +27,13 @@ BOOST_AUTO_TEST_CASE(createMonitoring)
   monitoring->send(doubleMetric, "myCrazyMetricD");
 }
 
+BOOST_AUTO_TEST_CASE(testTimer)
+{
+  auto monitoring = Monitoring::Get("infologger://");
+  monitoring->startTimer("test");
+  monitoring->stopAndSendTimer("timer");
+}
+
 BOOST_AUTO_TEST_CASE(testIncrement)
 {
   int value = 5;
@@ -38,6 +45,8 @@ BOOST_AUTO_TEST_CASE(testIncrement)
   monitoring->increment(dValue, "test2");// dValue*2);
   monitoring->increment(value, "test");// value*3);
 }
+
+
 
 BOOST_AUTO_TEST_CASE(testSymbols)
 {
