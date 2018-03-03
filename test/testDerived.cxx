@@ -12,26 +12,6 @@ namespace o2 {
 namespace monitoring {
 namespace Test {
 
-BOOST_AUTO_TEST_CASE(derivedAverage)
-{
-  struct AverageResults {
-    int value;
-    int average;
-  };
-  std::vector<AverageResults> results = {{10, 10}, {20, 15}, {30, 20}, {40, 25}, {50, 30}, {60, 35}, {70, 40}, {80, 45}, {90, 50}, {100, 55}};
-  std::string name("metricName");
-
-  o2::monitoring::DerivedMetrics derivedHandler(100);
-  derivedHandler.registerMetric(name, o2::monitoring::DerivedMetricMode::AVERAGE);
-		
-  for (auto const result : results) {
-    o2::monitoring::Metric metric(result.value, name);
-    o2::monitoring::Metric derived = derivedHandler.processMetric(metric);
-    BOOST_CHECK_EQUAL(derived.getName(), "metricNameAverage");
-    BOOST_CHECK_EQUAL(boost::get<double>(derived.getValue()), result.average);
-  }
-}
-
 BOOST_AUTO_TEST_CASE(derivedRateInt)
 {
   struct RateResults {
@@ -39,15 +19,14 @@ BOOST_AUTO_TEST_CASE(derivedRateInt)
     int rate;
   };
   std::vector<RateResults> results = {{10, 0 }, {20, 100}, {30, 100}, {50, 200}, {60, 100}, {65, 50}, {70, 50}, {80, 100}, {90, 100}, {100, 100}};
-  o2::monitoring::DerivedMetrics derivedHandler(100);
+  o2::monitoring::DerivedMetrics derivedHandler();
   std::string name("metricInt");
-  derivedHandler.registerMetric(name, o2::monitoring::DerivedMetricMode::RATE);
 
   for (auto const result : results) {
     try {
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
       o2::monitoring::Metric metric(result.value, name);
-      o2::monitoring::Metric derived = derivedHandler.processMetric(metric);
+      o2::monitoring::Metric derived = derivedHandler.calculateRate(metric);
       BOOST_CHECK_EQUAL(derived.getName(), "metricIntRate");
       BOOST_WARN_CLOSE(boost::get<double>(derived.getValue()), result.rate, 1.0);
     } catch(MonitoringInternalException &e) {
@@ -55,7 +34,7 @@ BOOST_AUTO_TEST_CASE(derivedRateInt)
     }
   }
 }
-
+/*
 BOOST_AUTO_TEST_CASE(derivedRateDouble) {
   struct RateResults {
     double value;
@@ -123,7 +102,7 @@ BOOST_AUTO_TEST_CASE(divisionByZero)
   BOOST_CHECK_EXCEPTION(o2::monitoring::Metric derived = derivedHandler.processMetric(metric), MonitoringInternalException, exceptionCheck);
 
 }
-
+*/
 } // namespace Test
 } // namespace monitoring
 } // namespace o2

@@ -36,7 +36,7 @@ namespace monitoring
 
 Monitoring::Monitoring() {
   mProcessMonitor = std::make_unique<ProcessMonitor>();
-  mDerivedHandler = std::make_unique<DerivedMetrics>(1000);
+  mDerivedHandler = std::make_unique<DerivedMetrics>();
 }
 
 void Monitoring::enableProcessMonitoring(int interval) {
@@ -124,10 +124,6 @@ void Monitoring::processMonitorLoop(int interval)
   }
 }
 
-void Monitoring::addDerivedMetric(std::string name, DerivedMetricMode mode) {
-  mDerivedHandler->registerMetric(name, mode);
-}
-
 void Monitoring::send(std::string measurement, std::vector<Metric>&& metrics)
 {
   for (auto& b: mBackends) {
@@ -137,16 +133,16 @@ void Monitoring::send(std::string measurement, std::vector<Metric>&& metrics)
 
 void Monitoring::send(Metric&& metric, DerivedMetricMode mode)
 {
+  if (mode == DerivedMetricMode::RATE) {
+    mDerivedHandler->calculateRate(metric);
+  }
+
+  if (mode == DerivedMetricMode::INCREMENT) {
+
+  }
+
   for (auto& b: mBackends) {
     b->send(metric);
-  }
-  if (mDerivedHandler->isRegistered(metric.getName())) {
-    try {
-      Metric&& derived = mDerivedHandler->processMetric(metric);
-      for (auto& b: mBackends) {
-        b->send(derived);
-      }   
-    } catch (MonitoringInternalException&) { }
   }
 }
 
