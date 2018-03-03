@@ -87,12 +87,12 @@ class Monitoring
     /// Sets a start timestamp and timeout
     /// \@param name 		metric name
     /// \@param timeout		timeout
-    void startTimer(std::string name, std::chrono::duration<std::chrono::seconds> timeout);
+    void startTimer(std::string name);
 
     /// Stops timing
     /// Sets stop timestamp, calculates delta and sends value
     /// \@param name 		metric name
-    void stopTimer(std::string name);
+    void stopAndSendTimer(std::string name);
   private:
     /// Derived metrics handler
     /// \see class DerivedMetrics
@@ -103,6 +103,9 @@ class Monitoring
 
     /// Cache for the metric increment feature
     std::unordered_map <std::string, Metric> mIncrementCache;
+
+    /// List of timers
+    std::unordered_map <std::string, std::chrono::time_point<std::chrono::steady_clock>> mTimers;
 
     /// States whether Process Monitor thread is running
     std::atomic<bool> mMonitorRunning;
