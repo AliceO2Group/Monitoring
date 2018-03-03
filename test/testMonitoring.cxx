@@ -22,9 +22,9 @@ BOOST_AUTO_TEST_CASE(createMonitoring)
   std::string stringMetric("monitoringString");
   double doubleMetric = static_cast <double> (rand()) / static_cast <double> (RAND_MAX);
 
-  monitoring->send(intMetric, "myCrazyMetricI");
-  monitoring->send(stringMetric, "myCrazyMetricS");
-  monitoring->send(doubleMetric, "myCrazyMetricD");
+  monitoring->send({intMetric, "myCrazyMetricI"});
+  monitoring->send({stringMetric, "myCrazyMetricS"});
+  monitoring->send({doubleMetric, "myCrazyMetricD"});
 }
 
 BOOST_AUTO_TEST_CASE(testTimer)
