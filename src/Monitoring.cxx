@@ -49,6 +49,25 @@ void Monitoring::enableProcessMonitoring(int interval) {
 #endif
 }
 
+void Monitoring::startTimer(std::string name) {
+  auto search = mTimers.find(name);
+  if (search == mTimers.end()) {
+    auto now = std::chrono::steady_clock::now();
+    mTimers.insert(std::make_pair(name, now));
+  } else {
+    MonLogger::Get() << "Monitoring timer : Timer for " << name << " already started" << MonLogger::End();
+  }
+}
+
+void stopAndSendTimer(std::string name) {
+  auto search = mTimers.find(name);
+  if (search != mTimers.end()) {
+    auto duration = std::chrono::steady_clock::now() - search->second;
+  } else {
+    MonLogger::Get() << "Monitoring timer : Cannot stop " << name << " timer as it hasn't started" << MonLogger::End();
+  }
+}
+
 template<typename T>
 Metric Monitoring::incrementMetric(T value, std::string name) {
   auto search = mIncrementCache.find(name);
