@@ -20,7 +20,7 @@ namespace monitoring
 {
 	
 /// Available derived metric modes : RATE and AVERAGE values
-enum class DerivedMetricMode { RATE, AVERAGE };
+enum class DerivedMetricMode { RATE, AVERAGE, NONE };
 
 /// Calculates derived metrics
 ///

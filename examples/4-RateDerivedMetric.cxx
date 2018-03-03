@@ -17,7 +17,7 @@ int main() {
 
   // now send at least two metrics to see the result
   for (int i = 0; i < 101; i += 10) {
-    monitoring->send(i, "myMetric");
+    monitoring->send({i, "myMetric"});
     std::this_thread::sleep_for(std::chrono::milliseconds(250));
   }
 }

@@ -14,13 +14,7 @@ int main() {
   
   // now send an application specific metric
   // 10 is the value
-  // myMetric is the name of the metric
-  //  
-  // 1. by copying values
-  monitoring->send(10, "myMetricInt");
-  monitoring->send(10.10, "myMetricFloat");
-  
-  // 2. by creating and moving metric object
+  // myMetric is the name of the metric by creating and moving Metric object
   monitoring->send({10, "myMetricInt"});
   monitoring->send({10.10, "myMetricFloat"});
 }	

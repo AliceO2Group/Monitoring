@@ -51,15 +51,8 @@ class Monitoring
 
     /// Sends a metric to all avaliabes backends
     /// If metric has been added to DerivedMetric the derived metric is calculated (see addDerivedMetric method)
-    /// \param value 		metric value
-    /// \param name 		metric name
-    template<typename T> 
-    void send(T value, std::string name);
-
-    /// Sends a metric to all avaliabes backends
-    /// If metric has been added to DerivedMetric the derived metric is calculated (see addDerivedMetric method)
     /// \param metric            r-value to metric object
-    void send(Metric&& metric);
+    void send(Metric&& metric, DerivedMetricMode mode = DerivedMetricMode::NONE);
 
     /// Sends multiple metrics to as a single measurement
     /// If it's not supported by backend it fallbacks into sending multiple metrics

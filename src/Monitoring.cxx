@@ -135,7 +135,7 @@ void Monitoring::send(std::string measurement, std::vector<Metric>&& metrics)
   }
 }
 
-void Monitoring::send(Metric&& metric)
+void Monitoring::send(Metric&& metric, DerivedMetricMode mode)
 {
   for (auto& b: mBackends) {
     b->send(metric);
@@ -150,16 +150,6 @@ void Monitoring::send(Metric&& metric)
   }
 }
 
-template<typename T>
-void Monitoring::send(T value, std::string name)
-{
-  send({value, name});
-}
-
-template void Monitoring::send(int, std::string);
-template void Monitoring::send(double, std::string);
-template void Monitoring::send(std::string, std::string);
-template void Monitoring::send(uint64_t, std::string);
 template void Monitoring::increment(int, std::string);
 template void Monitoring::increment(double, std::string);
 template void Monitoring::increment(uint64_t, std::string);
