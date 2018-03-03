@@ -24,13 +24,14 @@ namespace monitoring
 
 Metric DerivedMetrics::calculateRate(Metric& metric)
 {
+  // disallow string
   std::string name = metric.getName();
   if (metric.getType() == MetricType::STRING) {
     throw MonitoringInternalException("DerivedMetrics/ProcessMetric", "Not able to process string values");
   }
 
+  // search for previous value
   auto search = mStorage.find(name);
-  
   if (search == mStorage.end()) {
     mStorage.insert(std::make_pair(name, metric));
     return Metric{(double) 0.0, name + "Rate"};
@@ -41,13 +42,19 @@ Metric DerivedMetrics::calculateRate(Metric& metric)
     - search->second.getTimestamp()
   );
   int timestampCount = timestampDifference.count();
-
   // disallow dividing by 0
   if (timestampCount == 0) {
     throw MonitoringInternalException("DerivedMetrics/Calculate rate", "Division by 0");
   }
 
+  auto current = metric.getValue();
+  auto previous = search->second.getValue();
   auto rate =  boost::apply_visitor(VariantVisitorRate(timestampCount), current, previous);
+
+  // swap metrics
+  mStorage.erase(name);
+  mStorage.insert(std::make_pair(name, metric));
+
   return Metric{rate, name + "Rate"};
 }
 

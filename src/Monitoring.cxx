@@ -134,7 +134,7 @@ void Monitoring::send(std::string measurement, std::vector<Metric>&& metrics)
 void Monitoring::send(Metric&& metric, DerivedMetricMode mode)
 {
   if (mode == DerivedMetricMode::RATE) {
-    mDerivedHandler->calculateRate(metric);
+    metric = mDerivedHandler->calculateRate(metric);
   }
 
   if (mode == DerivedMetricMode::INCREMENT) {
