@@ -59,10 +59,13 @@ void Monitoring::startTimer(std::string name) {
   }
 }
 
-void stopAndSendTimer(std::string name) {
+void Monitoring::stopAndSendTimer(std::string name) {
   auto search = mTimers.find(name);
   if (search != mTimers.end()) {
-    auto duration = std::chrono::steady_clock::now() - search->second;
+    auto now = std::chrono::duration_cast <std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
+    auto start = std::chrono::duration_cast <std::chrono::milliseconds>(search->second.time_since_epoch()).count();
+    uint64_t duration = now - start;
+    send({duration, name});
   } else {
     MonLogger::Get() << "Monitoring timer : Cannot stop " << name << " timer as it hasn't started" << MonLogger::End();
   }
