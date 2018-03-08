@@ -6,7 +6,7 @@
 #ifndef ALICEO2_MONITORING_CORE_DERIVED_METRICS_H
 #define ALICEO2_MONITORING_CORE_DERIVED_METRICS_H
 
-#include <map>
+#include <unordered_map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -20,7 +20,7 @@ namespace monitoring
 {
 	
 /// Available derived metric modes : RATE and AVERAGE values
-enum class DerivedMetricMode { RATE, AVERAGE, NONE };
+enum class DerivedMetricMode { RATE, INCREMENT, NONE };
 
 /// Calculates derived metrics
 ///
@@ -31,47 +31,19 @@ class DerivedMetrics
 {
   public:
     /// Default constructor
-    DerivedMetrics(const unsigned int cacheSize);
+    DerivedMetrics() = default;
 
     /// Default destructor
     ~DerivedMetrics() = default;
 
-    /// States whether metric has been registered or not
-    /// \param name     metric name
-    /// \return 	true when metric is present in mRegistered, false otherwise
-    bool isRegistered(std::string name);
-
-    /// Registers metric to be processed (adds its name to mRegistered map)
-    /// Processing modes are enumerated in DerivedMetricMode class
-    /// \param name      name, metrics name
-    /// \param mode      mode, see DerivedMetricMode
-    void registerMetric(std::string name, DerivedMetricMode mode);
-
-    /// Handles actual metric processing; finds out whether metric needs to be processed or not
-    /// If yes, passing it to one of methods that handles calculation of derived metric
-    /// \param metric    reference to metric instance
-    /// \return          metric object with calculated derived metric in it
-    Metric processMetric(Metric& metric);
-  
-  private:
     /// Calculates rate value based on metrics stored in mCache map
     /// \param name 	metric name
     /// \return 	metric with calculated rate value
-    Metric calculateRate(std::string name);
-
-    /// Calculates average value based on metrics stored in mCache map
-    /// \param name 	metric name
-    /// \return		metric with calculated average value
-    Metric calculateAverage(std::string name);
-
-    /// maximum size of cache map
-    const unsigned int mMaxVectorSize;
+    Metric rate(Metric& metric);
+    Metric increment(Metric& metric);
 
     /// Cache of registered metrics (metric name / vector of metric pointers).
-    std::map <std::string, std::vector<Metric>> mCache;
-
-    /// Registered metrics with their modes (metric name, registered mode).
-    std::map <std::string, DerivedMetricMode> mRegistered;
+    std::unordered_map <std::string, Metric> mStorage;
 };
 
 } // namespace monitoring

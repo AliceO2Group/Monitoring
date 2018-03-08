@@ -15,6 +15,7 @@
 #include <vector>
 #include "MonLogger.h"
 #include "VariantVisitorRate.h"
+#include "VariantVisitorAdd.h"
 
 namespace o2
 {
@@ -22,84 +23,56 @@ namespace o2
 namespace monitoring
 {
 
-DerivedMetrics::DerivedMetrics(const unsigned int cacheSize) : mMaxVectorSize(cacheSize) 
+Metric DerivedMetrics::rate(Metric& metric)
 {
-}
+  // disallow string
+  std::string name = metric.getName();
+  if (metric.getType() == MetricType::STRING) {
+    throw MonitoringInternalException("DerivedMetrics/ProcessMetric", "Not able to process string values");
+  }
 
-void DerivedMetrics::registerMetric(std::string name, DerivedMetricMode mode)
-{
-  mRegistered.emplace(std::pair<std::string, DerivedMetricMode>(name, mode));
-  MonLogger::Get() << "Monitoring : Metric " << name << " added to derived metrics" 
-                       << MonLogger::End();
-}
-
-bool DerivedMetrics::isRegistered(std::string name)
-{
-  auto search = mRegistered.find(name);
-  return (search != mRegistered.end());
-}
-
-Metric DerivedMetrics::calculateRate(std::string name)
-{
-  auto search = mCache.find(name);
-  int size = search->second.size();
-  if (search == mCache.end() || size < 2) {
-    throw MonitoringInternalException("DerivedMetrics/Calculate rate", "Not enough values");
+  // search for previous value
+  auto search = mStorage.find(name);
+  if (search == mStorage.end()) {
+    mStorage.insert(std::make_pair(name, metric));
+    return Metric{(double) 0.0, name + "Rate"};
   }
 
   auto timestampDifference = std::chrono::duration_cast<std::chrono::milliseconds>(
-    search->second.at(size - 1).getTimestamp()
-    - search->second.at(size - 2).getTimestamp()
+    metric.getTimestamp()
+    - search->second.getTimestamp()
   );
-  boost::variant< int, std::string, double, uint64_t > current = search->second.at(size - 1).getValue();
-  boost::variant< int, std::string, double, uint64_t > previous = search->second.at(size - 2).getValue();
   int timestampCount = timestampDifference.count();
-
   // disallow dividing by 0
   if (timestampCount == 0) {
     throw MonitoringInternalException("DerivedMetrics/Calculate rate", "Division by 0");
   }
 
+  auto current = metric.getValue();
+  auto previous = search->second.getValue();
   auto rate =  boost::apply_visitor(VariantVisitorRate(timestampCount), current, previous);
+
+  // swap metrics
+  mStorage.erase(name);
+  mStorage.insert(std::make_pair(name, metric));
+
   return Metric{rate, name + "Rate"};
 }
 
-Metric DerivedMetrics::calculateAverage(std::string name)
-{
-  double total = 0;
-  for (auto& m : mCache.at(name)) {
-    total += boost::lexical_cast<double>(m.getValue());
-  }
-  double average = total / mCache.at(name).size();
-  return Metric{average, name + "Average"};
-}
-
-Metric DerivedMetrics::processMetric(Metric& metric)
-{
+Metric DerivedMetrics::increment(Metric& metric) {
   std::string name = metric.getName();
-  if (metric.getType() == MetricType::STRING) {
-    throw MonitoringInternalException("DerivedMetrics/ProcessMetric", "Not able to process string values");
+  auto search = mStorage.find(name);
+  if (search != mStorage.end()) {
+    auto currentValue = metric.getValue();
+    auto storedValue = search->second.getValue();
+    auto value = boost::apply_visitor(VariantVisitorAdd(), currentValue, storedValue);
+    mStorage.erase(search);
+    Metric result = Metric{value, name};
+    mStorage.insert(std::make_pair(name, result));
+    return result;
   }
-  auto search = mCache.find(name);
-  // create vector if this is first metric of this kind
-  if (search == mCache.end()) {
-    mCache.emplace(std::make_pair(name, std::vector<Metric>()));
-  }
-  // remove first value if vector too large
-  if (mCache.at(name).size() > mMaxVectorSize) {
-    mCache.at(name).erase( mCache.at(name).begin() );
-  }
-  mCache[name].push_back(metric);
-
-  auto derived = mRegistered.find(name);
-  if (derived->second == DerivedMetricMode::RATE) {
-    return calculateRate(name);
-  }
-  else if (derived->second == DerivedMetricMode::AVERAGE)  {
-    return calculateAverage(name);
-  } else {
-    throw MonitoringInternalException("DerivedMetrics/ProcessMetric", "Processing mode not supported");
-  }
+  mStorage.insert(std::make_pair(name, metric));
+  return metric;
 }
 
 } // namespace monitoring

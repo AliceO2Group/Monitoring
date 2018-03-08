@@ -36,7 +36,7 @@ namespace monitoring
 
 Monitoring::Monitoring() {
   mProcessMonitor = std::make_unique<ProcessMonitor>();
-  mDerivedHandler = std::make_unique<DerivedMetrics>(1000);
+  mDerivedHandler = std::make_unique<DerivedMetrics>();
 }
 
 void Monitoring::enableProcessMonitoring(int interval) {
@@ -69,24 +69,6 @@ void Monitoring::stopAndSendTimer(std::string name) {
   } else {
     MonLogger::Get() << "Monitoring timer : Cannot stop " << name << " timer as it hasn't started" << MonLogger::End();
   }
-}
-
-template<typename T>
-Metric Monitoring::incrementMetric(T value, std::string name) {
-  auto search = mIncrementCache.find(name);
-  if (search != mIncrementCache.end()) {
-    T current = boost::lexical_cast<T>(search->second.getValue());
-    value += current;
-    mIncrementCache.erase(search);
-  }
-  Metric result = Metric{value, name};
-  mIncrementCache.insert(std::make_pair(name, result));
-  return result;
-}
-
-template<typename T>
-void Monitoring::increment(T value, std::string name) {
-  send(incrementMetric(value, name));
 }
 
 void Monitoring::addBackend(std::unique_ptr<Backend> backend) {
@@ -124,10 +106,6 @@ void Monitoring::processMonitorLoop(int interval)
   }
 }
 
-void Monitoring::addDerivedMetric(std::string name, DerivedMetricMode mode) {
-  mDerivedHandler->registerMetric(name, mode);
-}
-
 void Monitoring::send(std::string measurement, std::vector<Metric>&& metrics)
 {
   for (auto& b: mBackends) {
@@ -137,21 +115,18 @@ void Monitoring::send(std::string measurement, std::vector<Metric>&& metrics)
 
 void Monitoring::send(Metric&& metric, DerivedMetricMode mode)
 {
+  if (mode == DerivedMetricMode::RATE) {
+    metric = mDerivedHandler->rate(metric);
+  }
+
+  if (mode == DerivedMetricMode::INCREMENT) {
+    metric = mDerivedHandler->increment(metric);
+  }
+
   for (auto& b: mBackends) {
     b->send(metric);
   }
-  if (mDerivedHandler->isRegistered(metric.getName())) {
-    try {
-      Metric&& derived = mDerivedHandler->processMetric(metric);
-      for (auto& b: mBackends) {
-        b->send(derived);
-      }   
-    } catch (MonitoringInternalException&) { }
-  }
 }
 
-template void Monitoring::increment(int, std::string);
-template void Monitoring::increment(double, std::string);
-template void Monitoring::increment(uint64_t, std::string);
 } // namespace monitoring
 } // namespace o2

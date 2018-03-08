@@ -34,20 +34,6 @@ BOOST_AUTO_TEST_CASE(testTimer)
   monitoring->stopAndSendTimer("timer");
 }
 
-BOOST_AUTO_TEST_CASE(testIncrement)
-{
-  int value = 5;
-  double dValue = 5.1;
-  auto monitoring = Monitoring::Get("infologger://");
-  monitoring->increment(value, "test");// value);
-  monitoring->increment(value, "test");// value*2);
-  monitoring->increment(dValue, "test2");// dValue);
-  monitoring->increment(dValue, "test2");// dValue*2);
-  monitoring->increment(value, "test");// value*3);
-}
-
-
-
 BOOST_AUTO_TEST_CASE(testSymbols)
 {
   BOOST_WARN_MESSAGE(!BOOST_IS_DEFINED( _WITH_APPMON ), "ApMon Backend disabled");
