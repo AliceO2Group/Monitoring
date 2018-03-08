@@ -71,24 +71,6 @@ void Monitoring::stopAndSendTimer(std::string name) {
   }
 }
 
-template<typename T>
-Metric Monitoring::incrementMetric(T value, std::string name) {
-  auto search = mIncrementCache.find(name);
-  if (search != mIncrementCache.end()) {
-    T current = boost::lexical_cast<T>(search->second.getValue());
-    value += current;
-    mIncrementCache.erase(search);
-  }
-  Metric result = Metric{value, name};
-  mIncrementCache.insert(std::make_pair(name, result));
-  return result;
-}
-
-template<typename T>
-void Monitoring::increment(T value, std::string name) {
-  send(incrementMetric(value, name));
-}
-
 void Monitoring::addBackend(std::unique_ptr<Backend> backend) {
    ProcessDetails processDetails{};
    backend->addGlobalTag("hostname", processDetails.getHostname());
@@ -134,11 +116,11 @@ void Monitoring::send(std::string measurement, std::vector<Metric>&& metrics)
 void Monitoring::send(Metric&& metric, DerivedMetricMode mode)
 {
   if (mode == DerivedMetricMode::RATE) {
-    metric = mDerivedHandler->calculateRate(metric);
+    metric = mDerivedHandler->rate(metric);
   }
 
   if (mode == DerivedMetricMode::INCREMENT) {
-
+    metric = mDerivedHandler->increment(metric);
   }
 
   for (auto& b: mBackends) {
@@ -146,8 +128,5 @@ void Monitoring::send(Metric&& metric, DerivedMetricMode mode)
   }
 }
 
-template void Monitoring::increment(int, std::string);
-template void Monitoring::increment(double, std::string);
-template void Monitoring::increment(uint64_t, std::string);
 } // namespace monitoring
 } // namespace o2

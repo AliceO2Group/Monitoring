@@ -39,7 +39,8 @@ class DerivedMetrics
     /// Calculates rate value based on metrics stored in mCache map
     /// \param name 	metric name
     /// \return 	metric with calculated rate value
-    Metric calculateRate(Metric& metric);
+    Metric rate(Metric& metric);
+    Metric increment(Metric& metric);
 
     /// Cache of registered metrics (metric name / vector of metric pointers).
     std::unordered_map <std::string, Metric> mStorage;

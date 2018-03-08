@@ -60,21 +60,9 @@ class Monitoring
     /// \param metrics		list of metrics
     void send(std::string name, std::vector<Metric>&& metrics);
 
-    /// Adds metric to derived metric list - each time the metric arrives the derived metric is calculated and pushed to all backends
-    /// Following processing modes are supported: DerivedMetricMode::RATE, DerivedMetricMode::AVERAGE
-    /// \param name             metric name
-    /// \param mode             mode
-    void addDerivedMetric(std::string name, DerivedMetricMode mode);
-
     /// Enables process monitoring
     /// \param interval		refresh interval
     void enableProcessMonitoring(int interval = 5);
-
-    /// Increment value of a metric (or initialize if not exists)
-    /// \@param value		incremental value
-    /// \@param name		name of the metric
-    template<typename T>
-    void increment(T value, std::string name);
 
     /// Starts timing
     /// Sets a start timestamp and timeout
@@ -94,9 +82,6 @@ class Monitoring
     /// Vector of backends (where metrics are passed to)
     std::vector <std::unique_ptr<Backend>> mBackends;
 
-    /// Cache for the metric increment feature
-    std::unordered_map <std::string, Metric> mIncrementCache;
-
     /// List of timers
     std::unordered_map <std::string, std::chrono::time_point<std::chrono::steady_clock>> mTimers;
 
@@ -112,10 +97,6 @@ class Monitoring
     /// Process Monitor thread loop
     /// \param interval 	sleep time in seconds
     void processMonitorLoop(int interval);
-
-    /// Increments metrics, stores calculated value in cache
-    template<typename T>
-    Metric incrementMetric(T value, std::string name);
 };
 
 } // namespace monitoring

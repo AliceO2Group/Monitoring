@@ -15,6 +15,7 @@
 #include <vector>
 #include "MonLogger.h"
 #include "VariantVisitorRate.h"
+#include "VariantVisitorAdd.h"
 
 namespace o2
 {
@@ -22,7 +23,7 @@ namespace o2
 namespace monitoring
 {
 
-Metric DerivedMetrics::calculateRate(Metric& metric)
+Metric DerivedMetrics::rate(Metric& metric)
 {
   // disallow string
   std::string name = metric.getName();
@@ -56,6 +57,22 @@ Metric DerivedMetrics::calculateRate(Metric& metric)
   mStorage.insert(std::make_pair(name, metric));
 
   return Metric{rate, name + "Rate"};
+}
+
+Metric DerivedMetrics::increment(Metric& metric) {
+  std::string name = metric.getName();
+  auto search = mStorage.find(name);
+  if (search != mStorage.end()) {
+    auto currentValue = metric.getValue();
+    auto storedValue = search->second.getValue();
+    auto value = boost::apply_visitor(VariantVisitorAdd(), currentValue, storedValue);
+    mStorage.erase(search);
+    Metric result = Metric{value, name};
+    mStorage.insert(std::make_pair(name, result));
+    return result;
+  }
+  mStorage.insert(std::make_pair(name, metric));
+  return metric;
 }
 
 } // namespace monitoring
