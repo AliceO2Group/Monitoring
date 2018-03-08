@@ -69,8 +69,29 @@ void InfluxDB::sendMultiple(std::string measurement, std::vector<Metric>&& metri
   }
 }
 
+void InfluxDB::send(std::vector<Metric>&& metrics) {
+  std::string influxMetrics = "";
+  for (const auto& metric : metrics) {
+    influxMetrics += toInfluxLineProtocol(metric);
+    influxMetrics += "\n";
+  }
+
+  try {
+    transport->send(std::move(influxMetrics));
+  } catch (MonitoringInternalException&) {
+  }
+
+}
+
 void InfluxDB::send(const Metric& metric)
 {
+  try {
+    transport->send(toInfluxLineProtocol(metric));
+  } catch (MonitoringInternalException&) {
+  }
+}
+
+std::string InfluxDB::toInfluxLineProtocol(const Metric& metric) {
   std::string metricTags{};
   for (const auto& tag : metric.getTags()) {
     metricTags += "," + tag.name + "=" + tag.value;
@@ -83,11 +104,7 @@ void InfluxDB::send(const Metric& metric)
 
   std::stringstream convert;
   convert << name << "," << tagSet << metricTags << " value=" << value << " " << convertTimestamp(metric.getTimestamp());
-
-  try {
-    transport->send(convert.str());
-  } catch (MonitoringInternalException&) {
-  }
+  return convert.str();
 }
 
 void InfluxDB::prepareValue(std::string& value, int type)

@@ -34,6 +34,7 @@ class InfoLoggerBackend final : public Backend
     /// Sends metric to InfoLogger library
     /// \param metric           reference to metric object    
     void send(const Metric& metric) override;
+    void send(std::vector<Metric>&& metrics) override;
 
     /// Sends multiple metric at once
     /// Not supported by the backend therefore it falls back to sending metric one by one

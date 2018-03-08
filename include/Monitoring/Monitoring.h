@@ -60,6 +60,8 @@ class Monitoring
     /// \param metrics		list of metrics
     void send(std::string name, std::vector<Metric>&& metrics);
 
+    void send(std::vector<Metric>&& metrics);
+
     /// Enables process monitoring
     /// \param interval		refresh interval
     void enableProcessMonitoring(int interval = 5);

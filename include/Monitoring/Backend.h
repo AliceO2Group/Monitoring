@@ -32,6 +32,8 @@ class Backend
     /// Sends metric via backend
     virtual void send(const Metric& metric) = 0;
 
+    virtual void send(std::vector<Metric>&& metrics) = 0;
+
     /// Sends multiple metrics (if supported), otherwise falls back into sending single metrics
     virtual void sendMultiple(std::string measurement, std::vector<Metric>&& metrics) = 0;
 

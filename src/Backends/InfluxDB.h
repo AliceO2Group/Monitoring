@@ -49,6 +49,7 @@ class InfluxDB final : public Backend
     /// Sends metric to InfluxDB instance via one transport
     /// \param metric    reference to metric object
     void send(const Metric& metric) override;
+    void send(std::vector<Metric>&& metrics) override;
 
     /// Sends multiple values in single measurement
     /// \param name 	measurement name
@@ -72,6 +73,7 @@ class InfluxDB final : public Backend
     /// \param value 	reference to value
     /// \param type	type of the metric
     void prepareValue(std::string& value, int type);
+    std::string toInfluxLineProtocol(const Metric& metric);
 };
 
 } // namespace backends

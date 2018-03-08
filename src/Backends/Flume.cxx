@@ -45,6 +45,15 @@ std::string Flume::metricToJson(const Metric& metric)
     return s;
 }
 
+void Flume::send(std::vector<Metric>&& metrics) {
+  std::string flumeMetrics = "";
+  for (auto& metric : metrics) {
+    flumeMetrics += metricToJson(metric);
+    flumeMetrics += "\n";
+  }
+  mTransport->send(std::move(flumeMetrics));
+}
+
 void Flume::sendMultiple(std::string measurement, std::vector<Metric>&& metrics)
 {
   for (auto& m : metrics) {

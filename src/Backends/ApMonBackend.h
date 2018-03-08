@@ -37,6 +37,8 @@ class ApMonBackend final : public Backend
     /// Default destructor
     ~ApMonBackend() = default;
 
+    void send(std::vector<Metric>&& metrics) override;
+
     /// Sends metric via MonALISA
     /// ApMonBackend's intances is type-aware therefore cast of metric value is needed
     /// \param metric           reference to metric object:
