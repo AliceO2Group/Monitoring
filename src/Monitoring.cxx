@@ -34,9 +34,28 @@ namespace o2
 namespace monitoring 
 {
 
-Monitoring::Monitoring() {
+Monitoring::Monitoring()
+  : mStorageSize(10)
+{
   mProcessMonitor = std::make_unique<ProcessMonitor>();
   mDerivedHandler = std::make_unique<DerivedMetrics>();
+  mStorage.reserve(mStorageSize);
+  mBuffering = false;
+}
+
+void Monitoring::enableBuffering()
+{
+  mBuffering = true;
+}
+
+void Monitoring::flushBuffer() {
+  if (!mBuffering) {
+    MonLogger::Get() << "Cannot flush as buffering is disabled" << MonLogger::End();
+    return;
+  }
+
+  send(std::move(mStorage));
+  mStorage.clear();
 }
 
 void Monitoring::enableProcessMonitoring(int interval) {
@@ -84,6 +103,9 @@ Monitoring::~Monitoring()
   if (mMonitorThread.joinable()) {
     mMonitorThread.join();
   }
+  if (mBuffering) {
+    flushBuffer();
+  }
 }
 
 void Monitoring::processMonitorLoop(int interval)
@@ -128,9 +150,12 @@ void Monitoring::send(Metric&& metric, DerivedMetricMode mode)
   if (mode == DerivedMetricMode::INCREMENT) {
     metric = mDerivedHandler->increment(metric);
   }
-
-  for (auto& b: mBackends) {
-    b->send(metric);
+  if (mBuffering) {
+    mStorage.push_back(std::move(metric));
+  } else {
+    for (auto& b: mBackends) {
+      b->send(metric);
+    }
   }
 }
 

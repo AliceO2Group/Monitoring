@@ -79,6 +79,8 @@ class Monitoring
     /// Sets stop timestamp, calculates delta and sends value
     /// \@param name 		metric name
     void stopAndSendTimer(std::string name);
+    void flushBuffer();
+    void enableBuffering();
   private:
     /// Derived metrics handler
     /// \see class DerivedMetrics
@@ -102,6 +104,10 @@ class Monitoring
     /// Process Monitor thread loop
     /// \param interval 	sleep time in seconds
     void processMonitorLoop(int interval);
+
+    const unsigned int mStorageSize;
+    std::vector<Metric> mStorage;
+    bool mBuffering;
 };
 
 } // namespace monitoring
