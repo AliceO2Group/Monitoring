@@ -49,6 +49,9 @@ class InfluxDB final : public Backend
     /// Sends metric to InfluxDB instance via one transport
     /// \param metric    reference to metric object
     void send(const Metric& metric) override;
+
+    /// Sends multiple metrics not related to each other
+    /// \@param metrics  vector of metrics
     void send(std::vector<Metric>&& metrics) override;
 
     /// Sends multiple values in single measurement
@@ -62,7 +65,7 @@ class InfluxDB final : public Backend
     void addGlobalTag(std::string name, std::string value) override;
   
   private:
-    std::unique_ptr<transports::TransportInterface> transport;
+    std::unique_ptr<transports::TransportInterface> transport; ///< InfluxDB transport
     std::string tagSet; ///< Global tagset (common for each metric)
 
     /// Escapes " ", "," and "=" characters

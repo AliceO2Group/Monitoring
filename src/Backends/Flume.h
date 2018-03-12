@@ -46,6 +46,8 @@ class Flume final : public Backend
     /// \param metric    reference to metric object
     void send(const Metric& metric) override;
 
+    /// Sends multiple metrics not related to each other
+    /// \@param metrics  vector of metrics
     void send(std::vector<Metric>&& metrics) override;
 
     /// Sends multiple metric in single packet
