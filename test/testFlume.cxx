@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_CASE(checkJsonEncoding)
   auto headers = testTree.get_child("headers");
   BOOST_CHECK(headers.get<long>("timestamp") > 0);
   BOOST_CHECK_EQUAL(headers.get<std::string>("name"), "myCrazyMetric");
-  BOOST_CHECK_EQUAL(headers.get<int>("value"), 11);
+  BOOST_CHECK_EQUAL(headers.get<int>("value_value"), 11);
 }
 BOOST_AUTO_TEST_CASE(simplySendMetric)
 {
