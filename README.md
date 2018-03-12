@@ -140,19 +140,16 @@ See table below to find out how to create `URI` for each backend:
 | Flume        | UDP       | `flume`                | -                |
 
 ### Sending metric
-Simplified `send` method:
-```cpp
-send(T value, std::string name)
-```
-
-Or more advanced overload of `send`:
 ```cpp
 send(Metric&& metric)
 ```
+Where metric constructor receives following parameters:
+  - `T value`
+  - `std::string& name`
+  - `[time_point<system_clock> timestamp]`
 
 For example:
 ```cpp
-monitoring->send(10, "myMetricInt");
 monitoring->send({10, "myMetricInt"});
 ```
 
