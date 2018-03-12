@@ -54,11 +54,16 @@ class Monitoring
     /// \param metric            r-value to metric object
     void send(Metric&& metric, DerivedMetricMode mode = DerivedMetricMode::NONE);
 
-    /// Sends multiple metrics to as a single measurement
-    /// If it's not supported by backend it fallbacks into sending multiple metrics
+    /// Sends multiple not related to each other metrics
+    /// \@param metrics  vector of metrics
+    void send(std::vector<Metric>&& metrics);
+
+    /// Sends multiple realated to each other metrics under a common  measurement name
+    /// You can imagine it as a data point with multiple values
+    /// If it's not supported by a backend it fallbacks into sending one by one
     /// \param name		measurement name
     /// \param metrics		list of metrics
-    void send(std::string name, std::vector<Metric>&& metrics);
+    void sendGrouped(std::string name, std::vector<Metric>&& metrics);
 
     /// Enables process monitoring
     /// \param interval		refresh interval

@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
     }
   } else {
     for (int i = 0; i <= count; i += add) {
-      monitoring->send("benchmarkMeasurement",{
+      monitoring->sendGrouped("benchmarkMeasurement",{
         {"string" + std::to_string(intDist(mt)), "stringMetric"},
         {doubleDist(mt), "doubleMetric"},
         {intDist(mt), "intMetric"}

@@ -37,12 +37,16 @@ class ApMonBackend final : public Backend
     /// Default destructor
     ~ApMonBackend() = default;
 
+    /// Sends multiple metrics not related to each other
+    /// \@param metrics  vector of metrics
+    void send(std::vector<Metric>&& metrics) override;
+
     /// Sends metric via MonALISA
     /// ApMonBackend's intances is type-aware therefore cast of metric value is needed
     /// \param metric           reference to metric object:
     void send(const Metric& metric) override;
 
-    /// Sends multiple metric in single packet
+    /// Sends grouped metrics  under common measuremet name
     /// \param name     measurement name
     /// \param metrics  list of metrics
     void sendMultiple(std::string measurement, std::vector<Metric>&& metrics) override;

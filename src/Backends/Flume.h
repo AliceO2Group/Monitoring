@@ -46,6 +46,10 @@ class Flume final : public Backend
     /// \param metric    reference to metric object
     void send(const Metric& metric) override;
 
+    /// Sends multiple metrics not related to each other
+    /// \@param metrics  vector of metrics
+    void send(std::vector<Metric>&& metrics) override;
+
     /// Sends multiple metric in single packet
     /// Not supported by the backend therefore it falls back to sending metric one by one
     /// TODO: changed required in Flume Source
@@ -68,7 +72,8 @@ class Flume final : public Backend
     /// Serializes metric object to JSON
     /// \param metric
     /// \return JSON serializes metric
-    std::string metricToJson(const Metric& metric); 
+    std::string metricToJson(const Metric& metric);
+    std::string metricsToJson(std::string measurement, std::vector<Metric>&& metrics);
 };
 
 } // namespace backends
