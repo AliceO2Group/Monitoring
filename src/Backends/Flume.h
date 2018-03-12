@@ -70,7 +70,8 @@ class Flume final : public Backend
     /// Serializes metric object to JSON
     /// \param metric
     /// \return JSON serializes metric
-    std::string metricToJson(const Metric& metric); 
+    std::string metricToJson(const Metric& metric);
+    std::string metricsToJson(std::string measurement, std::vector<Metric>&& metrics);
 };
 
 } // namespace backends

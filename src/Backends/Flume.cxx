@@ -31,12 +31,12 @@ std::string Flume::metricToJson(const Metric& metric)
     boost::property_tree::ptree header = globalHeader;
     header.put<std::string>("timestamp", std::to_string(convertTimestamp(metric.getTimestamp())));
     header.put<std::string>("name", metric.getName());
-    header.put<std::string>("value", boost::lexical_cast<std::string>(metric.getValue()));
+    header.put<std::string>("value_value", boost::lexical_cast<std::string>(metric.getValue()));
     for (const auto& tag : metric.getTags()) {
-      header.put<std::string>(tag.name, tag.value);
+      header.put<std::string>("tag_" + tag.name, tag.value);
     }   
     event.push_back(std::make_pair("headers", header));
-    event.put<std::string>("body", boost::lexical_cast<std::string>(metric.getValue()));
+    event.put<std::string>("body", "");
     std::stringstream ss; 
     write_json(ss, event);
     std::string s = ss.str();
@@ -45,7 +45,8 @@ std::string Flume::metricToJson(const Metric& metric)
     return s;
 }
 
-void Flume::send(std::vector<Metric>&& metrics) {
+void Flume::send(std::vector<Metric>&& metrics)
+{
   std::string flumeMetrics = "";
   for (auto& metric : metrics) {
     flumeMetrics += metricToJson(metric);
@@ -56,12 +57,29 @@ void Flume::send(std::vector<Metric>&& metrics) {
 
 void Flume::sendMultiple(std::string measurement, std::vector<Metric>&& metrics)
 {
-  for (auto& m : metrics) {
-    std::string tempName = m.getName();
-    m.setName(measurement + "-" + m.getName());
-    send(m);
-    m.setName(tempName);
+  mTransport->send(metricsToJson(measurement, std::move(metrics)));
+}
+
+std::string Flume::metricsToJson(std::string measurement, std::vector<Metric>&& metrics)
+{
+  boost::property_tree::ptree event;
+  boost::property_tree::ptree header = globalHeader;
+  header.put<std::string>("timestamp", std::to_string(convertTimestamp(metrics.front().getTimestamp())));
+  header.put<std::string>("name", measurement);
+  for (const auto& tag : metrics.front().getTags()) {
+    header.put<std::string>("tag_" + tag.name, tag.value);
   }
+  for (auto& metric : metrics) {
+    header.put<std::string>("value_" + metric.getName(), boost::lexical_cast<std::string>(metric.getValue()));
+  }
+  event.push_back(std::make_pair("headers", header));
+    event.put<std::string>("body", "");
+    std::stringstream ss;
+    write_json(ss, event);
+    std::string s = ss.str();
+    s.erase(std::remove_if( s.begin(), s.end(),
+      [](char c){ return (c =='\r' || c =='\t' || c == ' ' || c == '\n');}), s.end() );
+    return s;
 }
 
 void Flume::send(const Metric& metric)

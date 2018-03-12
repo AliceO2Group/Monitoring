@@ -106,7 +106,7 @@ void Monitoring::processMonitorLoop(int interval)
   }
 }
 
-void Monitoring::send(std::string measurement, std::vector<Metric>&& metrics)
+void Monitoring::sendGrouped(std::string measurement, std::vector<Metric>&& metrics)
 {
   for (auto& b: mBackends) {
     b->sendMultiple(measurement, std::move(metrics));
