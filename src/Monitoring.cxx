@@ -34,12 +34,33 @@ namespace o2
 namespace monitoring 
 {
 
-Monitoring::Monitoring() {
+Monitoring::Monitoring()
+{
   mProcessMonitor = std::make_unique<ProcessMonitor>();
   mDerivedHandler = std::make_unique<DerivedMetrics>();
+  mBuffering = false;
 }
 
-void Monitoring::enableProcessMonitoring(int interval) {
+void Monitoring::enableBuffering(const unsigned int size)
+{
+  mBufferSize = size;
+  mBuffering = true;
+  mStorage.reserve(size);
+  MonLogger::Get() << "Buffering enabled (" << mStorage.capacity() << ")" << MonLogger::End();
+}
+
+void Monitoring::flushBuffer() {
+  if (!mBuffering) {
+    MonLogger::Get() << "Cannot flush as buffering is disabled" << MonLogger::End();
+    return;
+  }
+  auto capacity = mStorage.capacity();
+  auto size = mStorage.size();
+  send(std::move(mStorage));
+  mStorage.clear();
+}
+
+void Monitoring::enableProcessMonitoring(const unsigned int interval) {
 #ifdef _OS_LINUX
   mMonitorRunning = true;
   mMonitorThread = std::thread(&Monitoring::processMonitorLoop, this, interval);
@@ -83,6 +104,9 @@ Monitoring::~Monitoring()
   mMonitorRunning = false;
   if (mMonitorThread.joinable()) {
     mMonitorThread.join();
+  }
+  if (mBuffering) {
+    flushBuffer();
   }
 }
 
@@ -128,9 +152,15 @@ void Monitoring::send(Metric&& metric, DerivedMetricMode mode)
   if (mode == DerivedMetricMode::INCREMENT) {
     metric = mDerivedHandler->increment(metric);
   }
-
-  for (auto& b: mBackends) {
-    b->send(metric);
+  if (mBuffering) {
+    mStorage.push_back(std::move(metric));
+    if (mStorage.size() >= mBufferSize) {
+      flushBuffer();
+    }
+  } else {
+    for (auto& b: mBackends) {
+      b->send(metric);
+    }
   }
 }
 

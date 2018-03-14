@@ -27,6 +27,16 @@ BOOST_AUTO_TEST_CASE(createMonitoring)
   monitoring->send({doubleMetric, "myCrazyMetricD"});
 }
 
+BOOST_AUTO_TEST_CASE(buffering)
+{
+  auto monitoring = Monitoring::Get("infologger://,flume://localhost:1234");
+  monitoring->enableBuffering(10);
+  for (int i = 0; i < 25; i++) {
+    monitoring->send({10, "myMetricInt"});
+  }
+  monitoring->flushBuffer();
+}
+
 BOOST_AUTO_TEST_CASE(testTimer)
 {
   auto monitoring = Monitoring::Get("infologger://");

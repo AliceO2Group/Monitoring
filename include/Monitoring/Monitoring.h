@@ -55,7 +55,7 @@ class Monitoring
     void send(Metric&& metric, DerivedMetricMode mode = DerivedMetricMode::NONE);
 
     /// Sends multiple not related to each other metrics
-    /// \@param metrics  vector of metrics
+    /// \param metrics  vector of metrics
     void send(std::vector<Metric>&& metrics);
 
     /// Sends multiple realated to each other metrics under a common  measurement name
@@ -67,18 +67,25 @@ class Monitoring
 
     /// Enables process monitoring
     /// \param interval		refresh interval
-    void enableProcessMonitoring(int interval = 5);
+    void enableProcessMonitoring(const unsigned int interval = 5);
 
     /// Starts timing
     /// Sets a start timestamp and timeout
-    /// \@param name 		metric name
-    /// \@param timeout		timeout
+    /// \param name 		metric name
+    /// \param timeout		timeout
     void startTimer(std::string name);
 
     /// Stops timing
     /// Sets stop timestamp, calculates delta and sends value
-    /// \@param name 		metric name
+    /// \param name 		metric name
     void stopAndSendTimer(std::string name);
+
+    /// Flushes metric buffer (this can also happen when buffer is full)
+    void flushBuffer();
+
+    /// Enables metric buffering
+    /// \param size 		buffer size
+    void enableBuffering(const unsigned int size = 20);
   private:
     /// Derived metrics handler
     /// \see class DerivedMetrics
@@ -102,6 +109,15 @@ class Monitoring
     /// Process Monitor thread loop
     /// \param interval 	sleep time in seconds
     void processMonitorLoop(int interval);
+
+    /// Metric buffer
+    std::vector<Metric> mStorage;
+
+    /// Flag stating whether metric buffering is enabled
+    bool mBuffering;
+
+    /// Size of buffer
+    unsigned int mBufferSize;
 };
 
 } // namespace monitoring

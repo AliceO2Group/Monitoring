@@ -49,45 +49,7 @@ eval `modulecmd bash load Monitoring/v1.5.0-1`
 The installation directory is: `/opt/alisw/el7/Monitoring/v1.5.0-1`
 
 ### aliBuild
-<details>
- <summary><strong>Click here if you don't have <i>aliBuild</i> installed</strong></summary>
-<br>
-
-+ Enable Software Collections in order to install `devtoolset-6` which includes `gcc 6.2.0` **(as root)**
-~~~
-yum install -y centos-release-scl
-yum-config-manager --enable rhel-server-rhscl-7-rpms
-~~~
-
-+ Install packages required by aliBuild **(as root)**
-~~~
-yum install -y curl curl-devel python python-devel devtoolset-6           \
-               python-pip bzip2-devel autoconf automake texinfo git       \
-               gettext-devel libtool freetype freetype-devel libpng       \
-               libpng-devel sqlite sqlite-devel ncurses-devel gettext     \
-               mesa-libGLU-devel libX11-devel libXpm-devel libXext-devel  \
-               libXft-devel libxml2 libxml2-devel environment-modules
-~~~
-
-+ Upgrade `pip` and `setuptools`, install [aliBuild](https://alisw.github.io/alibuild/) and missing python packags **(as root)**
-~~~
-pip install --upgrade pip
-pip install -U setuptools
-pip install alibuild matplotlib numpy certifi ipython==5.4.1 ipywidgets   \
-            ipykernel notebook metakernel pyyaml
-~~~
-
-+ Enable `devtoolset-6`. It's recommened to add it to `~/.basrc` or similar file
-~~~
-source /opt/rh/devtoolset-6/enable
-~~~
-
-+ Set `alienv` root directory and load the environment
-~~~
-mkdir alice; cd alice
-ALICE_WORK_DIR=`pwd`/sw; eval "`alienv shell-helper`"
-~~~
-</details>
+<strong>[Click here if you don't have aliBuild installed](https://alice-doc.github.io/alice-analysis-tutorial/building/)</strong>
 <br>
 
 + Compile `Monitoring` and its dependecies via `aliBuild`
@@ -140,19 +102,16 @@ See table below to find out how to create `URI` for each backend:
 | Flume        | UDP       | `flume`                | -                |
 
 ### Sending metric
-Simplified `send` method:
-```cpp
-send(T value, std::string name)
-```
-
-Or more advanced overload of `send`:
 ```cpp
 send(Metric&& metric)
 ```
+Where metric constructor receives following parameters:
+  - `T value`
+  - `std::string& name`
+  - `[time_point<system_clock> timestamp]`
 
 For example:
 ```cpp
-monitoring->send(10, "myMetricInt");
 monitoring->send({10, "myMetricInt"});
 ```
 

@@ -167,6 +167,7 @@ set(EXAMPLES
         examples/7-Latency.cxx
         examples/8-Multiple.cxx
         examples/9-Timer.cxx
+        examples/10-Buffering.cxx
         )
 
 foreach (example ${EXAMPLES})
