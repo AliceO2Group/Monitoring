@@ -115,7 +115,7 @@ For example:
 monitoring->send({10, "myMetricInt"});
 ```
 
-### Custom metric
+### Customized metrics
 Two additional methods can be chained the to `send(Metric&& metric)` in order to __insert custom tags__ or __set custom timestamp__:
    + `addTags(std::vector<Tag>&& tags)`
    + `setTimestamp(std::chrono::time_point<std::chrono::system_clock>& timestamp)`
@@ -126,15 +126,36 @@ monitoring->send(Metric{10, "myMetric"}.addTags({{"tag1", "value1"}, {"tag2", "v
 monitoring->send(Metric{10, "myCrazyMetric"}.setTimestamp(timestamp));
 ```
 
-### Multiple values
-It's also possible to send multiple values in a single metric (only InfluxDB is currently supported, other backends fallback into sending metrics one by one)
+### Grouped values
+It's also possible to send multiple, grouped values in a single metric (`Flume` and `InfluxDB` backends are supproted, others fallback into sending values in seperate metrics)
 ```cpp
-void send(std::string name, std::vector<Metric>&& metrics)
+void sendGroupped(std::string name, std::vector<Metric>&& metrics)
 ```
 
 For example:
 ```cpp
-monitoring->send("measurementName", {{20, "myMetricIntMultiple"}, {20.30, "myMetricFloatMultple"}});
+monitoring->sendGroupped("measurementName", {{20, "myMetricIntMultiple"}, {20.30, "myMetricFloatMultple"}});
+```
+
+## Buffering metrics
+In order to avoid sending each metric separately, metrics can be temporary stored in the buffer and flushed at the most convenient moment.
+This feature can be operated with following two methods:
+```cpp
+monitoring->enableBuffering(const unsigned int maxSize)
+...
+monitoring->flushBuffer();
+```
+
+`enableBuffering` takes maximum buffer size as its parameter. The buffer gets full all values are flushed automatically.
+
+For example:
+```cpp
+monitoring->enableBuffering(5);
+for (int i = 1; i < 10; i++) {
+  monitoring->send({10, "myMetricInt"});
+}
+monitoring->send({20, "myMetricInt2"});
+monitoring->flushBuffer();
 ```
 
 ## Features and additional information
