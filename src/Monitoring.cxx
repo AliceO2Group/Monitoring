@@ -54,8 +54,6 @@ void Monitoring::flushBuffer() {
     MonLogger::Get() << "Cannot flush as buffering is disabled" << MonLogger::End();
     return;
   }
-  auto capacity = mStorage.capacity();
-  auto size = mStorage.size();
   send(std::move(mStorage));
   mStorage.clear();
 }
@@ -117,15 +115,8 @@ void Monitoring::processMonitorLoop(int interval)
   while (mMonitorRunning) {
     std::this_thread::sleep_for (std::chrono::milliseconds(interval*10));
     if ((++loopCount % 100) != 0) continue;
-    /// TODO!!! send all the merics as a single measurement
-    // send pmem, pcpu, etime
-    for (auto&& metric : mProcessMonitor->getPidStatus()) {
-      send(std::move(metric));
-    }
-    // send bytesReceived and bytedTransmitted per interface
-    for (auto&& metric : mProcessMonitor->getNetworkUsage()) {
-      send(std::move(metric));
-    }   
+    send(mProcessMonitor->getPidStatus());
+    send(mProcessMonitor->getNetworkUsage());
     loopCount = 0;
   }
 }
