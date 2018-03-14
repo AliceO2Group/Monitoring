@@ -67,7 +67,7 @@ class Monitoring
 
     /// Enables process monitoring
     /// \param interval		refresh interval
-    void enableProcessMonitoring(int interval = 5);
+    void enableProcessMonitoring(const unsigned int interval = 5);
 
     /// Starts timing
     /// Sets a start timestamp and timeout
@@ -85,7 +85,7 @@ class Monitoring
 
     /// Enables metric buffering
     /// \param size 		buffer size
-    void enableBuffering(const unsigned int size);
+    void enableBuffering(const unsigned int size = 20);
   private:
     /// Derived metrics handler
     /// \see class DerivedMetrics
@@ -115,6 +115,9 @@ class Monitoring
 
     /// Flag stating whether metric buffering is enabled
     bool mBuffering;
+
+    /// Size of buffer
+    unsigned int mBufferSize;
 };
 
 } // namespace monitoring
