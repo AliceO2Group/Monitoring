@@ -63,7 +63,7 @@ aliBuild build Monitoring --defaults o2-daq
 alienv load Monitoring/latest
 ~~~
 
-In case of an issue with `aliBuild` refer to [the official instructions](http://alisw.github.io/alibuild/o2-daq-tutorial.html).
+In case of an issue with `aliBuild` refer to [the official instructions](https://alice-doc.github.io/alice-analysis-tutorial/building).
 
 ### Manual
 Manual installation of the O<sup>2</sup> Monitoring module.
