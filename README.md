@@ -87,9 +87,12 @@ make install
 
 ## Getting started
 ### Monitoring instance
-The recommended way of getting (`unique_ptr` to) monitoring instance is `Get`ing it from  `MonitoringFactory` by passing `URI(s)` as a parameter (comma seperated if more than one).
+The recommended way of getting (`unique_ptr` to) monitoring instance is `Get`ing it from  `MonitoringFactory` by passing backend URI(s) as a parameter (comma seperated if more than one).
+The library is accessible from `o2::monitoring` namespace.
+
 ```cpp
-AliceO2::Monitoring::MonitoringFactory::Get("backend[-protocol]://host:port[?query]");
+using namespace o2::monitoring;
+MonitoringFactory::Get("backend[-protocol]://host:port[?query]");
 ```
 See table below to find out how to create `URI` for each backend:
 
