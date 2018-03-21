@@ -14,8 +14,8 @@ namespace Test {
 
 BOOST_AUTO_TEST_CASE(simplySendMetric)
 {
-  boost::filesystem::path configPath = boost::filesystem::canonical("..");
-  std::string url = "apmon://" + configPath.string() + "/test/ApMon.conf";
+  boost::filesystem::path configPath = boost::filesystem::canonical(".");
+  std::string url = "apmon://" + configPath.string() + "/ApMon.conf";
   auto parsed = http::ParseHttpUrl(url);
   std::cout << parsed.path << std::endl;
   o2::monitoring::backends::ApMonBackend apMonBackend(parsed.path);
