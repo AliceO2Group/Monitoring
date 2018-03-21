@@ -149,6 +149,7 @@ set(TEST_SRCS
         )
 if(APMON_FOUND)
   list(APPEND TEST_SRCS test/testApMon.cxx)
+  configure_file(test/ApMon.conf ApMon.conf COPYONLY)
 endif()
 
 O2_GENERATE_TESTS(
