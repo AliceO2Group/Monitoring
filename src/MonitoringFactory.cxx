@@ -27,59 +27,67 @@ namespace o2
 namespace monitoring 
 {
 
-void addInfoLogger(Monitoring* monitoring, http::url uri) {
-  monitoring->addBackend(std::make_unique<backends::InfoLoggerBackend>());
+std::unique_ptr<Backend> getInfoLogger(http::url uri) {
+  return std::make_unique<backends::InfoLoggerBackend>();
 }
-void addInfluxDb(Monitoring* monitoring, http::url uri) {
+
+std::unique_ptr<Backend> getInfluxDb(http::url uri) {
   auto const position = uri.protocol.find_last_of('-');
   if (position != std::string::npos) {
     uri.protocol = uri.protocol.substr(position + 1);
   }
   if (uri.protocol == "udp") {
-    monitoring->addBackend(std::make_unique<backends::InfluxDB>(uri.host, uri.port));
+    return std::make_unique<backends::InfluxDB>(uri.host, uri.port);
   }
   if (uri.protocol == "http") {
-    monitoring->addBackend(std::make_unique<backends::InfluxDB>(uri.host, uri.port, uri.search));
+    return std::make_unique<backends::InfluxDB>(uri.host, uri.port, uri.search);
   }
+  throw std::runtime_error("InfluxDB transport protocol not supported");
 }
-void addApMon(Monitoring* monitoring, http::url uri) {
+
+std::unique_ptr<Backend> getApMon(http::url uri) {
 #ifdef _WITH_APPMON
-  monitoring->addBackend(std::make_unique<backends::ApMonBackend>(uri.path));
+  return std::make_unique<backends::ApMonBackend>(uri.path);
 #else
   throw std::runtime_error("ApMon backend is not enabled");
 #endif
 }
-void addFlume(Monitoring* monitoring, http::url uri) {
-  monitoring->addBackend(std::make_unique<backends::Flume>(uri.host, uri.port));
+
+std::unique_ptr<Backend> getFlume(http::url uri) {
+  return std::make_unique<backends::Flume>(uri.host, uri.port);
+}
+
+std::unique_ptr<Backend> MonitoringFactory::GetBackend(std::string& url) {
+  static const std::map<std::string, std::function<std::unique_ptr<Backend>(const http::url&)>> map = {
+    {"infologger", getInfoLogger},
+    {"influxdb-udp", getInfluxDb},
+    {"influxdb-http", getInfluxDb},
+    {"apmon", getApMon},
+    {"flume", getFlume},
+  };
+
+  http::url parsedUrl = http::ParseHttpUrl(url);
+  if (parsedUrl.protocol.empty()) {
+    throw std::runtime_error("Ill-formed URI");
+  }   
+
+  auto iterator = map.find(parsedUrl.protocol);
+  if (iterator != map.end()) {
+    return iterator->second(parsedUrl);
+  } else {
+    throw std::runtime_error("Unrecognized backend " + parsedUrl.protocol);
+  }
 }
 
 std::unique_ptr<Monitoring> MonitoringFactory::Get(std::string urlsString)
 {
-  static const std::map<std::string, std::function<void(Monitoring* monitoring, const http::url&)>> map = {
-      {"infologger", addInfoLogger},
-      {"influxdb-udp", addInfluxDb},
-      {"influxdb-http", addInfluxDb},
-      {"apmon", addApMon},
-      {"flume", addFlume},
-  };  
-
   auto monitoring = std::make_unique<Monitoring>();
 
   std::vector<std::string> urls;
   boost::split(urls, urlsString, boost::is_any_of(","));
 
   for (auto url : urls) {
-    http::url parsedUrl = http::ParseHttpUrl(url);
-    if (parsedUrl.protocol.empty()) {
-      throw std::runtime_error("Ill-formed URI");
-    }
-
-    auto iterator = map.find(parsedUrl.protocol);
-    if (iterator != map.end()) {
-      iterator->second(monitoring.get(), parsedUrl);
-    } else {
-      throw std::runtime_error("Unrecognized backend " + parsedUrl.protocol);
-    }
+    monitoring->addBackend(MonitoringFactory::GetBackend(url));
   }
   return monitoring;
 }

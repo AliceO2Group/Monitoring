@@ -21,10 +21,13 @@ class MonitoringFactory
     MonitoringFactory & operator=(const MonitoringFactory&) = delete;
     MonitoringFactory(const MonitoringFactory&) = delete;
 
-    /// Provide single instance on Monitoring Monitoring (singleton)
+    /// Provides single instance on Monitoring Monitoring (singleton)
     /// \return              renerence to Monitoring instance
     static std::unique_ptr<Monitoring> Get(std::string urlsString);
 
+    /// Provides a Monitoring backend based on the URL
+    /// \return		monitoring backend
+    static std::unique_ptr<Backend> GetBackend(std::string& url);
   private:
     /// Private constructor disallows to create instance of Factory
     MonitoringFactory() = default;
