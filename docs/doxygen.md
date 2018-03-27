@@ -8,20 +8,20 @@ ALICE O2 [Monitoring](#classo2_1_1monitoring_1_1Monitoring) system.
 --------------------------------|---------------------------------------------
 `namespace `[``backends``](#namespaceo2_1_1monitoring_1_1backends)    | [Monitoring](#classo2_1_1monitoring_1_1Monitoring) backends.
 `namespace `[``transports``](#namespaceo2_1_1monitoring_1_1transports)    | [Monitoring](#classo2_1_1monitoring_1_1Monitoring) transports.
-`class `[``Backend``](#classo2_1_1monitoring_1_1Backend)    | [Backend](#classo2_1_1monitoring_1_1Backend) pure virtual interface.
-`class `[``DerivedMetrics``](#classo2_1_1monitoring_1_1DerivedMetrics)    | Calculates derived metrics.
-`class `[``Metric``](#classo2_1_1monitoring_1_1Metric)    | Represents metric parameters except (value, name, entity and timestamp)
-`class `[``Monitoring``](#classo2_1_1monitoring_1_1Monitoring)    | Collects metrics from user and dispatches them to selected [Monitoring](#classo2_1_1monitoring_1_1Monitoring) backends.
-`class `[``MonitoringException``](#classo2_1_1monitoring_1_1MonitoringException)    |
-`class `[``MonitoringFactory``](#classo2_1_1monitoring_1_1MonitoringFactory)    |
-`class `[``MonitoringInternalException``](#classo2_1_1monitoring_1_1MonitoringInternalException)    |
-`class `[``MonLogger``](#classo2_1_1monitoring_1_1MonLogger)    | Simple [Monitoring](#classo2_1_1monitoring_1_1Monitoring) logging class.
-`class `[``ProcessDetails``](#classo2_1_1monitoring_1_1ProcessDetails)    |
-`class `[``ProcessMonitor``](#classo2_1_1monitoring_1_1ProcessMonitor)    | Monitors current process and/or other processes running at the same machien.
-`class `[``Tag``](#classo2_1_1monitoring_1_1Tag)    | Represent key-value metric tag.
-`class `[``VariantVisitorAdd``](#classo2_1_1monitoring_1_1VariantVisitorAdd)    |
-`class `[``VariantVisitorRate``](#classo2_1_1monitoring_1_1VariantVisitorRate)    |
-`class `[``Version``](#classo2_1_1monitoring_1_1Version)    | Information about the current [Monitoring](#classo2_1_1monitoring_1_1Monitoring) version.
+`class `[``Backend``](#class-backend)    | [Backend](#classo2_1_1monitoring_1_1Backend) pure virtual interface.
+`class `[``DerivedMetrics``](#class-derivedmetrics)    | Calculates derived metrics.
+`class `[``Metric``](#class-metric)    | Represents metric parameters except (value, name, entity and timestamp)
+`class `[``Monitoring``](#class-monitoring)    | Collects metrics from user and dispatches them to selected [Monitoring](#classo2_1_1monitoring_1_1Monitoring) backends.
+`class `[``MonitoringException``](#class-monitoringexception)    |
+`class `[``MonitoringFactory``](#class-monitoringfactory)    |
+`class `[``MonitoringInternalException``](#class-monitoringinternalexception)    |
+`class `[``MonLogger``](#class-monlogger)    | Simple [Monitoring](#classo2_1_1monitoring_1_1Monitoring) logging class.
+`class `[``ProcessDetails``](#class-processdetails)    |
+`class `[``ProcessMonitor``](#class-processmonitor)    | Monitors current process and/or other processes running at the same machien.
+`class `[``Tag``](#class-tag)    | Represent key-value metric tag.
+`class `[``VariantVisitorAdd``](#class-variantvisitoradd)    |
+`class `[``VariantVisitorRate``](#class-variantvisitorrate)    |
+`class `[``Version``](#class-version)    | Information about the current [Monitoring](#classo2_1_1monitoring_1_1Monitoring) version.
 
 # namespace `backends`
 
