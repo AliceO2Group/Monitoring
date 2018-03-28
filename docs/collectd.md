@@ -1,9 +1,14 @@
-# collectd installation and configuration
+# Collectd - system monitoring
+Project website: https://collectd.org
+
+## Installation
 
 + Install collectd package **(as root)**
 ~~~
 yum -y install collectd
 ~~~
+
+## Configuration
 
 + Edit configuration file: `/etc/collectd.conf`**(as root)**
 ~~~

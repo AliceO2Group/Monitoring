@@ -1,4 +1,7 @@
-# Grafana installation and configuration
+# Grafana - Dashboard
+Project website: https://grafana.com
+
+## Installation
 
 + Add Grafana repo **(as root)**
 ~~~
@@ -9,6 +12,8 @@ curl -s https://packagecloud.io/install/repositories/grafana/stable/script.rpm.s
 ~~~
 yum -y install grafana
 ~~~
+
+## Configuration
 
 + Open port 3000 **(as root)**
 ~~~

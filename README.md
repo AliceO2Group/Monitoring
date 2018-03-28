@@ -75,6 +75,7 @@ Manual installation of the O<sup>2</sup> Monitoring module.
 + [ApMon](http://monalisa.caltech.edu/monalisa__Download__ApMon.html) (optional)
 
 #### Monitoring module compilation
+
 ~~~
 git clone https://github.com/AliceO2Group/Monitoring.git
 cd Monitoring; mkdir build; cd build
@@ -103,6 +104,7 @@ See table below to find out how to create `URI` for each backend:
 | Flume        | UDP       | `flume`                | -                |
 
 ### Sending metric
+
 ```cpp
 send(Metric&& metric)
 ```

@@ -1,5 +1,7 @@
-# InfluxDB installation and configuration
+# InfluxDB - Storage
+Project website: https://docs.influxdata.com/influxdb/v1.5/
 
+## Installation
 + Add `influxdb` repo **(as root)**
 ~~~
 cat > /etc/yum.repos.d/influxdb.repo <<EOF
@@ -16,6 +18,8 @@ EOF
 ~~~
 yum -y install influxdb collectd
 ~~~
+
+## Configuration
 
 + Add UDP endpoint for application related metrics by editing configuration file `/etc/influxdb/influxdb.conf` with database name `test` and UDP port number `8088`. **(as root)**
 ~~~

@@ -1,4 +1,7 @@
-# Flume installation and configuration
+# Flume - Metric routing
+Project website: https://flume.apache.org
+
+## Installation
 
 + Install Java **(as root)**
 ~~~
@@ -11,6 +14,8 @@ yum -y install java
 ~~~
 tar -xvzf apache-flume-1.7.0-bin.tar.gz
 ~~~
+
+## Configuration
 
 + Install custom source and/or sink from [MonitoringCustomComponents repo]( https://github.com/AliceO2Group/MonitoringCustomComponents).
 Adjust configuration file according to source/sink instructions. The sample configuration file is available in `conf/flume-conf.properties.template`.
