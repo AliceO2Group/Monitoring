@@ -14,11 +14,7 @@ Monitoring module allows to inject user defined metrics and monitor the process 
 
 ## Installation
 ### RPM (CentOS 7 only)
-<details>
- <summary><strong>Click here if you don't have <i>allsw</i> repo configured</strong></summary>
-<br>
-
-+ Install `CERN-CA-certs` package (required by `alisw` repo) **(as root)**
++ Install CERN certificates
 ~~~
 yum -y install CERN-CA-certs
 ~~~
@@ -33,12 +29,10 @@ enabled=1
 gpgcheck=0
 EOF
 ~~~
-</details>
-<br>
 
 + Install Monitoring RPM package **(as root)**
 ~~~
-yum -y install alisw-Monitoring+v1.5.0-1.x86_64
+yum -y install alisw-Monitoring+v1.5.4-1.x86_64
 ~~~
 
 + Configure Modules
@@ -48,9 +42,9 @@ export MODULEPATH=/opt/alisw/el7/modulefiles:$MODULEPATH
 
 + Load enviroment
 ~~~
-eval `modulecmd bash load Monitoring/v1.5.0-1`
+eval `modulecmd bash load Monitoring/v1.5.4-1`
 ~~~
-The installation directory is: `/opt/alisw/el7/Monitoring/v1.5.0-1`
+The installation directory is: `/opt/alisw/el7/Monitoring/v1.5.4-1`
 
 ### aliBuild
 <strong>[Click here if you don't have aliBuild installed](https://alice-doc.github.io/alice-analysis-tutorial/building/)</strong>
