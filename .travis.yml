@@ -5,7 +5,27 @@ matrix:
   include:
     - os: osx
       osx_image: xcode9.2
+      env:
     - os: linux
+      env:
+    - os: linux
+      env: TOOL=doxygen
+      addons:
+        apt:
+          packages:
+            - doxygen
+            - doxygen-doc
+            - doxygen-latex
+            - doxygen-gui
+            - graphviz
+            - cmake
+      deploy:
+        provider: pages
+        skip_cleanup: true
+        github_token: $GITHUB_API_TOKEN
+        local_dir: build/doc/html
+        on:
+          branch: dev
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get update -qq; fi
@@ -23,7 +43,11 @@ before_script:
 script:
   - cd build
   - cmake ..
-  - make -j
-  - make test
+  - if [[ $TOOL != "doxygen" ]]; then make -j; fi
+  - if [[ $TOOL != "doxygen" ]]; then make test; fi
+after_script:
+  - if [[ $TOOL == "doxygen" ]]; then cd ..; git grep -l '^```[a-zA-Z]' | xargs sed -i .old -e 's|```\([a-zA-Z][a-zA-Z]*\)|\n```{.\1}\n|g;s|[.]bash|.sh|g;s|```|~~~~~~~|g'; fi
+  - if [[ $TOOL == "doxygen" ]]; then find . -name "*.old" -delete; fi
+  - if [[ $TOOL == "doxygen" ]]; then cd build; make doc; fi
 notifications:
   email: false
