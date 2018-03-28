@@ -4,7 +4,7 @@
 
 The main goal of the monitoring system is to supply an easy-to-use, customisable and complete user-interface capable to provide all needed information related to the state of O2 Facility. Graphical interfaces and an alarming service are been selected to satisfy this requirement. Both near-real-time and historical monitoring data are considered important to cover all performance aspects and by means of evaluate all facility components' state. On the other hand, only collecting fully comprehensive information data the monitoring system is able to accomplish its goal. Three monitoring data types has been selected: applications, processes and systems information. These components send periodically monitoring data to both near-real-time and historical dashboards. In the near-real-time dashboard the information must be displayed as soon as possible in order to allow experts to be reactive to abnormal situations, so a low latency transport layer is mandatory. Whereas, the historical dashboard does not require a high resolution monitoring data, since its goal is more related to statistical, debugging and accounting purposes. Data aggregation and other processing tasks like suppression, enrichment and correlation tasks, must be provided from a processing component. Historical data must be stored in a dedicated component from which the historical dashboard retrieves the information to display. The selected database must be support large input metric rates, low storage size and down-sampling. Dashboards must display time series data using plots, gauges, bar, and other graphical objects. The near-real-time dashboard must plot low latency status information, useful for shift crews and providing a summary view of the ongoing ALICE operations. Whereas the historical one must display data stored in the storage component, useful for experts and allowing for drill down and detailed views. These dashboards must be accessed from different operating systems and from outside of the ALICE Point 2. The alarming component must support experts by detecting abnormal situations both in historical or near-real-time scenario. Figure 1 shows the functional architecture of the system, where the metric collection, processing, storage, visualisation and alarming components are been highlighted.
 
-![](gen_arch.png)<br>
+![](images/gen_arch.png)<br>
 *Figure 1. Monitoring architecture*<br>
 
 Below, the list of requirements regarding the monitoring subsystem has been established from the information available in the O2 Technical Design Report [2]:
@@ -35,7 +35,7 @@ The Modular Stack requires maintaining multiple tools and therefore compatibilit
 Following an overview of the chosen tools. More details of each components will be described in the next sections.
 The monitoring system collects three different types of monitoring data: application, process and system information. The first two are covered from a O2 monitoring library, whereas the third is provided using an external tool. CollectD[XXX] was selected for retrieving system metrics (related to CPU, memory and I/O) from all hosts belonging to the O2 Facility. The high monitoring data rate requires a transport layer capable to manage and route all collected data. Apache Flume[XX], "a distributed and highly-reliable service for collecting, aggregating and moving large amounts of data in a very efficient way. ", has been selected. Moreover, it could execute also simple processing tasks. As storing component InfluxDB[XXX], "a custom high-performance data store written specifically for time series data", fulfils all the above requirements. Grafana[XX] is selected as graphical interface to display time series data for near-real-time and historical prospectives. Riemann[XXX] provides useful ways to forward externally alarms using multiple plugins and allows to implement some processing tasks internally. All remaining more complex processing tasks are implemented through Apache Spark[XXX], "a fast and general-purpose engine for large-scale data processing". The figure 2 shows the actual architecture of Modular Stack with all the components enunciated.
 
-![](monsta_arc.png)<br>
+![](images/monsta_arc.png)<br>
 *Figure 2. Modular Stack architecture*<br>
 
 ### 2.1 Sensors
@@ -76,7 +76,7 @@ The large amount of monitoring data generated from the O2 Facility requires a hi
 "	the Flume event, defined "as a unit of data flow having a byte payload and an optional set of string attributes".
 "	the Flume agent, a "process that hosts the components through which events flow from an external source to the next destination (hop)".
 
-![](flume-arc.png)<br>
+![](images/flume-arc.png)<br>
 *Figure 3. Flume agent*<br>
 
 "The external source sends events to Flume in a format that is recognised by the target Flume source. When a Flume source receives an event, it stores it into one or more channels. The channel is a passive store that keeps the event until it's consumed by a Flume sink. Channels could be store events in memory (for fast transmissions) or on local file system (for reliable transmissions). The sink removes the event from the channel and puts it into an external repository, like HDFS, or forwards it to the Flume source of the next Flume agent (next hop) in the flow. The source and sink within the given agent run asynchronously with the events staged in the channel".
@@ -138,7 +138,7 @@ The Flume components need a custom implementation are:
 
 The Fig 4 shows with more details the inner architecture of Flume components.
 
-![](flume_inner_arc.png)<br>
+![](images/flume_inner_arc.png)<br>
 *Figure 4. Flume inner architecture*<br>
 
 The channel selectors allow the routing of metric towards specific sinks using an attribute value contained in the Flume event: a switch-case structure route the event towards one or multiple channels. Generally, not all the metrics belonging to a group (application, process or collectd information) will be sent all towards a specific channel but a subgroup of them. To manage this need, interceptors could be inserted after the source in order to add specific attribute values to specific event in order to allow a successful routing. There is no interceptor after the Spark Source, since the information enrichment could be done directly in the Spark tasks. Following will be discuss of every of component shown in the Figure 4.
