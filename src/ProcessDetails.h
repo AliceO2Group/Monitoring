@@ -41,7 +41,7 @@ class ProcessDetails
     std::string mProcessName;
 
     /// Retrieves PID
-    void generatePid()
+    void generatePid();
 
     /// Retrieves process name
     void generateProcessName();
