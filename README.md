@@ -1,4 +1,8 @@
 # Monitoring
+[![travis-ci](https://api.travis-ci.org/AliceO2Group/Monitoring.svg?branch=master)](https://travis-ci.org/AliceO2Group/Monitoring)
+[![aliBuild](https://img.shields.io/badge/aliBuild-Dashboard-lightgrey.svg)](https://alisw.cern.ch/dashboard/d/000000001/main-dashboard?orgId=1&var-storagename=All&var-reponame=All&var-checkname=build%2FMonitoring%2Fo2-dataflow%2F0&var-upthreshold=30m&var-minuptime=30)
+[![JIRA](https://img.shields.io/badge/JIRA-Issues-blue.svg)](https://alice.its.cern.ch/jira/projects/OMON)
+
 Monitoring module allows to inject user defined metrics and monitor the process itself. It supports multiple backends, protocols and data formats.
 
 ## Table of contents
@@ -213,4 +217,4 @@ This guide explains manual installation. For `ansible` deployment see [AliceO2Gr
  + [Flume](docs/flume.md)
  + [InfluxDB](docs/influxdb.md)
  + [Grafana](docs/grafana.md)
- + [MonALISA]((http://monalisa.caltech.edu/monalisa__Documentation__Service_Installation_Guide.html) (external link)
+ + [MonALISA](http://monalisa.caltech.edu/monalisa__Documentation__Service_Installation_Guide.html) (external link)
