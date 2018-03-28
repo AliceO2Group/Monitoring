@@ -14,6 +14,7 @@ namespace o2
 namespace monitoring
 {
 
+/// \brief Monitoring and monitoring backends factory
 class MonitoringFactory
 {
   public:

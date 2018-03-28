@@ -17,10 +17,7 @@ namespace monitoring
 namespace transports
 {
 
-/// Transport interface for backends
-///
-/// Represents transport protocol for backends that already formatted metrcis can be sent by
-/// Eg. TCP, UDP or HTTP
+/// \brief Transport interface for backends
 class TransportInterface
 {
   public:

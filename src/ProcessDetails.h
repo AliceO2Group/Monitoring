@@ -14,24 +14,40 @@ namespace o2
 namespace monitoring
 {
 
+/// \brief Collects process and machine related details such as PID, process name, hostname
 class ProcessDetails
 {
   public:
+    /// Generates all data
     ProcessDetails();
+
+    /// PID getter
     unsigned int getPid() const;
+
+    /// Process name getter
     std::string getProcessName() const;
+
+    /// Hostname getter
     std::string getHostname() const;
 
   private:
+    /// PID
     unsigned int mPid;
+
+    /// Hostname
     std::string mHostname;
+
+    /// Process name
     std::string mProcessName;
 
+    /// Retrieves PID
+    void generatePid()
 
-    void generatePid();
+    /// Retrieves process name
     void generateProcessName();
-    void generateHostname();
 
+    /// Retrieves hostname
+    void generateHostname();
 };
 
 } // namespace monitoring

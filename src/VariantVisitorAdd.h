@@ -3,7 +3,7 @@ namespace o2
 // ALICE O2 Monitoring system
 namespace monitoring
 {
-
+/// \brief Adds boost variants
 class VariantVisitorAdd : public boost::static_visitor<boost::variant<int, std::string, double, uint64_t>>
 {
 public:

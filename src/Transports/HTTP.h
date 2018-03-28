@@ -21,7 +21,7 @@ namespace monitoring
 namespace transports
 {
 
-/// HTTP POST transport for Monitoring backends
+/// \brief HTTP POST transport for Monitoring backends
 ///
 /// Allows to push string formatted metrics as HTTP POST requests via cURL
 class HTTP : public TransportInterface
@@ -35,7 +35,7 @@ class HTTP : public TransportInterface
     ~HTTP() = default;
 
     /// Sends metric via HTTP POST
-    /// \param metric       r-value reference string formatted metric
+    /// \param post       r-value reference string formatted metric
     void send(std::string&& post);
     
   private:

@@ -19,14 +19,13 @@ namespace o2
 namespace monitoring
 {
 	
-/// Available derived metric modes : RATE and AVERAGE values
+/// Available derived metric modes
 enum class DerivedMetricMode { RATE, INCREMENT, NONE };
 
-/// Calculates derived metrics
+/// \brief Enables Calculation of derived metrics
 ///
-/// Calculates derived metrics such as rate or average values... (available modes are enumerated in DerivedMetricMode class)
-/// For this reason past metrics are stored in a container (std::map).
-/// It applies only to metrics registered via #registerMetric method
+/// Calculates derived metrics such as rate or increment values... (available modes are enumerated in DerivedMetricMode class)
+/// For this purpose metrics are stored in a container.
 class DerivedMetrics
 {
   public:
@@ -37,12 +36,16 @@ class DerivedMetrics
     ~DerivedMetrics() = default;
 
     /// Calculates rate value based on metrics stored in mCache map
-    /// \param name 	metric name
-    /// \return 	metric with calculated rate value
+    /// \param metric 	metric object
+    /// \return 	metric object holding calculated rate value
     Metric rate(Metric& metric);
+
+    /// Increments the previous metric value by value stored in the metric
+    /// \param metric 	metric object
+    /// \return 	metric object holding incremented value
     Metric increment(Metric& metric);
 
-    /// Cache of registered metrics (metric name / vector of metric pointers).
+    /// Metrics store necessary for derived metrics
     std::unordered_map <std::string, Metric> mStorage;
 };
 

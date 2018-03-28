@@ -26,39 +26,41 @@ namespace o2
 namespace monitoring
 {
 
-/// Collects metrics from user and dispatches them to selected Monitoring backends. It also monitors the process itself.
+/// \brief Main class that collects metrics from user and dispatches them to selected monitoring backends.
 ///
-/// Collects user-defined metrics (see Metric class) and pushes them through all selected backends (see Backend).
-/// Calculates derived metrics, such as rate and average value (see #addDerivedMetric method).
-/// Adds default tags to each metric: proces name, hostname.
-/// Monitors the process itself - including memory, cpu usage and running time (see ProcessMonitor).
+/// Collects user-defined metrics (seeMetric class) and pushes them through all selected backends (seeBackend).
+/// Calculates derived metrics such as rate and increment value (seeDerivedMetrics class).
+/// Adds default tags to each metric: proces name, hostname (seeProcessDetails class)
+/// Monitors the process itself - including memory, cpu and network usage (seeProcessMonitor class).
 class Monitoring
 {
   public:
-    /// Disables copy constructor
+    /// Disable copy constructor
     Monitoring & operator=(const Monitoring&) = delete;
+
+    /// Disable copy constructor
     Monitoring(const Monitoring&) = delete;
   
-    /// Initializes backends based on passed configuration.
-    /// Instantiates derived metrics processor (see DerivedMetrics class) and process monitor (see ProcessMonitor).
+    /// Instantiates derived metrics processor (see DerivedMetrics) and process monitor (seeProcessMonitor).
     Monitoring();
 
-    /// Creates backend and appends it to backend list
+    /// Creates and appends backend to the backend list
     void addBackend(std::unique_ptr<Backend> backend);
 
     /// Joins process monitor thread if possible
     ~Monitoring();
 
     /// Sends a metric to all avaliabes backends
-    /// If metric has been added to DerivedMetric the derived metric is calculated (see addDerivedMetric method)
-    /// \param metric            r-value to metric object
+    /// If DerivedMetricMode is specified it generates and sends derived metric
+    /// \param metric           r-value to metric object
+    ///  \param mode		Derived metric mode
     void send(Metric&& metric, DerivedMetricMode mode = DerivedMetricMode::NONE);
 
-    /// Sends multiple not related to each other metrics
+    /// Sends multiple (not related to each other) metrics
     /// \param metrics  vector of metrics
     void send(std::vector<Metric>&& metrics);
 
-    /// Sends multiple realated to each other metrics under a common  measurement name
+    /// Sends multiple realated to each other metric values under a common measurement name
     /// You can imagine it as a data point with multiple values
     /// If it's not supported by a backend it fallbacks into sending one by one
     /// \param name		measurement name
@@ -72,7 +74,6 @@ class Monitoring
     /// Starts timing
     /// Sets a start timestamp and timeout
     /// \param name 		metric name
-    /// \param timeout		timeout
     void startTimer(std::string name);
 
     /// Stops timing

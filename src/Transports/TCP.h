@@ -23,20 +23,20 @@ namespace monitoring
 namespace transports
 {
 
-/// Transport that sends string formatted metrics via UDP
+/// \brief Transport that sends string formatted metrics via TCP
 class TCP : public TransportInterface
 {
   public:
     /// Constructor
     /// \param hostname      InfluxDB instance hostname
-    //  \param port          InfluxDB instance port number
+    /// \param port          InfluxDB instance port number
     TCP(const std::string &hostname, int port);
 
     /// Default destructor
     ~TCP() = default;
  
     /// Sends metric via UDP
-    /// \param lineMessage   r-value string formated
+    /// \param message   r-value string formated
     void send(std::string&& message) override;
 
     /// Dummy read method - Forwards read out buffer to cout

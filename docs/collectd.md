@@ -1,4 +1,4 @@
-# Collectd - system monitoring
+# Collectd - System monitoring
 Project website: https://collectd.org
 
 ## Installation

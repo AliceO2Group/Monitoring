@@ -1,5 +1,5 @@
 ///
-/// \file Tags.cxx
+/// \file ProcessDetails.cxx
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 ///
 
