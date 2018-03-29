@@ -44,7 +44,6 @@ script:
   - cmake ..
   - if [[ $TOOL != "doxygen" ]]; then make -j; fi
   - if [[ $TOOL != "doxygen" ]]; then make test; fi
-after_script:
-  - if [[ $TOOL == "doxygen" ]]; then cd build; make doc; fi
+  - if [[ $TOOL == "doxygen" ]]; then make doc; fi
 notifications:
   email: false
