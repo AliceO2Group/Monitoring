@@ -1,20 +1,20 @@
 # Monitoring
+[![travis-ci](https://api.travis-ci.org/AliceO2Group/Monitoring.svg?branch=master)](https://travis-ci.org/AliceO2Group/Monitoring)
+[![aliBuild](https://img.shields.io/badge/aliBuild-dashboard-lightgrey.svg)](https://alisw.cern.ch/dashboard/d/000000001/main-dashboard?orgId=1&var-storagename=All&var-reponame=All&var-checkname=build%2FMonitoring%2Fo2-dataflow%2F0&var-upthreshold=30m&var-minuptime=30)
+[![JIRA](https://img.shields.io/badge/JIRA-issues-blue.svg)](https://alice.its.cern.ch/jira/projects/OMON)
+
 Monitoring module allows to inject user defined metrics and monitor the process itself. It supports multiple backends, protocols and data formats.
 
 ## Table of contents
 1. [Installation](#installation)
 2. [Getting started](#getting-started)
 3. [Features and additional information](#features-and-additional-information)
-3. [Code snippets](#code-snippets)
-4. [System monitoring and server-side backends installation and configuration](#system-monitoring-server-side-backends-installation-and-configuration)
+4. [Code snippets](#code-snippets)
+5. [System monitoring and server-side backends installation and configuration](#system-monitoring-server-side-backends-installation-and-configuration)
 
 ## Installation
 ### RPM (CentOS 7 only)
-<details>
- <summary><strong>Click here if you don't have <i>allsw</i> repo configured</strong></summary>
-<br>
-
-+ Install `CERN-CA-certs` package (required by `alisw` repo) **(as root)**
++ Install CERN certificates
 ~~~
 yum -y install CERN-CA-certs
 ~~~
@@ -29,12 +29,10 @@ enabled=1
 gpgcheck=0
 EOF
 ~~~
-</details>
-<br>
 
 + Install Monitoring RPM package **(as root)**
 ~~~
-yum -y install alisw-Monitoring+v1.5.0-1.x86_64
+yum -y install alisw-Monitoring+v1.5.4-1.x86_64
 ~~~
 
 + Configure Modules
@@ -44,9 +42,9 @@ export MODULEPATH=/opt/alisw/el7/modulefiles:$MODULEPATH
 
 + Load enviroment
 ~~~
-eval `modulecmd bash load Monitoring/v1.5.0-1`
+eval `modulecmd bash load Monitoring/v1.5.4-1`
 ~~~
-The installation directory is: `/opt/alisw/el7/Monitoring/v1.5.0-1`
+The installation directory is: `/opt/alisw/el7/Monitoring/v1.5.4-1`
 
 ### aliBuild
 <strong>[Click here if you don't have aliBuild installed](https://alice-doc.github.io/alice-analysis-tutorial/building/)</strong>
@@ -77,6 +75,7 @@ Manual installation of the O<sup>2</sup> Monitoring module.
 + [ApMon](http://monalisa.caltech.edu/monalisa__Download__ApMon.html) (optional)
 
 #### Monitoring module compilation
+
 ~~~
 git clone https://github.com/AliceO2Group/Monitoring.git
 cd Monitoring; mkdir build; cd build
@@ -105,6 +104,7 @@ See table below to find out how to create `URI` for each backend:
 | Flume        | UDP       | `flume`                | -                |
 
 ### Sending metric
+
 ```cpp
 send(Metric&& metric)
 ```
@@ -129,6 +129,8 @@ monitoring->send(Metric{10, "myMetric"}.addTags({{"tag1", "value1"}, {"tag2", "v
 monitoring->send(Metric{10, "myCrazyMetric"}.setTimestamp(timestamp));
 ```
 
+## Features and additional information
+
 ### Grouped values
 It's also possible to send multiple, grouped values in a single metric (`Flume` and `InfluxDB` backends are supproted, others fallback into sending values in seperate metrics)
 ```cpp
@@ -140,7 +142,7 @@ For example:
 monitoring->sendGroupped("measurementName", {{20, "myMetricIntMultiple"}, {20.30, "myMetricFloatMultple"}});
 ```
 
-## Buffering metrics
+### Buffering metrics
 In order to avoid sending each metric separately, metrics can be temporary stored in the buffer and flushed at the most convenient moment.
 This feature can be operated with following two methods:
 ```cpp
@@ -161,7 +163,6 @@ monitoring->send({20, "myMetricInt2"});
 monitoring->flushBuffer();
 ```
 
-## Features and additional information
 ### Metrics
 Metrics consist of 4 parameters: name, value, timestamp and tags.
 
@@ -208,190 +209,8 @@ Code snippets are available in [examples](examples/) directory.
 ## System monitoring, server-side backends installation and configuration
 This guide explains manual installation. For `ansible` deployment see [AliceO2Group/system-configuration](https://gitlab.cern.ch/AliceO2Group/system-configuration/tree/master/ansible) gitlab repo.
 
-### collectD
-+ Install collectd package **(as root)**
-~~~
-yum -y install collectd
-~~~
-
-+ Edit configuration file: `/etc/collectd.conf`**(as root)**
-~~~
-Interval     10
-Include "/etc/collectd.d"
-~~~
-
-+ Configure `network` write plugin: `/etc/collectd.d/network.conf` in order to push metrics to InfluxDB instance. Replace `<influxdb-host>` with InfluxDB hostname. **(as root)**
-~~~
-LoadPlugin network
-<Plugin network>
-  Server "<influxdb-host>" "25826"
-</Plugin>
-~~~
-
-+ Configure `cpu` module: `/etc/collectd.d/cpu.conf` **(as root)**
-~~~
-LoadPlugin cpu
-<Plugin cpu>
-  ReportByCpu true
-  ReportByState true
-  ValuesPercentage true
-</Plugin>
-~~~
-
-+ Configure `disk` plugin: `/etc/collectd.d/disk.conf` **(as root)**
-~~~
-LoadPlugin disk
-<Plugin disk>
-  Disk "/[hs]d[a-f][0-9]?$/"
-  IgnoreSelected false
-  UseBSDName false
-  UdevNameAttr "DEVNAME"
-</Plugin>
-~~~
-
-+ Configure `interface` plugin: `/etc/collectd.d/interface.conf` **(as root)**
-~~~
-LoadPlugin interface
-~~~
-
-+ Configure `load` plugin: `/etc/collectd.d/load.conf` **(as root)**
-~~~
-LoadPlugin interface
-~~~
-
-+ Configure `memory` plugin: `/etc/collectd.d/memory.conf` **(as root)**
-~~~
-LoadPlugin memory
-~~~
-
-+ Configure `uptime` plugin: `/etc/collectd.d/uptime.conf` **(as root)**
-~~~
-LoadPlugin uptime
-~~~
-
-+ Start collectd **(as root)**
-~~~
-systemctl start collectd.service
-systemctl enable collectd.service
-~~~
-
-### InfluxDB
-+ Add `influxdb` repo **(as root)**
-~~~
-cat > /etc/yum.repos.d/influxdb.repo <<EOF
-[influxdb]
-name = InfluxDB Repository - RHEL \$releasever
-baseurl = https://repos.influxdata.com/rhel/\$releasever/\$basearch/stable
-enabled = 1
-gpgcheck = 1
-gpgkey = https://repos.influxdata.com/influxdb.key
-EOF
-~~~
-
-+ Install InfluxDB package **(as root)**
-~~~
-yum -y install influxdb collectd
-~~~
-
-+ Add UDP endpoint for application related metrics by editing configuration file `/etc/influxdb/influxdb.conf` with database name `test` and UDP port number `8088`. **(as root)**
-~~~
-[[udp]]
-  enabled = true
-  bind-address = ":8088"
-  database = "test"
-  batch-size = 5000
-  batch-timeout = "1s"
-  batch-pending = 100
-  read-buffer = 8388608
-~~~
-
-+ Add an endpoint for `collectd` **(as root)**
-~~~
-[[collectd]]
-  enabled = true
-  bind-address = ":25826"
-  database = "system-monitoring"
-  typesdb = "/usr/share/collectd/types.db"
-~~~
-
-+ Open UDP port `25826` and `8088` **(as root)**
-~~~
-firewall-cmd --zone=public --permanent --add-port=8088/udp
-firewall-cmd --zone=public --permanent --add-port=25826/udp
-firewall-cmd --reload
-~~~
-
-+ Start InfluxDB **(as root)**
-~~~
-systemctl start influxdb
-~~~
-
-+ Create database `test` and `system-monitoring`
-~~~
-influx
-influx> create database test
-influx> create database system-monitoring
-~~~
-More details available at [InfluxDB page](https://docs.influxdata.com/influxdb/v1.2/introduction/installation/).
-
-### Flume
-+ Install Java **(as root)**
-~~~
-yum -y install java
-~~~
-
-+ Download [latest release](http://www-eu.apache.org/dist/flume/1.7.0/apache-flume-1.7.0-bin.tar.gz) of Apache Flume
-
-+ Unpack file
-~~~
-tar -xvzf apache-flume-1.7.0-bin.tar.gz
-~~~
-
-+ Install custom source and/or sink from [MonitoringCustomComponents repo]( https://github.com/AliceO2Group/MonitoringCustomComponents).
-Adjust configuration file according to source/sink instructions. The sample configuration file is available in `conf/flume-conf.properties.template`.
-
-+ Launch Flume using following command:
-~~~
-$ bin/flume-ng agent -n <agent-name> -c conf -f conf/<flume-confing>
-~~~
-Set correct `<agent-name>` and `<flume-confing>` name.
-
-See [Flume User Guide](https://flume.apache.org/FlumeUserGuide.html) documentation for more details.
-
-### Grafana
-
-+ Add Grafana repo **(as root)**
-~~~
-curl -s https://packagecloud.io/install/repositories/grafana/stable/script.rpm.sh | bash
-~~~
-
-+ Install Grafana package **(as root)**
-~~~
-yum -y install grafana
-~~~
-
-+ Open port 3000 **(as root)**
-~~~
-firewall-cmd --zone=public --add-port 3000/tcp --permanent
-firewall-cmd --reload
-~~~
-
-+ Change default `admin_user` and `admin_password`: `/etc/grafana/grafana.ini`. **(as root)**
-
-See more regarding configuration file in the official documentation: http://docs.grafana.org/installation/configuration/
-
-+ (Enable SSL)
-  + Set protocol to `https`, `ssl_mode` to `skip-verify` in configuration file
-  + Generate private key and certificate via [CERN Certification Authority](https://ca.cern.ch/ca/host/HostCertificates.aspx)
-  + Set `cert_file` and `cert_key` value in configuration file
-
-+ (Configure LDAP-based login: `/etc/grafana/ldap.toml`)
-See official documentation at the Grafana webpage: http://docs.grafana.org/installation/ldap/
-
-+ Start Grafana **(as root)**
-~~~
-systemctl start grafana-server
-~~~
-
-### MonALISA Service
-Follow official [MonALISA Service Installation Guide](http://monalisa.caltech.edu/monalisa__Documentation__Service_Installation_Guide.html).
+ + [Collectd](doc/collectd.md)
+ + [Flume](doc/flume.md)
+ + [InfluxDB](doc/influxdb.md)
+ + [Grafana](doc/grafana.md)
+ + [MonALISA](http://monalisa.caltech.edu/monalisa__Documentation__Service_Installation_Guide.html) (external link)

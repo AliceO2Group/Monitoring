@@ -22,23 +22,23 @@ namespace monitoring
 namespace backends
 {
 
-/// Backend that sends metrics to custum Apache Flume source
+/// \brief Backend that sends metrics to custum Apache Flume source
 ///
 /// Metrics are serialized to JSON strings and send via UDP
 class Flume final : public Backend
 {
   public:
 
-    /// Constructor, uses UDP transport
-    /// \param hostname  Flume HTTP endpoint hostanme
-    /// \param port      Flume HTTP endpoint port number
+    /// Constructor, creates UDP transport
+    /// \param host      Flume endpoint hostanme
+    /// \param port      Flume endpoint port number
     Flume(const std::string& host, unsigned int port);
 
     /// Default destructor
     ~Flume() = default;
 
     /// Convert timestamp to unsigned long as required by Flume
-    /// \param 		 chrono time_point timestamp
+    /// \param timestamp chrono time_point timestamp
     /// \return  	 timestamp in nanoseconds
     inline unsigned long convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp);
 
@@ -52,8 +52,7 @@ class Flume final : public Backend
 
     /// Sends multiple metric in single packet
     /// Not supported by the backend therefore it falls back to sending metric one by one
-    /// TODO: changed required in Flume Source
-    /// \param name     measurement name
+    /// \param measurement     measurement name
     /// \param metrics  list of metrics 
     void sendMultiple(std::string measurement, std::vector<Metric>&& metrics) override;
 

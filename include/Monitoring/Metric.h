@@ -20,35 +20,35 @@ namespace monitoring
 
 enum MetricType { INT = 0, STRING = 1, DOUBLE = 2, UINT64_T = 3 };
 
-/// \brief Represents metric parameters except (value, name, entity and timestamp)
+/// \brief Represents a metric including value, type of the value, name, timestamp and tags
 class Metric
 {
   public:
-    /// Initialize class variables
+    /// Integer metric construtor
     /// \param value 	 	metric value (int)
     /// \param name 	 	metric name
     /// \param timestamp 	metric timestamp in milliseconds
     Metric(int value, const std::string& name, std::chrono::time_point<std::chrono::system_clock> timestamp = Metric::getCurrentTimestamp());
 
-    /// Initialize class variables
+    /// String metric construtor
     /// \param value            metric value (string)
     /// \param name             the metric name
     /// \param timestamp        metric timestamp in milliseconds    
     Metric(std::string value, const std::string& name, std::chrono::time_point<std::chrono::system_clock> timestamp = Metric::getCurrentTimestamp());
 
-    /// Initialize class variables
+    /// Double metric constructor
     /// \param value            metric value (double)
     /// \param name             metric name
     /// \param timestamp        metric timestamp in milliseconds 
     Metric(double value, const std::string& name, std::chrono::time_point<std::chrono::system_clock> timestamp = Metric::getCurrentTimestamp());
 
-    /// Initialize class variables
+    /// uint64_t metric constructor
     /// \param value            metric value (uint64_t)
     /// \param name             metric name
     /// \param timestamp        metric timestamp in milliseconds
     Metric(uint64_t value, const std::string& name, std::chrono::time_point<std::chrono::system_clock> timestamp = Metric::getCurrentTimestamp());
 
-    /// Initialize class variables, required by derived metrics logic
+    /// boost variant metric constructor, required by derived metrics logic
     /// \param value            metric value (boost variant)
     /// \param name             metric name
     /// \param timestamp        metric timestamp in milliseconds
@@ -62,7 +62,7 @@ class Metric
     std::string getName() const;
 
     /// Name setter
-    /// \param	new name of the metric
+    /// \param name	new name of the metric
     void setName(std::string name);
 
     /// Timestamp getter
@@ -82,12 +82,12 @@ class Metric
     std::vector<Tag> getTags() const;
 
     /// Sets user defined timestamp
-    /// \param           timestamp
-    /// \return          r-value to "this" - to be able to chain methods
+    /// \param timestamp	timestamp to set
+    /// \return         	 r-value to "this" - to be able to chain methods
     Metric&& setTimestamp(std::chrono::time_point<std::chrono::system_clock>& timestamp);
  
     /// Add user defined tags
-    /// \param           r-value to vector of tags
+    /// \param tags      r-value to vector of tags
     /// \return          r-value to "this" - to be able to chain methods
     Metric&& addTags(std::vector<Tag>&& tags);
 

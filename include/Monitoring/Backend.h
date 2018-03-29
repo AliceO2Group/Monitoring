@@ -16,7 +16,7 @@ namespace o2
 namespace monitoring 
 {
 
-/// Backend pure virtual interface
+/// \brief Backend pure virtual interface
 ///
 /// Interface that allows to send a metric to remote backend.
 /// In addition, default tagset (for all handled metrics) can be created.

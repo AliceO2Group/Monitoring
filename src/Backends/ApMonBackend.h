@@ -24,14 +24,14 @@ namespace backends
 /// \brief Backend that uses AppMon (MonALISA)
 ///
 /// Uses ApMonBackend library to push metric to MonALISA Service.
-/// ApMonBackend accepts timestamps as integers, therefore cast is needed (see method #convertTimestamp)
+/// ApMonBackend accepts timestamps as integers, therefore a cast is needed.
 ///
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 class ApMonBackend final : public Backend
 {
   public:
     /// Constructs AppMon backend
-    /// \param configurationFile 	filepath to ApMonBackend configuration file
+    /// \param path 	filepath to ApMonBackend configuration file
     ApMonBackend(const std::string& path);
 
     /// Default destructor
@@ -47,7 +47,7 @@ class ApMonBackend final : public Backend
     void send(const Metric& metric) override;
 
     /// Sends grouped metrics  under common measuremet name
-    /// \param name     measurement name
+    /// \param measurement     measurement name
     /// \param metrics  list of metrics
     void sendMultiple(std::string measurement, std::vector<Metric>&& metrics) override;
 

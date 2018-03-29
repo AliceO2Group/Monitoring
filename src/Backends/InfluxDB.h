@@ -21,20 +21,20 @@ namespace monitoring
 namespace backends
 {
 
-/// Backend that sends metrics to InfluxDB time-series databse
+/// \brief Backend that sends metrics to InfluxDB time-series databse
 ///
 /// Metrics are converted into Influx Line protocol and then sent via one of available transports
 class InfluxDB final : public Backend
 {
   public:
-    /// Constructor for both HTTP and  UDP transports
-    /// \param hostname  InfluxDB UDP endpoint hostname
+    /// Constructor for UDP transport
+    /// \param host      InfluxDB UDP endpoint hostname
     /// \param port      InfluxDB UDP endpoint port number
     InfluxDB(const std::string& host, unsigned int port);
 
-    /// Constructor for both HTTP and  UDP transports
-    /// \param hostname  InfluxDB UDP endpoint hostname
-    /// \param port      InfluxDB UDP endpoint port number
+    /// Constructor for HTTP transport
+    /// \param host      InfluxDB HTTP endpoint hostname
+    /// \param port      InfluxDB HTTP endpoint port number
     /// \param path	 Query path
     InfluxDB(const std::string& host, unsigned int port, const std::string& path);
 
@@ -42,7 +42,7 @@ class InfluxDB final : public Backend
     ~InfluxDB() = default;
 
     /// Convert timestamp to unsigned long as required by InfluxDB
-    /// \param 		 chrono time_point timestamp
+    /// \param timestamp  chrono time_point timestamp
     /// \return  	 timestamp in nanoseconds
     inline unsigned long convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp);
 
@@ -55,7 +55,7 @@ class InfluxDB final : public Backend
     void send(std::vector<Metric>&& metrics) override;
 
     /// Sends multiple values in single measurement
-    /// \param name 	measurement name
+    /// \param measurement measurement name
     /// \param metrics 	list of metrics
     void sendMultiple(std::string measurement, std::vector<Metric>&& metrics) override;
 

@@ -15,6 +15,7 @@ namespace o2
 namespace monitoring
 {
 
+/// \brief Internal monitoring exception
 class MonitoringInternalException : public std::exception
 {
   public:
