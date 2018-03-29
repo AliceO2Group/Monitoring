@@ -77,8 +77,8 @@ The large amount of monitoring data generated from the O2 Facility requires a hi
 -	the Flume event, defined "as a unit of data flow having a byte payload and an optional set of string attributes".
 -	the Flume agent, a "process that hosts the components through which events flow from an external source to the next destination (hop)".
 
-![](images/flume-arc.png)<br>
-*Figure 3. Flume agent*<br>
+![](images/flume-arc.png)
+<p align="center">*Figure 3. Flume agent*</p>
 
 The external source sends events to Flume in a format that is recognised by the target Flume source. When a Flume source receives an event, it stores it into one or more channels. The channel is a passive store that keeps the event until it's consumed by a Flume sink. Channels could be store events in memory (for fast transmissions) or on local file system (for reliable transmissions). The sink removes the event from the channel and puts it into an external repository, like HDFS, or forwards it to the Flume source of the next Flume agent (next hop) in the flow. The source and sink within the given agent run asynchronously with the events staged in the channel.
 An advantage to use Apache Flume is its high compatibility with other components belonging to the Hadoop ecosystem, like Apache Spark, providing natively components to receive and transmit data from and to the most important Hadoop components (HDFS, Apache HBase, Apache Hive, Apache Kafka, …. ). Unfortunately, Flume components able to read from and write to the selected tools are not provided. Custom components are been developed except for Apache Spark integration.
@@ -107,8 +107,8 @@ The Flume components need a custom implementation are:
 
 The Fig 4 shows with more details the inner architecture of Flume components.
 
-![](images/flume_inner_arc.png)<br>
-*Figure 4. Flume inner architecture*<br>
+![](images/flume_inner_arc.png)
+<p align="center">*Figure 4. Flume inner architecture*</p>
 
 The channel selectors allow the routing of metric towards specific sinks using an attribute value contained in the Flume event: a switch-case structure route the event towards one or multiple channels. Generally, not all the metrics belonging to a group (application, process or collectd information) will be sent all towards a specific channel but a subgroup of them. To manage this need, interceptors could be inserted after the source in order to add specific attribute values to specific event in order to allow a successful routing. There is no interceptor after the Spark Source, since the information enrichment could be done directly in the Spark tasks. Following will be discuss of every of component shown in the Figure 4.
 
@@ -164,10 +164,10 @@ For Example, the Flume event:
 produces the InfluxDB Line Protocol:
 
 ```
-"cpy,host=cnaf0.infn.it,site=CNAF,cpu=1 idle=0.93,user=0.03 434324343"
+"cpu,host=cnaf0.infn.it,site=CNAF,cpu=1 idle=0.93,user=0.03 434324343"
 ```
 
-Further information are provided on the [Github Flume UDP InfluxDB Sink page](https://github.com/AliceO2Group/MonitoringCustomComponents/tree/master/flume-udp-influxdb-sink)
+Further information are provided on the [Github page](https://github.com/AliceO2Group/MonitoringCustomComponents/tree/master/flume-udp-influxdb-sink)
 
 
 #### 2.2.2 Grafana Sink
@@ -191,14 +191,13 @@ The Application and Process Source has the goal to receive the data sent from th
 
 ```JSON
 [{"headers" : {
-	   "timestamp" : "434324343",
-	   "tag_host" : "random_host.example.com",
-	   "name" : "cpu",
-	   "value_idle" : "0.13"
-	   },
+    "timestamp" : "434324343",
+    "tag_host" : "random_host.example.com",
+    "name" : "cpu",
+    "value_idle" : "0.13"
+    },
   "body" : "random_body"
-  },
-  ...
+  }
 ]
 ```
 The Body field is not decoded.
@@ -206,7 +205,7 @@ Further information to how configure the custom Flume UDP Source are provides on
 
 #### 2.2.6 CollectD Source
 
-The CollectD Source has the goal to collect data coming from CollectD clients. HTTP protocol with "JSON format"[https://collectd.org/wiki/index.php/Plugin:Write_HTTP] is selected for simplicity and consistency, since within the JSON is provided the value names, value formats and value fields. The "command format" even if used less bytes per metric, it requires an version dependent external file containing from which extract the metric name, type and format information. So to be version independent, the JSON format has been selected.
+The CollectD Source has the goal to collect data coming from CollectD clients. HTTP protocol with [JSON format](https://collectd.org/wiki/index.php/Plugin:Write_HTTP) is selected for simplicity and consistency, since within the JSON is provided the value names, value formats and value fields. The "command format" even if used less bytes per metric, it requires an version dependent external file containing from which extract the metric name, type and format information. So to be version independent, the JSON format has been selected.
 Flume natively provides a HTTP Source but it is not able to decode the CollectD JSON format. Custom handlers could be added to the HTTP Source to parse unsupported formats. The CollectD JSON HTTP Handler has been implemented instead of the whole custom HTTP Source.
 Following an example of a CollectD JSON format is shown:
 
@@ -248,12 +247,12 @@ Following the above actions, the CollectD JSON shown before produces the followi
 ```JSON
 [{"headers" : {
     "timestamp" : "1251533299265000000",
-   	"tag_host" : "leeloo.lan.home.verplant.org",
-  	"name" : "disk_read",
-  	"value_value":  "197141504",
-  	"type_value" : "long",
-  	"tag_plugin_instance": "sda",
-  	"tag_type": "disk_octets"
+    "tag_host" : "leeloo.lan.home.verplant.org",
+    "name" : "disk_read",
+    "value_value":  "197141504",
+    "type_value" : "long",
+    "tag_plugin_instance": "sda",
+    "tag_type": "disk_octets"
     },
   "body" : ""
   },
