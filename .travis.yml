@@ -5,9 +5,16 @@ matrix:
   include:
     - os: osx
       osx_image: xcode9.2
-      env:
+      env: TOOL=test
     - os: linux
-      env:
+      env: TOOL=test
+    - os: linux
+      env: TOOL=clang-format
+      addons:
+        apt:
+          sources: *sources
+          packages: ['clang-format-3.9']
+      compiler: clang
     - os: linux
       env: TOOL=doxygen
       addons:
@@ -42,8 +49,22 @@ before_script:
   - mkdir build; cd build
 script:
   - cmake ..
-  - if [[ $TOOL != "doxygen" ]]; then make -j; fi
-  - if [[ $TOOL != "doxygen" ]]; then make test; fi
+  - if [[ $TOOL == "test" ]]; then make -j; fi
+  - if [[ $TOOL == "test" ]]; then make test; fi
   - if [[ $TOOL == "doxygen" ]]; then make doc; fi
+  - if [[ $TOOL == "clang-format" ]] && [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
+      cd $TRAVIS_BUILD_DIR;
+      BASE_COMMIT=$(git rev-parse $TRAVIS_BRANCH);
+      COMMIT_FILES=$(git diff --name-only $BASE_COMMIT | grep -i -v LinkDef);
+      RESULT_OUTPUT="$(git-clang-format-3.9 --commit $BASE_COMMIT --diff --binary `which clang-format-3.9` $COMMIT_FILES)";
+      if [ "$RESULT_OUTPUT" == "no modified files to format" ] || [ "$RESULT_OUTPUT" == "clang-format did not modify any files" ]; then
+        echo "clang-format passed";
+        exit 0;
+      else
+        echo "clang-format failed.";
+        echo "$RESULT_OUTPUT";
+        exit 1;
+      fi
+    fi
 notifications:
   email: false
