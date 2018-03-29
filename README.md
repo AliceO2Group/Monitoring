@@ -209,8 +209,8 @@ Code snippets are available in [examples](examples/) directory.
 ## System monitoring, server-side backends installation and configuration
 This guide explains manual installation. For `ansible` deployment see [AliceO2Group/system-configuration](https://gitlab.cern.ch/AliceO2Group/system-configuration/tree/master/ansible) gitlab repo.
 
- + [Collectd](docs/collectd.md)
- + [Flume](docs/flume.md)
- + [InfluxDB](docs/influxdb.md)
- + [Grafana](docs/grafana.md)
+ + [Collectd](doc/collectd.md)
+ + [Flume](doc/flume.md)
+ + [InfluxDB](doc/influxdb.md)
+ + [Grafana](doc/grafana.md)
  + [MonALISA](http://monalisa.caltech.edu/monalisa__Documentation__Service_Installation_Guide.html) (external link)
