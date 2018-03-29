@@ -5,6 +5,7 @@
 The main goal of the monitoring system is to supply an easy-to-use, customisable and complete user-interface capable to provide all needed information related to the state of O2 Facility. Graphical interfaces and an alarming service are been selected to satisfy this requirement. Both near-real-time and historical monitoring data are considered important to cover all performance aspects and by means of evaluate all facility components' state. On the other hand, only collecting fully comprehensive information data the monitoring system is able to accomplish its goal. Three monitoring data types has been selected: applications, processes and systems information. These components send periodically monitoring data to both near-real-time and historical dashboards. In the near-real-time dashboard the information must be displayed as soon as possible in order to allow experts to be reactive to abnormal situations, so a low latency transport layer is mandatory. Whereas, the historical dashboard does not require a high resolution monitoring data, since its goal is more related to statistical, debugging and accounting purposes. Data aggregation and other processing tasks like suppression, enrichment and correlation tasks, must be provided from a processing component. Historical data must be stored in a dedicated component from which the historical dashboard retrieves the information to display. The selected database must be support large input metric rates, low storage size and down-sampling. Dashboards must display time series data using plots, gauges, bar, and other graphical objects. The near-real-time dashboard must plot low latency status information, useful for shift crews and providing a summary view of the ongoing ALICE operations. Whereas the historical one must display data stored in the storage component, useful for experts and allowing for drill down and detailed views. These dashboards must be accessed from different operating systems and from outside of the ALICE Point 2. The alarming component must support experts by detecting abnormal situations both in historical or near-real-time scenario. Figure 1 shows the functional architecture of the system, where the metric collection, processing, storage, visualisation and alarming components are been highlighted.
 
 ![](images/gen_arch.png)
+
 <p align="center">Figure 1. Monitoring architecture</p>
 
 Below, the list of requirements regarding the monitoring subsystem has been established from the information available in the [O2 Technical Design Report](https://cds.cern.ch/record/2011297/files/ALICE-TDR-019.pdf):
@@ -142,21 +143,21 @@ Key-words have been given to these fields:
 -	`name` for the metric_name
 -	`timestamp` for timestamp
 -	`tag_` as prefix of tags. Example `tag_host` and `tag_type_instance`.
--	`value_` as prefix of values. Example: `value_idle` and "value_hostid`.
+-	`value_` as prefix of values. Example: `value_idle` and `value_hostid`.
 
 If other key-words are found from the sink, they won't be considered.
 For Example, the Flume event:
 
 ```JSON
 [{"headers" : {
-	"timestamp" : "434324343",
-	"tag_host" : "cnaf0.infn.it",
-	"tag_cpu" : "1",
-	"tag_site" : "CNAF",
-	"name" : "cpu",
-	"value_idle" : "0.93",
-	"value_user" : "0.03"
-	},
+    "timestamp" : "434324343",
+    "tag_host" : "cnaf0.infn.it",
+    "tag_cpu" : "1",
+    "tag_site" : "CNAF",
+    "name" : "cpu",
+    "value_idle" : "0.93",
+    "value_user" : "0.03"
+    },
   "body" : ""
   }
 ]
@@ -242,7 +243,7 @@ The following actions are implemented in the Collectd JSON HTTP Handler:
 - The value in put into the `value_value` Flume event.
 - `plugin_instance`, `type`, `type_instance` empty fields are not inserted in the Flume event.
 
-All data are in string format since stored in headers Flume Event field (`Map<String,String>`). The `type_value` field is considered optional.
+All data are in string format since stored in headers Flume Event field. The `type_value` field is considered optional.
 Following the above actions, the CollectD JSON shown before produces the following Flume event.
 
 ```JSON
