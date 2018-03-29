@@ -45,8 +45,6 @@ script:
   - if [[ $TOOL != "doxygen" ]]; then make -j; fi
   - if [[ $TOOL != "doxygen" ]]; then make test; fi
 after_script:
-  - if [[ $TOOL == "doxygen" ]]; then cd ..; git grep -l '^```[a-zA-Z]' | xargs sed -i .old -e 's|```\([a-zA-Z][a-zA-Z]*\)|\n```{.\1}\n|g;s|[.]bash|.sh|g;s|```|~~~~~~~|g'; fi
-  - if [[ $TOOL == "doxygen" ]]; then find . -name "*.old" -delete; fi
   - if [[ $TOOL == "doxygen" ]]; then cd build; make doc; fi
 notifications:
   email: false
