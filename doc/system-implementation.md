@@ -47,23 +47,31 @@ These dashboards display data as time series plots, gauges, bar, and other graph
 Eventually, the alarming component detects abnormal situations and notifies experts in form on text message or other mean of notification.
 
 ## 3. The Modular Stack
-The Modular Stack solution aims at fulfilling the requirements specified in the Section 1 by using multiple, replaceable tools. Such approach enables the possibility of replacing one or more of the selected components in case alternative options provide improved performance or additional functionalities. Moreover, opting for open source tools supported by developers ensures reliability, performance improvement. The provided documentation took was a important feature during the tool selection. For all the softwares external resources like website documentations, mailing lists (Google Groups), Github, books and tutorial are available to accelerating the learning curve and simplifying the project handover. Moreover, all the selected tools are compatible with the most important Linux distributions, including CERN CentOS 7.
-The Modular Stack requires maintaining multiple tools and therefore compatibility between them. This results in higher system complexity and necessity to acquire knowledge on all the components. In case one of the selected tools breaks backward compatibility, becomes obsolete or its maintenance or support is dropped, the system might need to be adjusted or even redesigned. On the other hand, only standardised protocols are used for the communication which can facilitate any future migration. There is also the possibility that newly introduced features will require the purchasing of a subscription or license.
-Following an overview of the chosen tools. More details of each components will be described in the next sections.
-The monitoring system collects three different types of monitoring data: application, process and system information. The first two are covered from a O2 monitoring library, whereas the third is provided using an external tool. [CollectD](http://collectd.org/) was selected for retrieving system metrics (related to CPU, memory and I/O) from all hosts belonging to the O2 Facility. The high monitoring data rate requires a transport layer capable to manage and route all collected data. [Apache Flume](https://flume.apache.org/), "a distributed and highly-reliable service for collecting, aggregating and moving large amounts of data in a very efficient way. ", has been selected. Moreover, it could execute also simple processing tasks. As storing component [InfluxDB](https://docs.influxdata.com/influxdb/v1.5/), "a custom high-performance data store written specifically for time series data", fulfils all the above requirements. [Grafana](https://grafana.com/) is selected as graphical interface to display time series data for near-real-time and historical prospectives. [Riemann](http://riemann.io/) provides useful ways to forward externally alarms using multiple plugins and allows to implement some processing tasks internally. All remaining more complex processing tasks are implemented through [Apache Spark](https://spark.apache.org/), "a fast and general-purpose engine for large-scale data processing". The figure 2 shows the actual architecture of Modular Stack with all the components enunciated.
+The Modular Stack solution aims at fulfilling the requirements specified in the Section 1 by using multiple and replaceable tools. Such approach enables the possibility of replacing one or more of the selected components in case alternative options provide improved performance or additional functionalities.
+This section gives an overview of Modular Stack components, see Figure 2, while the detailed description can be found in the following chapters.
 
 ![](images/monsta_arc.png)
 
 <p align="center">Figure 2. Modular Stack architecture</p>     
 
-### 2.1 Sensors
-The O2 Monitoring subsystem collects three classes of metrics:
-- Application.
-- Process.
-- System (and infrastructure).
-All these metrics are pushed to the backend for the processing, aggregation and storage.
+The O<sup>2</sup> Modular Stack collects three classes of metrics (as defined in Section 2) with assistance of [O<sup>2</sup> Monitoring library](http://github.com/AliceO2Group/Monitoring) (Application and process metrics)
+and [CollectD](http://collectd.org/) (system information). Collectd deploys system sensors to collect metrics related to CPU, memory and I/O from all O<sup>2</sup> nodes. The requirements of high monitoring metric rate collection and metric routing is address via [Apache Flume](https://flume.apache.org/), "a distributed and highly-reliable service for collecting, aggregating and moving large amounts of data in a very efficient way". Moreover, Flume can also run simple processing tasks. [InfluxDB](https://docs.influxdata.com/influxdb/v1.5/), "a custom high-performance data store written specifically for time series data", was selected as a storage. [Grafana](https://grafana.com/) provides graphical interfaces to display near real-time and historical metrics. [Riemann](http://riemann.io/) triggers alarms using multiple plugins and allows to implement some processing tasks. All remaining and complex processing tasks are implemented through [Apache Spark](https://spark.apache.org/), "a fast and general-purpose engine for large-scale data processing".
 
-#### 2.1.1 Collectd - system metrics
+### 3.1 Sensors and data sources
+As explained in the Section 2 three classes of metric are collected using O<sup>2</sup> Monitoring library and CollectD. This section provide more details regarding these tools.
+
+#### 3.1.1 Monitoring library - application and process metrics
+| Metric    | Metric description | Requirements |
+| --------- | ------------------ | ------------ |
+| Bytes received and transmitted | Number of bytes received and transmitted by the process (per interface) | `/proc` |
+| pmem | CPU usage | `ps` |
+| pcpu | Memory usage | `ps` |
+
+
+The Application metric collection provides an entry point from O2 processes to the Monitoring subsystem. It forwards user defined metrics to the processing backend via connection or connection-less transport protocols.
+
+
+#### 3.1.2 Collectd - system metrics
 | Plugin    | Metric description | Requirements | Comments |
 | --------- | ------------------ | ------------ | -------- |
 | CPU       | Amount of time spent by the CPU in various states (user, system, io, idle, irq) | `/proc` | Jiffie unit |
@@ -79,15 +87,6 @@ Data from collectd can be transferred by one of two plugins (the selection is do
  - Network - binary protocol over UDP, natively supported by InfluxDB
  - Write HTTP - Formats data JSON and send over HTTP, Supported by Flume JSON Collectd HTTP Handler
 
-#### 2.1.2 Process related metrics
-| Metric    | Metric description | Requirements |
-| --------- | ------------------ | ------------ |
-| Bytes received and transmitted | Number of bytes received and transmitted by the process (per interface) | `/proc` |
-| pmem | CPU usage | `ps` |
-| pcpu | Memory usage | `ps` |
-
-#### 2.1.3 Application specific metrics
-The Application metric collection provides an entry point from O2 processes to the Monitoring subsystem. It forwards user defined metrics to the processing backend via connection or connection-less transport protocols.
 
 ### 2.2 Transport Layer
 The large amount of monitoring data generated from the O2 Facility requires a high-performance transport layer. The main goal of this component is to receive monitoring data from the sensors installed on every host in the O2 Facility and route them towards the historical storage(InfluxDB), near-real-time dashboard(Grafana), Alarming component(Riemann) and computing unit(Apache Spark), as shown in Figure 2. Routing capability allows to send incoming data from the same data source towards different consumers. Apache Flume has been selected to fulfill the transport layer requirements. It is defined a "distributed, reliable, and available system for efficiently collecting, aggregating and moving large amounts of log data from many different sources to a centralized data store". Moreover, it "can be used to transport massive quantities of event data including but not limited to network traffic data, social-media-generated data, email messages and pretty much any data source possible". The Flume data flow model depends on:
