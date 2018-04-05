@@ -2,36 +2,52 @@
 
 ## 1. Goal and requirements
 
-The main goal of the monitoring system is to supply an easy-to-use, customisable and complete user-interface capable to provide all needed information related to the state of O2 Facility. Graphical interfaces and an alarming service are been selected to satisfy this requirement. Both near-real-time and historical monitoring data are considered important to cover all performance aspects and by means of evaluate all facility components' state. On the other hand, only collecting fully comprehensive information data the monitoring system is able to accomplish its goal. Three monitoring data types has been selected: applications, processes and systems information. These components send periodically monitoring data to both near-real-time and historical dashboards. In the near-real-time dashboard the information must be displayed as soon as possible in order to allow experts to be reactive to abnormal situations, so a low latency transport layer is mandatory. Whereas, the historical dashboard does not require a high resolution monitoring data, since its goal is more related to statistical, debugging and accounting purposes. Data aggregation and other processing tasks like suppression, enrichment and correlation tasks, must be provided from a processing component. Historical data must be stored in a dedicated component from which the historical dashboard retrieves the information to display. The selected database must be support large input metric rates, low storage size and down-sampling. Dashboards must display time series data using plots, gauges, bar, and other graphical objects. The near-real-time dashboard must plot low latency status information, useful for shift crews and providing a summary view of the ongoing ALICE operations. Whereas the historical one must display data stored in the storage component, useful for experts and allowing for drill down and detailed views. These dashboards must be accessed from different operating systems and from outside of the ALICE Point 2. The alarming component must support experts by detecting abnormal situations both in historical or near-real-time scenario. Figure 1 shows the functional architecture of the system, where the metric collection, processing, storage, visualisation and alarming components are been highlighted.
+The goal of the monitoring system is to provide experts and shift crew in the ALICE Control Centre with an in-depth state of the O<sup>2</sup> computing farm. The near-real-time and historical graphical dashboards interface with users providing outstanding experience and allow grasp easily large amount of monitoring data.
+In order to supply data to the end user the set of tools has been selected in the official evaluation to meet the requirements specified in the [O<sup>2</sup> Technical Design Report](https://cds.cern.ch/record/2011297/files/ALICE-TDR-019.pdf) and defined by O2 Work Package 8:
+- Compatible with the O<sup>2</sup> reference operating system (currently CERN CentOS 7).
+- Well documented.
+- Actively maintained and supported by developers.
+- Run in isolation when external services and/or connection to outside of ALICE are not available.
+- Capable of handling 600 kHz input metric rate.
+- Scalable to >> 600 kHz if necessary.
+- Handle at least 100 000 sources.
+- Introduce latency no higher than 500 ms up to the processing layer, and 1000 ms to the visualisation layer.
+- Impose low storage size per measurement.
+- Aligned with functional architecture:
+  - Sensors.
+  - Metric processing.
+  - Historical record and near-real-time visualisation.
+  - Alarming.
+  - Storage that supports down-sampling, large input metric rates and low storage size.
+
+  In addition, some optional requirements may positively influence the final rating:
+  -	Supported by CERN or used in one of the experiments/departments.
+  -	Self-recovery in case of connectivity issues.
+
+## 2. Functional architecture
+
+Figure 1 shows the functional architecture of the system. Three monitoring data sources has been identified:
+- Application (O<sup>2</sup> related)
+- Process
+- System.
 
 ![](images/gen_arch.png)
 
 <p align="center">Figure 1. Monitoring architecture</p>
 
-Below, the list of requirements regarding the monitoring subsystem has been established from the information available in the [O2 Technical Design Report](https://cds.cern.ch/record/2011297/files/ALICE-TDR-019.pdf):
- - Compatible with the O2 reference operating system (currently CERN CentOS 7).
- - Well documented.
- - Actively maintained and supported by developers.
- - Run in isolation when external services and/or connection to outside of ALICE are not available.
- - Capable of handling 600 kHz input metric rate.
- - Scalable to >> 600 kHz if necessary.
- - Handle at least 100 000 sources.
- - Introduce latency no higher than 500 ms up to the processing layer, and 1000 ms to the visualisation layer.
- - Impose low storage size per measurement.
- - Aligned with functional architecture:
-   - Sensors.
-   - Metric processing.
-   - Historical record and near-real-time visualisation.
-   - Alarming.
-   - Storage that supports down-sampling, large input metric rates and low storage size.
+These data sources send the monitoring data periodically to the server-side processing and aggregation task which can perform stream or batch operations such as:
+- Suppression
+- Enrichment
+- Correlation
+- Custom aggregation and others.
 
+Afterwards data are forwarded to both storage and real-time dashboard. The selected storage must be support high input metric rate, low storage size and downsampling. The near-real-time dashboard receives selected, processed metrics as soon as it is possible in order to allow experts to react to abnormal situations. This imposes a need of low latency transport layer.
+The historical dashboard displays data from the storage. As it has access to larger variety of metrics it is mostly used by experts in order to drill down the issues and access detailed views.
+These dashboards display data as time series plots, gauges, bar, and other graphical objects. They allow access from various operating systems and from outside of the experimental area (Point 2).
+Eventually, the alarming component detects abnormal situations and notifies experts in form on text message or other mean of notification.
 
-In addition, some optional requirements may positively influence the final rating:
--	Supported by CERN or used in one of the experiments/departments.
--	Self-recovery in case of connectivity issues.
-
-## 2. The Modular Stack
-The Modular Stack solution aims at fulfilling the requirements specified in the above section by using multiple and replaceable tools. Such approach enables the possibility of replacing one or more of the selected components in case alternative options provide improved performance or additional functionalities. Moreover, opting for open source tools supported by developers ensures reliability, performance improvement. The provided documentation took was a important feature during the tool selection. For all the softwares external resources like website documentations, mailing lists (Google Groups), Github, books and tutorial are available to accelerating the learning curve and simplifying the project handover. Moreover, all the selected tools are compatible with the most important Linux distributions, including CERN CentOS 7.
+## 3. The Modular Stack
+The Modular Stack solution aims at fulfilling the requirements specified in the Section 1 by using multiple, replaceable tools. Such approach enables the possibility of replacing one or more of the selected components in case alternative options provide improved performance or additional functionalities. Moreover, opting for open source tools supported by developers ensures reliability, performance improvement. The provided documentation took was a important feature during the tool selection. For all the softwares external resources like website documentations, mailing lists (Google Groups), Github, books and tutorial are available to accelerating the learning curve and simplifying the project handover. Moreover, all the selected tools are compatible with the most important Linux distributions, including CERN CentOS 7.
 The Modular Stack requires maintaining multiple tools and therefore compatibility between them. This results in higher system complexity and necessity to acquire knowledge on all the components. In case one of the selected tools breaks backward compatibility, becomes obsolete or its maintenance or support is dropped, the system might need to be adjusted or even redesigned. On the other hand, only standardised protocols are used for the communication which can facilitate any future migration. There is also the possibility that newly introduced features will require the purchasing of a subscription or license.
 Following an overview of the chosen tools. More details of each components will be described in the next sections.
 The monitoring system collects three different types of monitoring data: application, process and system information. The first two are covered from a O2 monitoring library, whereas the third is provided using an external tool. [CollectD](http://collectd.org/) was selected for retrieving system metrics (related to CPU, memory and I/O) from all hosts belonging to the O2 Facility. The high monitoring data rate requires a transport layer capable to manage and route all collected data. [Apache Flume](https://flume.apache.org/), "a distributed and highly-reliable service for collecting, aggregating and moving large amounts of data in a very efficient way. ", has been selected. Moreover, it could execute also simple processing tasks. As storing component [InfluxDB](https://docs.influxdata.com/influxdb/v1.5/), "a custom high-performance data store written specifically for time series data", fulfils all the above requirements. [Grafana](https://grafana.com/) is selected as graphical interface to display time series data for near-real-time and historical prospectives. [Riemann](http://riemann.io/) provides useful ways to forward externally alarms using multiple plugins and allows to implement some processing tasks internally. All remaining more complex processing tasks are implemented through [Apache Spark](https://spark.apache.org/), "a fast and general-purpose engine for large-scale data processing". The figure 2 shows the actual architecture of Modular Stack with all the components enunciated.
@@ -342,7 +358,7 @@ Spark is horizontal scalable and run on a cluster. Spark can run both by itself 
 - Standalone Deploy Mode
 - Apache Mesos
 - Hadoop YARN
-- Kubernetes (still experimental) 
+- Kubernetes (still experimental)
 
 Apache Mesos adds High Availability to Apache Spark, thanks its possibility to submit again a job if terminated with an error.
 Spark revolves around the concept of a resilient distributed dataset (RDD), which is a fault-tolerant collection of elements that can be operated on in parallel.
