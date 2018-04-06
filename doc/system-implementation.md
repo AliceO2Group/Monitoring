@@ -104,29 +104,24 @@ It was decided to keep metric name, values, tags and timestamp as string attribu
 <p align="center">Figure 3. Flume agent</p>
 
 A Flume instance runs an agent, which is "process that hosts the components through which events flow from an external source to the next destination (hop)". An agent consists of following components (see Figure 3):
-- Source - Receives metric and formats it into an Flume event
+- Source - Receives metrics and formats them into an Flume event
 - Channel - Disk or memory buffer
-- Sink - Translates Flume event into desirable format and send it to a backend
+- Channel selector - selects a channel for a event (it can depend on event properties such as metric name).
+- Sink - Translates Flume events into desirable format and sends them to a backend
 - Interceptor - Basic manipulation on Flume events
-- Handler - Stream changes captured data by source
+- Handler - Stream changes to captured data by a source
 
-The external source sends events to Flume in a format that is recognised by the target Flume source. When a Flume source receives an event, it stores it into one or more channels. The channel is a passive store that keeps the event until it's consumed by a Flume sink. Channels could be store events in memory (for fast transmissions) or on local file system (for reliable transmissions). The sink removes the event from the channel and puts it into an external repository, like HDFS, or forwards it to the Flume source of the next Flume agent (next hop) in the flow. The source and sink within the given agent run asynchronously with the events staged in the channel.
-An advantage to use Apache Flume is its high compatibility with other components belonging to the Hadoop ecosystem, like Apache Spark, providing natively components to receive and transmit data from and to the most important Hadoop components (HDFS, Apache HBase, Apache Hive, Apache Kafka, …. ). Unfortunately, Flume components able to read from and write to the selected tools are not provided. Custom components are been developed except for Apache Spark integration.
-Beyond these three components, Flume provide also:
-
--	Interceptor: component ables to modify/drop event in-flight.
--	Channel selector: component ables to define to which channel forward the Flume event, depending on an attribute value.
-
-These two components are related to a specific source and act after that and before the event is added to a channel.
-
-As shown in the Fig 2 the Flume agents receive data from Application and Process Sensors and CollectD and transmit events to InfluxDB, Grafana, Riemann and Apache Spark. One of requirements is the capability to manage a large amount of monitoring data as quickly as possible. The memory channels have been selected to fulfill this requirement, since throughput is preferred to reliability.
-The Flume components need a custom implementation are:
-
+Apache Flume provides wide range of built-in components such as Spark sink and source. Some compoTo interface with all Modular Stack tools some components needs to be custom made:
 - InfluxDB Sink
 - Grafana Sink
 - Riemann Sink
 - Application and Process information Source
 - Collectd Source
+
+The Figure 2 shows the final the Flume agents receive data from Application and Process Sensors and CollectD and transmit events to InfluxDB, Grafana, Riemann and Apache Spark. One of requirements is the capability to manage a large amount of monitoring data as quickly as possible. The memory channels have been selected to fulfill this requirement, since throughput is preferred to reliability.
+The Flume components need a custom implementation are:
+
+
 - Enrichment Interceptor
 
 The Fig 4 shows with more details the inner architecture of Flume components.
