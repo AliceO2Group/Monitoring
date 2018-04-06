@@ -88,14 +88,27 @@ Data from collectd can be transferred by one of two plugins (the selection is do
  - Write HTTP - Formats data JSON and send over HTTP, Supported by Flume JSON Collectd HTTP Handler
 
 
-### 2.2 Transport Layer
-The large amount of monitoring data generated from the O2 Facility requires a high-performance transport layer. The main goal of this component is to receive monitoring data from the sensors installed on every host in the O2 Facility and route them towards the historical storage(InfluxDB), near-real-time dashboard(Grafana), Alarming component(Riemann) and computing unit(Apache Spark), as shown in Figure 2. Routing capability allows to send incoming data from the same data source towards different consumers. Apache Flume has been selected to fulfill the transport layer requirements. It is defined a "distributed, reliable, and available system for efficiently collecting, aggregating and moving large amounts of log data from many different sources to a centralized data store". Moreover, it "can be used to transport massive quantities of event data including but not limited to network traffic data, social-media-generated data, email messages and pretty much any data source possible". The Flume data flow model depends on:
+### 3.2 Apache Flume - Collection and routing
+The large amount of monitoring data generated from the O<sup>2</sup> Facility requires a high-performance collection and aggregation. The  goal of this component is to receive monitoring data from the sensors (collectD) and O<sup>2</sup> processes (Monitoring library) and route them towards on of the following components (as shown in Figure 2):
+- Historical storage (InfluxDB)
+- Near real-time dashboard (Grafana)
+- Alarming (Riemann)
+- Processing (Apache Spark).
 
--	the Flume event, defined "as a unit of data flow having a byte payload and an optional set of string attributes".
--	the Flume agent, a "process that hosts the components through which events flow from an external source to the next destination (hop)".
+The Flume transport metrics in the data structure called Event, which consists of:
+- byte array payload
+- set of string attributes (optional).
+It was decided to keep metric name, values, tags and timestamp as string attribute and leave array payload empty.
 
 ![](images/flume-arc.png)
 <p align="center">Figure 3. Flume agent</p>
+
+A Flume instance runs an agent, which is "process that hosts the components through which events flow from an external source to the next destination (hop)". An agent consists of following components (see Figure 3):
+- Source - Receives metric and formats it into an Flume event
+- Channel - Disk or memory buffer
+- Sink - Translates Flume event into desirable format and send it to a backend
+- Interceptor - Basic manipulation on Flume events
+- Handler - Stream changes captured data by source
 
 The external source sends events to Flume in a format that is recognised by the target Flume source. When a Flume source receives an event, it stores it into one or more channels. The channel is a passive store that keeps the event until it's consumed by a Flume sink. Channels could be store events in memory (for fast transmissions) or on local file system (for reliable transmissions). The sink removes the event from the channel and puts it into an external repository, like HDFS, or forwards it to the Flume source of the next Flume agent (next hop) in the flow. The source and sink within the given agent run asynchronously with the events staged in the channel.
 An advantage to use Apache Flume is its high compatibility with other components belonging to the Hadoop ecosystem, like Apache Spark, providing natively components to receive and transmit data from and to the most important Hadoop components (HDFS, Apache HBase, Apache Hive, Apache Kafka, …. ). Unfortunately, Flume components able to read from and write to the selected tools are not provided. Custom components are been developed except for Apache Spark integration.
@@ -105,12 +118,6 @@ Beyond these three components, Flume provide also:
 -	Channel selector: component ables to define to which channel forward the Flume event, depending on an attribute value.
 
 These two components are related to a specific source and act after that and before the event is added to a channel.
-Flume has some system requirements:
-
-- Java Runtime Environment (Java 1.8 or later)
-- Memory - Sufficient memory for configurations used by sources, channels or sinks
-- Disk Space - Sufficient disk space for configurations used by channels or sinks
-- Directory Permissions - Read/Write permissions for directories used by agent
 
 As shown in the Fig 2 the Flume agents receive data from Application and Process Sensors and CollectD and transmit events to InfluxDB, Grafana, Riemann and Apache Spark. One of requirements is the capability to manage a large amount of monitoring data as quickly as possible. The memory channels have been selected to fulfill this requirement, since throughput is preferred to reliability.
 The Flume components need a custom implementation are:
