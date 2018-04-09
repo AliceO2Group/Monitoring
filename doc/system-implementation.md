@@ -320,7 +320,7 @@ Properly set retention policies and continuous queries allow to minimise the dis
 (...)
 
 ### 3.5 Grafana - Dashboards
-[Grafana](https://grafana.com) was chosen as data visualisation tool. It allow to create custom dashboards easily.
+[Grafana](https://grafana.com) was chosen as data visualisation tool. It allows to create custom dashboards easily.
 It is able to retrieve data from [InfluxDB](http://docs.grafana.org/features/datasources/influxdb/) and the [real-time data source](https://github.com/grafana/grafana/issues/4355) is foreseen to be implemented in the future release.
  Thanks to [organisations](http://docs.grafana.org/guides/basic_concepts/#organization) and [teams](http://docs.grafana.org/guides/whats-new-in-v5/#teams) single instance of Grafana could cover whole O<sup>2</sup> project.
 In addition, [new provisioning](http://docs.grafana.org/guides/whats-new-in-v5/#data-sources) feature allows to set up new instance within seconds.
