@@ -20,9 +20,9 @@ In order to supply data to the end user the set of tools has been selected in th
   - Alarming.
   - Storage that supports down-sampling, large input metric rates and low storage size.
 
-  In addition, some optional requirements may positively influence the final rating:
-  -	Supported by CERN or used in one of the experiments/departments.
-  -	Self-recovery in case of connectivity issues.
+In addition, some optional requirements may positively influence the final rating:
+-	Supported by CERN or used in one of the experiments/departments.
+-	Self-recovery in case of connectivity issues.
 
 ## 2. Functional architecture
 
@@ -216,7 +216,7 @@ The information how build and configure CollectD JSON Handler are provided in th
 
 
 #### 3.2.4 Spark Avro Source
-[Avro Source](http://flume.apache.org/FlumeUserGuide.html#avro-source) receives data from Apache Spark. Alternatively, it is possible to use UDP/JSON Source for this purpose.
+[Avro Source](http://flume.apache.org/FlumeUserGuide.html#avro-source) receives metrics from Apache Spark. Alternatively, it is possible to use UDP/JSON Source for this purpose.
 
 #### 3.2.5 InfluxDB Sink
 The InfluxDB Sink takes an Flume Event from a channel, converts it to the [InfluxDB Line Protocol](https://docs.influxdata.com/influxdb/v1.5/write_protocols/line_protocol_reference/) and finally sends it in the UDP packet. The alternative solution of using HTTP requests was rejected due to a performance.
@@ -260,12 +260,14 @@ The information how build and configure InfluxDB Sink are provided in the  [Gith
 The near real-time Grafana Sink sends the data directly to the near real-time dashboard with a minimum latency.
 
 The component has not been developed yet.
+(...)
 
 #### 3.2.7 Riemann Sink
 The Riemann Sink sends the data to the Riemann instance in order to trigger a notification.
 Riemann accepts both HTTP and TCP.
 
 The component has not been developed yet.
+(...)
 
 #### 3.2.8 Spark Avro Sink
 The Spark Sink sends the data to Spark for further processing and aggregation. According to the [Spark Streaming - Flume integration documentation](https://spark.apache.org/docs/2.2.0/streaming-flume-integration.html) there are two approaches of sending data to Spark:
@@ -285,7 +287,7 @@ The information Enrichment Interceptor adds additional string attributes to spec
 Currently, only [InfluxDB timestamp interceptor](https://github.com/AliceO2Group/MonitoringCustomComponents/tree/master/flume-influxdb-timestamp-interceptor) is available.
 
 ### 3.3 Apache Spark - Batch and streaming processing
-The defined processing tasks are:
+The task defined in the evaluation document are:
 - enrichment
 - aggregation
 - correlation
@@ -294,57 +296,63 @@ The defined processing tasks are:
 Some of them could be managed by Flume, eg. simple modification of a Flume Event fields.
 The more advanced processing requires a dedicated software. [Apache Spark](https://spark.apache.org/), "a fast and general-purpose engine for large-scale data processing", was selected for this role.
 
-Spark can run standalone or on a cluster,
-Apache Mesos adds High Availability to Apache Spark as it resubmits failed jobs.
-Spark revolves around the concept of a resilient distributed dataset (RDD), which is a fault-tolerant collection of elements that can be operated on in parallel.
-Spark is able to execute both batch and streaming jobs. The selected elaboration tasks are performed using a streaming job, but with a similar code batch jobs could be executed on data stored in a long term archive. Spark provides the execution of streaming jobs by splitting the input data stream in batches of input data (RDD) which are processed using the batch functions. These batches of input data have a fixed time size. Spark allows to use [Map-Reduce](https://en.wikipedia.org/wiki/MapReduce) programming model making the processing of large input data rate with a parallel and distributed algorithms on a cluster. The Map functions fulfil the enrichment task, since acts event per event, whereas Reduce functions fulfil the aggregation task, since operate on all data belonging to the same RDD. Suppression and correlation tasks needed store old data in order to compute algorithms on them. Apache Spark allows to store data in memory, beyond in a no-volatile memory, like distributed storage. Since in this use case the processing the new data as quickly as possible is the priority, the in-memory processing is the best solution.
-The Spark applications are written in Java and Scala, even if Scala is preferred since is less verbose and more intuitive.
+Spark is able to execute both batch and streaming jobs. Spark executes streaming jobs by splitting the input data stream into batches (RDD) which are processed using the batch functions.
+The Map functions fulfil the enrichment task, since acts event per event, whereas Reduce functions fulfil the aggregation task, since operate on all data belonging to the same RDD.
+
+Spark will run together with Apache Mesos in order to provide High Availability which resubmits failed jobs.
 
 #### 3.3.1 Streaming Aggregator
-To implement the aggregation task, the `reduceByKeyAndWindow` function is used: it allows to aggregate Flume event received in the same time window and with the same `key` using a specific function. The *key* field depending on which variables is desired aggregate e.g. on time or on time-and-hosts.
+The aggregator uses `reduceByKeyAndWindow` function to aggregate Flume Events received within a time window and with a same `key`. The *key* field defines over which variable metrics are aggregated, e.g. time or time and host.
 
-https://github.com/AliceO2Group/MonitoringCustomComponents/tree/master/spark-streaming-aggregator
+(...)
 
-### 3.4 Storage
+The information how build and configure Spark Streaming Aggregator are provided in the [GitHub README](https://github.com/AliceO2Group/MonitoringCustomComponents/tree/master/spark-streaming-aggregator).
+
+### 3.4 InfluxDB - Storage
 The goal of the storage is to archive metrics for the historical dashboard.
 
-[InfluxDB](https://docs.influxdata.com/influxdb/v1.5/) is a "custom high-performance data store written specifically for time series data. It allows for high throughput ingest, compression and real-time querying of that same data". Its features make it solid solution to accomplish the database requirements.
-InfluxDB allows to handle hundreds of data points per second: keeping the high precision raw data for only a limited time, and storing the lower precision. InfluxDB offers two features, Continuous Queries and Retention Policies, that help automate the process of downsampling data and expiring old data. InfluxDB provides InfluxQL as a SQL-like query language for interacting with stored data and low disk occupancy per measurement, three bytes for non-string values.
+[InfluxDB](https://docs.influxdata.com/influxdb/v1.5/) is a "custom high-performance data store written specifically for time series data. It allows for high throughput ingest, compression and real-time querying of that same data".
+It supports Continuous Queries and Retention Policies, that help to automate the process of downsampling data.
 
 #### 3.4.1 Data organisation
 Timeseries data is stored in *measurements*, associable to the relation database tables. A database contains multiple measurements and multiple retention policies. Since a measurement could have the same name in multiple retention policies, an uniquely way to define it is: `<database_name>.<retention_policy_name>.<measurement_name>`. For example `collectd.ret_pol_1day.disk_read`
 
+(...)
+
 #### 3.4.2 Retention Policies and Continuous Queries
-Adopt properly retention policies and continuous queries allow to minimize the disk usage and the computation requirements. Using retention policies, expire times can be associated to database. This feature provide a way to store both high time resolution data for a short period and low time resolution data for very long period. The downsampling processing could be done using continuous queries that read the source metric and compute the aggregation task to evaluate low time resolution time series. InfluxDB provides an extended set of aggregation function (mean, median, min, max, ...).
+Properly set retention policies and continuous queries allow to minimise the disk usage and the computation requirement. The goal is to store high time resolution data for a short period and low resolution data for longer time period.
 
-### 3.5 Dashboards
-Historical and Near-real-time dashboards have the goal to plot time-series monitoring data using graphical objects on a interface accessible from the web.
-[Grafana](https://grafana.com) has been chosen as data visualization tool since it offers customized historical record dashboards and real-time version is already foreseen in the road map. It can also generate alarms based on values coming from the database and thus not provide real-time alarms.
-Grafana is able to retrieve data from multiple data sources like InfluxDB, Prometeus, ElasticSearch, Graphite and others, to provide an unique interface to visualize data coming from different back-ends.
-Grafana supports multiple organizations in order to support a wide variety of deployment models, including using a single Grafana instance to provide service to multiple potentially untrusted Organizations.
-Multiple organizations are configured to allow to multiple teams to share the same Grafana instance and work in an isolate environment.
-A User is a named account in Grafana. A user can belong to one or more Organizations, and can be assigned different levels of privileges through roles.
-A user’s organization membership is tied to a role that defines what the user is allowed to do in that organization. The roles are:
-- Admin: add/edit data sources, add/edit organization users and teams, configure plugins and set organization settings.
-- Editor: create/edit dashboards and alert rules
-- Viewer: View any dashboard
-All these roles will be configured to manage all the ALICE users.
+(...)
 
-Grafana supports a wide variety of internal and external ways for users to authenticate themselves and the CERN SSO it's used to allow CERN people to access to the dashboard, with a specific role.
-A dashboard is logically divided in *rows* used to group *panels* together. Panel is the basic visualization building block. Currently five panel types are available:
+### 3.5 Grafana - Dashboards
+[Grafana](https://grafana.com) was chosen as data visualisation tool. It allow to create custom dashboards easily.
+It is able to retrieve data from [InfluxDB](http://docs.grafana.org/features/datasources/influxdb/) and the [real-time data source](https://github.com/grafana/grafana/issues/4355) is foreseen to be implemented in the future release.
+ Thanks to [organisations](http://docs.grafana.org/guides/basic_concepts/#organization) and [teams](http://docs.grafana.org/guides/whats-new-in-v5/#teams) single instance of Grafana could cover whole O<sup>2</sup> project.
+In addition, [new provisioning](http://docs.grafana.org/guides/whats-new-in-v5/#data-sources) feature allows to set up new instance within seconds.
 
-- Graph
-- Singlestat
-- Dashlist
-- Table
-- Text
+#### 3.5.1 CERN SSO integration
+Grafana integrates with [CERN SSO](http://docs.grafana.org/installation/configuration/#auth-generic-oauth) which was successfully tested.
+The following configuration is needed:
+```
+[auth.generic_oauth]
+enabled = true
+name = CERN SSO
+allow_sign_up = true
+client_id = {{ grafana_oauth_client_id }}
+client_secret = {{ grafana_oauth_client_secret }}
+scopes = https://oauthresource.web.cern.ch/api/User
+auth_url = https://oauth.web.cern.ch/OAuth/Authorize
+token_url = https://oauth.web.cern.ch/OAuth/Token
+api_url = https://oauthresource.web.cern.ch/api/User
+```
 
-The Query Editor exposes capabilities of data source and allows to query metrics in a simple and graphical way. After having build a dashboard, the interface allows easily to setup the time window within plot the data and the refresh time.
-
-The Historical dashboard has the goal to plot historical trends of significant metrics in order to valuate the functionality of all part in a wide time windows. The data to plot are downsampled historical data stored in the historical database (InfluxDB). For this purpose, the refresh time greater 10 seconds are considered adequate. Whereas the Near-real-time dashboard must plot data with the lowest latency, in any case below 1 second. To fulfill this requirement the data can't be retrieve so often from a database, a web-socket approach has been chosen. Grafana is planning to provide this feature in the next version.
+#### 3.5.2 Real-Time data sources
+(...)
 
 ### 3.6 Alarming
-The alarming component has the goal to forward externally important alarms to experts. [Riemann](http://riemann.io/) has been selected since its capacity to inspect metrics on the fly and generate notifications when undesired behavior is detected. Riemann is able to execute simple processing on incoming data, like aggregation or filtering, and could support the streaming processing unit if needed. Its main task is the forwarding of alarms to experts. Riemann uses Clojure as programming language and in order to process events and send alerts and metrics a [Clojure](https://clojure.org/) code is needed. Clojure is a "dynamic, general-purpose programming language, combining the approachability and interactive development of a scripting language with an efficient and robust infrastructure for multithreaded programming". According the architecture shown in Figure 4, the Riemann instance receives data from a Flume custom Riemann Sink. HTTP, TCP and websocket protocol could be used to transmit events. Tests will established the best protocol. As alerts, email and Slack messages are been selected. Due to Riemann does not support cluster deployments, only simple and low cpu-usage processing tasks could be executed.
+The alarming component sends notification to experts when triggered by Flume. For this purpose [Riemann](http://riemann.io/) was selected.
+
+(...)
 
 ## 4. Deployment
 In order to quickly and flawlessly deploy the monitoring tools [Ansible roles](https://gitlab.cern.ch/AliceO2Group/system-configuration/tree/master/ansible) were prepared for the following components:
