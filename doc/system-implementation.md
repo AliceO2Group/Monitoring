@@ -58,20 +58,17 @@ The O<sup>2</sup> Modular Stack collects three classes of metrics (as defined in
 and [CollectD](http://collectd.org/) (system information). Collectd deploys system sensors to collect metrics related to CPU, memory and I/O from all O<sup>2</sup> nodes. The requirements of high monitoring metric rate collection and metric routing is address via [Apache Flume](https://flume.apache.org/), "a distributed and highly-reliable service for collecting, aggregating and moving large amounts of data in a very efficient way". Moreover, Flume can also run simple processing tasks. [InfluxDB](https://docs.influxdata.com/influxdb/v1.5/), "a custom high-performance data store written specifically for time series data", was selected as a storage. [Grafana](https://grafana.com/) provides graphical interfaces to display near real-time and historical metrics. [Riemann](http://riemann.io/) triggers alarms using multiple plugins and allows to implement some processing tasks. All remaining and complex processing tasks are implemented through [Apache Spark](https://spark.apache.org/), "a fast and general-purpose engine for large-scale data processing".
 
 ### 3.1 Sensors and data sources
-As explained in the Section 2 three classes of metric are collected using O<sup>2</sup> Monitoring library and CollectD. This section provide more details regarding these tools.
+As explained in the Section 2 three classes of metrics are collected using O<sup>2</sup> Monitoring library and CollectD. This section provide more details regarding these tools.
 
-#### 3.1.1 Monitoring library - application and process metrics
-| Metric    | Metric description | Requirements |
-| --------- | ------------------ | ------------ |
-| Bytes received and transmitted | Number of bytes received and transmitted by the process (per interface) | `/proc` |
-| pmem | CPU usage | `ps` |
-| pcpu | Memory usage | `ps` |
+#### 3.1.1 Monitoring library - application and process performance metrics
 
+The [O<sup>2</sup> Monitoring library](https://github.com/AliceO2Group/Monitoring) provides an entry point for the O<sup>2</sup> processes to the Monitoring subsystem. It forwards user defined and [process performance](https://github.com/AliceO2Group/Monitoring/blob/dev/README.md#monitoring-process) related metrics to one of the [supported backends](https://github.com/AliceO2Group/Monitoring/blob/dev/README.md#monitoring-instance). It allows calculation of [derived metrics](https://github.com/AliceO2Group/Monitoring/blob/dev/README.md#calculating-derived-metrics) (eg. rate). It also supports [metric buffering](https://github.com/AliceO2Group/Monitoring/blob/dev/README.md#buffering-metrics) in order to improve the efficiency metric transport and decrease number context switches.
 
-The Application metric collection provides an entry point from O2 processes to the Monitoring subsystem. It forwards user defined metrics to the processing backend via connection or connection-less transport protocols.
-
+The detailed description of the library in available in the [README](https://github.com/AliceO2Group/Monitoring/blob/dev/README.md) file.
 
 #### 3.1.2 Collectd - system metrics
+The following collectD plugins has been selected in order to provide system overview of each node:
+
 | Plugin    | Metric description | Requirements | Comments |
 | --------- | ------------------ | ------------ | -------- |
 | CPU       | Amount of time spent by the CPU in various states (user, system, io, idle, irq) | `/proc` | Jiffie unit |
@@ -83,9 +80,9 @@ The Application metric collection provides an entry point from O2 processes to t
 | Disk      | Disk performance metrics per read and write: average time, operation per second, io time and more | `/proc/diskstats` | - |
 | Logfile   | Internal; writes collectd logs into a file | - | - |
 
-Data from collectd can be transferred by one of two plugins (the selection is done in the Ansible recipe)
- - Network - binary protocol over UDP (natively supported by InfluxDB)
- - Write HTTP - Formats data JSON and send over HTTP (supported by custom-made Flume handler)
+Data from collectd can be transferred by one of two plugins:
+ - [Network](https://collectd.org/wiki/index.php/Plugin:Network) - binary protocol over UDP (natively supported by InfluxDB)
+ - [Write HTTP](https://collectd.org/wiki/index.php/Plugin:Write_HTTP) - Formats data JSON and send over HTTP (supported by custom-made Flume handler)
 
 ### 3.2 Apache Flume - Collection and routing
 The large amount of monitoring data generated from the O<sup>2</sup> Facility requires a high-performance collection and aggregation. The  goal of this component is to receive monitoring data from the sensors (collectD) and O<sup>2</sup> processes (Monitoring library) and route them towards one of the following tools (as shown in Figure 2):
@@ -94,13 +91,8 @@ The large amount of monitoring data generated from the O<sup>2</sup> Facility re
 - Alarming (Riemann)
 - Processing (Apache Spark).
 
-The Flume transport metrics in the data structure called Event, which consists of:
-- byte array payload
-- set of string attributes (optional).
-It was decided to keep metric name, values, tags and timestamp as string attribute and leave array payload empty.
-
 ![](images/flume-arc.png)
-<p align="center">Figure 3. Flume agent</p>
+<p align="center">Figure 3. Flume agent (from Apache Flume official documentation)</p>
 
 A Flume instance runs an agent, which is "process that hosts the components through which events flow from an external source to the next destination (hop)". An agent consists of following components (see Figure 3):
 - Source - Receives metrics and formats them into an Flume event
@@ -111,113 +103,53 @@ A Flume instance runs an agent, which is "process that hosts the components thro
 - Handler - Stream changes to captured data by a source
 
 Apache Flume provides wide range of built-in components eg. HTTP source, Avro sink and source (to communicate with Spark). In order to interface with all Modular Stack tools some components needs to developed:
-- [InfluxDB sink](https://github.com/AliceO2Group/MonitoringCustomComponents/tree/master/flume-udp-influxdb-sink) - pushes events to InfluxDB via UDP
-- Grafana real-time sink (implementation details not yet defined)
-- Riemann sink (implementation details not yet defined)
-- [UDP/JSON source](https://github.com/AliceO2Group/MonitoringCustomComponents/tree/master/flume-udp-source) - collects metrics from monitoring library - reads JSON encoded metrics from UDP endpoint
-- [Collectd JSON handler](https://github.com/AliceO2Group/MonitoringCustomComponents/tree/master/flume-json-collectd-http-handler) - reads the data provided by collectd [write_http](https://collectd.org/wiki/index.php/Plugin:Write_HTTP) plugin.
+- [InfluxDB Sink](https://github.com/AliceO2Group/MonitoringCustomComponents/tree/master/flume-udp-influxdb-sink) - pushes events to InfluxDB via UDP
+- Grafana Real-Time Sink (implementation details not yet defined)
+- Riemann Sink (implementation details not yet defined)
+- [UDP/JSON Source](https://github.com/AliceO2Group/MonitoringCustomComponents/tree/master/flume-udp-source) - collects metrics sent from the [O<sup>2</sup> monitoring library](https://github.com/AliceO2Group/Monitoring) via UDP as JSON encoded strings
+- [Collectd JSON Handler](https://github.com/AliceO2Group/MonitoringCustomComponents/tree/master/flume-json-collectd-http-handler) - reads the data provided by collectd [write_http](https://collectd.org/wiki/index.php/Plugin:Write_HTTP) plugin.
 
 The Figure 2 shows how the components are connected with each other.
 
 ![](images/flume_inner_arc.png)
 <p align="center">Figure 4. Flume internal architecture</p>
 
-#### 3.2.1 InfluxDB Sink
+#### 3.2.1 Flume Event
+Flume transports metrics in the data structure called Event, which consists of:
+- byte array payload
+- set of string attributes (optional).
 
-The InfluxDB Sink allows to send data using HTTP or TCP packets. Tests shown the TCP protocol provides better performances respect low latency and throughput. So a InfluxDB UDP Sink has been developed. Since Apache Flume uses a Java Virtual Machine, the code can be written both in Java or Scala. For Flume custom components the Java programming language has been selected. The InfluxDB UDP Sink developed takes from the channel the Flume event, convert it to the [InfluxDB Line Protocol](https://docs.influxdata.com/influxdb/v1.5/write_protocols/line_protocol_reference/) and finally send the UDP packet to the hostname and port defined in the Flume agent configuration file.
-The InfluxDB Line Protocol is a string containing:
+It was decided to keep metric name, values, tags and timestamp as string attributes and leave array payload empty. In addition, tags names are prefixed with `tag_` and value names with `value_`. Therefore, each Flume Event consists of following string attributes:
+- `name`
+- `timestamp` - UNIX epoch time format
+- `tag_host` - hostname of an origin of a metric
+- `value_*` - at least one value is required
+- [`tag_*`] - optional tags
 
--	Metric name.
--	Tags.
--	Values.
--	Timestamp (ns).
+#### 3.2.2 UDP/JSON Source
 
-The tags and timestamp fields are optionals. The generic format is following shown:
-
-```
-"metric_name,tag1=key1,tag2=key2 value_name1=value1,value_name2=value2 timestamp_ns"
-```
-
-Value could have 4 types:
-
--	Long type is represented with a "i"-ending. Example: `"number_process count=10i"`.
--	Double type is represented normally. Example: `"perc_usage idle=0.98"`.
--	String type is represented inserting ` " `. Example: `"generic_metric hostname=\"test-machine\""`.
--	Boolean type is presented with the key word `true` or `false`. Example: `"generic_metric ping=true"`.
-
-In order to keep the Flume event as more generic as possible, the metric name, tags, values and timestamp information are put directly in the event header. The event body is left empty.
-Key-words have been given to these fields:
-
--	`name` for the metric_name
--	`timestamp` for timestamp
--	`tag_` as prefix of tags. Example `tag_host` and `tag_type_instance`.
--	`value_` as prefix of values. Example: `value_idle` and `value_hostid`.
-
-If other key-words are found from the sink, they won't be considered.
-For Example, the Flume event:
-
+The UDP/JSON Source receives metrics from the Monitoring library. The UDP protocol was chosen as it allows receiving data from thousands of nodes. In addition, it drops the data (instead of queuing them) when the receiving part is busy, what is desired behaviour.
+There can be one or more metrics in a single UDP packet. The JSON metric has format similar to Flume Event what eases the parsing.
+A sample metric looks like below:
 ```JSON
-[{"headers" : {
+[{
+  "headers" : {
     "timestamp" : "434324343",
-    "tag_host" : "cnaf0.infn.it",
-    "tag_cpu" : "1",
-    "tag_site" : "CNAF",
-    "name" : "cpu",
-    "value_idle" : "0.93",
-    "value_user" : "0.03"
-    },
-  "body" : ""
-  }
-]
-```
-
-produces the InfluxDB Line Protocol:
-
-```
-"cpu,host=cnaf0.infn.it,site=CNAF,cpu=1 idle=0.93,user=0.03 434324343"
-```
-
-Further information are provided on the [Github page](https://github.com/AliceO2Group/MonitoringCustomComponents/tree/master/flume-udp-influxdb-sink)
-
-
-#### 3.2.2 Grafana Sink
-
-The NRT Grafana Sink has the goal to send data directly to the near-real-time Dashboard. Further details are not present since the component has not been developed yet.
-
-#### 3.2.3 Riemann Sink
-
-The Riemann Sink has the goal to send data to the Riemann instance in order to forwards message to expert.
-Riemann accepts incoming data both in HTTP or TCP. Test or considerations will evaluate the best protocol to use.
-Further details are not present since the component has not been developed yet.
-
-#### 3.2.4 Spark Sink
-
-The Spark Sink has the goal to send data to Spark in order to allow the execution of processing tasks. According the [Spark Streaming - Flume integration](https://spark.apache.org/docs/2.2.0/streaming-flume-integration.html) page there are two approaches to send data: Push-based approach and Pull-base approach.
-In the first approach, Spark Streaming acts like a Flume Avro Source, thus the Spark Sink is essentially an Avro Sink. The second one, the Spark Sink acts like a buffer while "Spark Streaming uses a reliable Flume receiver and transactions to pull data from the sink". Actually the first approach is used, further details will be present in the Spark section. In this scenario the Spark Sink is implemented with a native Flume Avro Sink.
-
-#### 3.2.5 Application and Process Source
-
-The Application and Process Source has the goal to receive the data sent from the Application and Process sensors. Since the sensors are a custom implementations both HTTP and TCP approaches are available. Tests showed TCP protocol has better performance. In order to have an unique and general event format for all the Flume components, each collected packet is converted one o multiple events, where all metric fields are inserted into the headers Flume event fields. The UDP Flume Source is able to decode multiple events within UDP packet containing a JSON string type data like following:
-
-```JSON
-[{"headers" : {
-    "timestamp" : "434324343",
-    "tag_host" : "random_host.example.com",
+    "tag_host" : "o2.cern.ch",
     "name" : "cpu",
     "value_idle" : "0.13"
-    },
-  "body" : "random_body"
-  }
-]
+  },
+  "body" : ""
+}]
 ```
-The Body field is not decoded.
-Further information to how configure the custom Flume UDP Source are provides on the [Github page](https://github.com/AliceO2Group/MonitoringCustomComponents/tree/master/flume-udp-source)
 
-#### 3.2.6 CollectD Source
+The information how build and configure UDP/JSON Source are provided in the [GitHub README](https://github.com/AliceO2Group/MonitoringCustomComponents/tree/master/flume-udp-source).
 
-The CollectD Source has the goal to collect data coming from CollectD clients. HTTP protocol with [JSON format](https://collectd.org/wiki/index.php/Plugin:Write_HTTP) is selected for simplicity and consistency, since within the JSON is provided the value names, value formats and value fields. The "command format" even if used less bytes per metric, it requires an version dependent external file containing from which extract the metric name, type and format information. So to be version independent, the JSON format has been selected.
-Flume natively provides a HTTP Source but it is not able to decode the CollectD JSON format. Custom handlers could be added to the HTTP Source to parse unsupported formats. The CollectD JSON HTTP Handler has been implemented instead of the whole custom HTTP Source.
-Following an example of a CollectD JSON format is shown:
+#### 3.2.3 CollectD JSON Handler
+
+The goal of the CollectD JSON Handle is to make collect data coming from CollectD daemons possible. As previously mentioned in the Section 3.1.2 CollectD sends metrics either as binary blobs via UDP or as JSON via HTTP. The latter option was selected in order to interface with the source as it eases parsing to Flume Event. The performance should not be concern in this case as the source needs to handle ~200 requests per second (2000 collectD daemons pushing data every 10 seconds).
+
+Below, two metrics from `disk` plugin, send over HTTP by `http_write` plugin are shown:
 
 ```JSON
 [{ "values": [197141504, 175136768],
@@ -225,7 +157,7 @@ Following an example of a CollectD JSON format is shown:
    "dsnames": ["read", "write"],
    "time": 1251533299.265,
    "interval": 10,
-   "host": "leeloo.lan.home.verplant.org",
+   "host": "o2.cern.ch",
    "plugin": "disk",
    "plugin_instance": "sda",
    "type": "disk_octets",
@@ -234,30 +166,30 @@ Following an example of a CollectD JSON format is shown:
 ]
 ```
 
-"Values", "dstypes" and "dsname" fields have a sorted list with the same number of elements. The "dstypes" fields defines the value type:
+The `values`, `dstypes` and `dsname` fields are arrays of the same size allowing to accommodate multiple metrics. In the example, two values, types and names are specified.
 
-- COUNTER or ABSOLUTE is an unsigned integer.
-- DERIVE is an signed integer.
-- GAUGE is a double.
+The `dstypes` field defines the value type:
+- `counter` or `absolute` - unsigned integer
+- `derive` - signed integer
+- `gauge` - double.
 
-The following actions are implemented in the Collectd JSON HTTP Handler:
 
-- Java `long` type has been used for unsigned and signed integer.
-- The `time` field is stored in the `timestamp` Flume event field in nanoseconds and in long format.
-- The `interval` field is not used.
-- The `name` Flume event field is composed of `plugin` collectd JSON field and the the ith of `dsnames` field list e.g. "disk_read", "disk_write".
-- The `host`, `plugin_instance`, `type`, `type_instance` fields are copied in the Flume event using the field prefix `tag_` e.g. "tag_host", "tag_plugin_instance".
-- The `type_value` is added to the Flume event to insert the value type information and can assume only two values: "double" or "long" value.
-- The value in put into the `value_value` Flume event.
-- `plugin_instance`, `type`, `type_instance` empty fields are not inserted in the Flume event.
+Flume natively provides HTTP Source but it is not able to decode the CollectD JSON format. The handler was implemented to provide such functionality. It creates separate Flume Event per each metric specified in the given position of `values`, `dstypes` and `dsname` arrays.
 
-All data are in string format since stored in headers Flume Event field. The `type_value` field is considered optional.
-Following the above actions, the CollectD JSON shown before produces the following Flume event.
+The following Flume Event headers are defined:
+- `timestamp` - `time` converted into nanoseconds (`long` type)
+- `tag_host` - `host` value
+- `name` - `plugin` name concatenated with `dsnames` eg. `disk_read`, `disk_write`.
+- `value_value` - given `dstypes` value
+- [`type_value`] - `long` for `counter`, `absolute` types and `double` for `gauge` type
+- `tag_plugin_instance` - `plugin_instance` value
+- `tag_type` - `type` value
 
+Following the above actions, the CollectD JSON shown before produces the following Flume Event:
 ```JSON
 [{"headers" : {
     "timestamp" : "1251533299265000000",
-    "tag_host" : "leeloo.lan.home.verplant.org",
+    "tag_host" : "o2.cern.ch",
     "name" : "disk_read",
     "value_value":  "197141504",
     "type_value" : "long",
@@ -268,7 +200,7 @@ Following the above actions, the CollectD JSON shown before produces the followi
   },
  {"headers" : {
     "timestamp" : "1251533299265000000",
-    "tag_host" : "leeloo.lan.home.verplant.org",
+    "tag_host" : "o2.cern.ch",
     "name" : "disk_write",
     "value_value" : "175136768",
     "type_value" : "long",
@@ -280,36 +212,110 @@ Following the above actions, the CollectD JSON shown before produces the followi
 ]
 ```
 
-Further information about the component and how configure it in the Flume configuration file are described on the [Github page](https://github.com/AliceO2Group/MonitoringCustomComponents/tree/master/flume-json-collectd-http-handler).
+The information how build and configure CollectD JSON Handler are provided in the [Github README](https://github.com/AliceO2Group/MonitoringCustomComponents/tree/master/flume-json-collectd-http-handler).
 
 
-#### 3.2.7 Spark Source
-The Spark Source has the goal to receive the produced events from the Spark real-time processing tasks, so there is the freedom to select the best solution. Two approaches have been tested: using Avro events or UDP packets. They require an Avro Source and UDP Source, respectively. The implemented UDP Source could be used due its flexibility.
+#### 3.2.4 Spark Avro Source
+[Avro Source](http://flume.apache.org/FlumeUserGuide.html#avro-source) receives data from Apache Spark. Alternatively, it is possible to use UDP/JSON Source for this purpose.
 
-#### 3.2.8 Information Enrichment Interceptor
-The information Enrichment Interceptor has the goal to add information to specific Flume events. Since the information is contained in the tags fields, this component adds specific tag-value couple to the event.
+#### 3.2.5 InfluxDB Sink
+The InfluxDB Sink takes an Flume Event from a channel, converts it to the [InfluxDB Line Protocol](https://docs.influxdata.com/influxdb/v1.5/write_protocols/line_protocol_reference/) and finally sends it in the UDP packet. The alternative solution of using HTTP requests was rejected due to a performance.
 
-### 3.3 Storage
-The storage component has the goal to store all the metric the Historical dashboard(s) need. High performances are required from this component:
+The InfluxDB Line Protocol format is following:
+```
+"metric_name,tag1=key1,tag2=key2 value_name1=value1,value_name2=value2 timestamp_ns"
+```
 
-- Well documented
-- Actively maintained and supported by developers
-- Run in isolation when external services and/or connection to outside of ALICE are not available
-- Capable of handling high input metric rate
-- Impose low storage size per measurement
-- Downsampling
-- Retention Policies
+A value has 1 of 4 types:
+-	Long - value suffixed with `i` character, example: `count=10i`.
+-	Double - default, example: `idle=0.98`.
+-	String - value quoted, example: `hostname=\"test-machine\"`.
+-	Boolean - `true` or `false`, example: `ping=true`.
+
+For Example, the following Flume Event:
+```JSON
+[{"headers" : {
+    "timestamp" : "434324343",
+    "tag_host" : "o2.cern.ch",
+    "tag_cpu" : "1",
+    "tag_site" : "CNAF",
+    "name" : "cpu",
+    "value_idle" : "0.93",
+    "value_user" : "0.03"
+    },
+  "body" : ""
+  }
+]
+```
+
+produces the following InfluxDB Line Protocol string:
+```
+"cpu,host=o2.cern.ch,site=CNAF,cpu=1 idle=0.93,user=0.03 434324343"
+```
+
+The information how build and configure InfluxDB Sink are provided in the  [Github README](https://github.com/AliceO2Group/MonitoringCustomComponents/tree/master/flume-udp-influxdb-sink)
+
+
+#### 3.2.6 Grafana Sink
+The near real-time Grafana Sink sends the data directly to the near real-time dashboard with a minimum latency.
+
+The component has not been developed yet.
+
+#### 3.2.7 Riemann Sink
+The Riemann Sink sends the data to the Riemann instance in order to trigger a notification.
+Riemann accepts both HTTP and TCP.
+
+The component has not been developed yet.
+
+#### 3.2.8 Spark Avro Sink
+The Spark Sink sends the data to Spark for further processing and aggregation. According to the [Spark Streaming - Flume integration documentation](https://spark.apache.org/docs/2.2.0/streaming-flume-integration.html) there are two approaches of sending data to Spark:
+- Push-based
+- Pull-based.
+
+In the first approach, Spark acts like a Flume Avro Source, thus the Spark Sink simply becomes built-in [Avro Sink](http://flume.apache.org/FlumeUserGuide.html#avro-sink).
+In the second approach, the Spark Sink buffers the events while "Spark uses a reliable Flume receiver and transactions to pull data from the sink".
+
+Currently Push is used as Pull approach has some undesired effects:
+- When Spark job restarts it begins processing the last retrieved data, even if it's already outdated; the rule "the new data has more priority than old" is followed
+- The time windows are not fixed.
+
+
+#### 3.2.9 Information Enrichment Interceptor
+The information Enrichment Interceptor adds additional string attributes to specific Flume events.
+Currently, only [InfluxDB timestamp interceptor](https://github.com/AliceO2Group/MonitoringCustomComponents/tree/master/flume-influxdb-timestamp-interceptor) is available.
+
+### 3.3 Apache Spark - Batch and streaming processing
+The defined processing tasks are:
+- enrichment
+- aggregation
+- correlation
+- suppression.
+
+Some of them could be managed by Flume, eg. simple modification of a Flume Event fields.
+
+The more advanced processing requires a dedicated software. [Apache Spark](https://spark.apache.org/), "a fast and general-purpose engine for large-scale data processing" was selected for this role.
+
+Spark is horizontal scalable and run on a cluster. Spark can run standalone or over several existing cluster managers.
+Apache Mesos adds High Availability to Apache Spark, as it resubmits a job in case of an error.
+Spark revolves around the concept of a resilient distributed dataset (RDD), which is a fault-tolerant collection of elements that can be operated on in parallel.
+Spark is able to execute both batch and streaming jobs. The selected elaboration tasks are performed using a streaming job, but with a similar code batch jobs could be executed on data stored in a long term archive. Spark provides the execution of streaming jobs by splitting the input data stream in batches of input data (RDD) which are processed using the batch functions. These batches of input data have a fixed time size. Spark allows to use [Map-Reduce](https://en.wikipedia.org/wiki/MapReduce) programming model making the processing of large input data rate with a parallel and distributed algorithms on a cluster. The Map functions fulfill the enrichment task, since acts event per event, whereas Reduce functions fulfill the aggregation task, since operate on all data belonging to the same RDD. Suppression and correlation tasks needed store old data in order to compute algorithms on them. Apache Spark allows to store data in memory, beyond in a no-volatile memory, like distributed storage. Since in this use case the processing the new data as quickly as possible is the priority, the in-memory processing is the best solution.
+The Spark applications are written in Java and Scala, even if Scala is preferred since is less verbose and more intuitive.
+
+To implement the aggregation task, the `reduceByKeyAndWindow` function is used: it allows to aggregate Flume event received in the same time window and with the same `key` using a specific function. The *key* field depending on which variables is desired aggregate e.g. on time or on time-and-hosts.
+
+### 3.4 Storage
+The storage component has the goal to store all the metric the Historical dashboard(s) need.
 
 [InfluxDB](https://docs.influxdata.com/influxdb/v1.5/) is a "custom high-performance data store written specifically for time series data. It allows for high throughput ingest, compression and real-time querying of that same data". Its features make it the best solution to accomplish the database requirements.
 InfluxDB allows to handle hundreds of data points per second: keeping the high precision raw data for only a limited time, and storing the lower precision. InfluxDB offers two features, Continuous Queries and Retention Policies, that help automate the process of downsampling data and expiring old data. InfluxDB provides InfluxQL as a SQL-like query language for interacting with stored data and low disk occupancy per measurement, three bytes for non-string values.
 
-#### 3.3.1 Data organization
+#### 3.4.1 Data organization
 Timeseries data is stored in *measurements*, associable to the relation database tables. A database contains multiple measurements and multiple retention policies. Since a measurement could have the same name in multiple retention policies, an uniquely way to define it is: `<database_name>.<retention_policy_name>.<measurement_name>`. For example `collectd.ret_pol_1day.disk_read`
 
-#### 3.3.2 Retention Policies and Continuous Queries
+#### 3.4.2 Retention Policies and Continuous Queries
 Adopt properly retention policies and continuous queries allow to minimize the disk usage and the computation requirements. Using retention policies, expire times can be associated to database. This feature provide a way to store both high time resolution data for a short period and low time resolution data for very long period. The downsampling processing could be done using continuous queries that read the source metric and compute the aggregation task to evaluate low time resolution time series. InfluxDB provides an extended set of aggregation function (mean, median, min, max, ...).
 
-### 3.4 Dashboards
+### 3.5 Dashboards
 Historical and Near-real-time dashboards have the goal to plot time-series monitoring data using graphical objects on a interface accessible from the web.
 [Grafana](https://grafana.com) has been chosen as data visualization tool since it offers customized historical record dashboards and real-time version is already foreseen in the road map. It can also generate alarms based on values coming from the database and thus not provide real-time alarms.
 Grafana is able to retrieve data from multiple data sources like InfluxDB, Prometeus, ElasticSearch, Graphite and others, to provide an unique interface to visualize data coming from different back-ends.
@@ -335,51 +341,19 @@ The Query Editor exposes capabilities of data source and allows to query metrics
 
 The Historical dashboard has the goal to plot historical trends of significant metrics in order to valuate the functionality of all part in a wide time windows. The data to plot are downsampled historical data stored in the historical database (InfluxDB). For this purpose, the refresh time greater 10 seconds are considered adequate. Whereas the Near-real-time dashboard must plot data with the lowest latency, in any case below 1 second. To fulfill this requirement the data can't be retrieve so often from a database, a web-socket approach has been chosen. Grafana is planning to provide this feature in the next version.
 
-### 3.5 Alarming
+### 3.6 Alarming
 The alarming component has the goal to forward externally important alarms to experts. [Riemann](http://riemann.io/) has been selected since its capacity to inspect metrics on the fly and generate notifications when undesired behavior is detected. Riemann is able to execute simple processing on incoming data, like aggregation or filtering, and could support the streaming processing unit if needed. Its main task is the forwarding of alarms to experts. Riemann uses Clojure as programming language and in order to process events and send alerts and metrics a [Clojure](https://clojure.org/) code is needed. Clojure is a "dynamic, general-purpose programming language, combining the approachability and interactive development of a scripting language with an efficient and robust infrastructure for multithreaded programming". According the architecture shown in Figure 4, the Riemann instance receives data from a Flume custom Riemann Sink. HTTP, TCP and websocket protocol could be used to transmit events. Tests will established the best protocol. As alerts, email and Slack messages are been selected. Due to Riemann does not support cluster deployments, only simple and low cpu-usage processing tasks could be executed.
 
-### 3.6 Batch and streaming processing
-The selected processing applications are enrichment, aggregation, correlation and suppression tasks. Flume and Riemann could manage a subset of them - single event processing in Flume using interceptiors and simple aggregation and filtering processing in Riemann. The remaining tasks need a more powerful, horizontal scalable, complex processing unit. [Apache Spark](https://spark.apache.org/), "a fast and general-purpose engine for large-scale data processing" has been selected. Its key features are:
-
-- *Ease to use*: it allows to write application quickly in Java, Scala, Python and R.
-- *Speed*: it runs programs up to 100x faster the Hadoop MapReduce in memory.
-- *Generality*: it allows to combine SQL, Streaming, Graph and complex analytics.
-
-Spark is horizontal scalable and run on a cluster. Spark can run both by itself or over several existing cluster managers. Currently it supports these deployments:
-
-- Standalone Deploy Mode
-- Apache Mesos
-- Hadoop YARN
-- Kubernetes (still experimental)
-
-Apache Mesos adds High Availability to Apache Spark, thanks its possibility to submit again a job if terminated with an error.
-Spark revolves around the concept of a resilient distributed dataset (RDD), which is a fault-tolerant collection of elements that can be operated on in parallel.
-Spark is able to execute both batch and streaming jobs. The selected elaboration tasks are performed using a streaming job, but with a similar code batch jobs could be executed on data stored in a long term archive. Spark provides the execution of streaming jobs by splitting the input data stream in batches of input data (RDD) which are processed using the batch functions. These batches of input data have a fixed time size. Spark allows to use [Map-Reduce](https://en.wikipedia.org/wiki/MapReduce) programming model making the processing of large input data rate with a parallel and distributed algorithms on a cluster. The Map functions fulfill the enrichment task, since acts event per event, whereas Reduce functions fulfill the aggregation task, since operate on all data belonging to the same RDD. Suppression and correlation tasks needed store old data in order to compute algorithms on them. Apache Spark allows to store data in memory, beyond in a no-volatile memory, like distributed storage. Since in this use case the processing the new data as quickly as possible is the priority, the in-memory processing is the best solution.
-The Spark applications are written in Java and Scala, even if Scala is preferred since is less verbose and more intuitive.
-The Spark Streaming-Flume integration could be done using [two approaches](https://spark.apache.org/docs/2.2.0/streaming-flume-integration.html):
-
-- Flume-style Push-based approach
-- Pull-based Approach using a Custom Sink
-
-The first approach Spark Streaming is configured to act like a Flume Avro Source, so the Flume Sink can push data using a natively Avro Sink. The second approach uses a custom Sink in the Flume agent that buffers all incoming data and Spark Streaming uses a "reliable Flume receiver and transactions to pull data from the sink". This ensures stronger reliability and fault-tolerance guarantees than the previous approach. The second approach does not fit our use-case for to reasons:
-- if the Spark job restarts it will begin from the data next the last retrieved, even if it's too old; the rule "the new data has more priority than old" is followed
-- The time windows is shown to be not fixed in this approach
-
-This reasons induced to use the push-based approach. So an Avro Sink is used in the Flume agent.
-
-To implement the aggregation task, the `reduceByKeyAndWindow` function is used: it allows to aggregate Flume event received in the same time window and with the same `key` using a specific function. The *key* field depending on which variables is desired aggregate e.g. on time or on time-and-hosts.
-
-The aggregated values are sent back to Flume in order to be consumed from the backends. Two approaches are been considered:
-- send Avro events, so used an Avro Source as Spark Source
-- send UDP packets and thus use the custom UDP Source as Spark Source
-
-Both approaches have been tested successfully. The second one is preferred since it is a stateless and faster protocol.
-
 ## 4. Deployment
+In order to quickly and flawlessly deploy the monitoring tools [Ansible roles](https://gitlab.cern.ch/AliceO2Group/system-configuration/tree/master/ansible) were prepared for the following components:
+- Flume
+- Spark
+- CollectD
+- InfluxDB
+- Grafana
 
-To allow quick deployment of the tools and ...
-Ansible roles were prepared for the following components: [https://gitlab.cern.ch/AliceO2Group/system-configuration/tree/master/ansible]
- - Flume
- - Spark
- - collectd
- - InfluxDB
+
+ ### Team
+ - [jvino](https://github.com/jvino) - Gioacchino Vino
+ - [awegrzyn](https://github.com/awegrzyn) - Adam Wegrzynek
+ - ? (reviewer)
