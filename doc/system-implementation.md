@@ -3,7 +3,7 @@
 ## 1. Goal and requirements
 
 The goal of the monitoring system is to provide experts and shift crew in the ALICE Control Centre with an in-depth state of the O<sup>2</sup> computing farm. The near-real-time and historical graphical dashboards interface with users providing outstanding experience and allow grasp easily large amount of monitoring data.
-In order to supply data to the end user the set of tools has been selected in the official evaluation to meet the requirements specified in the [O<sup>2</sup> Technical Design Report](https://cds.cern.ch/record/2011297/files/ALICE-TDR-019.pdf) and defined by O2 Work Package 8:
+In order to supply data to the end user the set of tools has been selected in the official evaluation to meet the requirements specified in the [O<sup>2</sup> Technical Design Report](https://cds.cern.ch/record/2011297/files/ALICE-TDR-019.pdf) and defined by O<sup>2</sup> Work Package 8:
 - Compatible with the O<sup>2</sup> reference operating system (currently CERN CentOS 7).
 - Well documented.
 - Actively maintained and supported by developers.
@@ -19,6 +19,7 @@ In order to supply data to the end user the set of tools has been selected in th
   - Historical record and near-real-time visualisation.
   - Alarming.
   - Storage that supports down-sampling, large input metric rates and low storage size.
+
 
 In addition, some optional requirements may positively influence the final rating:
 -	Supported by CERN or used in one of the experiments/departments.
@@ -41,13 +42,13 @@ These data sources send the monitoring data periodically to the server-side proc
 - Correlation
 - Custom aggregation and others.
 
-Afterwards data are forwarded to both storage and real-time dashboard. The selected storage must be support high input metric rate, low storage size and downsampling. The near-real-time dashboard receives selected, processed metrics as soon as it is possible in order to allow experts to react to abnormal situations. This imposes a need of low latency transport layer.
+Afterwards data are forwarded to both storage and real-time dashboard. The selected storage must support high input metric rate, low storage size and downsampling. The near-real-time dashboard receives selected, processed metrics as soon as it is possible in order to allow experts to react to abnormal situations. This imposes a need of low latency transport protocol.
 The historical dashboard displays data from the storage. As it has access to larger variety of metrics it is mostly used by experts in order to drill down the issues and access detailed views.
 These dashboards display data as time series plots, gauges, bar, and other graphical objects. They allow access from various operating systems and from outside of the experimental area (Point 2).
-Eventually, the alarming component detects abnormal situations and notifies experts in form on text message or other mean of notification.
+Eventually, the alarming component detects abnormal situations and notifies experts in form of a text message or other mean of notification.
 
 ## 3. The Modular Stack
-The Modular Stack solution aims at fulfilling the requirements specified in the Section 1 by using multiple and replaceable tools. Such approach enables the possibility of replacing one or more of the selected components in case alternative options provide improved performance or additional functionalities.
+The Modular Stack solution aims at fulfilling the requirements specified in the Section 1 by using multiple tools. Such approach enables the possibility of replacing one or more of the selected components in case alternative options provide improved performance or additional functionalities.
 This section gives an overview of Modular Stack components, see Figure 2, while the detailed description can be found in the following chapters.
 
 ![](images/monsta_arc.png)
@@ -62,7 +63,7 @@ As explained in the Section 2 three classes of metrics are collected using O<sup
 
 #### 3.1.1 Monitoring library - application and process performance metrics
 
-The [O<sup>2</sup> Monitoring library](https://github.com/AliceO2Group/Monitoring) provides an entry point for the O<sup>2</sup> processes to the Monitoring subsystem. It forwards user defined and [process performance](https://github.com/AliceO2Group/Monitoring/blob/dev/README.md#monitoring-process) related metrics to one of the [supported backends](https://github.com/AliceO2Group/Monitoring/blob/dev/README.md#monitoring-instance). It allows calculation of [derived metrics](https://github.com/AliceO2Group/Monitoring/blob/dev/README.md#calculating-derived-metrics) (eg. rate). It also supports [metric buffering](https://github.com/AliceO2Group/Monitoring/blob/dev/README.md#buffering-metrics) in order to improve the efficiency metric transport and decrease number context switches.
+The [O<sup>2</sup> Monitoring library](https://github.com/AliceO2Group/Monitoring) is an entry point for the O<sup>2</sup> processes to the Monitoring subsystem. It forwards user defined and [process performance](https://github.com/AliceO2Group/Monitoring/blob/dev/README.md#monitoring-process) metrics to one of the [supported backends](https://github.com/AliceO2Group/Monitoring/blob/dev/README.md#monitoring-instance). It also allows to calculate [derived metrics](https://github.com/AliceO2Group/Monitoring/blob/dev/README.md#calculating-derived-metrics) (eg. rate) and supports [metric buffering](https://github.com/AliceO2Group/Monitoring/blob/dev/README.md#buffering-metrics) in order to improve the efficiency metric transport and decrease number context switches.
 
 The detailed description of the library in available in the [README](https://github.com/AliceO2Group/Monitoring/blob/dev/README.md) file.
 
@@ -85,7 +86,7 @@ Data from collectd can be transferred by one of two plugins:
  - [Write HTTP](https://collectd.org/wiki/index.php/Plugin:Write_HTTP) - Formats data JSON and send over HTTP (supported by custom-made Flume handler)
 
 ### 3.2 Apache Flume - Collection and routing
-The large amount of monitoring data generated from the O<sup>2</sup> Facility requires a high-performance collection and aggregation. The  goal of this component is to receive monitoring data from the sensors (collectD) and O<sup>2</sup> processes (Monitoring library) and route them towards one of the following tools (as shown in Figure 2):
+The  goal of this component is to receive monitoring data from the sensors (collectD) and O<sup>2</sup> processes (via Monitoring library) and route them towards one of the following tools (as shown in Figure 2):
 - Historical storage (InfluxDB)
 - Near real-time dashboard (Grafana)
 - Alarming (Riemann)
@@ -119,17 +120,17 @@ Flume transports metrics in the data structure called Event, which consists of:
 - byte array payload
 - set of string attributes (optional).
 
-It was decided to keep metric name, values, tags and timestamp as string attributes and leave array payload empty. In addition, tags names are prefixed with `tag_` and value names with `value_`. Therefore, each Flume Event consists of following string attributes:
+It was decided to keep metric name, values, tags and timestamp as string attributes and leave array payload empty. In addition, tag names are prefixed with `tag_` and value names with `value_`. Therefore, each Flume Event consists of following string attributes:
 - `name`
-- `timestamp` - UNIX epoch time format
-- `tag_host` - hostname of an origin of a metric
-- `value_*` - at least one value is required
+- `timestamp` - UNIX epoch time
+- `tag_host` - hostname of a metric origin
+- `value_*` - a value (at least one is required)
 - [`tag_*`] - optional tags
 
 #### 3.2.2 UDP/JSON Source
 
 The UDP/JSON Source receives metrics from the Monitoring library. The UDP protocol was chosen as it allows receiving data from thousands of nodes. In addition, it drops the data (instead of queuing them) when the receiving part is busy, what is desired behaviour.
-There can be one or more metrics in a single UDP packet. The JSON metric has format similar to Flume Event what eases the parsing.
+There can be one or more metrics in a single UDP packet. The JSON metric is formatted as Flume Event what eases the parsing.
 A sample metric looks like below:
 ```JSON
 [{
@@ -147,9 +148,9 @@ The information how build and configure UDP/JSON Source are provided in the [Git
 
 #### 3.2.3 CollectD JSON Handler
 
-The goal of the CollectD JSON Handle is to make collect data coming from CollectD daemons possible. As previously mentioned in the Section 3.1.2 CollectD sends metrics either as binary blobs via UDP or as JSON via HTTP. The latter option was selected in order to interface with the source as it eases parsing to Flume Event. The performance should not be concern in this case as the source needs to handle ~200 requests per second (2000 collectD daemons pushing data every 10 seconds).
+The goal of the CollectD JSON Handle is collect data coming from CollectD daemons possible. As previously mentioned in the Section 3.1.2 CollectD sends metrics either as binary blobs via UDP or as JSON via HTTP. The latter option was selected in order to interface with the source as it eases parsing into Flume Event. The performance should not be concern in this case as the source needs to handle ~200 requests per second (2000 collectD daemons pushing data every 10 seconds).
 
-Below, two metrics from `disk` plugin, send over HTTP by `http_write` plugin are shown:
+Below, two metrics from a `disk` plugin, send over HTTP by `http_write` plugin are shown:
 
 ```JSON
 [{ "values": [197141504, 175136768],
@@ -185,7 +186,7 @@ The following Flume Event headers are defined:
 - `tag_plugin_instance` - `plugin_instance` value
 - `tag_type` - `type` value
 
-Following the above actions, the CollectD JSON shown before produces the following Flume Event:
+Following the above actions, the CollectD JSON object shown before produces the following Flume Events:
 ```JSON
 [{"headers" : {
     "timestamp" : "1251533299265000000",
@@ -219,7 +220,7 @@ The information how build and configure CollectD JSON Handler are provided in th
 [Avro Source](http://flume.apache.org/FlumeUserGuide.html#avro-source) receives metrics from Apache Spark. Alternatively, it is possible to use UDP/JSON Source for this purpose.
 
 #### 3.2.5 InfluxDB Sink
-The InfluxDB Sink takes an Flume Event from a channel, converts it to the [InfluxDB Line Protocol](https://docs.influxdata.com/influxdb/v1.5/write_protocols/line_protocol_reference/) and finally sends it in the UDP packet. The alternative solution of using HTTP requests was rejected due to a performance.
+The InfluxDB Sink takes a Flume Event from a channel, converts it to the [InfluxDB Line Protocol](https://docs.influxdata.com/influxdb/v1.5/write_protocols/line_protocol_reference/) and finally sends it in the UDP packet. The alternative solution of using HTTP requests was rejected due to a performance overhead.
 
 The InfluxDB Line Protocol format is following:
 ```
@@ -232,7 +233,7 @@ A value has 1 of 4 types:
 -	String - value quoted, example: `hostname=\"test-machine\"`.
 -	Boolean - `true` or `false`, example: `ping=true`.
 
-For Example, the following Flume Event:
+A sample Flume Event:
 ```JSON
 [{"headers" : {
     "timestamp" : "434324343",
@@ -274,11 +275,11 @@ The Spark Sink sends the data to Spark for further processing and aggregation. A
 - Push-based
 - Pull-based.
 
-In the first approach, Spark acts like a Flume Avro Source, thus the Spark Sink simply becomes built-in [Avro Sink](http://flume.apache.org/FlumeUserGuide.html#avro-sink).
+In the first approach, Spark acts like a Flume Avro Source, thus the Spark Sink simply becomes a built-in [Avro Sink](http://flume.apache.org/FlumeUserGuide.html#avro-sink).
 In the second approach, the Spark Sink buffers the events while "Spark uses a reliable Flume receiver and transactions to pull data from the sink".
 
 Currently Push is used as Pull approach has some undesired effects:
-- When Spark job restarts it begins processing the last retrieved data, even if it's already outdated; the rule "the new data has more priority than old" is followed
+- When Spark job restarts it begins processing the last retrieved data, even if it's already outdated; the rule "the new data has more priority than old" is not followed
 - The time windows are not fixed.
 
 
@@ -287,17 +288,11 @@ The information Enrichment Interceptor adds additional string attributes to spec
 Currently, only [InfluxDB timestamp interceptor](https://github.com/AliceO2Group/MonitoringCustomComponents/tree/master/flume-influxdb-timestamp-interceptor) is available.
 
 ### 3.3 Apache Spark - Batch and streaming processing
-The task defined in the evaluation document are:
-- enrichment
-- aggregation
-- correlation
-- suppression.
-
-Some of them could be managed by Flume, eg. simple modification of a Flume Event fields.
+Some of the processing task defined in the  Section 2 could be managed by Flume, eg. simple modification of a Flume Event fields.
 The more advanced processing requires a dedicated software. [Apache Spark](https://spark.apache.org/), "a fast and general-purpose engine for large-scale data processing", was selected for this role.
 
-Spark is able to execute both batch and streaming jobs. Spark executes streaming jobs by splitting the input data stream into batches (RDD) which are processed using the batch functions.
-The Map functions fulfil the enrichment task, since acts event per event, whereas Reduce functions fulfil the aggregation task, since operate on all data belonging to the same RDD.
+Spark is able to execute both batch and streaming jobs. Spark executes streaming jobs by splitting the input data stream into batches of input data (RDD) which are processed using the batch functions.
+The Map functions fulfil the enrichment task, since acts event per event, whereas Reduce functions fulfil the aggregation task, since they operate on the data belonging to the same RDD.
 
 Spark will run together with Apache Mesos in order to provide High Availability which resubmits failed jobs.
 
@@ -315,7 +310,7 @@ The goal of the storage is to archive metrics for the historical dashboard.
 It supports Continuous Queries and Retention Policies, that help to automate the process of downsampling data.
 
 #### 3.4.1 Data organisation
-Timeseries data is stored in *measurements*, associable to the relation database tables. A database contains multiple measurements and multiple retention policies. Since a measurement could have the same name in multiple retention policies, an uniquely way to define it is: `<database_name>.<retention_policy_name>.<measurement_name>`. For example `collectd.ret_pol_1day.disk_read`
+Timeseries data is stored in a *measurements*, associable to the relation database tables. A database contains multiple measurements and multiple retention policies. Since a measurement could have the same name in multiple retention policies, an uniquely way to define it is: `<database_name>.<retention_policy_name>.<measurement_name>`. For example `collectd.ret_pol_1day.disk_read`
 
 (...)
 
