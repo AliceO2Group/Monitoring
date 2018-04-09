@@ -292,24 +292,26 @@ The defined processing tasks are:
 - suppression.
 
 Some of them could be managed by Flume, eg. simple modification of a Flume Event fields.
+The more advanced processing requires a dedicated software. [Apache Spark](https://spark.apache.org/), "a fast and general-purpose engine for large-scale data processing", was selected for this role.
 
-The more advanced processing requires a dedicated software. [Apache Spark](https://spark.apache.org/), "a fast and general-purpose engine for large-scale data processing" was selected for this role.
-
-Spark is horizontal scalable and run on a cluster. Spark can run standalone or over several existing cluster managers.
-Apache Mesos adds High Availability to Apache Spark, as it resubmits a job in case of an error.
+Spark can run standalone or on a cluster,
+Apache Mesos adds High Availability to Apache Spark as it resubmits failed jobs.
 Spark revolves around the concept of a resilient distributed dataset (RDD), which is a fault-tolerant collection of elements that can be operated on in parallel.
-Spark is able to execute both batch and streaming jobs. The selected elaboration tasks are performed using a streaming job, but with a similar code batch jobs could be executed on data stored in a long term archive. Spark provides the execution of streaming jobs by splitting the input data stream in batches of input data (RDD) which are processed using the batch functions. These batches of input data have a fixed time size. Spark allows to use [Map-Reduce](https://en.wikipedia.org/wiki/MapReduce) programming model making the processing of large input data rate with a parallel and distributed algorithms on a cluster. The Map functions fulfill the enrichment task, since acts event per event, whereas Reduce functions fulfill the aggregation task, since operate on all data belonging to the same RDD. Suppression and correlation tasks needed store old data in order to compute algorithms on them. Apache Spark allows to store data in memory, beyond in a no-volatile memory, like distributed storage. Since in this use case the processing the new data as quickly as possible is the priority, the in-memory processing is the best solution.
+Spark is able to execute both batch and streaming jobs. The selected elaboration tasks are performed using a streaming job, but with a similar code batch jobs could be executed on data stored in a long term archive. Spark provides the execution of streaming jobs by splitting the input data stream in batches of input data (RDD) which are processed using the batch functions. These batches of input data have a fixed time size. Spark allows to use [Map-Reduce](https://en.wikipedia.org/wiki/MapReduce) programming model making the processing of large input data rate with a parallel and distributed algorithms on a cluster. The Map functions fulfil the enrichment task, since acts event per event, whereas Reduce functions fulfil the aggregation task, since operate on all data belonging to the same RDD. Suppression and correlation tasks needed store old data in order to compute algorithms on them. Apache Spark allows to store data in memory, beyond in a no-volatile memory, like distributed storage. Since in this use case the processing the new data as quickly as possible is the priority, the in-memory processing is the best solution.
 The Spark applications are written in Java and Scala, even if Scala is preferred since is less verbose and more intuitive.
 
+#### 3.3.1 Streaming Aggregator
 To implement the aggregation task, the `reduceByKeyAndWindow` function is used: it allows to aggregate Flume event received in the same time window and with the same `key` using a specific function. The *key* field depending on which variables is desired aggregate e.g. on time or on time-and-hosts.
 
-### 3.4 Storage
-The storage component has the goal to store all the metric the Historical dashboard(s) need.
+https://github.com/AliceO2Group/MonitoringCustomComponents/tree/master/spark-streaming-aggregator
 
-[InfluxDB](https://docs.influxdata.com/influxdb/v1.5/) is a "custom high-performance data store written specifically for time series data. It allows for high throughput ingest, compression and real-time querying of that same data". Its features make it the best solution to accomplish the database requirements.
+### 3.4 Storage
+The goal of the storage is to archive metrics for the historical dashboard.
+
+[InfluxDB](https://docs.influxdata.com/influxdb/v1.5/) is a "custom high-performance data store written specifically for time series data. It allows for high throughput ingest, compression and real-time querying of that same data". Its features make it solid solution to accomplish the database requirements.
 InfluxDB allows to handle hundreds of data points per second: keeping the high precision raw data for only a limited time, and storing the lower precision. InfluxDB offers two features, Continuous Queries and Retention Policies, that help automate the process of downsampling data and expiring old data. InfluxDB provides InfluxQL as a SQL-like query language for interacting with stored data and low disk occupancy per measurement, three bytes for non-string values.
 
-#### 3.4.1 Data organization
+#### 3.4.1 Data organisation
 Timeseries data is stored in *measurements*, associable to the relation database tables. A database contains multiple measurements and multiple retention policies. Since a measurement could have the same name in multiple retention policies, an uniquely way to define it is: `<database_name>.<retention_policy_name>.<measurement_name>`. For example `collectd.ret_pol_1day.disk_read`
 
 #### 3.4.2 Retention Policies and Continuous Queries
