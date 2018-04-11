@@ -311,6 +311,7 @@ The information how build and configure Spark Streaming Aggregator are provided 
 The goal of the storage is to archive time-series metrics for the historical dashboard.
 
 [InfluxDB](https://docs.influxdata.com/influxdb/v1.5/) is a "custom high-performance data store written specifically for time series data. It allows for high throughput ingest, compression and real-time querying of that same data".
+It supports Continuous Queries and Retention Policies, that help to automate the process of downsampling data.
 
 #### 3.4.1 Data organisation
 Timeseries data is stored in a *measurements*, associable to the relation database tables. A database contains multiple measurements and multiple retention policies. Since a measurement could have the same name in multiple retention policies, an uniquely way to define it is: `<database_name>.<retention_policy_name>.<measurement_name>`. For example `collectd.ret_pol_1day.disk_read`
