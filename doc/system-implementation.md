@@ -293,7 +293,7 @@ Some of the processing task defined in the  Section 2 could be managed by Flume,
 The more advanced processing requires a dedicated software. [Apache Spark](https://spark.apache.org/), "a fast and general-purpose engine for large-scale data processing", was selected for this role.
 
 Spark is able to execute both batch and streaming jobs. Spark executes streaming jobs by splitting the input data stream into batches of input data (RDD) which are processed using the batch functions.
-The Map functions fulfill the enrichment task, since acts event per event, whereas Reduce functions fulfill the aggregation task, since they operate on the data belonging to the same RDD.
+The Map functions fulfil the enrichment task, since acts event per event, whereas Reduce functions fulfil the aggregation task, since they operate on the data belonging to the same RDD.
 
 Spark will run together with Apache Mesos in order to provide High Availability which resubmits failed jobs.
 
