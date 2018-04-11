@@ -298,12 +298,12 @@ The Map functions fulfill the enrichment task, since acts event per event, where
 Spark will run together with Apache Mesos in order to provide High Availability which resubmits failed jobs.
 
 #### 3.3.1 Streaming Aggregator
-The job receives Flume events from the Spark Sink and computes the aggregated value. Since the Pull-approach has been selected, the Spark Sink is an Avro Flume that sends Avro events. The job splits the event stream in batches of data depending on the time window, parameter defined in the code, and on each single batch map-reduce functions could be used. Spark provides a large set of functions and for this use-case the `reduceByKeyAndWindow` function has been selected: merges key-value data having the same key and within the same time window using an user defined function. Depending on how the key field is created from the Avro event, different aggregation level could be obtained. E.g. excluding the host tag in the key field, an average value representative of all hosts is returned.
+The job receives Flume events from the Spark Sink and computes the aggregated value. Since the Pull-approach has been selected, the Spark Sink is an Avro Flume that sends Avro events. The job splits the event stream in batches of data depending on the time window and on each single batch map-reduce functions could be used. Spark provides a large set of functions and for this use-case the `reduceByKeyAndWindow` function has been selected: merges key-value data having the same key and within the same time window using an user defined function. Depending on how the key field is created from the Avro event, different aggregation level could be obtained. E.g. excluding the host tag in the key field, an average value representative of all hosts is returned.
 
 The streaming job:
 - extracts the key-value pair from the received Avro event
 - evaluates the average value from data having the same key and within the same time window
-- sends the aggregated value back to Flume backend (UDP/JSON or Avro event) 
+- sends the aggregated value back to Flume backend (UDP/JSON or Avro event)
 
 The information how build and configure Spark Streaming Aggregator are provided in the [GitHub README](https://github.com/AliceO2Group/MonitoringCustomComponents/tree/master/spark-streaming-aggregator).
 
@@ -311,46 +311,6 @@ The information how build and configure Spark Streaming Aggregator are provided 
 The goal of the storage is to archive time-series metrics for the historical dashboard.
 
 [InfluxDB](https://docs.influxdata.com/influxdb/v1.5/) is a "custom high-performance data store written specifically for time series data. It allows for high throughput ingest, compression and real-time querying of that same data".
-
-Further features are:
-- Acquire data both in HTTP or TCP.
-- Query aggregated data using the [InfluxDB SQL-like Query Language](https://docs.influxdata.com/influxdb/v1.5/query_language/data_exploration/).
-- Tags could be added to series to be "indexed for fast and a efficient queries".
-- Supports [Continuous Queries and Retention Policies](https://docs.influxdata.com/influxdb/v1.5/guides/downsampling_and_retention/), that help to automate the process of downsampling data.
-
-After the installation, InfluxDB provides a ready-to-use HTTP API in order to write and query data easily. The default port is the `8086`. As described in the [Writing data with the HTTP API page](https://docs.influxdata.com/influxdb/v1.5/guides/writing_data/), data can be written using a HTTP/POST with a data coded using InfluxDB Line Protocol. Whereas, data can be queried using a HTTP/GET with the InfluxDB SQL-like Query Language, as described in the [Querying data with the HTTP API page](https://docs.influxdata.com/influxdb/v1.5/guides/querying_data/).
-
-An example of writing and querying commands are provided:
-
-```
-curl -i -XPOST 'http://localhost:8086/write?db=mydb' --data-binary \
-'cpu_load_short,host=server01,region=us-west value=0.64 1434055562000000000'
-
-curl -G 'http://localhost:8086/query?pretty=true' --data-urlencode \
-"db=mydb" --data-urlencode "q=SELECT \"value\" FROM \"cpu_load_short\" WHERE \"region\"='us-west'"
-```
-
-The TCP communication has been selected since tests shown better throughput and latency performances than HTTP. The UDP configuration section is shown:
-
-```
-[[udp]]
-  enabled = true
-  bind-address = ":8087"
-  database = "udp_database"
-  batch-size = 50000
-  batch-timeout = "1s"
-  batch-pending = 200
-  read-buffer = 8388608
-```
-
-As show in the above configuration section, a database must be associated to a given UDP port. 
-The data within the packet must be coded using the InfluxDB Line Protocol, like HTTP.
-
-An example:
-
-```
-echo -n "cpu_load_short,host=server01,region=us-west value=0.64 1434055562000000000" >/dev/udp/localhost/8087
-```
 
 #### 3.4.1 Data organisation
 Timeseries data is stored in a *measurements*, associable to the relation database tables. A database contains multiple measurements and multiple retention policies. Since a measurement could have the same name in multiple retention policies, an uniquely way to define it is: `<database_name>.<retention_policy_name>.<measurement_name>`. For example `collectd.ret_pol_1day.disk_read`
