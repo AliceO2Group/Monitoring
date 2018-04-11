@@ -53,7 +53,8 @@ This section gives an overview of Modular Stack components, see Figure 2, while 
 
 ![](images/monsta_arc.png)
 
-<p align="center">Figure 2. Modular Stack architecture</p>     
+<p align="center">Figure 2. Modular Stack architecture</p>
+
 
 The O<sup>2</sup> Modular Stack collects three classes of metrics (as defined in Section 2) with assistance of [O<sup>2</sup> Monitoring library](http://github.com/AliceO2Group/Monitoring) (Application and process metrics)
 and [CollectD](http://collectd.org/) (system information). Collectd deploys system sensors to collect metrics related to CPU, memory and I/O from all O<sup>2</sup> nodes. The requirements of high monitoring metric rate collection and metric routing is address via [Apache Flume](https://flume.apache.org/), "a distributed and highly-reliable service for collecting, aggregating and moving large amounts of data in a very efficient way". Moreover, Flume can also run simple processing tasks. [InfluxDB](https://docs.influxdata.com/influxdb/v1.5/), "a custom high-performance data store written specifically for time series data", was selected as a storage. [Grafana](https://grafana.com/) provides graphical interfaces to display near real-time and historical metrics. [Riemann](http://riemann.io/) triggers alarms using multiple plugins and allows to implement some processing tasks. All remaining and complex processing tasks are implemented through [Apache Spark](https://spark.apache.org/), "a fast and general-purpose engine for large-scale data processing".
@@ -275,7 +276,7 @@ The Spark Sink sends the data to Spark for further processing and aggregation. A
 - Push-based
 - Pull-based.
 
-In the first approach, Spark acts like a Flume Avro Source, thus the Spark Sink simply becomes a built-in [Avro Sink](http://flume.apache.org/FlumeUserGuide.html#avro-sink).
+In the first approach, Spark acts like a Flume Avro Source, thus the Spark Sink simply becomes a built-in [Avro Sink](http://flume.apache.org/FlumeUserGuide.html#avro-sink). The Avro Source-Sink are preferred components for transfer data between Flume agents and are implemented with RPC server-client communication.
 In the second approach, the Spark Sink buffers the events while "Spark uses a reliable Flume receiver and transactions to pull data from the sink".
 
 Currently Push is used as Pull approach has some undesired effects:
@@ -297,14 +298,17 @@ The Map functions fulfil the enrichment task, since acts event per event, wherea
 Spark will run together with Apache Mesos in order to provide High Availability which resubmits failed jobs.
 
 #### 3.3.1 Streaming Aggregator
-The aggregator uses `reduceByKeyAndWindow` function to aggregate Flume Events received within a time window and with a same `key`. The *key* field defines over which variable metrics are aggregated, e.g. time or time and host.
+The job receives Flume events from the Spark Sink and computes the aggregated value. Since the Pull-approach has been selected, the Spark Sink is an Avro Flume that sends Avro events. The job splits the event stream in batches of data depending on the time window and on each single batch map-reduce functions could be used. Spark provides a large set of functions and for this use-case the `reduceByKeyAndWindow` function has been selected: merges key-value data having the same key and within the same time window using an user defined function. Depending on how the key field is created from the Avro event, different aggregation level could be obtained. E.g. excluding the host tag in the key field, an average value representative of all hosts is returned.
 
-(...)
+The streaming job:
+- extracts the key-value pair from the received Avro event
+- evaluates the average value from data having the same key and within the same time window
+- sends the aggregated value back to Flume backend (UDP/JSON or Avro event)
 
 The information how build and configure Spark Streaming Aggregator are provided in the [GitHub README](https://github.com/AliceO2Group/MonitoringCustomComponents/tree/master/spark-streaming-aggregator).
 
 ### 3.4 InfluxDB - Storage
-The goal of the storage is to archive metrics for the historical dashboard.
+The goal of the storage is to archive time-series metrics for the historical dashboard.
 
 [InfluxDB](https://docs.influxdata.com/influxdb/v1.5/) is a "custom high-performance data store written specifically for time series data. It allows for high throughput ingest, compression and real-time querying of that same data".
 It supports Continuous Queries and Retention Policies, that help to automate the process of downsampling data.
@@ -312,12 +316,8 @@ It supports Continuous Queries and Retention Policies, that help to automate the
 #### 3.4.1 Data organisation
 Timeseries data is stored in a *measurements*, associable to the relation database tables. A database contains multiple measurements and multiple retention policies. Since a measurement could have the same name in multiple retention policies, an uniquely way to define it is: `<database_name>.<retention_policy_name>.<measurement_name>`. For example `collectd.ret_pol_1day.disk_read`
 
-(...)
-
 #### 3.4.2 Retention Policies and Continuous Queries
-Properly set retention policies and continuous queries allow to minimise the disk usage and the computation requirement. The goal is to store high time resolution data for a short period and low resolution data for longer time period.
-
-(...)
+Properly set retention policies and continuous queries allow to minimise the disk usage and the computation requirement. The goal is to store high time resolution data for a short period and low resolution data for longer time period. Usually the short period is set to a day o to a week, but it depends on the use cases. In order to evaluate the best value for our use-cases, real monitoring data is needed in order estimate the disk usage of both the retention policies. More details on the configuration on continuous queries and retention policies will be provided in the later stage.
 
 ### 3.5 Grafana - Dashboards
 [Grafana](https://grafana.com) was chosen as data visualisation tool. It allows to create custom dashboards easily.
