@@ -1,6 +1,6 @@
 # Monitoring system implementation based on Modular Stack
 
-## 1. Goal and requirements
+## 1. Goal
 
 The goal of the monitoring system is to provide experts and shift crew in the ALICE Control Centre with an in-depth state of the O<sup>2</sup> computing farm. The near-real-time and historical graphical dashboards allow user to interface easily with the large amount of monitoring data. In order to supply data to the end user a set of tools has been selected to meet the requirements specified in the [O<sup>2</sup> Technical Design Report](https://cds.cern.ch/record/2011297/files/ALICE-TDR-019.pdf) and defined by O<sup>2</sup> Work Package 8.
 
@@ -52,7 +52,7 @@ The following collectD plugins has been selected in order to provide system over
 
 | Plugin    | Metric description | Requirements | Comments |
 | --------- | ------------------ | ------------ | -------- |
-| CPU       | Amount of time spent by the CPU in various states (user, system, io, idle, irq) | `/proc` | Jiffie unit |
+| CPU       | Amount of time spent by the CPU in various states (user, system, io, idle, irq) | `/proc` | Percentage unit |
 | Interface | Throughput, packets/second and errors/second per interface | `/proc` | List of interfaces can be defined |
 | Memory    | Memory utilisation (Used, Buffered, Cached, Free) | `/proc` | - |
 | DF        | Used and available disk space per mounted partition | `statfs`, `getmntent` | List of partitions can be defined |
@@ -65,9 +65,9 @@ Data from collectd can be transferred by one of two plugins:
  - [Network](https://collectd.org/wiki/index.php/Plugin:Network) - binary protocol over UDP
  - [Write HTTP](https://collectd.org/wiki/index.php/Plugin:Write_HTTP) - Formats data JSON and send over HTTP
 
-The first solution allows to send data directly to InfluxDB with no need to implement custom component. Acquiring CollectD data in Apache Flume gives the flexibility to forward metrics to other components, e.g. for aggregation and alerting tasks, so a custom component has been implemented. Since the incoming rate should not be an issue, abount ~200 requests per second (2000 CollectD daemons pushing data every 10 seconds), the second solution has been selected due its simplicity to parse it.
+The first solution allows to send data directly to InfluxDB with no need to implement custom component. The scenario to acquire CollectD data in Apache Flume gives the flexibility to forward metrics to other components, e.g. for aggregation and alerting tasks, so a custom component has been implemented. Since the incoming rate should not be an issue, about ~200 requests per second (2000 CollectD daemons pushing data every 10 seconds), the second solution has been selected due its simplicity of implementation.
 
-Below, the JSON returned from the `disk` plugin, sent over HTTP by `http_write` plugin, is shown:
+Following is shown the JSON returned from the `disk` plugin, sent over HTTP by `http_write` plugin:
 
 ```JSON
 [{ "values": [197141504, 175136768],
@@ -107,7 +107,6 @@ A Flume instance runs an agent, which is a "process that hosts the components th
 - Channel selector - selects an outgoing channel or channels based on event properties such as a metric name or a dedicated property for this purpose; this property could be set either in a source interceptor or by the monitoring library.
 - Sink - Translates Flume events into desirable format and sends them to a backend
 - Interceptor - Basic manipulation on Flume events
-- Handler - Stream changes to captured data by a source
 
 Apache Flume provides a wide range of built-in components, especially for generic protocols and other Hadoop tools. In order to interface with all Modular Stack tools some components needs to developed:
 - [InfluxDB Sink](https://github.com/AliceO2Group/MonitoringCustomComponents/tree/master/flume-udp-influxdb-sink) - pushes events to InfluxDB via UDP
@@ -154,7 +153,7 @@ The information how build and configure UDP/JSON Source are provided in the [Git
 
 #### 3.2.3 CollectD JSON Source
 
-The CollectD JSON Source receives the data coming from CollectD daemons and converts it in Flume events. As previously mentioned in Section 3.1.2 CollectD sends metrics either as binary blobs via UDP or as JSON via HTTP. Flume natively provides HTTP Source but it is not able to decode the CollectD JSON format. Since the HTTP Source allows to use handler to custom decoding, the [Collectd JSON Handler](https://github.com/AliceO2Group/MonitoringCustomComponents/tree/master/flume-json-collectd-http-handler) was implemented to provide such functionality. It creates separate Flume Event per each metric specified in the given position of `values`, `dstypes` and `dsname` arrays.
+The CollectD JSON Source receives the data coming from CollectD daemons and converts it in Flume events. As previously mentioned in Section 3.1.2, the JSON via HTTP solution has been selected. Flume natively provides HTTP Source but it is not able to decode the CollectD JSON format. Since the HTTP Source allows to use handler to custom decoding, the [Collectd JSON Handler](https://github.com/AliceO2Group/MonitoringCustomComponents/tree/master/flume-json-collectd-http-handler) was implemented to provide such functionality. It creates multiple Flume Events per each metric specified in the given position of `values`, `dstypes` and `dsname` arrays.
 
 The following Flume Event headers are defined:
 - `timestamp` - `time` converted into nanoseconds (`long` type)
@@ -165,7 +164,7 @@ The following Flume Event headers are defined:
 - `tag_plugin_instance` - `plugin_instance` value
 - `tag_type` - `type` value
 
-Following the above actions, the CollectD JSON object shown before produces the following Flume Events:
+Following the above actions, the CollectD JSON object shown in Section 3.1.2 produces the following Flume Events:
 ```JSON
 [{"headers" : {
     "timestamp" : "1251533299265000000",
