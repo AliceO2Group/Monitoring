@@ -244,13 +244,14 @@ The details on how to build and configure InfluxDB Sink are provided in the  [Gi
 The near real-time Grafana Sink sends the data directly to the near real-time dashboard over WebSocket protocol.
 
 This component will be developed as soon as Grafana real time sources are available.
+
 (...)
 
 #### 3.2.7 Riemann Sink
 The Riemann Sink sends the data to the Riemann instance in order to trigger a notification.
 Riemann accepts both HTTP and TCP.
-
 The component has not been developed yet.
+
 (...)
 
 #### 3.2.8 Spark Avro Sink
@@ -282,7 +283,7 @@ Spark will run together with Apache Mesos in order to provide High Availability 
 #### 3.3.1 Streaming Aggregator
 The job receives Flume events from the Spark Sink and computes the aggregated value. Since the Pull-approach was selected, Avro serialisation is used.
 The job splits the event stream into time window long batches having the name key name, then a custom defined function is applied every slide interval. Notice that slide interval can be smaller than time window. For this purpose the `reduceByKeyAndWindow` function is used.
-Depending on the key field different custom function can be applied (as defined in Section 2): drop a tag, average value over all hosts, etc.
+Depending on the key field different custom function can be applied: drop a tag, average value over all hosts, etc.
 
 The information how build and configure Spark Streaming Aggregator are provided in the [GitHub README](https://github.com/AliceO2Group/MonitoringCustomComponents/tree/master/spark-streaming-aggregator).
 
@@ -294,10 +295,14 @@ It supports [Continuous Queries and Retention Policies](https://docs.influxdata.
 
 #### 3.4.1 Data organisation
 In order to scale the storage efficiently it is foreseen to use multiple instances of InfluxDB. In addition, single [ifql](https://github.com/influxdata/ifql/) process will serve READ queries from all the instances.
+
 (...)
 
 #### 3.4.2 Retention Policies and Continuous Queries
-Properly set retention policies and continuous queries allow to minimise the disk usage and the computation requirement. The goal is to store high time resolution data for a short period and low resolution data for longer time period. Usually the short period is set to a day o to a week, but it depends on the use cases. In order to evaluate the best value for our use-cases, real monitoring data is needed in order estimate the disk usage of both the retention policies. More details on the configuration on continuous queries and retention policies will be provided in the later stage.
+Retention policies and continuous queries allow to minimise the disk usage. The goal is to store high time resolution data for a short period and low resolution data for longer time period. In order to adjust continuous queries and retention policies for the O<sup>2</sup> sample monitoring data is required.
+The details are tracked in the [OMON-123](https://alice.its.cern.ch/jira/browse/OMON-123) issue.
+
+(...)
 
 ### 3.5 Grafana - Dashboards
 [Grafana](https://grafana.com) was chosen as data visualisation tool. It allows to create custom dashboards easily.
@@ -321,7 +326,12 @@ token_url = https://oauth.web.cern.ch/OAuth/Token
 api_url = https://oauthresource.web.cern.ch/api/User
 ```
 
-#### 3.5.2 Real-Time data sources
+#### 3.5.2 Live data source
+
+The Live data sources are schedule in the [Grafana roadmap](https://github.com/grafana/grafana/blob/master/ROADMAP.md) as `In a distant future far far away` which means it should be implemented not earlier than Q4 2018.
+
+It also considered to contribute this future to Grafana: [OMON-139](https://alice.its.cern.ch/jira/projects/OMON/issues/OMON-139).
+
 (...)
 
 ### 3.6 Alarming
