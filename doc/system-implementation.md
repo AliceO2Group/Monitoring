@@ -1,30 +1,26 @@
-# Monitoring system implementation based on Modular Stack
+# [WIP] Monitoring system implementation based on Modular Stack
 
 ## 1. Goal
 
-The goal of the monitoring system is to provide experts and shift crew in the ALICE Control Centre with an in-depth state of the O<sup>2</sup> computing farm. The near-real-time and historical graphical dashboards allow user to interface easily with the large amount of monitoring data. In order to supply data to the end user a set of tools has been selected to meet the requirements specified in the [O<sup>2</sup> Technical Design Report](https://cds.cern.ch/record/2011297/files/ALICE-TDR-019.pdf) and defined by O<sup>2</sup> Work Package 8.
+The goal of the monitoring system is to provide experts and shift crew in the ALICE Control Centre with an in-depth state of the O<sup>2</sup> computing farm. The near-real-time and historical graphical dashboards allow users to interface easily with the large amount of monitoring data.
+In order to process and supply monitoring metrics to the dashboards a set of tools were selected to meet the requirements specified in the [O<sup>2</sup> Technical Design Report](https://cds.cern.ch/record/2011297/files/ALICE-TDR-019.pdf) and  [O<sup>2</sup> Work Package 8 evaluation document](https://espace.cern.ch/alice-o2-wp8/Shared%20Documents/Monitoring/WP8-Monitoring-evaluation.pdf).
+
+The selection criteria were approved by [O<sup>2</sup> TB in August 2017](https://indico.cern.ch/event/630547/contributions/2699553/attachments/1514045/2362116/O2-TB-Monitoring-evaluation.pdf). The WP8 [tools selection recommendation](https://indico.cern.ch/event/686148/contributions/2880669/attachments/1593253/2524202/TB-monitoring-evaluation.pdf) was approved by O<sup>2</sup> TB in February 2018.
 
 ## 2. Functional architecture
 
-Figure 1 shows the functional architecture of the system. Three monitoring data sources has been identified:
-- Application (O<sup>2</sup> related)
-- Process
-- System.
+Figure 1 shows the functional architecture of the system. Three monitoring data sources were identified: Applications, Process, System related.
 
 ![](images/gen_arch.png)
 
 <p align="center">Figure 1. Monitoring architecture</p>
 
-These data sources send the monitoring data periodically to the server-side processing and aggregation task which can perform stream or batch operations such as:
-- Suppression
-- Enrichment
-- Correlation
-- Custom aggregation and others.
+These data sources send the monitoring data periodically to the server-side processing and aggregation task which can perform stream or batch operations such as: Suppression, Enrichment, Correlation, Custom aggregation and others.
 
-Afterwards data are forwarded to both storage and real-time dashboard. The selected storage must support high input metric rate, low storage size and downsampling. The near-real-time dashboard receives selected, processed metrics as soon as it is possible in order to allow experts to react to abnormal situations. This imposes a need of low latency transport protocol.
+Afterwards data are forwarded to both storage and real-time dashboard. The storage supports high input metric rate, low storage size and downsampling. The near-real-time dashboard receives selected, processed metrics as soon as it is possible in order to allow experts to react to abnormal situations. This imposes a need of low latency transport protocol.
 The historical dashboard displays data from the storage. As it has access to a larger variety of metrics it is mostly used by experts in order to drill down the issues and access detailed views.
 These dashboards display data as time series plots, gauges, bar, and other graphical objects. They allow access from various operating systems and from outside of the experimental area (Point 2).
-Eventually, the alarming component detects abnormal situations and notifies the experts by email, text messages or other means of quickly reaching them.
+Eventually, the alarming component detects abnormal situations and notifies the experts by email, text messages or other means of notifications to quickly reaching them.
 
 ## 3. The Modular Stack
 The Modular Stack solution aims at fulfilling the requirements specified in the Section 1 by using multiple tools. Such approach enables the possibility of replacing one or more of the selected components in case alternative options provide improved performance or additional functionalities.
@@ -39,7 +35,12 @@ The O<sup>2</sup> Modular Stack collects three classes of metrics (as defined in
 and [CollectD](http://collectd.org/) (system information). Collectd deploys system sensors to collect metrics related to CPU, memory and I/O from all O<sup>2</sup> nodes. The requirements of high monitoring metric rate collection and metric routing are addressed via [Apache Flume](https://flume.apache.org/), "a distributed and highly-reliable service for collecting, aggregating and moving large amounts of data in a very efficient way". Moreover, Flume can also run simple processing tasks. [InfluxDB](https://docs.influxdata.com/influxdb/v1.5/), "a custom high-performance data store written specifically for time series data", was selected as a storage backend. [Grafana](https://grafana.com/) provides graphical interfaces to display near real-time and historical metrics. [Riemann](http://riemann.io/) triggers alarms using multiple plugins and allows to implement some processing tasks. All remaining and complex processing tasks are implemented through [Apache Spark](https://spark.apache.org/), "a fast and general-purpose engine for large-scale data processing".
 
 ### 3.1 Sensors and data sources
-As explained in the Section 2 three classes of metrics are collected using O<sup>2</sup> Monitoring library and CollectD. This section provide more details regarding these tools.
+As explained in the Section 2 three classes of metrics are collected using O<sup>2</sup> Monitoring library and CollectD:
+- Application - user defined metrics injected via Monitoring library API
+- Process - process performance related metrics automatically generated by the Monitoring library
+- System - system metrics provided by collectD plugins.
+
+This section provide more details regarding these tools.
 
 #### 3.1.1 Monitoring library - application and process performance metrics
 
@@ -48,11 +49,11 @@ The [O<sup>2</sup> Monitoring library](https://github.com/AliceO2Group/Monitorin
 The detailed description of the library in available in the [README](https://github.com/AliceO2Group/Monitoring/blob/dev/README.md) file.
 
 #### 3.1.2 Collectd - system metrics
-The following collectD plugins has been selected in order to provide system overview of each node:
+The following collectD plugins were selected in order to provide system overview of each node:
 
 | Plugin    | Metric description | Requirements | Comments |
 | --------- | ------------------ | ------------ | -------- |
-| CPU       | Amount of time spent by the CPU in various states (user, system, io, idle, irq) | `/proc` | Percentage unit |
+| CPU       | Amount of time spent by the CPU in various states (user, system, io, idle, irq) | `/proc` | Percentage (`ValuesPercentage true`) |
 | Interface | Throughput, packets/second and errors/second per interface | `/proc` | List of interfaces can be defined |
 | Memory    | Memory utilisation (Used, Buffered, Cached, Free) | `/proc` | - |
 | DF        | Used and available disk space per mounted partition | `statfs`, `getmntent` | List of partitions can be defined |
@@ -60,14 +61,17 @@ The following collectD plugins has been selected in order to provide system over
 | Uptime    | Execution time; current, average and maximum | `/proc` | - |
 | Disk      | Disk performance metrics per read and write: average time, operation per second, io time and more | `/proc/diskstats` | - |
 | Logfile   | Internal; writes collectd logs into a file | - | - |
-
+| IMPI      | Uses the OpenIPMI library to read hardware sensors from servers | [OpenIPMI](https://sourceforge.net/projects/openipmi/) | TBD: [OMON-144](https://alice.its.cern.ch/jira/browse/OMON-144)  |
+| SNMP      | Uses the Net-SNMP library to read values from network devices | [Net-SNMP](http://net-snmp.sourceforge.net) | TBD: [OMON-145](https://alice.its.cern.ch/jira/browse/OMON-145) |
+| SMART     | Reads Self-Monitoring, Analysis and Reporting Technology information from hard disk drives | `libatasmart`, `libudev` | TBD: [OMON-146](https://alice.its.cern.ch/jira/browse/OMON-146) |
 Data from collectd can be transferred by one of two plugins:
  - [Network](https://collectd.org/wiki/index.php/Plugin:Network) - binary protocol over UDP
  - [Write HTTP](https://collectd.org/wiki/index.php/Plugin:Write_HTTP) - Formats data JSON and send over HTTP
 
-The first solution allows to send data directly to InfluxDB with no need to implement custom component. The scenario to acquire CollectD data in Apache Flume gives the flexibility to forward metrics to other components, e.g. for aggregation and alerting tasks, so a custom component has been implemented. Since the incoming rate should not be an issue, about ~200 requests per second (2000 CollectD daemons pushing data every 10 seconds), the second solution has been selected due its simplicity of implementation.
+The former plugin sends metrics directly to InfluxDB which understands CollectD native protocol.
+The latter plugin writes JSON encoded metrics through HTTP what can be received by Apache Flume CollectD handler (see Section 3.2.3). This gives the possibility to forward system metrics to processing if necessary, e.g. for aggregation and alerting tasks. The incoming rate is estimated at ~200 requests per second (2000 CollectD daemons pushing data every 10 seconds). Currently both solutions are used depending on a set-up.
 
-Following is shown the JSON returned from the `disk` plugin, sent over HTTP by `http_write` plugin:
+Below, a sample JSON metric generated by the `disk` plugin sent over HTTP by the `http_write` plugin is shown:
 
 ```JSON
 [{ "values": [197141504, 175136768],
@@ -84,7 +88,7 @@ Following is shown the JSON returned from the `disk` plugin, sent over HTTP by `
 ]
 ```
 
-The `values`, `dstypes` and `dsname` fields are arrays of the same size allowing to accommodate multiple metrics. In the example, two values, types and names are specified.
+The `values`, `dstypes` and `dsname` fields are arrays of the same size allowing to accommodate multiple metrics. In the example two values, types and names are specified.
 
 The `dstypes` field defines the value type:
 - `counter` or `absolute` - unsigned integer
@@ -99,21 +103,21 @@ The  goal of this component is to receive monitoring data from the sensors (coll
 - Processing (Apache Spark).
 
 ![](images/flume-arc.png)
-<p align="center">Figure 3. Flume agent (from Apache Flume official documentation)</p>
+<p align="center">Figure 3. Flume agent</p>
 
 A Flume instance runs an agent, which is a "process that hosts the components through which events flow from an external source to the next destination (hop)". An agent consists of following components (see Figure 3):
 - Source - Receives metrics and formats them into a Flume event
 - Channel - Disk or memory buffer
-- Channel selector - selects an outgoing channel or channels based on event properties such as a metric name or a dedicated property for this purpose; this property could be set either in a source interceptor or by the monitoring library.
-- Sink - Translates Flume events into desirable format and sends them to a backend
-- Interceptor - Basic manipulation on Flume events
+- Channel Selector - Selects an outgoing channel or channels based on event properties such as a metric name or a dedicated property for this purpose; This property could be set either in a source interceptor or by the Monitoring library.
+- Sink - Translates Flume events into desirable format and sends it to a backend
+- Interceptor - Basic manipulation on Flume events.
 
-Apache Flume provides a wide range of built-in components, especially for generic protocols and other Hadoop tools. In order to interface with all Modular Stack tools some components needs to developed:
+Apache Flume provides a wide range of built-in components, especially for widely used communication protocols and Hadoop ecosystem tools. In order to interface with all Modular Stack tools some custom components were developed:
 - [InfluxDB Sink](https://github.com/AliceO2Group/MonitoringCustomComponents/tree/master/flume-udp-influxdb-sink) - pushes events to InfluxDB via UDP
-- Grafana Real-Time Sink (implementation details not yet defined)
-- Riemann Sink (implementation details not yet defined)
+- Grafana Sink - (...)
+- Riemann Sink - (...)
 - [UDP/JSON Source](https://github.com/AliceO2Group/MonitoringCustomComponents/tree/master/flume-udp-source) - collects metrics sent from the [O<sup>2</sup> monitoring library](https://github.com/AliceO2Group/Monitoring) via UDP as JSON encoded strings
-- [Collectd JSON Source](https://github.com/AliceO2Group/MonitoringCustomComponents/tree/master/flume-json-collectd-http-handler) - reads the data provided by Collectd [write_http](https://collectd.org/wiki/index.php/Plugin:Write_HTTP) plugin.
+- [Collectd JSON Handler](https://github.com/AliceO2Group/MonitoringCustomComponents/tree/master/flume-json-collectd-http-handler) - reads the data provided by CollectD [write_http](https://collectd.org/wiki/index.php/Plugin:Write_HTTP) plugin.
 
 The Figure 4 shows how the Flume components are connected with each other.
 
@@ -135,7 +139,7 @@ It was decided to keep metric name, values, tags and timestamp as string attribu
 #### 3.2.2 UDP/JSON Source
 
 The UDP/JSON Source receives metrics from the Monitoring library. The UDP protocol was chosen as it allows receiving data from thousands of nodes. In addition, it drops the data (instead of queuing them) when the receiving part is busy, what is desired behaviour.
-There can be one or more metrics in a single UDP packet. The internal Flume Event format is used for JSON metric: this simplifies the parsing and reduces to computation needed for the conversion.
+There can be one or more metrics in a single UDP packet. The metrics are formatted as Flume Events already in the Monitoring library what eliminates the need of parsing on the Flume side.
 A sample metric looks like below:
 ```JSON
 [{
@@ -149,11 +153,12 @@ A sample metric looks like below:
 }]
 ```
 
-The information how build and configure UDP/JSON Source are provided in the [GitHub README](https://github.com/AliceO2Group/MonitoringCustomComponents/tree/master/flume-udp-source).
+The information how build and configure UDP/JSON Source is provided in the [GitHub README](https://github.com/AliceO2Group/MonitoringCustomComponents/tree/master/flume-udp-source).
 
-#### 3.2.3 CollectD JSON Source
+#### 3.2.3 CollectD JSON Handler
 
-The CollectD JSON Source receives the data coming from CollectD daemons and converts it in Flume events. As previously mentioned in Section 3.1.2, the JSON via HTTP solution has been selected. Flume natively provides HTTP Source but it is not able to decode the CollectD JSON format. Since the HTTP Source allows to use handler to custom decoding, the [Collectd JSON Handler](https://github.com/AliceO2Group/MonitoringCustomComponents/tree/master/flume-json-collectd-http-handler) was implemented to provide such functionality. It creates multiple Flume Events per each metric specified in the given position of `values`, `dstypes` and `dsname` arrays.
+The monitoring data coming from CollectD daemons are received by the native HTTP Source. As Flume is not able to decode the CollectD format a [Collectd JSON Handler](https://github.com/AliceO2Group/MonitoringCustomComponents/tree/master/flume-json-collectd-http-handler) was developed. It parses JSON encoded metrics and converts them into Flume events.
+It creates multiple Flume Events per each metric specified in the given position of `values`, `dstypes` and `dsname` arrays.
 
 The following Flume Event headers are defined:
 - `timestamp` - `time` converted into nanoseconds (`long` type)
@@ -164,7 +169,7 @@ The following Flume Event headers are defined:
 - `tag_plugin_instance` - `plugin_instance` value
 - `tag_type` - `type` value
 
-Following the above actions, the CollectD JSON object shown in Section 3.1.2 produces the following Flume Events:
+Following the above mapping, the CollectD JSON object shown in Section 3.2.2 produces the following Flume Events:
 ```JSON
 [{"headers" : {
     "timestamp" : "1251533299265000000",
@@ -236,9 +241,9 @@ The details on how to build and configure InfluxDB Sink are provided in the  [Gi
 
 
 #### 3.2.6 Grafana Sink
-The near real-time Grafana Sink sends the data directly to the near real-time dashboard with a minimum latency.
+The near real-time Grafana Sink sends the data directly to the near real-time dashboard over WebSocket protocol.
 
-The component has not been developed yet.
+This component will be developed as soon as Grafana real time sources are available.
 (...)
 
 #### 3.2.7 Riemann Sink
@@ -275,12 +280,9 @@ The Map functions fulfil the enrichment task, since acts event per event, wherea
 Spark will run together with Apache Mesos in order to provide High Availability which resubmits failed jobs.
 
 #### 3.3.1 Streaming Aggregator
-The job receives Flume events from the Spark Sink and computes the aggregated value. Since the Pull-approach has been selected, the Spark Sink is an Avro Flume that sends Avro events. The job splits the event stream in batches of data depending on the time window and on each single batch map-reduce functions could be used. Spark provides a large set of functions and for this use-case the `reduceByKeyAndWindow` function has been selected: merges key-value data having the same key and within the same time window using an user defined function. Depending on how the key field is created from the Avro event, different aggregation level could be obtained. E.g. excluding the host tag in the key field, an average value representative of all hosts is returned.
-
-The streaming job:
-- extracts the key-value pair from the received Avro event
-- evaluates the average value from data having the same key and within the same time window
-- sends the aggregated value back to Flume backend (UDP/JSON or Avro event)
+The job receives Flume events from the Spark Sink and computes the aggregated value. Since the Pull-approach was selected, Avro serialisation is used.
+The job splits the event stream into time window long batches having the name key name, then a custom defined function is applied every slide interval. Notice that slide interval can be smaller than time window. For this purpose the `reduceByKeyAndWindow` function is used.
+Depending on the key field different custom function can be applied (as defined in Section 2): drop a tag, average value over all hosts, etc.
 
 The information how build and configure Spark Streaming Aggregator are provided in the [GitHub README](https://github.com/AliceO2Group/MonitoringCustomComponents/tree/master/spark-streaming-aggregator).
 
@@ -288,10 +290,11 @@ The information how build and configure Spark Streaming Aggregator are provided 
 The goal of the storage is to archive time-series metrics for the historical dashboard.
 
 [InfluxDB](https://docs.influxdata.com/influxdb/v1.5/) is a "custom high-performance data store written specifically for time series data. It allows for high throughput ingest, compression and real-time querying of that same data".
-It supports Continuous Queries and Retention Policies, that help to automate the process of downsampling data.
+It supports [Continuous Queries and Retention Policies](https://docs.influxdata.com/influxdb/v1.5/guides/downsampling_and_retention/), that help to automate the process of downsampling data.
 
 #### 3.4.1 Data organisation
-Timeseries data is stored in a *measurements*, associable to the relation database tables. A database contains multiple measurements and multiple retention policies. Since a measurement could have the same name in multiple retention policies, an uniquely way to define it is: `<database_name>.<retention_policy_name>.<measurement_name>`. For example `collectd.ret_pol_1day.disk_read`
+In order to scale the storage efficiently it is foreseen to use multiple instances of InfluxDB. In addition, single [ifql](https://github.com/influxdata/ifql/) process will serve READ queries from all the instances.
+(...)
 
 #### 3.4.2 Retention Policies and Continuous Queries
 Properly set retention policies and continuous queries allow to minimise the disk usage and the computation requirement. The goal is to store high time resolution data for a short period and low resolution data for longer time period. Usually the short period is set to a day o to a week, but it depends on the use cases. In order to evaluate the best value for our use-cases, real monitoring data is needed in order estimate the disk usage of both the retention policies. More details on the configuration on continuous queries and retention policies will be provided in the later stage.
