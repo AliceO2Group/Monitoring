@@ -50,7 +50,10 @@ class ProcessMonitor
     /// Executes terminal command
     std::string exec(const char* cmd);
 
+    /// 'getrusage' values from last execution
     struct rusage mPreviousGetrUsage;
+
+    /// Timestamp when process monitoring was executed last time
     std::chrono::high_resolution_clock::time_point mTimeLastRun;
 };
 
