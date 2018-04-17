@@ -50,31 +50,17 @@ std::vector<Metric> ProcessMonitor::getNetworkUsage()
   return metrics;
 }
 
-std::vector<Metric> ProcessMonitor::getPidStatus()
+Metric ProcessMonitor::getMemoryUsage()
 {
-  std::vector<Metric> metrics;
-  std::string command = mPsCommand + std::to_string(mPid);
+  std::string command = "ps --no-headers -o pmem --pid " + std::to_string(mPid);
   std::string output = exec(command.c_str());
-
-  // split output into std vector
-  std::vector<std::string> pidParams;
   boost::trim(output);
-  boost::split(pidParams, output, boost::is_any_of("\t "), boost::token_compress_on);
-  
-  // parse output, cast to propriate types
-  auto j = mPsParams.begin();
-  for (auto i = pidParams.begin(); i != pidParams.end(); ++i, ++j) {
-     if (j->second == MetricType::DOUBLE) {
-       metrics.emplace_back(Metric{std::stod(*i), j->first});
-     }
-     else if (j->second == MetricType::INT) {
-       metrics.emplace_back(Metric{std::stoi(*i), j->first});
-     }
-     else {
-       metrics.emplace_back(Metric{*i, j->first});
-     }
-  }
+  return Metric{std::stod(output), "memoryUsagePercentage"};
+}
 
+
+std::vector<Metric> ProcessMonitor::getCpuAndContextDetails() {
+  std::vector<Metric> metrics;
   return metrics;
 }
 
