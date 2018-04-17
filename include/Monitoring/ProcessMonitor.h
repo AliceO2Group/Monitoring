@@ -13,6 +13,7 @@
 #include <string>
 #include <thread>
 #include <vector>
+#include <sys/resource.h>
 
 #include "Monitoring/Metric.h"
 
@@ -46,11 +47,11 @@ class ProcessMonitor
     /// PIDs that are monitored
     unsigned int mPid;
 
-    /// options to be passed to PS
-    std::string mPsCommand;
-
     /// Executes terminal command
     std::string exec(const char* cmd);
+
+    struct rusage mPreviousGetrUsage;
+    std::chrono::high_resolution_clock::time_point mTimeLastRun;
 };
 
 } // namespace monitoring

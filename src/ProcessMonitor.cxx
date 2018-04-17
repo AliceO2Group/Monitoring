@@ -5,10 +5,9 @@
 
 #include "Monitoring/ProcessMonitor.h"
 #include "Exceptions/MonitoringInternalException.h"
-#include <boost/algorithm/string/classification.hpp> 
-#include <boost/algorithm/string/split.hpp>
-#include <chrono>
 #include "MonLogger.h"
+#include <boost/algorithm/string/classification.hpp> 
+#include <chrono>
 #include <sstream>
 
 namespace o2
@@ -20,10 +19,8 @@ namespace monitoring
 ProcessMonitor::ProcessMonitor()
 {
   mPid = static_cast<unsigned int>(::getpid());
-  for (auto const param : mPsParams) {
-    mPsCommand = mPsCommand.empty() ? param.first : mPsCommand += (',' +  param.first);
-  }
-  mPsCommand = "ps --no-headers -o " + mPsCommand + " --pid ";
+  getrusage(RUSAGE_SELF, &mPreviousGetrUsage);
+  mTimeLastRun = std::chrono::high_resolution_clock::now();
 }
 
 std::vector<Metric> ProcessMonitor::getNetworkUsage()
@@ -61,6 +58,23 @@ Metric ProcessMonitor::getMemoryUsage()
 
 std::vector<Metric> ProcessMonitor::getCpuAndContextDetails() {
   std::vector<Metric> metrics;
+  struct rusage currentUsage;
+  getrusage(RUSAGE_SELF, &currentUsage);
+  auto timeNow = std::chrono::high_resolution_clock::now();
+  double timePassed = std::chrono::duration_cast<std::chrono::microseconds>(timeNow - mTimeLastRun).count();
+  if (timePassed < 950) { // do not run too often
+    throw MonitoringInternalException("Process Monitor getrusage", "Do not invoke more often then 1ms");
+  }
+  double fractionCpuUsed = (
+      currentUsage.ru_utime.tv_sec*1000000.0 + currentUsage.ru_utime.tv_usec - (mPreviousGetrUsage.ru_utime.tv_sec*1000000.0 + mPreviousGetrUsage.ru_utime.tv_usec)
+    + currentUsage.ru_stime.tv_sec*1000000.0 + currentUsage.ru_stime.tv_usec - (mPreviousGetrUsage.ru_stime.tv_sec*1000000.0 + mPreviousGetrUsage.ru_stime.tv_usec)
+  ) / timePassed;
+
+  metrics.emplace_back(Metric{"cpuUsedPercentage", std::round( fractionCpuUsed *100.0 * 100.0 ) / 100.0});
+  metrics.emplace_back(Metric{"involuntaryContextSwitches", currentUsage.ru_nivcsw - mPreviousGetrUsage.ru_nivcsw});
+
+  mTimeLastRun = timeNow;
+  mPreviousGetrUsage = currentUsage;
   return metrics;
 }
 
