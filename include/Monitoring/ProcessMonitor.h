@@ -42,7 +42,7 @@ class ProcessMonitor
     std::vector<Metric> getNetworkUsage();
 
     /// Retrieves CPU usage (%) and number of context switches during the interval
-    std::vector<Metric> ProcessMonitor::getCpuAndContexts()
+    std::vector<Metric> getCpuAndContexts();
   private:
     /// PIDs that are monitored
     unsigned int mPid;

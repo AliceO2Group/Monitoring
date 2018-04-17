@@ -9,6 +9,7 @@
 #include <boost/algorithm/string/classification.hpp> 
 #include <chrono>
 #include <sstream>
+#include <cmath>
 
 namespace o2
 {
@@ -55,8 +56,7 @@ Metric ProcessMonitor::getMemoryUsage()
   return Metric{std::stod(output), "memoryUsagePercentage"};
 }
 
-
-std::vector<Metric> ProcessMonitor::getCpuAndContextDetails() {
+std::vector<Metric> ProcessMonitor::getCpuAndContexts() {
   std::vector<Metric> metrics;
   struct rusage currentUsage;
   getrusage(RUSAGE_SELF, &currentUsage);
@@ -70,8 +70,12 @@ std::vector<Metric> ProcessMonitor::getCpuAndContextDetails() {
     + currentUsage.ru_stime.tv_sec*1000000.0 + currentUsage.ru_stime.tv_usec - (mPreviousGetrUsage.ru_stime.tv_sec*1000000.0 + mPreviousGetrUsage.ru_stime.tv_usec)
   ) / timePassed;
 
-  metrics.emplace_back(Metric{"cpuUsedPercentage", std::round( fractionCpuUsed *100.0 * 100.0 ) / 100.0});
-  metrics.emplace_back(Metric{"involuntaryContextSwitches", currentUsage.ru_nivcsw - mPreviousGetrUsage.ru_nivcsw});
+  metrics.emplace_back(Metric{
+    static_cast<double>(std::round(fractionCpuUsed * 100.0 * 100.0 ) / 100.0), "cpuUsedPercentage"
+  });
+  metrics.emplace_back(Metric{
+    static_cast<uint64_t>(currentUsage.ru_nivcsw - mPreviousGetrUsage.ru_nivcsw), "involuntaryContextSwitches"
+  });
 
   mTimeLastRun = timeNow;
   mPreviousGetrUsage = currentUsage;

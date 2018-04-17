@@ -12,7 +12,7 @@ BOOST_AUTO_TEST_CASE(createProcessMonitor)
 {
   o2::monitoring::ProcessMonitor processMonitor;
   processMonitor.getNetworkUsage();
-  processMonitor.getPidStatus();
+  processMonitor.getMemoryUsage();
 }
 
 } // namespace Test
