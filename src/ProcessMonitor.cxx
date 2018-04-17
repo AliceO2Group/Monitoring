@@ -31,7 +31,7 @@ std::vector<Metric> ProcessMonitor::getNetworkUsage()
   std::vector<Metric> metrics;
   std::stringstream ss;
   // get bytes received and transmitted per interface
-  ss << "cat /proc/" << mPid << "/net/dev | tail -n +3 |awk ' {print $1 $2 \":\" $10}'";
+  ss << "cat /proc/" << mPid << "/net/dev | tail -n +3 | grep -v -e 'lo' -e 'virbr0' | awk ' {print $1 $2 \":\" $10}'";
   std::string output = exec(ss.str().c_str());
   // for each line (each network interfrace)
   std::istringstream iss(output);
