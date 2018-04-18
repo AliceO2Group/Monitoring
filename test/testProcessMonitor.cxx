@@ -11,8 +11,10 @@ namespace Test {
 BOOST_AUTO_TEST_CASE(createProcessMonitor)
 {
   o2::monitoring::ProcessMonitor processMonitor;
+#ifdef _OS_LINUX
   processMonitor.getNetworkUsage();
-  processMonitor.getPidStatus();
+  processMonitor.getMemoryUsage();
+#endif
 }
 
 } // namespace Test

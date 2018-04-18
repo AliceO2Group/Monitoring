@@ -5,11 +5,11 @@
 
 #include "Monitoring/ProcessMonitor.h"
 #include "Exceptions/MonitoringInternalException.h"
-#include <boost/algorithm/string/classification.hpp> 
-#include <boost/algorithm/string/split.hpp>
-#include <chrono>
 #include "MonLogger.h"
+#include <boost/algorithm/string/classification.hpp> 
+#include <chrono>
 #include <sstream>
+#include <cmath>
 
 namespace o2
 {
@@ -20,10 +20,8 @@ namespace monitoring
 ProcessMonitor::ProcessMonitor()
 {
   mPid = static_cast<unsigned int>(::getpid());
-  for (auto const param : mPsParams) {
-    mPsCommand = mPsCommand.empty() ? param.first : mPsCommand += (',' +  param.first);
-  }
-  mPsCommand = "ps --no-headers -o " + mPsCommand + " --pid ";
+  getrusage(RUSAGE_SELF, &mPreviousGetrUsage);
+  mTimeLastRun = std::chrono::high_resolution_clock::now();
 }
 
 std::vector<Metric> ProcessMonitor::getNetworkUsage()
@@ -31,7 +29,7 @@ std::vector<Metric> ProcessMonitor::getNetworkUsage()
   std::vector<Metric> metrics;
   std::stringstream ss;
   // get bytes received and transmitted per interface
-  ss << "cat /proc/" << mPid << "/net/dev | tail -n +3 |awk ' {print $1 $2 \":\" $10}'";
+  ss << "cat /proc/" << mPid << "/net/dev | tail -n +3 | grep -v -e 'lo' -e 'virbr0' | awk ' {print $1 $2 \":\" $10}'";
   std::string output = exec(ss.str().c_str());
   // for each line (each network interfrace)
   std::istringstream iss(output);
@@ -50,31 +48,37 @@ std::vector<Metric> ProcessMonitor::getNetworkUsage()
   return metrics;
 }
 
-std::vector<Metric> ProcessMonitor::getPidStatus()
+Metric ProcessMonitor::getMemoryUsage()
 {
-  std::vector<Metric> metrics;
-  std::string command = mPsCommand + std::to_string(mPid);
+  std::string command = "ps --no-headers -o pmem --pid " + std::to_string(mPid);
   std::string output = exec(command.c_str());
-
-  // split output into std vector
-  std::vector<std::string> pidParams;
   boost::trim(output);
-  boost::split(pidParams, output, boost::is_any_of("\t "), boost::token_compress_on);
-  
-  // parse output, cast to propriate types
-  auto j = mPsParams.begin();
-  for (auto i = pidParams.begin(); i != pidParams.end(); ++i, ++j) {
-     if (j->second == MetricType::DOUBLE) {
-       metrics.emplace_back(Metric{std::stod(*i), j->first});
-     }
-     else if (j->second == MetricType::INT) {
-       metrics.emplace_back(Metric{std::stoi(*i), j->first});
-     }
-     else {
-       metrics.emplace_back(Metric{*i, j->first});
-     }
-  }
+  return Metric{std::stod(output), "memoryUsagePercentage"};
+}
 
+std::vector<Metric> ProcessMonitor::getCpuAndContexts() {
+  std::vector<Metric> metrics;
+  struct rusage currentUsage;
+  getrusage(RUSAGE_SELF, &currentUsage);
+  auto timeNow = std::chrono::high_resolution_clock::now();
+  double timePassed = std::chrono::duration_cast<std::chrono::microseconds>(timeNow - mTimeLastRun).count();
+  if (timePassed < 950) { // do not run too often
+    throw MonitoringInternalException("Process Monitor getrusage", "Do not invoke more often then 1ms");
+  }
+  double fractionCpuUsed = (
+      currentUsage.ru_utime.tv_sec*1000000.0 + currentUsage.ru_utime.tv_usec - (mPreviousGetrUsage.ru_utime.tv_sec*1000000.0 + mPreviousGetrUsage.ru_utime.tv_usec)
+    + currentUsage.ru_stime.tv_sec*1000000.0 + currentUsage.ru_stime.tv_usec - (mPreviousGetrUsage.ru_stime.tv_sec*1000000.0 + mPreviousGetrUsage.ru_stime.tv_usec)
+  ) / timePassed;
+
+  metrics.emplace_back(Metric{
+    static_cast<double>(std::round(fractionCpuUsed * 100.0 * 100.0 ) / 100.0), "cpuUsedPercentage"
+  });
+  metrics.emplace_back(Metric{
+    static_cast<uint64_t>(currentUsage.ru_nivcsw - mPreviousGetrUsage.ru_nivcsw), "involuntaryContextSwitches"
+  });
+
+  mTimeLastRun = timeNow;
+  mPreviousGetrUsage = currentUsage;
   return metrics;
 }
 

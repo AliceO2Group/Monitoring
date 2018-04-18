@@ -13,6 +13,7 @@
 #include <string>
 #include <thread>
 #include <vector>
+#include <sys/resource.h>
 
 #include "Monitoring/Metric.h"
 
@@ -34,29 +35,26 @@ class ProcessMonitor
     /// Default destructor
     ~ProcessMonitor() = default;
 
-    /// Generates performance metrics (stored in mPsParams vecotr)
-    std::vector<Metric> getPidStatus();
+    /// Retrieves memory usage (%)
+    Metric getMemoryUsage();
 
-    /// Generates metrics per network interface: bytesReceived, bytesTransmitted
+    /// Retrieves bytesReceived, bytesTransmitted per network interface
     std::vector<Metric> getNetworkUsage();
 
+    /// Retrieves CPU usage (%) and number of context switches during the interval
+    std::vector<Metric> getCpuAndContexts();
   private:
     /// PIDs that are monitored
     unsigned int mPid;
 
-    /// options to be passed to PS
-    std::string mPsCommand;
-
-    /// mutex to lock vector of PIDs
-    std::mutex mVectorPidLock;
-
-    /// List of PS params with their types
-    const std::vector<std::pair<std::string, MetricType>> mPsParams { 
-      {"etime", MetricType::STRING}, {"pcpu", MetricType::DOUBLE}, {"pmem", MetricType::DOUBLE}
-    };
-
     /// Executes terminal command
     std::string exec(const char* cmd);
+
+    /// 'getrusage' values from last execution
+    struct rusage mPreviousGetrUsage;
+
+    /// Timestamp when process monitoring was executed last time
+    std::chrono::high_resolution_clock::time_point mTimeLastRun;
 };
 
 } // namespace monitoring
