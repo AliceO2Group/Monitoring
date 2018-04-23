@@ -191,11 +191,11 @@ Currently process monitoring is supported only on Linux. To enable it use:
 enableProcessMonitoring([interval in seconds]);
 ```
 The following metrics are generated every interval:
-+ **etime** - elapsed time since the process was started, in the form [[DD-]hh:]mm:ss
-+ **pcpu** - cpu utilization of the process in "##.#" format. Currently, it is the CPU time used divided by the time the process has been running (cputime/realtime ratio), expressed as a percentage.  It will not add up to 100% unless you are lucky
-+ **pmem** - ratio of the process's resident set size  to the physical memory on the machine, expressed as a percentage
-+ **bytesReceived** - the total number of bytes of data received by the process (per interface)
-+ **bytesTransmitted** - the total number of bytes of data transmitted by the process (per interface).
++ **cpuUsedPercentage** - percentage of a core usage over time interval (from `gerrusage`)
++ **involuntaryContextSwitches** - involuntary context switches over time interval (from `gerrusage`)
++ **memoryUsagePercentage** - ratio of the process's resident set size  to the physical memory on the machine, expressed as a percentage (from `ps`)
++ **bytesReceived** - the total number of bytes of data received by the process per interface (from `/proc/[PID]/net/dev`)
++ **bytesTransmitted** - the total number of bytes of data transmitted by the process per interface (from `/proc/[PID]/net/dev`).
 
 ## Code snippets
 Code snippets are available in [examples](examples/) directory.
