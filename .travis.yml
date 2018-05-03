@@ -2,12 +2,7 @@ sudo: required
 language: cpp
 dist: trusty
 matrix:
-  include:
-    - os: osx
-      osx_image: xcode9.2
-      env: TOOL=test
-    - os: linux
-      env: TOOL=test
+  allow_failures:
     - os: linux
       env: TOOL=clang-format
       addons:
@@ -15,6 +10,12 @@ matrix:
           sources: *sources
           packages: ['clang-format-3.9']
       compiler: clang
+  include:
+    - os: osx
+      osx_image: xcode9.2
+      env: TOOL=test
+    - os: linux
+      env: TOOL=test
     - os: linux
       env: TOOL=doxygen
       addons:
