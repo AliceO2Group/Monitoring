@@ -27,7 +27,7 @@ namespace o2
 namespace monitoring 
 {
 
-std::unique_ptr<Backend> getInfoLogger(http::url uri) {
+std::unique_ptr<Backend> getInfoLogger(http::url /*uri*/) {
   return std::make_unique<backends::InfoLoggerBackend>();
 }
 
@@ -45,13 +45,15 @@ std::unique_ptr<Backend> getInfluxDb(http::url uri) {
   throw std::runtime_error("InfluxDB transport protocol not supported");
 }
 
-std::unique_ptr<Backend> getApMon(http::url uri) {
 #ifdef _WITH_APPMON
+std::unique_ptr<Backend> getApMon(http::url uri) {
   return std::make_unique<backends::ApMonBackend>(uri.path);
-#else
-  throw std::runtime_error("ApMon backend is not enabled");
-#endif
 }
+#else
+std::unique_ptr<Backend> getApMon(http::url /*uri*/) {
+  throw std::runtime_error("ApMon backend is not enabled");
+}
+#endif
 
 std::unique_ptr<Backend> getFlume(http::url uri) {
   return std::make_unique<backends::Flume>(uri.host, uri.port);
