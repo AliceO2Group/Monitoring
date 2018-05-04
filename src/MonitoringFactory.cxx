@@ -12,6 +12,7 @@
 
 #include "Backends/InfoLoggerBackend.h"
 #include "Backends/Flume.h"
+#include "Backends/Noop.h"
 
 #ifdef _WITH_APPMON
 #include "Backends/ApMonBackend.h"
@@ -55,6 +56,10 @@ std::unique_ptr<Backend> getApMon(http::url /*uri*/) {
 }
 #endif
 
+std::unique_ptr<Backend> getNoop(http::url /*uri*/) {
+  return std::make_unique<backends::Noop>();
+}
+
 std::unique_ptr<Backend> getFlume(http::url uri) {
   return std::make_unique<backends::Flume>(uri.host, uri.port);
 }
@@ -66,6 +71,7 @@ std::unique_ptr<Backend> MonitoringFactory::GetBackend(std::string& url) {
     {"influxdb-http", getInfluxDb},
     {"apmon", getApMon},
     {"flume", getFlume},
+    {"no-op", getNoop}
   };
 
   http::url parsedUrl = http::ParseHttpUrl(url);
