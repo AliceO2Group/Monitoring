@@ -145,6 +145,7 @@ set(TEST_SRCS
         test/testProcessDetails.cxx
         test/testProcessMonitor.cxx
 	test/testInfluxDb.cxx
+        test/testNoop.cxx
         )
 if(APMON_FOUND)
   list(APPEND TEST_SRCS test/testApMon.cxx)
