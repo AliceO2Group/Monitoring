@@ -32,7 +32,7 @@ InfoLoggerBackend::InfoLoggerBackend()
 void InfoLoggerBackend::addGlobalTag(std::string name, std::string value)
 {
   if (!tagString.empty()) {
-    tagString += " ";
+    tagString += ",";
   }
   tagString += name + "=" + value;
 }
@@ -58,13 +58,15 @@ void InfoLoggerBackend::send(const Metric& metric)
   std::string metricTags{};
   for (const auto& tag : metric.getTags()) {
     if (!metricTags.empty()) {
-      metricTags += " ";
+      metricTags += ",";
     }
     metricTags += tag.name + "=" + tag.value;
   }
-  MonLogger::Get() << "InfoLoggerMonitoring : " << metric.getName() << ", "
-    << metric.getValue() << " Type: " << metric.getType() << ", " 
-    << convertTimestamp(metric.getTimestamp()) << ", " << tagString << " " << metricTags
+  if (!metricTags.empty()) {
+    metricTags = "," + metricTags;
+  }
+  MonLogger::Get() << "[METRIC] " << metric.getName() << "," << metric.getType() << " " << metric.getValue()
+    << " " << convertTimestamp(metric.getTimestamp()) << " " << tagString << metricTags
     << MonLogger::End();
 }
 
