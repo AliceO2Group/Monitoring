@@ -129,21 +129,15 @@ void Monitoring::sendGrouped(std::string measurement, std::vector<Metric>&& metr
   }
 }
 
-void Monitoring::send(std::vector<Metric>&& metrics) {
+void Monitoring::send(std::vector<Metric>&& metrics)
+{
   for (auto& b: mBackends) {
     b->send(std::move(metrics));
   }
 }
 
-void Monitoring::send(Metric&& metric, DerivedMetricMode mode)
+void Monitoring::pushToBackends(Metric&& metric)
 {
-  if (mode == DerivedMetricMode::RATE) {
-    metric = mDerivedHandler->rate(metric);
-  }
-
-  if (mode == DerivedMetricMode::INCREMENT) {
-    metric = mDerivedHandler->increment(metric);
-  }
   if (mBuffering) {
     mStorage.push_back(std::move(metric));
     if (mStorage.size() >= mBufferSize) {
@@ -154,6 +148,21 @@ void Monitoring::send(Metric&& metric, DerivedMetricMode mode)
       b->send(metric);
     }
   }
+}
+
+void Monitoring::send(Metric&& metric, DerivedMetricMode mode)
+{
+  if (mode == DerivedMetricMode::RATE) {
+    auto derived = mDerivedHandler->rate(metric);
+    pushToBackends(std::move(derived));
+  }
+
+  if (mode == DerivedMetricMode::INCREMENT) {
+    auto derived = mDerivedHandler->increment(metric);
+    pushToBackends(std::move(derived));
+  }
+
+  pushToBackends(std::move(metric));
 }
 
 } // namespace monitoring
