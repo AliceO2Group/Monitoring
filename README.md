@@ -118,7 +118,7 @@ For example:
 monitoring->send({10, "myMetricInt"});
 ```
 
-Regarding  `DerivedMetricMode` see [Calculating derived metrics](#Calculating-derived-metrics).
+Regarding  `DerivedMetricMode` see [Calculating derived metrics](#calculating-derived-metrics).
 
 ### Customized metrics
 Two additional methods can be chained the to `send(Metric&& metric)` in order to __insert custom tags__ or __set custom timestamp__:
