@@ -87,6 +87,11 @@ class Monitoring
     /// Enables metric buffering
     /// \param size 		buffer size
     void enableBuffering(const unsigned int size = 20);
+
+    /// Adds global tag
+    /// \param name 		tag name
+    /// \param value 		tag value
+    void addGlobalTag(std::string name, std::string value);
   private:
     /// Derived metrics handler
     /// \see class DerivedMetrics

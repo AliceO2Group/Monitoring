@@ -185,6 +185,13 @@ The module can calculate derived metrics. To do so, use `addDerivedMetric(std::s
 
 Derived metrics are generated each time as new value is passed to the module. Their names are suffixed with derived mode name.
 
+### Global tags
+Glabal tags are tags that are added to each metric. The following tags are set to global by library itself:
+- `hostname`
+- `name` - process name
+
+You can add your own global tag by calling `addGlobalTag(std::string name, std::string value)`.
+
 ### Monitoring process
 Currently process monitoring is supported only on Linux. To enable it use:
 ```cpp
