@@ -106,7 +106,7 @@ See table below to find out how to create `URI` for each backend:
 ### Sending metric
 
 ```cpp
-send(Metric&& metric)
+send(Metric&& metric, [DerivedMetricMode mode])
 ```
 Where metric constructor receives following parameters:
   - `T value`
@@ -117,6 +117,8 @@ For example:
 ```cpp
 monitoring->send({10, "myMetricInt"});
 ```
+
+Regarding  `DerivedMetricMode` see [Calculating derived metrics](#Calculating-derived-metrics).
 
 ### Customized metrics
 Two additional methods can be chained the to `send(Metric&& metric)` in order to __insert custom tags__ or __set custom timestamp__:
@@ -179,13 +181,14 @@ Metrics consist of 4 parameters: name, value, timestamp and tags.
 + process name
 
 ### Calculating derived metrics
-The module can calculate derived metrics. To do so, use `addDerivedMetric(std::string name, DerivedMetricMode mode)` with one of two available modes:
-+ `DerivedMetricMode::RATE` - rate between two following metrics;
-+ `DerivedMetricMode::AVERAGE` - average value of all metrics stored in cache;
+The module can calculate derived metrics. To do so, use optional `DerivedMetricMode mode` parameter of `send` method:
++ `DerivedMetricMode::NONE` - no action,
++ `DerivedMetricMode::RATE` - rate between two following metrics,
++ `DerivedMetricMode::AVERAGE` - average value of all metrics stored in cache.
 
 Derived metrics are generated each time as new value is passed to the module. Their names are suffixed with derived mode name.
 
-### Monitoring process
+### Process monitoring
 Currently process monitoring is supported only on Linux. To enable it use:
 ```cpp
 enableProcessMonitoring([interval in seconds]);

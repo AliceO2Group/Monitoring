@@ -153,13 +153,11 @@ void Monitoring::pushToBackends(Metric&& metric)
 void Monitoring::send(Metric&& metric, DerivedMetricMode mode)
 {
   if (mode == DerivedMetricMode::RATE) {
-    auto derived = mDerivedHandler->rate(metric);
-    pushToBackends(std::move(derived));
+    pushToBackends(mDerivedHandler->rate(metric));
   }
 
   if (mode == DerivedMetricMode::INCREMENT) {
-    auto derived = mDerivedHandler->increment(metric);
-    pushToBackends(std::move(derived));
+    pushToBackends(mDerivedHandler->increment(metric));
   }
 
   pushToBackends(std::move(metric));
