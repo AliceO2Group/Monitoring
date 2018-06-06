@@ -103,6 +103,9 @@ class Monitoring
     /// List of timers
     std::unordered_map <std::string, std::chrono::time_point<std::chrono::steady_clock>> mTimers;
 
+    /// Pushes metric to all backends or to the buffer
+    void pushToBackends(Metric&& metric);
+
     /// States whether Process Monitor thread is running
     std::atomic<bool> mMonitorRunning;
 
