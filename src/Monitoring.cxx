@@ -90,6 +90,13 @@ void Monitoring::stopAndSendTimer(std::string name) {
   }
 }
 
+void Monitoring::addGlobalTag(std::string name, std::string value)
+{
+  for (auto& backend: mBackends) {
+    backend->addGlobalTag(name, value);
+  }
+}
+
 void Monitoring::addBackend(std::unique_ptr<Backend> backend) {
    ProcessDetails processDetails{};
    backend->addGlobalTag("hostname", processDetails.getHostname());
