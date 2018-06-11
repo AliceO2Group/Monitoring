@@ -90,8 +90,9 @@ The recommended way of getting (`unique_ptr` to) monitoring instance is `Get`ing
 The library is accessible from `o2::monitoring` namespace.
 
 ```cpp
+#include <MonitoringFactory.h>
 using namespace o2::monitoring;
-MonitoringFactory::Get("backend[-protocol]://host:port[?query]");
+std::unique_ptr<Monitoring> monitoring = MonitoringFactory::Get("backend[-protocol]://host:port[?query]");
 ```
 See table below to find out how to create `URI` for each backend:
 
