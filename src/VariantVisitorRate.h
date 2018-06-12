@@ -26,7 +26,7 @@ public:
   /// \return calculated rate in Hz
   template<typename T>
   double operator()(const T& a, const T& b) const {
-    return static_cast<double>((1000*(a - b)) / timestampCount);
+    return (1000*(static_cast<double>(a) - b)) / timestampCount;
   }
 
   /// If arguments have different type an exception is raised
