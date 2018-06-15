@@ -11,6 +11,7 @@
 #include <sstream>
 #include <cmath>
 #include <fstream>
+#include <utility>
 
 namespace o2
 {
@@ -23,34 +24,6 @@ ProcessMonitor::ProcessMonitor()
   mPid = static_cast<unsigned int>(::getpid());
   getrusage(RUSAGE_SELF, &mPreviousGetrUsage);
   mTimeLastRun = std::chrono::high_resolution_clock::now();
-}
-
-std::vector<Metric> ProcessMonitor::getNetworkUsage()
-{
-  std::string path = "/proc/" + std::to_string(mPid) + "/net/dev";
-  std::cout << readFile(path) << std::endl;
-  
-  /// OLD VERSION
-  std::vector<Metric> metrics;
-  std::stringstream ss;
-  // get bytes received and transmitted per interface
-  ss << "cat /proc/" << mPid << "/net/dev | tail -n +3 | grep -v -e 'lo' -e 'virbr0' | awk ' {print $1 $2 \":\" $10}'";
-  std::string output = exec(ss.str().c_str());
-  // for each line (each network interfrace)
-  std::istringstream iss(output);
-  for (std::string line; std::getline(iss, line); ) {
-    auto position = line.find(":");
-    auto secondPosition = line.find(":", position + 1);
-    metrics.emplace_back(Metric{
-      static_cast<uint64_t>(std::stoull(line.substr(position + 1, secondPosition - position - 1))),
-      "bytesReceived"}.addTags({{"if", line.substr(0, position)}})
-    );
-    metrics.emplace_back(Metric{
-      static_cast<uint64_t>(std::stoull(line.substr(secondPosition + 1, line.size()))),
-      "bytesTransmitted"}.addTags({{"if", line.substr(0, position)}})
-    );
-  }
-  return metrics;
 }
 
 Metric ProcessMonitor::getMemoryUsage()
@@ -87,23 +60,29 @@ std::vector<Metric> ProcessMonitor::getCpuAndContexts() {
   return metrics;
 }
 
-std::string ProcessMonitor::readFile(std::string& filePath)
+std::vector<Metric> ProcessMonitor::getNetworkUsage()
 {
-  std::ifstream file(filePath, std::ios::binary);
-  if (file.fail()) {
-    throw MonitoringInternalException("Process Monitor readFile", "Could not read proc file: " + filePath);
+  std::vector<Metric> metrics;
+  std::ifstream infile("/proc/" + std::to_string(mPid) + "/net/dev");
+  std::string line;
+  std::getline(infile, line);
+  std::getline(infile, line);
+  while (std::getline(infile, line)) {
+    if (line.find("virbr") != std::string::npos) continue;
+    if (line.find("lo") != std::string::npos) continue;
+    std::istringstream iss(line);
+    std::vector<std::string> tokens{std::istream_iterator<std::string>{iss},
+                      std::istream_iterator<std::string>{}};
+    metrics.emplace_back(Metric{
+      static_cast<uint64_t>(std::stoull(tokens[1])),
+      "bytesReceived"}.addTags({{"if", tokens[0]}})
+    );
+    metrics.emplace_back(Metric{
+      static_cast<uint64_t>(std::stoull(tokens[9])),
+      "bytesTransmitted"}.addTags({{"if", tokens[0]}})
+    );
   }
-
-  file.seekg (0, file.end);
-  int length = file.tellg();
-  file.seekg (0, file.beg);
-
-
-  std::vector<unsigned char> buffer(length);
-  file.read((char *)&(buffer[0]), length);
-  file.close();
-
-  return std::string(buffer.begin(), buffer.end());
+return metrics;
 }
 
 std::string ProcessMonitor::exec(const char* cmd)
