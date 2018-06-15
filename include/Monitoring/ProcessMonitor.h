@@ -50,6 +50,9 @@ class ProcessMonitor
     /// Executes terminal command
     std::string exec(const char* cmd);
 
+    /// Read a proc file
+    std::string readFile(std::string& filePath);
+
     /// 'getrusage' values from last execution
     struct rusage mPreviousGetrUsage;
 

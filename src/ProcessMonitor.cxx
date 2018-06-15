@@ -10,6 +10,7 @@
 #include <chrono>
 #include <sstream>
 #include <cmath>
+#include <fstream>
 
 namespace o2
 {
@@ -26,6 +27,10 @@ ProcessMonitor::ProcessMonitor()
 
 std::vector<Metric> ProcessMonitor::getNetworkUsage()
 {
+  std::string path = "/proc/" + std::to_string(mPid) + "/net/dev";
+  std::cout << readFile(path) << std::endl;
+  
+  /// OLD VERSION
   std::vector<Metric> metrics;
   std::stringstream ss;
   // get bytes received and transmitted per interface
@@ -80,6 +85,25 @@ std::vector<Metric> ProcessMonitor::getCpuAndContexts() {
   mTimeLastRun = timeNow;
   mPreviousGetrUsage = currentUsage;
   return metrics;
+}
+
+std::string ProcessMonitor::readFile(std::string& filePath)
+{
+  std::ifstream file(filePath, std::ios::binary);
+  if (file.fail()) {
+    throw MonitoringInternalException("Process Monitor readFile", "Could not read proc file: " + filePath);
+  }
+
+  file.seekg (0, file.end);
+  int length = file.tellg();
+  file.seekg (0, file.beg);
+
+
+  std::vector<unsigned char> buffer(length);
+  file.read((char *)&(buffer[0]), length);
+  file.close();
+
+  return std::string(buffer.begin(), buffer.end());
 }
 
 std::string ProcessMonitor::exec(const char* cmd)
