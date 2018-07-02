@@ -123,7 +123,6 @@ void Monitoring::processMonitorLoop(int interval)
     std::this_thread::sleep_for (std::chrono::milliseconds(interval*10));
     if ((++loopCount % 100) != 0) continue;
     send(mProcessMonitor->getCpuAndContexts());
-    send(mProcessMonitor->getNetworkUsage());
     send(mProcessMonitor->getMemoryUsage());
     loopCount = 0;
   }

@@ -47,8 +47,11 @@ class ProcessMonitor
     /// PIDs that are monitored
     unsigned int mPid;
 
-    /// Executes terminal command
-    std::string exec(const char* cmd);
+    /// Total memory size
+    unsigned int mTotalMemory;
+
+    /// Retrievs total memory size from /proc/meminfo
+    void setTotalMemory();
 
     /// 'getrusage' values from last execution
     struct rusage mPreviousGetrUsage;
