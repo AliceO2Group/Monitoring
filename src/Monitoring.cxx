@@ -59,12 +59,12 @@ void Monitoring::flushBuffer() {
 }
 
 void Monitoring::enableProcessMonitoring(const unsigned int interval) {
-#ifdef _OS_LINUX
   mMonitorRunning = true;
   mMonitorThread = std::thread(&Monitoring::processMonitorLoop, this, interval);
+#ifdef _OS_LINUX
   MonLogger::Get() << "Process Monitor : Automatic updates enabled" << MonLogger::End();
 #else
-  MonLogger::Get() << "!! Process Monitor : Automatic updates not supported" << MonLogger::End();
+  MonLogger::Get() << "!! Process Monitor : Limited metrics available" << MonLogger::End();
 #endif
 }
 
@@ -123,8 +123,9 @@ void Monitoring::processMonitorLoop(int interval)
     std::this_thread::sleep_for (std::chrono::milliseconds(interval*10));
     if ((++loopCount % 100) != 0) continue;
     send(mProcessMonitor->getCpuAndContexts());
-    send(mProcessMonitor->getNetworkUsage());
+#ifdef _OS_LINUX
     send(mProcessMonitor->getMemoryUsage());
+#endif
     loopCount = 0;
   }
 }

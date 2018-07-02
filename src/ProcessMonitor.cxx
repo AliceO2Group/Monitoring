@@ -24,14 +24,36 @@ ProcessMonitor::ProcessMonitor()
   mPid = static_cast<unsigned int>(::getpid());
   getrusage(RUSAGE_SELF, &mPreviousGetrUsage);
   mTimeLastRun = std::chrono::high_resolution_clock::now();
+#ifdef _OS_LINUX
+  setTotalMemory();
+#endif
+}
+
+void ProcessMonitor::setTotalMemory()
+{
+  std::ifstream memInfo("/proc/meminfo");
+  std::string totalString;
+  std::getline(memInfo, totalString);
+  std::istringstream iss(totalString);
+  std::vector<std::string> tokens{std::istream_iterator<std::string>{iss},
+                                  std::istream_iterator<std::string>{}};
+  mTotalMemory = std::stoi(tokens[1]);
 }
 
 Metric ProcessMonitor::getMemoryUsage()
 {
-  std::string command = "ps --no-headers -o pmem --pid " + std::to_string(mPid);
-  std::string output = exec(command.c_str());
-  boost::trim(output);
-  return Metric{std::stod(output), "memoryUsagePercentage"};
+  std::ifstream statusStream("/proc/self/status");
+  std::string rssString;
+  rssString.reserve(50);
+
+  // Scan for VmRSS
+  for(int i = 0; i < 18; i++) {
+       std::getline(statusStream, rssString);
+  }
+  std::istringstream iss(rssString);
+  std::vector<std::string> tokens{std::istream_iterator<std::string>{iss},
+                                  std::istream_iterator<std::string>{}};
+  return Metric{(std::stod(tokens[1])*100)/mTotalMemory, "memoryUsagePercentage"};
 }
 
 std::vector<Metric> ProcessMonitor::getCpuAndContexts() {
@@ -83,21 +105,6 @@ std::vector<Metric> ProcessMonitor::getNetworkUsage()
     );
   }
 return metrics;
-}
-
-std::string ProcessMonitor::exec(const char* cmd)
-{
-  char buffer[128];
-  std::string result = "";
-  std::shared_ptr<FILE> pipe(popen(cmd, "r"), pclose);
-  if (!pipe) {
-    throw MonitoringInternalException("Process Monitor exec", "Issue encountered when running 'ps' (popen)");
-  }
-  while (!feof(pipe.get())) {
-    if (fgets(buffer, 128, pipe.get()) != NULL)
-      result += buffer;
-  }
-  return result;
 }
 
 } // namespace monitoring
