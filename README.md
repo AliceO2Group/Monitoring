@@ -104,6 +104,8 @@ See table below to find out how to create `URI` for each backend:
 | InfoLogger   | -         | `infologger`           | -                |
 | Flume        | UDP       | `flume`                | -                |
 
+Multiple backends may be used at the same time, URLs should be separated by `,` (comma).
+
 ### Sending metric
 
 ```cpp
@@ -197,16 +199,13 @@ Glabal tags are tags that are added to each metric. The following tags are set t
 You can add your own global tag by calling `addGlobalTag(std::string name, std::string value)`.
 
 ### Monitoring process
-Currently process monitoring is supported only on Linux. To enable it use:
 ```cpp
 enableProcessMonitoring([interval in seconds]);
 ```
 The following metrics are generated every interval:
-+ **cpuUsedPercentage** - percentage of a core usage over time interval (from `gerrusage`)
-+ **involuntaryContextSwitches** - involuntary context switches over time interval (from `gerrusage`)
-+ **memoryUsagePercentage** - ratio of the process's resident set size  to the physical memory on the machine, expressed as a percentage (from `ps`)
-+ **bytesReceived** - the total number of bytes of data received by the process per interface (from `/proc/[PID]/net/dev`)
-+ **bytesTransmitted** - the total number of bytes of data transmitted by the process per interface (from `/proc/[PID]/net/dev`).
++ **cpuUsedPercentage** - percentage of a core usage over time interval
++ **involuntaryContextSwitches** - involuntary context switches over time interval
++ **memoryUsagePercentage** - ratio of the process's resident set size  to the physical memory on the machine, expressed as a percentage (Linux only)
 
 ## Code snippets
 Code snippets are available in [examples](examples/) directory.
