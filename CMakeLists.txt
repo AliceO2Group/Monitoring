@@ -71,6 +71,7 @@ set(SRCS
         src/Metric.cxx
         src/Backends/InfoLoggerBackend.cxx
         src/Backends/Flume.cxx
+        src/Backends/StdOut.cxx
         src/DerivedMetrics.cxx
         src/ProcessMonitor.cxx
         src/ProcessDetails.cxx

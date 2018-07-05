@@ -1,9 +1,9 @@
 ///
-/// \file InfoLoggerBackend.cxx
+/// \file StdOut.cxx
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 ///
 
-#include "InfoLoggerBackend.h"
+#include "StdOut.h"
 
 #include <iostream>
 #include "../MonLogger.h"
@@ -17,19 +17,19 @@ namespace monitoring
 namespace backends
 {
 
-inline unsigned long InfoLoggerBackend::convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp)
+inline unsigned long StdOut::convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp)
 {
   return std::chrono::duration_cast <std::chrono::milliseconds>(
     timestamp.time_since_epoch()
   ).count();
 }
 
-InfoLoggerBackend::InfoLoggerBackend(std::string /*host*/, int /*port*/)
+StdOut::StdOut()
 {
-  throw std::runtime_error("InfoLogger backend is not available");
+  MonLogger::Get() << "StdOut backend initialized" << MonLogger::End();
 }
 
-void InfoLoggerBackend::addGlobalTag(std::string name, std::string value)
+void StdOut::addGlobalTag(std::string name, std::string value)
 {
   if (!tagString.empty()) {
     tagString += ",";
@@ -37,13 +37,13 @@ void InfoLoggerBackend::addGlobalTag(std::string name, std::string value)
   tagString += name + "=" + value;
 }
 
-void InfoLoggerBackend::send(std::vector<Metric>&& metrics) {
+void StdOut::send(std::vector<Metric>&& metrics) {
   for (auto& m : metrics) {
     send(m);
   }
 }
 
-void InfoLoggerBackend::sendMultiple(std::string measurement, std::vector<Metric>&& metrics)
+void StdOut::sendMultiple(std::string measurement, std::vector<Metric>&& metrics)
 {
   for (auto& m : metrics) {
     std::string tempName = m.getName();
@@ -53,7 +53,7 @@ void InfoLoggerBackend::sendMultiple(std::string measurement, std::vector<Metric
   }
 }
 
-void InfoLoggerBackend::send(const Metric& metric)
+void StdOut::send(const Metric& metric)
 {
   std::string metricTags{};
   for (const auto& tag : metric.getTags()) {
@@ -65,8 +65,9 @@ void InfoLoggerBackend::send(const Metric& metric)
   if (!metricTags.empty()) {
     metricTags = "," + metricTags;
   }
-
-  // Send over InfoLogger protocol
+  MonLogger::Get() << "[METRIC] " << metric.getName() << "," << metric.getType() << " " << metric.getValue()
+    << " " << convertTimestamp(metric.getTimestamp()) << " " << tagString << metricTags
+    << MonLogger::End();
 }
 
 } // namespace backends

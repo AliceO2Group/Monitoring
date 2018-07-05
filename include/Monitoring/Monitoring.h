@@ -86,7 +86,7 @@ class Monitoring
 
     /// Enables metric buffering
     /// \param size 		buffer size
-    void enableBuffering(const unsigned int size = 20);
+    void enableBuffering(const unsigned int size = 128);
 
     /// Adds global tag
     /// \param name 		tag name

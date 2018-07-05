@@ -11,6 +11,7 @@
 #include "UriParser/UriParser.h"
 
 #include "Backends/InfoLoggerBackend.h"
+#include "Backends/StdOut.h"
 #include "Backends/Flume.h"
 #include "Backends/Noop.h"
 
@@ -28,8 +29,12 @@ namespace o2
 namespace monitoring 
 {
 
-std::unique_ptr<Backend> getInfoLogger(http::url /*uri*/) {
-  return std::make_unique<backends::InfoLoggerBackend>();
+std::unique_ptr<Backend> getInfoLogger(http::url uri) {
+  if (uri.host == "") {
+    return std::make_unique<backends::StdOut>();
+  } else {
+    return std::make_unique<backends::InfoLoggerBackend>(uri.host, uri.port);
+  }
 }
 
 std::unique_ptr<Backend> getInfluxDb(http::url uri) {
