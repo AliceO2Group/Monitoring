@@ -55,7 +55,7 @@ class Monitoring
     /// \param metric           r-value to metric object
     ///  \param mode		Derived metric mode
     void send(Metric&& metric, DerivedMetricMode mode = DerivedMetricMode::NONE);
-
+    void debug(Metric&& metric);
     /// Sends multiple (not related to each other) metrics
     /// \param metrics  vector of metrics
     void send(std::vector<Metric>&& metrics);

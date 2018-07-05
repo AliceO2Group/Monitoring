@@ -28,6 +28,10 @@ class Backend
 
     /// Default destructor
     virtual ~Backend() = default;
+
+    /// States whether backend should be used in the debug mode
+    /// \return debug flag
+    virtual bool isDebug() { return false; }
 	
     /// Sends metric via backend
     virtual void send(const Metric& metric) = 0;

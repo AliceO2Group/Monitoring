@@ -30,6 +30,9 @@ class StdOut final : public Backend
     /// Default destructor
     ~StdOut() = default;
 
+    /// This backend works in debug mode
+    bool isDebug() override { return true; }
+
     /// Sends metric to InfoLogger library
     /// \param metric           reference to metric object    
     void send(const Metric& metric) override;

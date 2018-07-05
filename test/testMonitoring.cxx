@@ -27,6 +27,10 @@ BOOST_AUTO_TEST_CASE(createMonitoring)
   monitoring->send({intMetric, "myCrazyMetricI"});
   monitoring->send({stringMetric, "myCrazyMetricS"});
   monitoring->send({doubleMetric, "myCrazyMetricD"});
+
+  monitoring->debug({intMetric, "myCrazyMetricI"});
+  monitoring->debug({stringMetric, "myCrazyMetricS"});
+  monitoring->debug({doubleMetric, "myCrazyMetricD"});
 }
 
 BOOST_AUTO_TEST_CASE(buffering)
