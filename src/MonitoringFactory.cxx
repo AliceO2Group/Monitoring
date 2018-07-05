@@ -31,7 +31,9 @@ namespace monitoring
 
 std::unique_ptr<Backend> getInfoLogger(http::url uri) {
   if (uri.host == "") {
-    return std::make_unique<backends::StdOut>();
+    auto backend = std::make_unique<backends::StdOut>();
+    backend->setVerbosisty(backend::Verbosity::DEBUG);
+    return backend;
   } else {
     return std::make_unique<backends::InfoLoggerBackend>(uri.host, uri.port);
   }

@@ -16,22 +16,29 @@ namespace o2
 namespace monitoring 
 {
 
+namespace backend
+{
+  enum class Verbosity { PROD, DEBUG };
+}
 /// \brief Backend pure virtual interface
 ///
 /// Interface that allows to send a metric to remote backend.
 /// In addition, default tagset (for all handled metrics) can be created.
 class Backend
 {
+  private:
+    backend::Verbosity verbosityLevel;
+
   public:
     /// Default constructor
-    Backend() = default;
+    Backend() { verbosityLevel = backend::Verbosity::PROD; }
 
     /// Default destructor
     virtual ~Backend() = default;
 
-    /// States whether backend should be used in the debug mode
-    /// \return debug flag
-    virtual bool isDebug() { return false; }
+    void setVerbosisty(backend::Verbosity level) { verbosityLevel = level; }
+
+    backend::Verbosity getVerbosity() { return verbosityLevel; }
 	
     /// Sends metric via backend
     virtual void send(const Metric& metric) = 0;
