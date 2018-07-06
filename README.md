@@ -92,17 +92,18 @@ The library is accessible from `o2::monitoring` namespace.
 ```cpp
 #include <MonitoringFactory.h>
 using namespace o2::monitoring;
-std::unique_ptr<Monitoring> monitoring = MonitoringFactory::Get("backend[-protocol]://host:port[?query]");
+std::unique_ptr<Monitoring> monitoring = MonitoringFactory::Get("backend[-protocol]://host:port[/verbosity][?query]");
 ```
 See table below to find out how to create `URI` for each backend:
 
-| Backend name | Transport | URI backend[-protocol] | URI query        |
-| ------------ |:---------:|:----------------------:| ----------------:|
-| InfluxDB     | HTTP      | `influxdb-http`        | `/write?db=<db>` |
-| InfluxDB     | UDP       | `influxdb-udp`         | -                |
-| ApMon        | UDP       | `apmon`                | -                |
-| InfoLogger   | -         | `infologger`           | -                |
-| Flume        | UDP       | `flume`                | -                |
+| Backend name | Transport | URI backend[-protocol] | URI query        | Default verbosity |
+| ------------ |:---------:|:----------------------:|:----------------:| -----------------:|
+| InfluxDB     | HTTP      | `influxdb-http`        | `/write?db=<db>` | `prod`            |
+| InfluxDB     | UDP       | `influxdb-udp`         | -                | `prod`            |
+| ApMon        | UDP       | `apmon`                | -                | `prod`            |
+| Local InfoLogger | -     | `infologger://`        | -                | `debug`           |
+| InfoLogger   | TCP       | `infologger`           | -                | `prod`            |
+| Flume        | UDP       | `flume`                | -                | `prod`            |
 
 Multiple backends may be used at the same time, URLs should be separated by `,` (comma).
 
@@ -122,6 +123,19 @@ monitoring->send({10, "myMetricInt"});
 ```
 
 Regarding  `DerivedMetricMode` see [Calculating derived metrics](#calculating-derived-metrics).
+
+### Debug metrics
+Debug metrics can be send by a similar method to above's `send`:
+```cpp
+debug(Metric&& metric)
+```
+
+The difference is that debug metrics are only passed to backends which verbosity level is set to `debug`.
+
+Each backend has its default verbosity (see backend in [Monitoring instance](#monitoring-instance) section). This can be changed by defining path of a backend URL:
+- `/prod` - only `send` metrics are passed to the backend
+- `/debug` - all the metrics are passed to the backend
+
 
 ### Customized metrics
 Two additional methods can be chained the to `send(Metric&& metric)` in order to __insert custom tags__ or __set custom timestamp__:
