@@ -140,6 +140,7 @@ enable_testing()
 
 set(TEST_SRCS
         test/testMonitoring.cxx
+        test/testMonitoringFactory.cxx
         test/testDerived.cxx
         test/testFlume.cxx
         test/testMetric.cxx
