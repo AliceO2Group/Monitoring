@@ -72,13 +72,13 @@ std::unique_ptr<Backend> getFlume(http::url uri) {
 }
 
 void MonitoringFactory::SetVerbosity(std::string selected, std::unique_ptr<Backend>& backend) {
-  static const std::map<std::string, backend::Verbosity> verbisities = {
+  static const std::map<std::string, backend::Verbosity> verbosities = {
     {"/prod", backend::Verbosity::PROD},
     {"/debug", backend::Verbosity::DEBUG}
   };
 
-  auto found = verbisities.find(selected);
-  if (found != verbisities.end()) {
+  auto found = verbosities.find(selected);
+  if (found != verbosities.end()) {
     backend->setVerbosisty(found->second);
     MonLogger::Get() << "...verbosity set to "
                      << static_cast<std::underlying_type<backend::Verbosity>::type>(found->second)
