@@ -50,7 +50,7 @@ void Flume::send(std::vector<Metric>&& metrics)
   std::string flumeMetrics = "";
   for (auto& metric : metrics) {
     flumeMetrics += metricToJson(metric);
-    flumeMetrics += "\n";
+    flumeMetrics += '\n';
   }
   mTransport->send(std::move(flumeMetrics));
 }
@@ -84,7 +84,9 @@ std::string Flume::metricsToJson(std::string measurement, std::vector<Metric>&& 
 
 void Flume::send(const Metric& metric)
 {
-    mTransport->send(metricToJson(metric));
+    std::string toSend = metricToJson(metric);
+    toSend += '\n';
+    mTransport->send(std::move(toSend));
 }
 
 inline unsigned long Flume::convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp)
