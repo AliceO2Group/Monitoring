@@ -27,6 +27,7 @@ namespace backend
 class Backend
 {
   private:
+    /// Verbosity level
     backend::Verbosity verbosityLevel;
 
   public:
@@ -36,8 +37,10 @@ class Backend
     /// Default destructor
     virtual ~Backend() = default;
 
+    /// Set verbosity level
     void setVerbosisty(backend::Verbosity level) { verbosityLevel = level; }
 
+    /// Get verbosity level
     backend::Verbosity getVerbosity() { return verbosityLevel; }
 	
     /// Sends metric via backend

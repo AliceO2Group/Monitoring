@@ -23,6 +23,8 @@
 #include "Backends/InfluxDB.h"
 #endif
 
+#include "MonLogger.h"
+
 namespace o2 
 {
 /// ALICE O2 Monitoring system
@@ -31,9 +33,7 @@ namespace monitoring
 
 std::unique_ptr<Backend> getInfoLogger(http::url uri) {
   if (uri.host == "") {
-    auto backend = std::make_unique<backends::StdOut>();
-    backend->setVerbosisty(backend::Verbosity::DEBUG);
-    return backend;
+    return std::make_unique<backends::StdOut>();
   } else {
     return std::make_unique<backends::InfoLoggerBackend>(uri.host, uri.port);
   }
@@ -71,6 +71,21 @@ std::unique_ptr<Backend> getFlume(http::url uri) {
   return std::make_unique<backends::Flume>(uri.host, uri.port);
 }
 
+void MonitoringFactory::SetVerbosity(std::string selected, std::unique_ptr<Backend>& backend) {
+  static const std::map<std::string, backend::Verbosity> verbisities = {
+    {"/prod", backend::Verbosity::PROD},
+    {"/debug", backend::Verbosity::DEBUG}
+  };
+
+  auto found = verbisities.find(selected);
+  if (found != verbisities.end()) {
+    backend->setVerbosisty(found->second);
+    MonLogger::Get() << "...verbosity set to "
+                     << static_cast<std::underlying_type<backend::Verbosity>::type>(found->second)
+                     << MonLogger::End();
+  }
+}
+
 std::unique_ptr<Backend> MonitoringFactory::GetBackend(std::string& url) {
   static const std::map<std::string, std::function<std::unique_ptr<Backend>(const http::url&)>> map = {
     {"infologger", getInfoLogger},
@@ -87,11 +102,15 @@ std::unique_ptr<Backend> MonitoringFactory::GetBackend(std::string& url) {
   }   
 
   auto iterator = map.find(parsedUrl.protocol);
-  if (iterator != map.end()) {
-    return iterator->second(parsedUrl);
-  } else {
+  if (iterator == map.end()) {
     throw std::runtime_error("Unrecognized backend " + parsedUrl.protocol);
   }
+
+  auto backend = iterator->second(parsedUrl);
+  if (!parsedUrl.path.empty()) {
+    SetVerbosity(parsedUrl.path, backend);
+  }
+  return backend;
 }
 
 std::unique_ptr<Monitoring> MonitoringFactory::Get(std::string urlsString)
