@@ -53,6 +53,7 @@ int main(int argc, char *argv[]) {
       monitoring->send({"string" + std::to_string(intDist(mt)), "stringMetric"});
       monitoring->send({doubleDist(mt), "doubleMetric"});
       monitoring->send({intDist(mt), "intMetric"});
+      monitoring->debug({intDist(mt), "intMetricDebug"});
       std::this_thread::sleep_for(std::chrono::microseconds(sleep));
     }
   } else {

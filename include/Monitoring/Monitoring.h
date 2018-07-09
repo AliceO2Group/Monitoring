@@ -55,7 +55,7 @@ class Monitoring
     /// \param metric           r-value to metric object
     ///  \param mode		Derived metric mode
     void send(Metric&& metric, DerivedMetricMode mode = DerivedMetricMode::NONE);
-
+    void debug(Metric&& metric);
     /// Sends multiple (not related to each other) metrics
     /// \param metrics  vector of metrics
     void send(std::vector<Metric>&& metrics);
@@ -86,7 +86,7 @@ class Monitoring
 
     /// Enables metric buffering
     /// \param size 		buffer size
-    void enableBuffering(const unsigned int size = 20);
+    void enableBuffering(const unsigned int size = 128);
 
     /// Adds global tag
     /// \param name 		tag name

@@ -32,6 +32,9 @@ class MonitoringFactory
   private:
     /// Private constructor disallows to create instance of Factory
     MonitoringFactory() = default;
+
+    /// Sets backend verbosity based on the URL path
+    static void SetVerbosity(std::string selected, std::unique_ptr<Backend>& backend);
 };
 
 } // namespace monitoring
