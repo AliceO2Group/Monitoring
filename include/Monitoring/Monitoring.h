@@ -15,6 +15,7 @@
 #include <tuple>
 #include <unordered_map>
 #include <vector>
+#include <deque>
 
 #include "Monitoring/Backend.h"
 #include "Monitoring/DerivedMetrics.h"
@@ -96,6 +97,9 @@ class Monitoring
     /// \param name 		tag name
     /// \param value 		tag value
     void addGlobalTag(std::string name, std::string value);
+
+    Metric& getAutoPushMetric(std::string name);
+
   private:
     /// Derived metrics handler
     /// \see class DerivedMetrics
@@ -119,9 +123,9 @@ class Monitoring
     /// Process Monitor object that sends updates about the process itself
     std::unique_ptr<ProcessMonitor> mProcessMonitor;
 
-    /// Process Monitor thread loop
+    /// Push metric loop
     /// \param interval 	sleep time in seconds
-    void processMonitorLoop(int interval);
+    void pushLoop(int interval);
 
     /// Metric buffer
     std::vector<Metric> mStorage;
@@ -131,6 +135,8 @@ class Monitoring
 
     /// Size of buffer
     unsigned int mBufferSize;
+
+    std::deque<Metric> mPushStore;
 };
 
 } // namespace monitoring

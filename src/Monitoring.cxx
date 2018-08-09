@@ -60,7 +60,7 @@ void Monitoring::flushBuffer() {
 
 void Monitoring::enableProcessMonitoring(const unsigned int interval) {
   mMonitorRunning = true;
-  mMonitorThread = std::thread(&Monitoring::processMonitorLoop, this, interval);
+  mMonitorThread = std::thread(&Monitoring::pushLoop, this, interval);
 #ifdef _OS_LINUX
   MonLogger::Get() << "Process Monitor : Automatic updates enabled" << MonLogger::End();
 #else
@@ -115,19 +115,29 @@ Monitoring::~Monitoring()
   }
 }
 
-void Monitoring::processMonitorLoop(int interval)
+void Monitoring::pushLoop(int interval)
 {
   // loopCount - no need to wait full sleep time to terminame the thread
   int loopCount = 0;
   while (mMonitorRunning) {
     std::this_thread::sleep_for (std::chrono::milliseconds(interval*10));
     if ((++loopCount % 100) != 0) continue;
-    send(mProcessMonitor->getCpuAndContexts());
+//    send(mProcessMonitor->getCpuAndContexts());
 #ifdef _OS_LINUX
     send(mProcessMonitor->getMemoryUsage());
 #endif
     loopCount = 0;
+
+    for (auto& metric : mPushStore) {
+      send(std::move(metric));
+    }
   }
+}
+
+Metric& Monitoring::getAutoPushMetric(std::string name)
+{
+  mPushStore.emplace_back(boost::variant< int, std::string, double, uint64_t > {}, name);
+  return mPushStore.back();
 }
 
 void Monitoring::sendGrouped(std::string measurement, std::vector<Metric>&& metrics)
@@ -136,14 +146,14 @@ void Monitoring::sendGrouped(std::string measurement, std::vector<Metric>&& metr
     b->sendMultiple(measurement, std::move(metrics));
   }
 }
-
+/*
 void Monitoring::send(std::vector<Metric>&& metrics)
 {
   for (auto& b: mBackends) {
     b->send(std::move(metrics));
   }
 }
-
+*/
 void Monitoring::debug(Metric&& metric)
 {
   for (auto& b: mBackends) {

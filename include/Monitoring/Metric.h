@@ -56,6 +56,15 @@ class Metric
 
     /// Default destructor
     ~Metric() = default;
+
+    /// Copy initialization
+    Metric(const Metric& other);
+
+    /// Copy assignment
+    Metric& operator=(Metric const& other);
+
+    /// Assign operator overload, assignes new values to the metric object
+    Metric& operator=(const boost::variant< int, std::string, double, uint64_t >& value);
         
     /// Name getter
     /// \return	metric name
@@ -107,6 +116,9 @@ class Metric
 
     /// Metric tags
     std::vector<Tag> tagSet;
+
+    /// Mutex for accesing metric value
+    mutable std::mutex mValueMutex;
 };
 
 } // namespace monitoring
