@@ -39,6 +39,9 @@ Monitoring::Monitoring()
   mProcessMonitor = std::make_unique<ProcessMonitor>();
   mDerivedHandler = std::make_unique<DerivedMetrics>();
   mBuffering = false;
+  mProcessMonitoringInterval = 0;
+  mMonitorRunning = true;
+  mMonitorThread = std::thread(&Monitoring::pushLoop, this, 1);
 }
 
 void Monitoring::enableBuffering(const unsigned int size)
@@ -59,13 +62,12 @@ void Monitoring::flushBuffer() {
 }
 
 void Monitoring::enableProcessMonitoring(const unsigned int interval) {
-  mMonitorRunning = true;
-  mMonitorThread = std::thread(&Monitoring::pushLoop, this, interval);
-#ifdef _OS_LINUX
+  mProcessMonitoringInterval = interval;
+  #ifdef _OS_LINUX
   MonLogger::Get() << "Process Monitor : Automatic updates enabled" << MonLogger::End();
-#else
+  #else
   MonLogger::Get() << "!! Process Monitor : Limited metrics available" << MonLogger::End();
-#endif
+  #endif
 }
 
 void Monitoring::startTimer(std::string name) {
@@ -117,20 +119,22 @@ Monitoring::~Monitoring()
 
 void Monitoring::pushLoop(int interval)
 {
-  // loopCount - no need to wait full sleep time to terminame the thread
-  int loopCount = 0;
+  unsigned int loopCount = 0;
   while (mMonitorRunning) {
-    std::this_thread::sleep_for (std::chrono::milliseconds(interval*10));
-    if ((++loopCount % 100) != 0) continue;
-//    send(mProcessMonitor->getCpuAndContexts());
-#ifdef _OS_LINUX
-    send(mProcessMonitor->getMemoryUsage());
-#endif
-    loopCount = 0;
-
-    for (auto& metric : mPushStore) {
-      send(std::move(metric));
+    if (mProcessMonitoringInterval != 0 && (loopCount % (mProcessMonitoringInterval*10)) == 0) {
+      send(mProcessMonitor->getCpuAndContexts());
+      #ifdef _OS_LINUX
+      send(mProcessMonitor->getMemoryUsage());
+      #endif
     }
+
+    if ((loopCount % 10) == 0) {
+      for (auto metric : mPushStore) {
+        send(std::move(metric));
+      }
+    }
+    std::this_thread::sleep_for (std::chrono::milliseconds(100));
+    (loopCount >= 600) ? loopCount = 0 : loopCount++;
   }
 }
 
@@ -146,14 +150,14 @@ void Monitoring::sendGrouped(std::string measurement, std::vector<Metric>&& metr
     b->sendMultiple(measurement, std::move(metrics));
   }
 }
-/*
+
 void Monitoring::send(std::vector<Metric>&& metrics)
 {
   for (auto& b: mBackends) {
     b->send(std::move(metrics));
   }
 }
-*/
+
 void Monitoring::debug(Metric&& metric)
 {
   for (auto& b: mBackends) {

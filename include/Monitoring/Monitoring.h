@@ -137,6 +137,8 @@ class Monitoring
     unsigned int mBufferSize;
 
     std::deque<Metric> mPushStore;
+
+    unsigned int mProcessMonitoringInterval;
 };
 
 } // namespace monitoring
