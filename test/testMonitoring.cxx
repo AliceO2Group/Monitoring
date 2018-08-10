@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE(testTimer)
 BOOST_AUTO_TEST_CASE(testPush)
 {
   auto monitoring = Monitoring::Get("infologger://");
-  monitoring->enableProcessMonitoring(1);
+  monitoring->enableAutoPush();
   auto& qcMetric = monitoring->getAutoPushMetric("qcMetric");
   auto& qcMetric2 = monitoring->getAutoPushMetric("qcMetric2");
   std::this_thread::sleep_for (std::chrono::milliseconds(1500));

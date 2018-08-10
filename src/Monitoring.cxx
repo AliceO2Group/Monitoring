@@ -145,6 +145,9 @@ void Monitoring::pushLoop()
 
 Metric& Monitoring::getAutoPushMetric(std::string name)
 {
+  if (mAutoPushInterval == 0) {
+    MonLogger::Get() << "[WARN] AutoPush is not enabled" << MonLogger::End();
+  }
   mPushStore.emplace_back(boost::variant< int, std::string, double, uint64_t > {}, name);
   return mPushStore.back();
 }
