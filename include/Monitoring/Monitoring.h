@@ -124,8 +124,7 @@ class Monitoring
     std::unique_ptr<ProcessMonitor> mProcessMonitor;
 
     /// Push metric loop
-    /// \param interval 	sleep time in seconds
-    void pushLoop(int interval);
+    void pushLoop();
 
     /// Metric buffer
     std::vector<Metric> mStorage;
@@ -139,6 +138,7 @@ class Monitoring
     std::deque<Metric> mPushStore;
 
     unsigned int mProcessMonitoringInterval;
+    unsigned int mAutoPushInterval;
 };
 
 } // namespace monitoring

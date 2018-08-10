@@ -40,8 +40,9 @@ Monitoring::Monitoring()
   mDerivedHandler = std::make_unique<DerivedMetrics>();
   mBuffering = false;
   mProcessMonitoringInterval = 0;
+  mAutoPushInterval = 1;
   mMonitorRunning = true;
-  mMonitorThread = std::thread(&Monitoring::pushLoop, this, 1);
+  mMonitorThread = std::thread(&Monitoring::pushLoop, this);
 }
 
 void Monitoring::enableBuffering(const unsigned int size)
@@ -117,7 +118,7 @@ Monitoring::~Monitoring()
   }
 }
 
-void Monitoring::pushLoop(int interval)
+void Monitoring::pushLoop()
 {
   unsigned int loopCount = 0;
   while (mMonitorRunning) {
@@ -128,10 +129,12 @@ void Monitoring::pushLoop(int interval)
       #endif
     }
 
-    if ((loopCount % 10) == 0) {
-      for (auto metric : mPushStore) {
-        send(std::move(metric));
+    if ((loopCount % (mAutoPushInterval*10)) == 0) {
+      std::vector<Metric> metrics;
+      for (auto& metric : mPushStore) {
+        metrics.push_back(metric);
       }
+      send(std::move(metrics));
     }
     std::this_thread::sleep_for (std::chrono::milliseconds(100));
     (loopCount >= 600) ? loopCount = 0 : loopCount++;
