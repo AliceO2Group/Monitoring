@@ -50,6 +50,18 @@ BOOST_AUTO_TEST_CASE(testTimer)
   monitoring->stopAndSendTimer("timer");
 }
 
+BOOST_AUTO_TEST_CASE(testPush)
+{
+  auto monitoring = Monitoring::Get("infologger://");
+  monitoring->enableAutoPush();
+  auto& qcMetric = monitoring->getAutoPushMetric("qcMetric");
+  auto& qcMetric2 = monitoring->getAutoPushMetric("qcMetric2");
+  std::this_thread::sleep_for (std::chrono::milliseconds(1500));
+  qcMetric = 133 + 11 + 2.2;
+  qcMetric2 = 133 - 11 - 2.2;
+  std::this_thread::sleep_for (std::chrono::milliseconds(1500));
+}
+
 BOOST_AUTO_TEST_CASE(testSymbols)
 {
   BOOST_WARN_MESSAGE(!BOOST_IS_DEFINED( _WITH_APPMON ), "ApMon Backend disabled");

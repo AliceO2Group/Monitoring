@@ -39,6 +39,9 @@ Monitoring::Monitoring()
   mProcessMonitor = std::make_unique<ProcessMonitor>();
   mDerivedHandler = std::make_unique<DerivedMetrics>();
   mBuffering = false;
+  mProcessMonitoringInterval = 0;
+  mAutoPushInterval = 0;
+  mMonitorRunning = false;
 }
 
 void Monitoring::enableBuffering(const unsigned int size)
@@ -59,13 +62,16 @@ void Monitoring::flushBuffer() {
 }
 
 void Monitoring::enableProcessMonitoring(const unsigned int interval) {
-  mMonitorRunning = true;
-  mMonitorThread = std::thread(&Monitoring::processMonitorLoop, this, interval);
-#ifdef _OS_LINUX
+  mProcessMonitoringInterval = interval;
+  if (!mMonitorRunning) {
+    mMonitorRunning = true;
+    mMonitorThread = std::thread(&Monitoring::pushLoop, this);
+  }
+  #ifdef _OS_LINUX
   MonLogger::Get() << "Process Monitor : Automatic updates enabled" << MonLogger::End();
-#else
+  #else
   MonLogger::Get() << "!! Process Monitor : Limited metrics available" << MonLogger::End();
-#endif
+  #endif
 }
 
 void Monitoring::startTimer(std::string name) {
@@ -115,19 +121,37 @@ Monitoring::~Monitoring()
   }
 }
 
-void Monitoring::processMonitorLoop(int interval)
+void Monitoring::pushLoop()
 {
-  // loopCount - no need to wait full sleep time to terminame the thread
-  int loopCount = 0;
+  unsigned int loopCount = 0;
+  std::this_thread::sleep_for (std::chrono::milliseconds(100));
   while (mMonitorRunning) {
-    std::this_thread::sleep_for (std::chrono::milliseconds(interval*10));
-    if ((++loopCount % 100) != 0) continue;
-    send(mProcessMonitor->getCpuAndContexts());
-#ifdef _OS_LINUX
-    send(mProcessMonitor->getMemoryUsage());
-#endif
-    loopCount = 0;
+    if (mProcessMonitoringInterval != 0 && (loopCount % (mProcessMonitoringInterval*10)) == 0) {
+      send(mProcessMonitor->getCpuAndContexts());
+      #ifdef _OS_LINUX
+      send(mProcessMonitor->getMemoryUsage());
+      #endif
+    }
+
+    if (mAutoPushInterval != 0 && (loopCount % (mAutoPushInterval*10)) == 0) {
+      std::vector<Metric> metrics;
+      for (auto& metric : mPushStore) {
+        metrics.push_back(metric);
+      }
+      send(std::move(metrics));
+    }
+    std::this_thread::sleep_for (std::chrono::milliseconds(100));
+    (loopCount >= 600) ? loopCount = 0 : loopCount++;
   }
+}
+
+Metric& Monitoring::getAutoPushMetric(std::string name)
+{
+  if (mAutoPushInterval == 0) {
+    MonLogger::Get() << "[WARN] AutoPush is not enabled" << MonLogger::End();
+  }
+  mPushStore.emplace_back(boost::variant< int, std::string, double, uint64_t > {}, name);
+  return mPushStore.back();
 }
 
 void Monitoring::sendGrouped(std::string measurement, std::vector<Metric>&& metrics)
@@ -151,6 +175,15 @@ void Monitoring::debug(Metric&& metric)
       b->send(metric);
     }
   }
+}
+
+void Monitoring::enableAutoPush(unsigned int interval)
+{
+  if (!mMonitorRunning) {
+    mMonitorRunning = true;
+    mMonitorThread = std::thread(&Monitoring::pushLoop, this);
+  }
+  mAutoPushInterval = interval;
 }
 
 void Monitoring::pushToBackends(Metric&& metric)
