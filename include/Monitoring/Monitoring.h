@@ -98,7 +98,14 @@ class Monitoring
     /// \param value 		tag value
     void addGlobalTag(std::string name, std::string value);
 
+    /// Returns a metric which will be periodically sent to backends
+    /// \param name 		metric name
+    /// \return 		periodically send metric
     Metric& getAutoPushMetric(std::string name);
+
+    /// Enables periodical push interval
+    /// \param interval 	interval in seconds
+    void enableAutoPush(const unsigned int interval = 1);
 
   private:
     /// Derived metrics handler
@@ -135,10 +142,14 @@ class Monitoring
     /// Size of buffer
     unsigned int mBufferSize;
 
+    /// Store for automatically pushed metrics
     std::deque<Metric> mPushStore;
 
-    unsigned int mProcessMonitoringInterval;
-    unsigned int mAutoPushInterval;
+    /// Process monitor interval
+    std::atomic<unsigned int> mProcessMonitoringInterval;
+
+    /// Automatic metric push interval
+    std::atomic<unsigned int> mAutoPushInterval;
 };
 
 } // namespace monitoring

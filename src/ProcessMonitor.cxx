@@ -62,9 +62,6 @@ std::vector<Metric> ProcessMonitor::getCpuAndContexts() {
   getrusage(RUSAGE_SELF, &currentUsage);
   auto timeNow = std::chrono::high_resolution_clock::now();
   double timePassed = std::chrono::duration_cast<std::chrono::microseconds>(timeNow - mTimeLastRun).count();
-  if (timePassed < 950) { // do not run too often
-    throw MonitoringInternalException("Process Monitor getrusage", "Do not invoke more often then 1ms");
-  }
   double fractionCpuUsed = (
       currentUsage.ru_utime.tv_sec*1000000.0 + currentUsage.ru_utime.tv_usec - (mPreviousGetrUsage.ru_utime.tv_sec*1000000.0 + mPreviousGetrUsage.ru_utime.tv_usec)
     + currentUsage.ru_stime.tv_sec*1000000.0 + currentUsage.ru_stime.tv_usec - (mPreviousGetrUsage.ru_stime.tv_sec*1000000.0 + mPreviousGetrUsage.ru_stime.tv_usec)

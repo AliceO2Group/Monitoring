@@ -40,9 +40,8 @@ Monitoring::Monitoring()
   mDerivedHandler = std::make_unique<DerivedMetrics>();
   mBuffering = false;
   mProcessMonitoringInterval = 0;
-  mAutoPushInterval = 1;
-  mMonitorRunning = true;
-  mMonitorThread = std::thread(&Monitoring::pushLoop, this);
+  mAutoPushInterval = 0;
+  mMonitorRunning = false;
 }
 
 void Monitoring::enableBuffering(const unsigned int size)
@@ -64,10 +63,13 @@ void Monitoring::flushBuffer() {
 
 void Monitoring::enableProcessMonitoring(const unsigned int interval) {
   mProcessMonitoringInterval = interval;
+  if (!mMonitorRunning) {
+    mMonitorRunning = true;
+    mMonitorThread = std::thread(&Monitoring::pushLoop, this);
+  }
   #ifdef _OS_LINUX
   MonLogger::Get() << "Process Monitor : Automatic updates enabled" << MonLogger::End();
-  #else
-  MonLogger::Get() << "!! Process Monitor : Limited metrics available" << MonLogger::End();
+
   #endif
 }
 
@@ -168,6 +170,15 @@ void Monitoring::debug(Metric&& metric)
       b->send(metric);
     }
   }
+}
+
+void Monitoring::enableAutoPush(unsigned int interval)
+{
+  if (!mMonitorRunning) {
+    mMonitorRunning = true;
+    mMonitorThread = std::thread(&Monitoring::pushLoop, this);
+  }
+  mAutoPushInterval = interval;
 }
 
 void Monitoring::pushToBackends(Metric&& metric)
