@@ -67,9 +67,9 @@ Metric::Metric(const Metric& other)
 Metric& Metric::operator=(Metric const& other)
 {
   if (&other != this) {
-    std::unique_lock<std::mutex> lock_this(mValueMutex, std::defer_lock);
-    std::unique_lock<std::mutex> lock_other(other.mValueMutex, std::defer_lock);
-    std::lock(lock_this, lock_other);
+    std::unique_lock<std::mutex> lockThis(mValueMutex, std::defer_lock);
+    std::unique_lock<std::mutex> lockOther(other.mValueMutex, std::defer_lock);
+    std::lock(lockThis, lockOther);
 
     mName = other.mName;
     mValue = other.mValue;
