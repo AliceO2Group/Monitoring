@@ -69,7 +69,8 @@ void Monitoring::enableProcessMonitoring(const unsigned int interval) {
   }
   #ifdef _OS_LINUX
   MonLogger::Get() << "Process Monitor : Automatic updates enabled" << MonLogger::End();
-
+  #else
+  MonLogger::Get() << "!! Process Monitor : Limited metrics available" << MonLogger::End();
   #endif
 }
 
@@ -123,6 +124,7 @@ Monitoring::~Monitoring()
 void Monitoring::pushLoop()
 {
   unsigned int loopCount = 0;
+  std::this_thread::sleep_for (std::chrono::milliseconds(100));
   while (mMonitorRunning) {
     if (mProcessMonitoringInterval != 0 && (loopCount % (mProcessMonitoringInterval*10)) == 0) {
       send(mProcessMonitor->getCpuAndContexts());
@@ -131,7 +133,7 @@ void Monitoring::pushLoop()
       #endif
     }
 
-    if ((loopCount % (mAutoPushInterval*10)) == 0) {
+    if (mAutoPushInterval != 0 && (loopCount % (mAutoPushInterval*10)) == 0) {
       std::vector<Metric> metrics;
       for (auto& metric : mPushStore) {
         metrics.push_back(metric);
