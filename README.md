@@ -13,38 +13,6 @@ Monitoring module allows to inject user defined metrics and monitor the process 
 5. [System monitoring and server-side backends installation and configuration](#system-monitoring-server-side-backends-installation-and-configuration)
 
 ## Installation
-### RPM (CentOS 7 only)
-+ Install CERN certificates
-~~~
-yum -y install CERN-CA-certs
-~~~
-
-+ Add `alisw` repo **(as root)**
-~~~
-cat > /etc/yum.repos.d/alisw-el7.repo <<EOF
-[alisw-el7]
-name=ALICE Software - EL7
-baseurl=https://ali-ci.cern.ch/repo/RPMS/el7.x86_64/
-enabled=1
-gpgcheck=0
-EOF
-~~~
-
-+ Install Monitoring RPM package **(as root)**
-~~~
-yum -y install alisw-Monitoring+v1.5.4-1.x86_64
-~~~
-
-+ Configure Modules
-~~~
-export MODULEPATH=/opt/alisw/el7/modulefiles:$MODULEPATH
-~~~
-
-+ Load enviroment
-~~~
-eval `modulecmd bash load Monitoring/v1.5.4-1`
-~~~
-The installation directory is: `/opt/alisw/el7/Monitoring/v1.5.4-1`
 
 ### aliBuild
 <strong>[Click here if you don't have aliBuild installed](https://alice-doc.github.io/alice-analysis-tutorial/building/)</strong>
@@ -76,13 +44,13 @@ Manual installation of the O<sup>2</sup> Monitoring module.
 
 #### Monitoring module compilation
 
-~~~
+```
 git clone https://github.com/AliceO2Group/Monitoring.git
 cd Monitoring; mkdir build; cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=<installdir>
 make -j
 make install
-~~~
+```
 
 ## Getting started
 ### Monitoring instance
@@ -94,6 +62,7 @@ The library is accessible from `o2::monitoring` namespace.
 using namespace o2::monitoring;
 std::unique_ptr<Monitoring> monitoring = MonitoringFactory::Get("backend[-protocol]://host:port[/verbosity][?query]");
 ```
+
 See table below to find out how to create `URI` for each backend:
 
 | Backend name | Transport | URI backend[-protocol] | URI query        | Default verbosity |
@@ -117,12 +86,10 @@ Where metric constructor receives following parameters:
   - `std::string& name`
   - `[time_point<system_clock> timestamp]`
 
-For example:
-```cpp
-monitoring->send({10, "myMetricInt"});
-```
 
-Regarding  `DerivedMetricMode` see [Calculating derived metrics](#calculating-derived-metrics).
+The `DerivedMetricMode` is described in [Calculating derived metrics](#calculating-derived-metrics) section.
+
+See how it works in the example: [examples/1-Basic.cxx](examples/1-Basic.cxx)
 
 ### Debug metrics
 Debug metrics can be send by a similar method to above's `send`:
@@ -142,24 +109,22 @@ Two additional methods can be chained the to `send(Metric&& metric)` in order to
    + `addTags(std::vector<Tag>&& tags)`
    + `setTimestamp(std::chrono::time_point<std::chrono::system_clock>& timestamp)`
 
-For example:
-```cpp
-monitoring->send(Metric{10, "myMetric"}.addTags({{"tag1", "value1"}, {"tag2", "value2"}}));
-monitoring->send(Metric{10, "myCrazyMetric"}.setTimestamp(timestamp));
-```
+See how it works in the example: [examples/2-TaggedMetrics.cxx](examples/2-TaggedMetrics.cxx), [examples/3-UserDefinedTimestamp.cxx](examples/3-UserDefinedTimestamp.cxx).
 
 ## Features and additional information
 
-### Grouped values
-It's also possible to send multiple, grouped values in a single metric (`Flume` and `InfluxDB` backends are supproted, others fallback into sending values in seperate metrics)
+### Sending more than one metric
+In order to send more than one metric in a packet group them into vector:
+```cpp
+monitoring->send(std::vector<Metric>&& metrics);
+```
+
+It's also possible to send multiple, grouped values (only `Flume` and `InfluxDB` backends are supported); For example `cpu` metric can be composed of `cpuUser`, `cpuSystem` values.
 ```cpp
 void sendGroupped(std::string name, std::vector<Metric>&& metrics)
 ```
 
-For example:
-```cpp
-monitoring->sendGroupped("measurementName", {{20, "myMetricIntMultiple"}, {20.30, "myMetricFloatMultple"}});
-```
+See how it works in the example: [examples/8-Multiple.cxx](examples/8-Multiple.cxx)
 
 ### Buffering metrics
 In order to avoid sending each metric separately, metrics can be temporary stored in the buffer and flushed at the most convenient moment.
@@ -172,15 +137,7 @@ monitoring->flushBuffer();
 
 `enableBuffering` takes maximum buffer size as its parameter. The buffer gets full all values are flushed automatically.
 
-For example:
-```cpp
-monitoring->enableBuffering(5);
-for (int i = 1; i < 10; i++) {
-  monitoring->send({10, "myMetricInt"});
-}
-monitoring->send({20, "myMetricInt2"});
-monitoring->flushBuffer();
-```
+See how it works in the example: [examples/10-Buffering.cxx](examples/10-Buffering.cxx).
 
 ### Metrics
 Metrics consist of 4 parameters: name, value, timestamp and tags.
@@ -205,6 +162,8 @@ The module can calculate derived metrics. To do so, use optional `DerivedMetricM
 
 Derived metrics are generated each time as new value is passed to the module. Their names are suffixed with derived mode name.
 
+See how it works in the example: [examples/4-RateDerivedMetric.cxx](examples/4-RateDerivedMetric.cxx).
+
 ### Global tags
 Glabal tags are tags that are added to each metric. The following tags are set to global by library itself:
 - `hostname`
@@ -221,14 +180,13 @@ The following metrics are generated every interval:
 + **involuntaryContextSwitches** - involuntary context switches over time interval
 + **memoryUsagePercentage** - ratio of the process's resident set size  to the physical memory on the machine, expressed as a percentage (Linux only)
 
-## Code snippets
-Code snippets are available in [examples](examples/) directory.
-
- + Sending metric - [examples/1-Basic.cxx](examples/1-Basic.cxx)
- + Sending metric with custom taggs - [examples/2-TaggedMetrics.cxx](examples/2-TaggedMetrics.cxx)
- + Sending metric with user defined timestamp - [examples/3-UserDefinedTimestamp.cxx](examples/3-UserDefinedTimestamp.cxx)
- + Calculating derived metrics - [examples/4-RateDerivedMetric.cxx](examples/4-RateDerivedMetric.cxx)
- + Sending multiple values in a single metric - [examples/8-Multiple.cxx](examples/8-Multiple.cxx)
+### Automatic metric updates
+When global, higher level metrics are created it's necessary to provide values every interval of time (even though values does not change). This can be done using `AutoPushMetric`. The
+```cpp
+Metric& metric = monitoring->getAutoPushMetric("exampleMetric");
+metric = 10;
+```
+See how it works in the example: [examples/11-AutoUpdate.cxx](examples/11-AutoUpdate.cxx).
 
 ## System monitoring, server-side backends installation and configuration
 This guide explains manual installation. For `ansible` deployment see [AliceO2Group/system-configuration](https://gitlab.cern.ch/AliceO2Group/system-configuration/tree/master/ansible) gitlab repo.
