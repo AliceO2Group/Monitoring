@@ -13,38 +13,6 @@ Monitoring module allows to inject user defined metrics and monitor the process 
 5. [System monitoring and server-side backends installation and configuration](#system-monitoring-server-side-backends-installation-and-configuration)
 
 ## Installation
-### RPM (CentOS 7 only)
-+ Install CERN certificates
-~~~
-yum -y install CERN-CA-certs
-~~~
-
-+ Add `alisw` repo **(as root)**
-~~~
-cat > /etc/yum.repos.d/alisw-el7.repo <<EOF
-[alisw-el7]
-name=ALICE Software - EL7
-baseurl=https://ali-ci.cern.ch/repo/RPMS/el7.x86_64/
-enabled=1
-gpgcheck=0
-EOF
-~~~
-
-+ Install Monitoring RPM package **(as root)**
-~~~
-yum -y install alisw-Monitoring+v1.5.4-1.x86_64
-~~~
-
-+ Configure Modules
-~~~
-export MODULEPATH=/opt/alisw/el7/modulefiles:$MODULEPATH
-~~~
-
-+ Load enviroment
-~~~
-eval `modulecmd bash load Monitoring/v1.5.4-1`
-~~~
-The installation directory is: `/opt/alisw/el7/Monitoring/v1.5.4-1`
 
 ### aliBuild
 <strong>[Click here if you don't have aliBuild installed](https://alice-doc.github.io/alice-analysis-tutorial/building/)</strong>
