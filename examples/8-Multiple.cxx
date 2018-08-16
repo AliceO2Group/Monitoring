@@ -12,6 +12,6 @@ int main() {
   // Pass string with list of URLs as parameter
   auto monitoring = Monitoring::Get("flume://pcald03.cern.ch:8092");
 
-  //monitoring->sendGrouped("measurementName", {{20, "myMetricIntMultiple"}, {20.30, "myMetricFloatMultple"}});
+  monitoring->sendGrouped("measurementName", {{20, "myMetricIntMultiple"}, {20.30, "myMetricFloatMultple"}});
   monitoring->send({{201, "myMetricIntMultiple"}, {2.34, "myMetricFloatMultple"}});
 }
