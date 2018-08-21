@@ -26,6 +26,7 @@ int main(int argc, char *argv[]) {
     ("id", boost::program_options::value<std::string>(), "Instance ID")
     ("count", boost::program_options::value<int>(), "Number of metric bunches (x3)")
     ("multiple", boost::program_options::bool_switch()->default_value(false), "Sends multiple metrics per measurement")
+    ("vector", boost::program_options::bool_switch()->default_value(false), "Sends vector of metrics")
   ;
   
   boost::program_options::variables_map vm;
@@ -48,21 +49,30 @@ int main(int argc, char *argv[]) {
     add = 1;
   }
 
-  if (!vm["multiple"].as<bool>()) {
-    for (int i = 0; i <= count; i += add) {
-      monitoring->send({"string" + std::to_string(intDist(mt)), "stringMetric"});
-      monitoring->send({doubleDist(mt), "doubleMetric"});
-      monitoring->send({intDist(mt), "intMetric"});
-      monitoring->debug({intDist(mt), "intMetricDebug"});
-      std::this_thread::sleep_for(std::chrono::microseconds(sleep));
-    }
-  } else {
+  if (vm["multiple"].as<bool>()) {
     for (int i = 0; i <= count; i += add) {
       monitoring->sendGrouped("benchmarkMeasurement",{
         {"string" + std::to_string(intDist(mt)), "stringMetric"},
         {doubleDist(mt), "doubleMetric"},
         {intDist(mt), "intMetric"}
       });
+      std::this_thread::sleep_for(std::chrono::microseconds(sleep));
+    }
+  } else if (vm["vector"].as<bool>()) {
+    for (int i = 0; i <= count; i += add) {
+      monitoring->send({
+        {"string" + std::to_string(intDist(mt)), "stringMetric"},
+        {doubleDist(mt), "doubleMetric"},
+        {intDist(mt), "intMetricDebug"}
+      });
+      std::this_thread::sleep_for(std::chrono::microseconds(sleep));
+    }
+  } else {
+    for (int i = 0; i <= count; i += add) {
+      monitoring->send({"string" + std::to_string(intDist(mt)), "stringMetric"});
+      monitoring->send({doubleDist(mt), "doubleMetric"});
+      monitoring->send({intDist(mt), "intMetric"});
+      monitoring->debug({intDist(mt), "intMetricDebug"});
       std::this_thread::sleep_for(std::chrono::microseconds(sleep));
     }
   }
