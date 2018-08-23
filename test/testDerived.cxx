@@ -1,5 +1,6 @@
 #include "Monitoring/DerivedMetrics.h"
 #include "../src/Exceptions/MonitoringInternalException.h"
+#include "../src/VariantVisitorAdd.h"
 #include <chrono>
 #include <thread>
 #include <vector>
@@ -139,6 +140,19 @@ BOOST_AUTO_TEST_CASE(derivedIncrementDouble) {
     o2::monitoring::Metric metric(result.value, name);
     o2::monitoring::Metric derived = derivedHandler.increment(metric);
     BOOST_CHECK_CLOSE(boost::get<double>(derived.getValue()), result.rate, 0.01);
+  }
+}
+
+BOOST_AUTO_TEST_CASE(testBoostVisitor) {
+  {
+    boost::variant<int, std::string, double, uint64_t> a = 10;
+    boost::variant<int, std::string, double, uint64_t> b = 11;
+    auto value = boost::apply_visitor(VariantVisitorAdd(), a, b);
+  }
+  {
+    boost::variant<int, std::string, double, uint64_t> a = 10;
+    boost::variant<int, std::string, double, uint64_t> b = 10.10;
+    BOOST_CHECK_THROW(boost::apply_visitor(VariantVisitorAdd(), a, b), o2::monitoring::MonitoringInternalException);
   }
 }
 
