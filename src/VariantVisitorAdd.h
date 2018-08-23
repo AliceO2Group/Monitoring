@@ -7,23 +7,13 @@ namespace monitoring
 class VariantVisitorAdd : public boost::static_visitor<boost::variant<int, std::string, double, uint64_t>>
 {
 public:
-  /// Overloads operator() to avoid operating on strings
-  /// \throws MonitoringInternalException
-  double operator()(const std::string&, const std::string&) const {
-    throw MonitoringInternalException("DerivedMetrics/VariantRateVisitor", "Cannot operate on string values");
-  }
 
-  /// Calculates rate only when two arguments of the same type are passed
-  /// \return calculated rate in Hz
-  int operator()(const int& a, const int& b) const {
-    return a + b;
-  }
-
-  double operator()(const double& a, const double& b) const {
-    return a + b;
-  }
-
-  uint64_t operator()(const uint64_t& a, const uint64_t& b) const {
+  /// Overloads operator() that sums numeric values
+  template<
+    typename T,
+    typename = typename std::enable_if<std::is_arithmetic<T>::value, T>::type
+  >
+  T operator()(const T& a, const T& b) const {
     return a + b;
   }
 
@@ -31,7 +21,7 @@ public:
   /// \throws MonitoringInternalException
   template<typename T, typename U>
   double operator()(const T&, const U&) const {
-    throw MonitoringInternalException("DerivedMetrics/VariantRateVisitor", "Cannot operate on different types");
+    throw MonitoringInternalException("DerivedMetrics/Visitor", "Cannot operate on different or non-numeric types");
   }
 };
 
