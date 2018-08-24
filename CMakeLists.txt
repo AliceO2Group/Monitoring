@@ -4,6 +4,12 @@
 
 CMAKE_MINIMUM_REQUIRED(VERSION 3.5.2 FATAL_ERROR)
 
+if(${CMAKE_VERSION} VERSION_LESS 3.12)
+    cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
+else()
+    cmake_policy(VERSION 3.12)
+endif()
+
 ### CMP0025   Compiler id for Apple Clang is now AppleClang.
 ### CMP0042   MACOSX_RPATH is enabled by default.
 
@@ -16,72 +22,67 @@ FOREACH (p
     ENDIF ()
 endforeach ()
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake) # project specific cmake dir
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/../cmake)
-
-project(Monitoring)
-
-# Load some basic macros which are needed later on
-include(O2Utils)
-include(MonitoringDependencies)
-
-# Set the default build type to "RelWithDebInfo"
-if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE "RelWithDebInfo"
-            CACHE
-            STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel Coverage."
-            FORCE)
-endif(NOT CMAKE_BUILD_TYPE)
-
-# Set the version number of your project here (format is MAJOR.MINOR.PATCHLEVEL - e.g. 1.0.0)
-set(VERSION_MAJOR "0")
-set(VERSION_MINOR "0")
-set(VERSION_PATCH "0")
-set(VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
+# Define project
+project(Monitoring
+  VERSION 1.7.0
+  DESCRIPTION "O2 Monitoring library"
+  LANGUAGES CXX
+)
 
 # C++14
-IF (CMAKE_VERSION VERSION_LESS 3.1)
-    include(CheckCXXCompilerFlag)
-    CHECK_CXX_COMPILER_FLAG(-std=c++14 COMPILER_SUPPORTS_CXX14)
-    if (COMPILER_SUPPORTS_CXX14)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
-    else ()
-        message(ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++14 support. Please use a different C++ compiler.")
-    endif ()
-ELSE ()
-    set(CMAKE_CXX_STANDARD 14)  # proper way in CMake >= 3.1
-ENDIF ()
+set(CMAKE_CXX_STANDARD 14)
 
 # Add compiler flags for warnings and (more importantly) fPIC and debug symbols
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra -fPIC")
 
-add_subdirectory(doc)
+####################################
+# Dependencies
+####################################
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
+
+find_package(Boost COMPONENTS unit_test_framework program_options system filesystem REQUIRED)
+find_package(Git QUIET)
+find_package(APMON)
+find_package(CURL)
+
+set(extra_deps "") 
+set(extra_deps_include "") 
+if (APMON_FOUND)
+    list(APPEND extra_deps ${APMON_LIBRARIES})
+    list(APPEND extra_deps_include ${APMON_INCLUDE_DIRS})
+endif ()
+if (CURL_FOUND)
+    list(APPEND extra_deps ${CURL_LIBRARIES})
+    list(APPEND extra_deps_include ${CURL_INCLUDE_DIRS})
+endif ()
 
 
 ####################################
-# Module, library and executable definition
+# Library
 ####################################
 
-set(MODULE_NAME "Monitoring")
+set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib")
+set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
+set(INCLUDE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/include")
 
-O2_SETUP(NAME ${MODULE_NAME})
 
 set(SRCS
-        src/Monitoring.cxx
-        src/Metric.cxx
-        src/Backends/InfoLoggerBackend.cxx
-        src/Backends/Flume.cxx
-        src/Backends/StdOut.cxx
-        src/DerivedMetrics.cxx
-        src/ProcessMonitor.cxx
-        src/ProcessDetails.cxx
-        src/MonitoringFactory.cxx
-        src/Transports/UDP.cxx
-	src/Transports/TCP.cxx
-        src/Transports/HTTP.cxx
-        src/Exceptions/MonitoringException.cxx
-        src/Exceptions/MonitoringInternalException.cxx
-        )
+  src/Monitoring.cxx
+  src/Metric.cxx
+  src/Backends/InfoLoggerBackend.cxx
+  src/Backends/Flume.cxx
+  src/Backends/StdOut.cxx
+  src/DerivedMetrics.cxx
+  src/ProcessMonitor.cxx
+  src/ProcessDetails.cxx
+  src/MonitoringFactory.cxx
+  src/Transports/UDP.cxx
+  src/Transports/TCP.cxx
+  src/Transports/HTTP.cxx
+  src/Exceptions/MonitoringException.cxx
+  src/Exceptions/MonitoringInternalException.cxx
+)
 
 # Detect operating system
 if (UNIX AND NOT APPLE)
@@ -109,7 +110,7 @@ if(APMON_FOUND)
     list(APPEND SRCS src/Backends/ApMonBackend.cxx)
     add_definitions(-D_WITH_APPMON)
 else()
-    message(WARNING "  ApMon not found, skipping ApMon backend")
+    message(STATUS "  ApMon not found, skipping ApMon backend")
 endif()
 
 if(CURL_FOUND)
@@ -117,73 +118,74 @@ if(CURL_FOUND)
     add_definitions(-D_WITH_INFLUX)
     list(APPEND SRCS src/Backends/InfluxDB.cxx)
 else()
-    message(WARNING "  libcurl not found, skipping InfluxDB backend")
+    message(STATUS "  libcurl not found, skipping InfluxDB backend")
 endif()
 
-# Produce the final Version.h using template Version.h.in and substituting variables.
-# We don't want to polute our source tree with it, thus putting it in binary tree.
-configure_file("include/${MODULE_NAME}/Version.h.in"
-        "${CMAKE_CURRENT_BINARY_DIR}/include/${MODULE_NAME}/Version.h"
-        @ONLY
-        )
+set(LIBRARY_NAME Monitoring)
+add_library(${LIBRARY_NAME} SHARED ${SRCS})
 
-include_directories(
-        ${CMAKE_CURRENT_BINARY_DIR}/include
+target_include_directories(${LIBRARY_NAME} PUBLIC include)
+target_include_directories(${LIBRARY_NAME} PRIVATE src)
+
+target_include_directories(${LIBRARY_NAME} PRIVATE ${Boost_INCLUDE_DIRS} ${extra_deps_include})
+target_link_libraries(${LIBRARY_NAME} PRIVATE ${Boost_SYSTEM_LIBRARY} ${extra_deps})
+
+####################################
+# Executables
+####################################
+
+set(EXAMPLES
+  examples/1-Basic.cxx
+  examples/2-TaggedMetrics.cxx
+  examples/3-UserDefinedTimestamp
+  examples/4-RateDerivedMetric.cxx
+  examples/5-Benchmark.cxx
+  examples/6-Increment.cxx
+  examples/7-Latency.cxx
+  examples/8-Multiple.cxx
+  examples/9-Timer.cxx
+  examples/10-Buffering.cxx
+  examples/11-AutoUpdate.cxx
 )
 
-set(LIBRARY_NAME Monitoring)
-set(BUCKET_NAME o2_monitoring_bucket)
-O2_GENERATE_LIBRARY()
+foreach (example ${EXAMPLES})
+  get_filename_component(example_name ${example} NAME)
+  string(REGEX REPLACE ".cxx" "" example_name ${example_name})
 
+  add_executable(${example_name} ${example})
+  target_link_libraries(${example_name} ${LIBRARY_NAME} ${Boost_PROGRAM_OPTIONS_LIBRARY})
+endforeach()
+
+
+####################################
+# Tests
+####################################
 
 enable_testing()
 
 set(TEST_SRCS
-        test/testMonitoring.cxx
-        test/testMonitoringFactory.cxx
-        test/testDerived.cxx
-        test/testFlume.cxx
-        test/testMetric.cxx
-        test/testProcessDetails.cxx
-        test/testProcessMonitor.cxx
-	test/testInfluxDb.cxx
-        test/testNoop.cxx
-        )
+  test/testMonitoring.cxx
+  test/testMonitoringFactory.cxx
+  test/testDerived.cxx
+  test/testFlume.cxx
+  test/testMetric.cxx
+  test/testProcessDetails.cxx
+  test/testProcessMonitor.cxx
+  test/testInfluxDb.cxx
+  test/testNoop.cxx
+)
+
 if(APMON_FOUND)
   list(APPEND TEST_SRCS test/testApMon.cxx)
   configure_file(test/ApMon.conf ApMon.conf COPYONLY)
 endif()
 
-O2_GENERATE_TESTS(
-        MODULE_LIBRARY_NAME ${LIBRARY_NAME}
-        BUCKET_NAME ${BUCKET_NAME}
-        TEST_SRCS ${TEST_SRCS}
-)
+foreach (test ${TEST_SRCS})
+  get_filename_component(test_name ${test} NAME)
+  string(REGEX REPLACE ".cxx" "" test_name ${test_name})
 
-set(EXAMPLES
-        examples/1-Basic.cxx
-        examples/2-TaggedMetrics.cxx
-        examples/3-UserDefinedTimestamp
-        examples/4-RateDerivedMetric.cxx
-        examples/5-Benchmark.cxx
-        examples/6-Increment.cxx
-        examples/7-Latency.cxx
-        examples/8-Multiple.cxx
-        examples/9-Timer.cxx
-        examples/10-Buffering.cxx
-	examples/11-AutoUpdate.cxx
-        )
-
-foreach (example ${EXAMPLES})
-
-    get_filename_component(example_name ${example} NAME)
-    string(REGEX REPLACE ".cxx" "" example_name ${example_name})
-
-    O2_GENERATE_EXECUTABLE(
-            EXE_NAME ${example_name}
-            SOURCES ${example}
-            MODULE_LIBRARY_NAME ${LIBRARY_NAME}
-            BUCKET_NAME ${BUCKET_NAME}
-    )
-
+  add_executable(${test_name} ${test})
+  target_link_libraries(${test_name} ${LIBRARY_NAME} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+  add_test(NAME ${test_name} COMMAND ${test_name})
+  set_tests_properties(${test_name} PROPERTIES TIMEOUT 60)
 endforeach()
