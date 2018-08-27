@@ -34,9 +34,9 @@ set(ApMon_LIBRARIES ${ApMon_LIBRARY})
 mark_as_advanced(ApMon_INCLUDE_DIR ApMon_LIBRARY)
 
 # add target
-if(ApMon_FOUND AND NOT TARGET AppMon::AppMon)
-  add_library(AppMon::AppMon INTERFACE IMPORTED)
-  set_target_properties(AppMon::AppMon PROPERTIES
+if(ApMon_FOUND AND NOT TARGET ApMon::ApMon)
+  add_library(ApMon::ApMon INTERFACE IMPORTED)
+  set_target_properties(ApMon::ApMon PROPERTIES
     INTERFACE_INCLUDE_DIRECTORIES "${ApMon_INCLUDE_DIR}"
     INTERFACE_LINK_LIBRARIES "${ApMon_LIBRARY}"
   )

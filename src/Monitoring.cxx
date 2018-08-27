@@ -23,10 +23,7 @@
 #ifdef _WITH_APPMON
 #include "Backends/ApMonBackend.h"
 #endif
-
-#ifdef _WITH_INFLUX
 #include "Backends/InfluxDB.h"
-#endif
 
 namespace o2 
 {

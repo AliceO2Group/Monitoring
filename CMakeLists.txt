@@ -43,20 +43,8 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 find_package(Boost REQUIRED COMPONENTS unit_test_framework program_options system)
 find_package(Git QUIET)
-find_package(ApMon)
-find_package(CURL)
-
-set(extra_deps "") 
-set(extra_deps_include "") 
-if (ApMon_FOUND)
-    list(APPEND extra_deps ${ApMon_LIBRARIES})
-    list(APPEND extra_deps_include ${ApMon_INCLUDE_DIRS})
-endif ()
-if (CURL_FOUND)
-    list(APPEND extra_deps ${CURL_LIBRARIES})
-    list(APPEND extra_deps_include ${CURL_INCLUDE_DIRS})
-endif ()
-
+find_package(ApMon MODULE)
+find_package(CURL REQUIRED MODULE)
 
 ####################################
 # Library
@@ -71,6 +59,7 @@ set(SRCS
   src/Monitoring.cxx
   src/Metric.cxx
   src/Backends/InfoLoggerBackend.cxx
+  src/Backends/InfluxDB.cxx
   src/Backends/Flume.cxx
   src/Backends/StdOut.cxx
   src/DerivedMetrics.cxx
@@ -104,6 +93,7 @@ endif()
 message(STATUS "Backends")
 message(STATUS "  Compiling InfoLoggerBackend backend")
 message(STATUS "  Compiling Flume UDP/JSON backend")
+message(STATUS "  Compiling InfluxDB HTTP and UDP backend")
 
 if(ApMon_FOUND)
     message(STATUS "  Compiling ApMon backend")
@@ -113,22 +103,30 @@ else()
     message(STATUS "  ApMon not found, skipping ApMon backend")
 endif()
 
-if(CURL_FOUND)
-    message(STATUS "  Compiling InfluxDB HTTP and UDP backend")
-    add_definitions(-D_WITH_INFLUX)
-    list(APPEND SRCS src/Backends/InfluxDB.cxx)
-else()
-    message(STATUS "  libcurl not found, skipping InfluxDB backend")
+add_library(Monitoring SHARED ${SRCS})
+
+target_include_directories(Monitoring
+  PUBLIC 
+    $<INSTALL_INTERFACE:include>    
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
+target_link_libraries(Monitoring
+  PUBLIC
+    Boost::boost
+  PRIVATE
+    Boost::system CURL::CURL
+)
+
+# Handle optional ApMon dependency
+if(ApMon_FOUND)
+  target_link_libraries(Monitoring
+    PRIVATE
+      ApMon::ApMon
+  )
 endif()
-
-set(LIBRARY_NAME Monitoring)
-add_library(${LIBRARY_NAME} SHARED ${SRCS})
-
-target_include_directories(${LIBRARY_NAME} PUBLIC include)
-target_include_directories(${LIBRARY_NAME} PRIVATE src)
-
-target_include_directories(${LIBRARY_NAME} PRIVATE ${Boost_INCLUDE_DIRS} ${extra_deps_include})
-target_link_libraries(${LIBRARY_NAME} PRIVATE ${Boost_SYSTEM_LIBRARY} ${extra_deps})
 
 ####################################
 # Executables
@@ -151,11 +149,12 @@ set(EXAMPLES
 foreach (example ${EXAMPLES})
   get_filename_component(example_name ${example} NAME)
   string(REGEX REPLACE ".cxx" "" example_name ${example_name})
-
   add_executable(${example_name} ${example})
-  target_link_libraries(${example_name} ${LIBRARY_NAME} ${Boost_PROGRAM_OPTIONS_LIBRARY})
+  target_link_libraries(${example_name}
+    PRIVATE
+      Monitoring Boost::program_options
+  )
 endforeach()
-
 
 ####################################
 # Tests
@@ -185,7 +184,10 @@ foreach (test ${TEST_SRCS})
   string(REGEX REPLACE ".cxx" "" test_name ${test_name})
 
   add_executable(${test_name} ${test})
-  target_link_libraries(${test_name} ${LIBRARY_NAME} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+  target_link_libraries(${test_name}
+    PRIVATE 
+      Monitoring Boost::unit_test_framework
+  )
   add_test(NAME ${test_name} COMMAND ${test_name})
   set_tests_properties(${test_name} PROPERTIES TIMEOUT 60)
 endforeach()
