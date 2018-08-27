@@ -4,6 +4,7 @@
 
 CMAKE_MINIMUM_REQUIRED(VERSION 3.5.2 FATAL_ERROR)
 
+# Set cmake policy by version: https://cmake.org/cmake/help/latest/manual/cmake-policies.7.html
 if(${CMAKE_VERSION} VERSION_LESS 3.12)
     cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
 else()
@@ -12,7 +13,7 @@ endif()
 
 # Define project
 project(Monitoring
-  VERSION 1.7.0
+  VERSION 1.7.2
   DESCRIPTION "O2 Monitoring library"
   LANGUAGES CXX
 )
@@ -29,11 +30,9 @@ endif(NOT CMAKE_BUILD_TYPE)
 # Documentation dir
 add_subdirectory(doc)
 
-# C++14
-set(CMAKE_CXX_STANDARD 14)
-
 # Add compiler flags for warnings and (more importantly) fPIC and debug symbols
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra -fPIC")
+
 
 ####################################
 # Dependencies
@@ -46,6 +45,7 @@ find_package(Git QUIET)
 find_package(ApMon MODULE)
 find_package(CURL REQUIRED MODULE)
 
+
 ####################################
 # Library
 ####################################
@@ -53,7 +53,6 @@ find_package(CURL REQUIRED MODULE)
 set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib")
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
 set(INCLUDE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/include")
-
 
 set(SRCS
   src/Monitoring.cxx
@@ -103,8 +102,8 @@ else()
     message(STATUS "  ApMon not found, skipping ApMon backend")
 endif()
 
+# Create library
 add_library(Monitoring SHARED ${SRCS})
-
 target_include_directories(Monitoring
   PUBLIC 
     $<INSTALL_INTERFACE:include>    
@@ -127,6 +126,7 @@ if(ApMon_FOUND)
       ApMon::ApMon
   )
 endif()
+
 
 ####################################
 # Executables
@@ -155,6 +155,7 @@ foreach (example ${EXAMPLES})
       Monitoring Boost::program_options
   )
 endforeach()
+
 
 ####################################
 # Tests
