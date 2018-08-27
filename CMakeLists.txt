@@ -222,6 +222,9 @@ install(TARGETS Monitoring
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
+# Install headers
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/Monitoring DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
+
 # Export targets
 install(EXPORT monitoring-export
   FILE
