@@ -10,18 +10,6 @@ else()
     cmake_policy(VERSION 3.12)
 endif()
 
-### CMP0025   Compiler id for Apple Clang is now AppleClang.
-### CMP0042   MACOSX_RPATH is enabled by default.
-
-FOREACH (p
-        CMP0025 # CMake 3.0
-        CMP0042 # CMake 3.0
-        )
-    IF (POLICY ${p})
-        cmake_policy(SET ${p} NEW)
-    ENDIF ()
-endforeach ()
-
 # Define project
 project(Monitoring
   VERSION 1.7.0
