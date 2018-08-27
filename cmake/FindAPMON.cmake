@@ -1,30 +1,43 @@
 # - Try to find ApMon include dirs and libraries
 # Author: Barthelemy von Haller
+# Author: Adam Wegrzynek
 #
 # This script will set the following variables:
-#  APMON_FOUND - System has ApMon
-#  APMON_INCLUDE_DIRS - The ApMon include directories
-#  APMON_LIBRARIES - The libraries needed to use ApMon
-#  APMON_DEFINITIONS - Compiler switches required for using ApMon
+#  ApMon_FOUND - System has ApMon
+#  ApMon_INCLUDE_DIRS - The ApMon include directories
+#  ApMon_LIBRARIES - The libraries needed to use ApMon
+#  ApMon_DEFINITIONS - Compiler switches required for using ApMon
 # This script can use the following variables:
-#  APMON_ROOT - Installation root to tell this module where to look.
+#  ApMon_ROOT - Installation root to tell this module where to look.
+# This script defines following targets:
+#  ApMon::ApMon
 
 # Init
 include(FindPackageHandleStandardArgs)
 
 # find includes
-find_path(APMON_INCLUDE_DIR ApMon.h
-        HINTS ${APMON_ROOT}/include
+find_path(ApMon_INCLUDE_DIR ApMon.h
+        HINTS ${ApMon_ROOT}/include
         PATHS /usr/local/include)
-set(APMON_INCLUDE_DIRS ${APMON_INCLUDE_DIR})
+set(ApMon_INCLUDE_DIRS ${ApMon_INCLUDE_DIR})
 
 # find library
-find_library(APMON_LIBRARY NAMES apmoncpp HINTS /usr/local ${APMON_ROOT}/lib)
-set(APMON_LIBRARIES ${APMON_LIBRARY})
+find_library(ApMon_LIBRARY NAMES apmoncpp HINTS /usr/local ${ApMon_ROOT}/lib)
 
-# handle the QUIETLY and REQUIRED arguments and set APMON_FOUND to TRUE
+# handle the QUIETLY and REQUIRED arguments and set ApMon_FOUND to TRUE
 # if all listed variables are TRUE
-find_package_handle_standard_args(APMON "ApMon could not be found. Install package ApMon_cpp."
-        APMON_LIBRARY APMON_INCLUDE_DIR)
+find_package_handle_standard_args(ApMon "ApMon could not be found. Install package ApMon_cpp."
+        ApMon_LIBRARY ApMon_INCLUDE_DIR)
 
-mark_as_advanced(APMON_INCLUDE_DIR APMON_LIBRARY)
+set(ApMon_LIBRARIES ${ApMon_LIBRARY})
+
+mark_as_advanced(ApMon_INCLUDE_DIR ApMon_LIBRARY)
+
+# add target
+if(ApMon_FOUND AND NOT TARGET AppMon::AppMon)
+  add_library(AppMon::AppMon INTERFACE IMPORTED)
+  set_target_properties(AppMon::AppMon PROPERTIES
+    INTERFACE_INCLUDE_DIRECTORIES "${ApMon_INCLUDE_DIR}"
+    INTERFACE_LINK_LIBRARIES "${ApMon_LIBRARY}"
+  )
+endif()
