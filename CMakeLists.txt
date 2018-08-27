@@ -29,6 +29,18 @@ project(Monitoring
   LANGUAGES CXX
 )
 
+# Set the default build type to "RelWithDebInfo"
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "RelWithDebInfo"
+    CACHE
+    STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel Coverage."
+    FORCE
+  )
+endif(NOT CMAKE_BUILD_TYPE)
+
+# Documentation dir
+add_subdirectory(doc)
+
 # C++14
 set(CMAKE_CXX_STANDARD 14)
 
