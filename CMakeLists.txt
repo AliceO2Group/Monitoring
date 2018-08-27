@@ -34,7 +34,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra -fPIC")
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
-find_package(Boost REQUIRED COMPONENTS unit_test_framework program_options system)
+find_package(Boost REQUIRED COMPONENTS unit_test_framework program_options system filesystem)
 find_package(Git QUIET)
 find_package(ApMon MODULE)
 find_package(CURL REQUIRED MODULE)
@@ -116,7 +116,7 @@ target_link_libraries(Monitoring
 # Handle optional ApMon dependency
 if(ApMon_FOUND)
   target_link_libraries(Monitoring
-    PRIVATE
+    PUBLIC
       ApMon::ApMon
   )
 endif()
@@ -171,7 +171,7 @@ set(TEST_SRCS
 
 if(ApMon_FOUND)
   list(APPEND TEST_SRCS test/testApMon.cxx)
-  configure_file(test/ApMon.conf ApMon.conf COPYONLY)
+  configure_file(test/ApMon.conf ${CMAKE_CURRENT_BINARY_DIR}/ApMon.conf COPYONLY)
 endif()
 
 foreach (test ${TEST_SRCS})
@@ -181,7 +181,7 @@ foreach (test ${TEST_SRCS})
   add_executable(${test_name} ${test})
   target_link_libraries(${test_name}
     PRIVATE 
-      Monitoring Boost::unit_test_framework
+      Monitoring Boost::unit_test_framework Boost::filesystem
   )
   add_test(NAME ${test_name} COMMAND ${test_name})
   set_tests_properties(${test_name} PROPERTIES TIMEOUT 60)

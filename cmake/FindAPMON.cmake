@@ -29,15 +29,17 @@ find_library(ApMon_LIBRARY NAMES apmoncpp HINTS /usr/local ${ApMon_ROOT}/lib)
 find_package_handle_standard_args(ApMon "ApMon could not be found. Install package ApMon_cpp."
         ApMon_LIBRARY ApMon_INCLUDE_DIR)
 
-set(ApMon_LIBRARIES ${ApMon_LIBRARY})
+if(ApMon_FOUND)
+  set(ApMon_LIBRARIES ${ApMon_LIBRARY})
+  set(ApMon_INCLUDE_DIRS ${ApMon_INCLUDE_DIR})
+  mark_as_advanced(ApMon_INCLUDE_DIR ApMon_LIBRARY)
 
-mark_as_advanced(ApMon_INCLUDE_DIR ApMon_LIBRARY)
-
-# add target
-if(ApMon_FOUND AND NOT TARGET ApMon::ApMon)
-  add_library(ApMon::ApMon INTERFACE IMPORTED)
-  set_target_properties(ApMon::ApMon PROPERTIES
-    INTERFACE_INCLUDE_DIRECTORIES "${ApMon_INCLUDE_DIR}"
-    INTERFACE_LINK_LIBRARIES "${ApMon_LIBRARY}"
-  )
+  # add target
+  if(NOT TARGET ApMon::ApMon)
+    add_library(ApMon::ApMon INTERFACE IMPORTED)
+    set_target_properties(ApMon::ApMon PROPERTIES
+      INTERFACE_INCLUDE_DIRECTORIES "${ApMon_INCLUDE_DIRS}"
+      INTERFACE_LINK_LIBRARIES "${ApMon_LIBRARY}"
+    )
+  endif()
 endif()
