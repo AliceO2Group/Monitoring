@@ -18,17 +18,11 @@ project(Monitoring
   LANGUAGES CXX
 )
 
-# Set the default build type to "RelWithDebInfo"
-if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE "RelWithDebInfo"
-    CACHE
-    STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel Coverage."
-    FORCE
-  )
-endif(NOT CMAKE_BUILD_TYPE)
-
 # Documentation dir
 add_subdirectory(doc)
+
+# C++14
+set(CMAKE_CXX_STANDARD 14)
 
 # Add compiler flags for warnings and (more importantly) fPIC and debug symbols
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra -fPIC")
@@ -192,3 +186,48 @@ foreach (test ${TEST_SRCS})
   add_test(NAME ${test_name} COMMAND ${test_name})
   set_tests_properties(${test_name} PROPERTIES TIMEOUT 60)
 endforeach()
+
+
+####################################
+# Install
+####################################
+
+include(GNUInstallDirs)
+
+# Build targets with install rpath on Mac to dramatically speed up installation
+# https://gitlab.kitware.com/cmake/community/wikis/doc/cmake/RPATH-handling
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+  if("${isSystemDir}" STREQUAL "-1")
+    set(CMAKE_INSTALL_RPATH "@loader_path/../lib")
+  endif()
+  set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+endif()
+unset(isSystemDir)
+
+# Set the default build type to "RelWithDebInfo"
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "RelWithDebInfo"
+    CACHE
+    STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel Coverage."
+    FORCE
+  )
+endif(NOT CMAKE_BUILD_TYPE)
+
+# Install library
+install(TARGETS Monitoring
+  EXPORT monitoring-export
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
+
+# Export targets
+install(EXPORT monitoring-export
+  FILE
+    MonitoringTargets.cmake
+  NAMESPACE
+    Monitoring::
+  DESTINATION
+    ${CMAKE_INSTALL_LIBDIR}/cmake/Monitoring
+)
