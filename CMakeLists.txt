@@ -224,7 +224,7 @@ install(TARGETS Monitoring
 
 # Create version file
 include(CMakePackageConfigHelpers)
-write_basic_package_version_file(MonitoringConfigVersion.cmake
+write_basic_package_version_file("${CMAKE_CURRENT_BINARY_DIR}/cmake/MonitoringConfigVersion.cmake"
   VERSION ${PACKAGE_VERSION}
   COMPATIBILITY AnyNewerVersion
 )
@@ -238,6 +238,16 @@ install(EXPORT MonitoringTargets
     MonitoringTargets.cmake
   NAMESPACE
     Monitoring::
+  DESTINATION
+    ${CMAKE_INSTALL_LIBDIR}/cmake/Monitoring
+)
+
+# Configure and install Config files
+configure_file(cmake/MonitoringConfig.cmake.in cmake/MonitoringConfig.cmake @ONLY)
+install(
+  FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake/MonitoringConfig.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake/MonitoringConfigVersion.cmake"
   DESTINATION
     ${CMAKE_INSTALL_LIBDIR}/cmake/Monitoring
 )

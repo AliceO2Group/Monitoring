@@ -1,0 +1,13 @@
+get_filename_component(Monitoring_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+include(CMakeFindDependencyMacro)
+
+list(APPEND CMAKE_MODULE_PATH ${Monitoring_CMAKE_DIR})
+find_dependency(Boost REQUIRED COMPONENTS system)
+find_dependency(CURL REQUIRED MODULE)
+list(REMOVE_AT CMAKE_MODULE_PATH -1)
+
+if(NOT TARGET Monitoring::Monitoring)
+    include("${Monitoring_CMAKE_DIR}/MonitoringTargets.cmake")
+endif()
+
+set(Monitoring_LIBRARIES Monitoring::Monitoring)
