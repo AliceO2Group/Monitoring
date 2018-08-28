@@ -6,7 +6,9 @@
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
 
-#include "../src/Backends/ApMonBackend.h"
+#include "Monitoring/MonitoringFactory.h"
+
+using namespace o2::monitoring;
 
 namespace o2 {
 namespace monitoring {
@@ -15,12 +17,8 @@ namespace Test {
 BOOST_AUTO_TEST_CASE(simplySendMetric)
 {
   boost::filesystem::path configPath = boost::filesystem::canonical(".");
-  std::string url = "apmon://" + configPath.string() + "/ApMon.conf";
-  auto parsed = http::ParseHttpUrl(url);
-  std::cout << parsed.path << std::endl;
-  o2::monitoring::backends::ApMonBackend apMonBackend(parsed.path);
-  o2::monitoring::Metric metric{10, "myCrazyMetric"};
-  apMonBackend.send(metric);
+  auto monitoring = MonitoringFactory::Get("apmon://" + configPath.string() + "/ApMon.conf");
+  monitoring->send({10, "myCrazyMetric"});
 }
 
 

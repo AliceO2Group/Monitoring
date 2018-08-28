@@ -117,7 +117,7 @@ target_compile_features(Monitoring PUBLIC cxx_std_14)
 # Handle optional ApMon dependency
 if(ApMon_FOUND)
   target_link_libraries(Monitoring
-    PUBLIC
+    PRIVATE
       ApMon::ApMon
   )
 endif()
@@ -244,7 +244,12 @@ install(EXPORT MonitoringTargets
 )
 
 # Configure and install Config files
-configure_file(cmake/MonitoringConfig.cmake.in cmake/MonitoringConfig.cmake @ONLY)
+configure_package_config_file(
+  cmake/MonitoringConfig.cmake.in cmake/MonitoringConfig.cmake
+  INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/Monitoring"
+  PATH_VARS CMAKE_INSTALL_PREFIX
+)
+
 install(
   FILES
     "${CMAKE_CURRENT_BINARY_DIR}/cmake/MonitoringConfig.cmake"
