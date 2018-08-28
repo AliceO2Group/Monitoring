@@ -21,9 +21,6 @@ project(Monitoring
 # Documentation dir
 add_subdirectory(doc)
 
-# C++14
-set(CMAKE_CXX_STANDARD 14)
-
 # Add compiler flags for warnings and (more importantly) fPIC and debug symbols
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra -fPIC")
 
@@ -106,12 +103,16 @@ target_include_directories(Monitoring
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
+# Link targets
 target_link_libraries(Monitoring
   PUBLIC
     Boost::boost
   PRIVATE
     Boost::system CURL::CURL
 )
+
+# Use C++14
+target_compile_features(Monitoring PUBLIC cxx_std_14)
 
 # Handle optional ApMon dependency
 if(ApMon_FOUND)
