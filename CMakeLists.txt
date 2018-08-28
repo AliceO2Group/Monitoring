@@ -68,18 +68,18 @@ set(SRCS
 
 # Detect operating system
 if (UNIX AND NOT APPLE)
-    message(STATUS "Detected Linux OS: Process monitor enabled")
-    add_definitions(-D_OS_LINUX)
+  message(STATUS "Detected Linux OS: Process monitor enabled")
+  add_definitions(-D_OS_LINUX)
 endif()
 
 if (WIN32)
-    message(STATUS "Detected Windows OS: Process monitor disabled")
-    add_definitions(-D_OS_WINDOWS)
+  message(STATUS "Detected Windows OS: Process monitor disabled")
+  add_definitions(-D_OS_WINDOWS)
 endif()
 
 if (APPLE)
-    message(STATUS "Detected Mac OS: Process monitor disabled")
-    add_definitions(-D_OS_MAC)
+  message(STATUS "Detected Mac OS: Process monitor disabled")
+  add_definitions(-D_OS_MAC)
 endif()
 
 # Backends
@@ -89,11 +89,11 @@ message(STATUS "  Compiling Flume UDP/JSON backend")
 message(STATUS "  Compiling InfluxDB HTTP and UDP backend")
 
 if(ApMon_FOUND)
-    message(STATUS "  Compiling ApMon backend")
-    list(APPEND SRCS src/Backends/ApMonBackend.cxx)
-    add_definitions(-D_WITH_APPMON)
+  message(STATUS "  Compiling ApMon backend")
+  list(APPEND SRCS src/Backends/ApMonBackend.cxx)
+  add_definitions(-D_WITH_APPMON)
 else()
-    message(STATUS "  ApMon not found, skipping ApMon backend")
+  message(STATUS "  ApMon not found, skipping ApMon backend")
 endif()
 
 # Create library
