@@ -217,16 +217,23 @@ endif(NOT CMAKE_BUILD_TYPE)
 
 # Install library
 install(TARGETS Monitoring
-  EXPORT monitoring-export
+  EXPORT MonitoringTargets
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
+
+# Create version file
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(MonitoringConfigVersion.cmake
+  VERSION ${PACKAGE_VERSION}
+  COMPATIBILITY AnyNewerVersion
 )
 
 # Install headers
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/Monitoring DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
 
 # Export targets
-install(EXPORT monitoring-export
+install(EXPORT MonitoringTargets
   FILE
     MonitoringTargets.cmake
   NAMESPACE
