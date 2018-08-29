@@ -25,7 +25,6 @@ mark_as_advanced(ApMon_INCLUDE_DIR)
 # find library
 find_library(ApMon_LIBRARY NAMES apmoncpp
   HINTS /usr/local ${APMON_ROOT}
-  PATH_SUFFIXES/lib
 )
 
 mark_as_advanced(ApMon_LIBRARY)
