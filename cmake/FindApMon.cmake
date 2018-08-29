@@ -6,7 +6,6 @@
 #  ApMon_FOUND - System has ApMon
 #  ApMon_INCLUDE_DIRS - The ApMon include directories
 #  ApMon_LIBRARIES - The libraries needed to use ApMon
-#  ApMon_DEFINITIONS - Compiler switches required for using ApMon
 # This script can use the following variables:
 #  APMON_ROOT - Installation root to tell this module where to look.
 # This script defines following targets:
@@ -17,12 +16,19 @@ include(FindPackageHandleStandardArgs)
 
 # find includes
 find_path(ApMon_INCLUDE_DIR ApMon.h
-        HINTS ${APMON_ROOT}/include
-        PATHS /usr/local/include)
-set(ApMon_INCLUDE_DIRS ${ApMon_INCLUDE_DIR})
+  HINTS ${APMON_ROOT} /usr/local
+  PATH_SUFFIXES include
+)
+
+mark_as_advanced(ApMon_INCLUDE_DIR)
 
 # find library
-find_library(ApMon_LIBRARY NAMES apmoncpp HINTS /usr/local ${APMON_ROOT}/lib)
+find_library(ApMon_LIBRARY NAMES apmoncpp
+  HINTS /usr/local ${APMON_ROOT}
+  PATH_SUFFIXES/lib
+)
+
+mark_as_advanced(ApMon_LIBRARY)
 
 # handle the QUIETLY and REQUIRED arguments and set ApMon_FOUND to TRUE
 # if all listed variables are TRUE
