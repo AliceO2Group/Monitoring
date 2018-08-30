@@ -58,7 +58,6 @@ before_script:
   - mkdir build; cd build
 script:
   - cmake .. -DCMAKE_INSTALL_PREFIX=$TRAVIS_BUILD_DIR/installed
-  - if [[ $TOOL == "coverage" ]]; then cd $TRAVIS_BUILD_DIR; ctest -S MonitoringTest.cmake -V -VV; fi
   - if [[ $TOOL == "test" ]]; then make -j; fi
   - if [[ $TOOL == "test" ]]; then make test; fi
   - if [[ $TOOL == "test" ]]; then make install; fi
@@ -77,5 +76,10 @@ script:
         exit 1;
       fi
     fi
+after_success:
+  - if [[ $TOOL == "coverage" ]]; then cd $TRAVIS_BUILD_DIR; fi
+  - if [[ $TOOL == "coverage" ]]; then lcov --directory . --capture --output-file coverage.info; fi
+  - if [[ $TOOL == "coverage" ]]; then lcov --remove coverage.info '/opt/*' '/usr/*' --output-file coverage.info; fi
+  - if [[ $TOOL == "coverage" ]]; then lcov --list coverage.info; fi
 notifications:
   email: false
