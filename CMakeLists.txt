@@ -158,7 +158,7 @@ endforeach()
 # Tests
 ####################################
 
-enable_testing()
+include(CTest)
 
 set(TEST_SRCS
   test/testMonitoring.cxx
