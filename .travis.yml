@@ -24,9 +24,6 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - lcov
-      branches:
-        only:
-          - dev
     - os: linux
       env: TOOL=doxygen
       addons:
