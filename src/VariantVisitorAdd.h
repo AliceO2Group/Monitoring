@@ -18,10 +18,10 @@ public:
   }
 
   /// If arguments have different type an exception is raised
-  /// \throws MonitoringInternalException
+  /// \throws MonitoringException
   template<typename T, typename U>
   double operator()(const T&, const U&) const {
-    throw MonitoringInternalException("DerivedMetrics/Visitor", "Cannot operate on different or non-numeric types");
+    throw MonitoringException("DerivedMetrics/Visitor", "Cannot operate on different or non-numeric types");
   }
 };
 

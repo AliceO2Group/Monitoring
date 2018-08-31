@@ -4,7 +4,7 @@
 ///
 
 #include "HTTP.h"
-#include "../Exceptions/MonitoringInternalException.h"
+#include "../Exceptions/MonitoringException.h"
 #include <boost/algorithm/string.hpp>
 #include <iostream>
 
@@ -26,7 +26,7 @@ CURL* HTTP::initCurl(std::string url)
 {
   CURLcode globalInitResult = curl_global_init(CURL_GLOBAL_ALL);
   if (globalInitResult != CURLE_OK) {
-    throw MonitoringInternalException("cURL init", curl_easy_strerror(globalInitResult));
+    throw MonitoringException("cURL init", curl_easy_strerror(globalInitResult));
   }
   
   CURL *curl = curl_easy_init();
@@ -57,10 +57,10 @@ void HTTP::send(std::string&& post)
   response = curl_easy_perform(curlHandle.get());
   curl_easy_getinfo(curlHandle.get(), CURLINFO_RESPONSE_CODE, &responseCode);
   if (response != CURLE_OK) {
-    throw MonitoringInternalException("HTTP Tranposrt", curl_easy_strerror(response));
+    throw MonitoringException("HTTP Tranposrt", curl_easy_strerror(response));
   }
   if (responseCode < 200 || responseCode > 206) {
-    throw MonitoringInternalException("HTTP Transport", "Response code : " + std::to_string(responseCode));
+    throw MonitoringException("HTTP Transport", "Response code : " + std::to_string(responseCode));
   }
 }
 
