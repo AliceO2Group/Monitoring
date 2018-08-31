@@ -14,5 +14,6 @@ coverage:
 ignore:
   - docs/*
   - test/*
+  - src/Transports
 
 comment: false
