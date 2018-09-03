@@ -76,7 +76,6 @@ set(SRCS
   src/Transports/TCP.cxx
   src/Transports/HTTP.cxx
   src/Exceptions/MonitoringException.cxx
-  src/Exceptions/MonitoringInternalException.cxx
 )
 
 # Detect operating system

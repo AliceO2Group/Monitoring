@@ -15,7 +15,6 @@
 
 #include "MonLogger.h"
 #include "ProcessDetails.h"
-#include "Exceptions/MonitoringInternalException.h"
 
 #include "Backends/InfoLoggerBackend.h"
 #include "Backends/Flume.h"

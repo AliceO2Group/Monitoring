@@ -1,5 +1,5 @@
 #include "Monitoring/DerivedMetrics.h"
-#include "../src/Exceptions/MonitoringInternalException.h"
+#include "../src/Exceptions/MonitoringException.h"
 #include "../src/VariantVisitorAdd.h"
 #include <chrono>
 #include <thread>
@@ -31,7 +31,7 @@ BOOST_AUTO_TEST_CASE(derivedRateInt)
       o2::monitoring::Metric derived = derivedHandler.rate(metric);
       BOOST_CHECK_EQUAL(derived.getName(), "metricIntRate");
       BOOST_WARN_CLOSE(boost::get<double>(derived.getValue()), result.rate, 1.0);
-    } catch(MonitoringInternalException &e) {
+    } catch(MonitoringException &e) {
       BOOST_TEST(e.what() == std::string("Not enough values"));
     }
   }
@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE(derivedRateDouble) {
       o2::monitoring::Metric derived = derivedHandler.rate(metric);
       BOOST_CHECK_EQUAL(derived.getName(), "metricDoubleRate");
       BOOST_WARN_CLOSE(boost::get<double>(derived.getValue()), result.rate, 1.0);
-    } catch(MonitoringInternalException &e) {
+    } catch(MonitoringException &e) {
       BOOST_TEST(e.what() == std::string("Not enough values"));
     }
   }
@@ -75,13 +75,13 @@ BOOST_AUTO_TEST_CASE(derivedRateUint64_t) {
       o2::monitoring::Metric derived = derivedHandler.rate(metric);
       BOOST_CHECK_EQUAL(derived.getName(), "metricUint64_tRate");
       BOOST_WARN_CLOSE(boost::get<double>(derived.getValue()), result.rate, 1.0);
-    } catch(MonitoringInternalException &e) {
+    } catch(MonitoringException &e) {
       BOOST_TEST(e.what() == std::string("Not enough values"));
     }
   }
 }
 
-bool exceptionCheck(const MonitoringInternalException &e)
+bool exceptionCheck(const MonitoringException &e)
 {
   if (e.what() == std::string("Not enough values")) return true;
   if (e.what() == std::string("Division by 0")) return true;
@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE(divisionByZero)
   o2::monitoring::Metric metric(10, name, o2::monitoring::Metric::getCurrentTimestamp());
 
   derivedHandler.rate(metric);
-  BOOST_CHECK_EXCEPTION(derivedHandler.rate(metric), MonitoringInternalException, exceptionCheck);
+  BOOST_CHECK_EXCEPTION(derivedHandler.rate(metric), MonitoringException, exceptionCheck);
 }
 
 BOOST_AUTO_TEST_CASE(derivedIncrementInt) {
@@ -152,7 +152,7 @@ BOOST_AUTO_TEST_CASE(testBoostVisitor) {
   {
     boost::variant<int, std::string, double, uint64_t> a = 10;
     boost::variant<int, std::string, double, uint64_t> b = 10.10;
-    BOOST_CHECK_THROW(boost::apply_visitor(VariantVisitorAdd(), a, b), o2::monitoring::MonitoringInternalException);
+    BOOST_CHECK_THROW(boost::apply_visitor(VariantVisitorAdd(), a, b), o2::monitoring::MonitoringException);
   }
 }
 
