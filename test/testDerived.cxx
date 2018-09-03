@@ -1,6 +1,7 @@
 #include "Monitoring/DerivedMetrics.h"
 #include "../src/Exceptions/MonitoringException.h"
 #include "../src/VariantVisitorAdd.h"
+#include "../src/VariantVisitorRate.h"
 #include <chrono>
 #include <thread>
 #include <vector>
@@ -153,6 +154,7 @@ BOOST_AUTO_TEST_CASE(testBoostVisitor) {
     boost::variant<int, std::string, double, uint64_t> a = 10;
     boost::variant<int, std::string, double, uint64_t> b = 10.10;
     BOOST_CHECK_THROW(boost::apply_visitor(VariantVisitorAdd(), a, b), o2::monitoring::MonitoringException);
+    BOOST_CHECK_THROW(boost::apply_visitor(VariantVisitorRate(1000), a, b), o2::monitoring::MonitoringException);
   }
 }
 

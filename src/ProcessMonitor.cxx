@@ -82,30 +82,5 @@ std::vector<Metric> ProcessMonitor::getCpuAndContexts() {
   return metrics;
 }
 
-std::vector<Metric> ProcessMonitor::getNetworkUsage()
-{
-  std::vector<Metric> metrics;
-  std::ifstream infile("/proc/" + std::to_string(mPid) + "/net/dev");
-  std::string line;
-  std::getline(infile, line);
-  std::getline(infile, line);
-  while (std::getline(infile, line)) {
-    if (line.find("virbr") != std::string::npos) continue;
-    if (line.find("lo") != std::string::npos) continue;
-    std::istringstream iss(line);
-    std::vector<std::string> tokens{std::istream_iterator<std::string>{iss},
-                      std::istream_iterator<std::string>{}};
-    metrics.emplace_back(Metric{
-      static_cast<uint64_t>(std::stoull(tokens[1])),
-      "bytesReceived"}.addTags({{"if", tokens[0]}})
-    );
-    metrics.emplace_back(Metric{
-      static_cast<uint64_t>(std::stoull(tokens[9])),
-      "bytesTransmitted"}.addTags({{"if", tokens[0]}})
-    );
-  }
-return metrics;
-}
-
 } // namespace monitoring
 } // namespace o2
