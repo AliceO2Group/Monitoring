@@ -78,9 +78,14 @@ BOOST_AUTO_TEST_CASE(tags) {
 
 BOOST_AUTO_TEST_CASE(customCopyConstructor) {
   o2::monitoring::Metric metric = o2::monitoring::Metric{10, "myMetric"}.addTags({{"tag1", "value1"}, {"tag2", "value2"}});
+  o2::monitoring::Metric assigned{1, "assingedMetric"};
   auto copied = metric;
+  assigned = metric;
   BOOST_CHECK_EQUAL(boost::get<int>(copied.getValue()), 10);
   BOOST_CHECK_EQUAL(copied.getName(), "myMetric");
+
+  BOOST_CHECK_EQUAL(boost::get<int>(assigned.getValue()), 10);
+  BOOST_CHECK_EQUAL(assigned.getName(), "myMetric");
 
   std::vector<Tag> tags = copied.getTags();
   for (auto const& tag: tags) {
@@ -89,7 +94,14 @@ BOOST_AUTO_TEST_CASE(customCopyConstructor) {
   }
 }
 
+BOOST_AUTO_TEST_CASE(setters) {
+  o2::monitoring::Metric metric = o2::monitoring::Metric{10, "myMetric"};
+  metric.setName("renamed");
+  auto timestamp = Metric::getCurrentTimestamp();
+  metric.setTimestamp(timestamp);
 
+  BOOST_CHECK_EQUAL(metric.getName(), "renamed");
+}
 
 } // namespace Test
 } // namespace monitoring

@@ -38,9 +38,6 @@ class ProcessMonitor
     /// Retrieves memory usage (%)
     Metric getMemoryUsage();
 
-    /// Retrieves bytesReceived, bytesTransmitted per network interface
-    std::vector<Metric> getNetworkUsage();
-
     /// Retrieves CPU usage (%) and number of context switches during the interval
     std::vector<Metric> getCpuAndContexts();
   private:
