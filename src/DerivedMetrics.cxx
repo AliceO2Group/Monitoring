@@ -3,7 +3,7 @@
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 ///
 #include "Monitoring/DerivedMetrics.h"
-#include "Exceptions/MonitoringInternalException.h"
+#include "Exceptions/MonitoringException.h"
 #include <boost/lexical_cast.hpp>
 #include <boost/variant/variant.hpp>
 #include <boost/variant/apply_visitor.hpp>
@@ -28,7 +28,7 @@ Metric DerivedMetrics::rate(Metric& metric)
   // disallow string
   std::string name = metric.getName();
   if (metric.getType() == MetricType::STRING) {
-    throw MonitoringInternalException("DerivedMetrics/ProcessMetric", "Not able to process string values");
+    throw MonitoringException("DerivedMetrics/ProcessMetric", "Not able to process string values");
   }
 
   // search for previous value
@@ -45,7 +45,7 @@ Metric DerivedMetrics::rate(Metric& metric)
   int timestampCount = timestampDifference.count();
   // disallow dividing by 0
   if (timestampCount == 0) {
-    throw MonitoringInternalException("DerivedMetrics/Calculate rate", "Division by 0");
+    throw MonitoringException("DerivedMetrics/Calculate rate", "Division by 0");
   }
 
   auto current = metric.getValue();

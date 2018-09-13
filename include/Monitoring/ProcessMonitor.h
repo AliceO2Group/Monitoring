@@ -38,17 +38,17 @@ class ProcessMonitor
     /// Retrieves memory usage (%)
     Metric getMemoryUsage();
 
-    /// Retrieves bytesReceived, bytesTransmitted per network interface
-    std::vector<Metric> getNetworkUsage();
-
     /// Retrieves CPU usage (%) and number of context switches during the interval
     std::vector<Metric> getCpuAndContexts();
   private:
     /// PIDs that are monitored
     unsigned int mPid;
 
-    /// Executes terminal command
-    std::string exec(const char* cmd);
+    /// Total memory size
+    unsigned int mTotalMemory;
+
+    /// Retrievs total memory size from /proc/meminfo
+    void setTotalMemory();
 
     /// 'getrusage' values from last execution
     struct rusage mPreviousGetrUsage;

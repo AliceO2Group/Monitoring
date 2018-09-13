@@ -12,7 +12,8 @@ int main() {
   // Configure monitoring
   // Pass string with list of URLs as parameter
   auto monitoring = Monitoring::Get("infologger://");
-  
+
+  // Increment values by ..
   monitoring->send({10, "myIncrementMetric"}, DerivedMetricMode::INCREMENT);
   monitoring->send({5, "myIncrementMetric"}, DerivedMetricMode::INCREMENT);
   monitoring->send({15, "myIncrementMetric"}, DerivedMetricMode::INCREMENT);

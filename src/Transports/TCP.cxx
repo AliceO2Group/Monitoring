@@ -6,7 +6,7 @@
 #include "TCP.h"
 #include <string>
 #include <iostream>
-#include "Exceptions/MonitoringInternalException.h"
+#include "Exceptions/MonitoringException.h"
 
 namespace o2
 {
@@ -31,7 +31,7 @@ TCP::TCP(const std::string &hostname, int port) :
     mSocket.connect(*resolverIterator++, error);
   }
   if (error) {
-    throw MonitoringInternalException("TCP connection", error.message());
+    throw MonitoringException("TCP connection", error.message());
   } 
 }
 
@@ -40,7 +40,7 @@ void TCP::send(std::string&& message)
   try {
     mSocket.send(boost::asio::buffer(message));
   } catch(const boost::system::system_error& e) {
-    throw MonitoringInternalException("TCP send", e.what());
+    throw MonitoringException("TCP send", e.what());
   }
 }
 

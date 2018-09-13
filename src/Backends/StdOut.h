@@ -1,13 +1,12 @@
 ///
-/// \file InfoLoggerBackend.h
+/// \file StdOut.h
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 ///
 
-#ifndef ALICEO2_MONITORING_CORE_INFOLOGGER_BACKEND_H
-#define ALICEO2_MONITORING_CORE_INFOLOGGER_BACKEND_H
+#ifndef ALICEO2_MONITORING_BACKEND_STDOUT_H
+#define ALICEO2_MONITORING_BACKEND_STDOUT_H
 
 #include "Monitoring/Backend.h"
-//#include <InfoLogger/InfoLogger.hxx>
 #include <string>
 
 namespace o2
@@ -22,14 +21,14 @@ namespace backends
 /// \brief Backend that injects metrics to InfoLogger
 ///
 /// InfoLogger does not support std::chrono::time_point therefore timestamps is converted to unsigned long
-class InfoLoggerBackend final : public Backend
+class StdOut final : public Backend
 {
   public:
     /// Default constructor
-    InfoLoggerBackend(std::string /*host*/, int /*port*/);
+    StdOut();
  
     /// Default destructor
-    ~InfoLoggerBackend() = default;
+    ~StdOut() = default;
 
     /// Sends metric to InfoLogger library
     /// \param metric           reference to metric object    
@@ -56,12 +55,10 @@ class InfoLoggerBackend final : public Backend
     unsigned long convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp);
 
     std::string tagString; ///< Global tagset (common for each metric)
-
-    //AliceO2::InfoLogger::InfoLogger mInfoLogger;
 };
 
 } // namespace backends
 } // namespace monitoring
 } // namespace o2
 
-#endif // ALICEO2_MONITORING_CORE_INFOLOGGER_BACKEND_H
+#endif // ALICEO2_MONITORING_BACKEND_STDOUT_H

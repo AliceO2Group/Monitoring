@@ -10,7 +10,7 @@ using Monitoring = o2::monitoring::MonitoringFactory;
 int main() {
   // Configure monitoring
   // Pass string with list of URLs as parameter
-  auto monitoring = Monitoring::Get("infologger://,flume://localhost:1234");
+  auto monitoring = Monitoring::Get("infologger://");
   monitoring->enableBuffering(10);
 
   // now send an application specific metric
