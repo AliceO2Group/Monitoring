@@ -15,6 +15,7 @@
 #include <tuple>
 #include <unordered_map>
 #include <vector>
+#include <deque>
 
 #include "Monitoring/Backend.h"
 #include "Monitoring/DerivedMetrics.h"
@@ -53,9 +54,13 @@ class Monitoring
     /// Sends a metric to all avaliabes backends
     /// If DerivedMetricMode is specified it generates and sends derived metric
     /// \param metric           r-value to metric object
-    ///  \param mode		Derived metric mode
+    /// \param mode		Derived metric mode
     void send(Metric&& metric, DerivedMetricMode mode = DerivedMetricMode::NONE);
+
+    /// Send metrics to debug backends only
+    /// \param metric 		r-value to metric object
     void debug(Metric&& metric);
+
     /// Sends multiple (not related to each other) metrics
     /// \param metrics  vector of metrics
     void send(std::vector<Metric>&& metrics);
@@ -92,6 +97,16 @@ class Monitoring
     /// \param name 		tag name
     /// \param value 		tag value
     void addGlobalTag(std::string name, std::string value);
+
+    /// Returns a metric which will be periodically sent to backends
+    /// \param name 		metric name
+    /// \return 		periodically send metric
+    Metric& getAutoPushMetric(std::string name);
+
+    /// Enables periodical push interval
+    /// \param interval 	interval in seconds
+    void enableAutoPush(const unsigned int interval = 1);
+
   private:
     /// Derived metrics handler
     /// \see class DerivedMetrics
@@ -115,9 +130,8 @@ class Monitoring
     /// Process Monitor object that sends updates about the process itself
     std::unique_ptr<ProcessMonitor> mProcessMonitor;
 
-    /// Process Monitor thread loop
-    /// \param interval 	sleep time in seconds
-    void processMonitorLoop(int interval);
+    /// Push metric loop
+    void pushLoop();
 
     /// Metric buffer
     std::vector<Metric> mStorage;
@@ -127,6 +141,15 @@ class Monitoring
 
     /// Size of buffer
     unsigned int mBufferSize;
+
+    /// Store for automatically pushed metrics
+    std::deque<Metric> mPushStore;
+
+    /// Process monitor interval
+    std::atomic<unsigned int> mProcessMonitoringInterval;
+
+    /// Automatic metric push interval
+    std::atomic<unsigned int> mAutoPushInterval;
 };
 
 } // namespace monitoring

@@ -8,7 +8,7 @@
 #include <string>
 #include "../Transports/UDP.h"
 #include "../Transports/HTTP.h"
-#include "../Exceptions/MonitoringInternalException.h"
+#include "../Exceptions/MonitoringException.h"
 
 namespace o2
 {
@@ -65,7 +65,7 @@ void InfluxDB::sendMultiple(std::string measurement, std::vector<Metric>&& metri
 
   try {
     transport->send(convert.str());
-  } catch (MonitoringInternalException&) {
+  } catch (MonitoringException&) {
   }
 }
 
@@ -78,7 +78,7 @@ void InfluxDB::send(std::vector<Metric>&& metrics) {
 
   try {
     transport->send(std::move(influxMetrics));
-  } catch (MonitoringInternalException&) {
+  } catch (MonitoringException&) {
   }
 
 }
@@ -87,7 +87,7 @@ void InfluxDB::send(const Metric& metric)
 {
   try {
     transport->send(toInfluxLineProtocol(metric));
-  } catch (MonitoringInternalException&) {
+  } catch (MonitoringException&) {
   }
 }
 

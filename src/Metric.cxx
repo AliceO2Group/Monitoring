@@ -55,9 +55,38 @@ Metric::Metric(boost::variant< int, std::string, double, uint64_t > value, const
   mValue(value), mName(name), mTimestamp(timestamp)
 {}
 
+Metric::Metric(const Metric& other)
+{
+  std::lock_guard<std::mutex> lock(other.mValueMutex);
+  mName = other.mName;
+  mValue = other.mValue;
+  mTimestamp = other.mTimestamp;
+  tagSet = other.tagSet;
+}
+
+Metric& Metric::operator=(Metric const& other)
+{
+  if (&other != this) {
+    std::unique_lock<std::mutex> lockThis(mValueMutex, std::defer_lock);
+    std::unique_lock<std::mutex> lockOther(other.mValueMutex, std::defer_lock);
+    std::lock(lockThis, lockOther);
+
+    mName = other.mName;
+    mValue = other.mValue;
+    mTimestamp = other.mTimestamp;
+    tagSet = other.tagSet;
+  }
+  return *this;
+}
+
 boost::variant< int, std::string, double, uint64_t > Metric::getValue() const
 {
   return mValue;
+}
+
+Metric& Metric::operator=(const boost::variant< int, std::string, double, uint64_t >& value) {
+  mValue = value;
+  return *this;
 }
 
 Metric&& Metric::addTags(std::vector<Tag>&& tags)

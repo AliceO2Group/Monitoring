@@ -16,24 +16,21 @@ public:
   VariantVisitorRate(int count) : timestampCount(count) {
   }
 
-  /// Overloads operator() to avoid operating on strings
-  /// \throws MonitoringInternalException
-  double operator()(const std::string&, const std::string&) const {
-    throw MonitoringInternalException("DerivedMetrics/VariantRateVisitor", "Cannot operate on string values");
-  }
-
   /// Calculates rate only when two arguments of the same type are passed
   /// \return calculated rate in Hz
-  template<typename T>
+  template<
+    typename T,
+    typename = typename std::enable_if<std::is_arithmetic<T>::value, T>::type
+  >
   double operator()(const T& a, const T& b) const {
     return (1000*(static_cast<double>(a) - b)) / timestampCount;
   }
 
   /// If arguments have different type an exception is raised
-  /// \throws MonitoringInternalException
+  /// \throws MonitoringException
   template<typename T, typename U>
   double operator()(const T&, const U&) const {
-    throw MonitoringInternalException("DerivedMetrics/VariantRateVisitor", "Cannot operate on different types");
+    throw MonitoringException("DerivedMetrics/Visitor", "Cannot operate on different or non-numeric types");
   }
 };
 

@@ -26,6 +26,9 @@ int main(int argc, char *argv[]) {
     ("id", boost::program_options::value<std::string>(), "Instance ID")
     ("count", boost::program_options::value<int>(), "Number of metric bunches (x3)")
     ("multiple", boost::program_options::bool_switch()->default_value(false), "Sends multiple metrics per measurement")
+    ("vector", boost::program_options::bool_switch()->default_value(false), "Sends vector of metrics")
+    ("monitor", boost::program_options::bool_switch()->default_value(false), "Enabled process monitor")
+    ("buffer", boost::program_options::value<int>(), "Creates buffr of given size")
   ;
   
   boost::program_options::variables_map vm;
@@ -41,28 +44,42 @@ int main(int argc, char *argv[]) {
   }
 
   auto monitoring = Monitoring::Get(vm["url"].as<std::string>());
-  monitoring->enableProcessMonitoring(1);
+  if (vm["monitor"].as<bool>()) {
+    monitoring->enableProcessMonitoring(1);
+  }
   int add = 0;
   if (count != 0) {
     count--;
     add = 1;
   }
 
-  if (!vm["multiple"].as<bool>()) {
-    for (int i = 0; i <= count; i += add) {
-      monitoring->send({"string" + std::to_string(intDist(mt)), "stringMetric"});
-      monitoring->send({doubleDist(mt), "doubleMetric"});
-      monitoring->send({intDist(mt), "intMetric"});
-      monitoring->debug({intDist(mt), "intMetricDebug"});
-      std::this_thread::sleep_for(std::chrono::microseconds(sleep));
-    }
-  } else {
+  if (vm["multiple"].as<bool>()) {
     for (int i = 0; i <= count; i += add) {
       monitoring->sendGrouped("benchmarkMeasurement",{
         {"string" + std::to_string(intDist(mt)), "stringMetric"},
         {doubleDist(mt), "doubleMetric"},
         {intDist(mt), "intMetric"}
       });
+      std::this_thread::sleep_for(std::chrono::microseconds(sleep));
+    }
+  } else if (vm["vector"].as<bool>()) {
+    for (int i = 0; i <= count; i += add) {
+      monitoring->send({
+        {"string" + std::to_string(intDist(mt)), "stringMetric"},
+        {doubleDist(mt), "doubleMetric"},
+        {intDist(mt), "intMetricDebug"}
+      });
+      std::this_thread::sleep_for(std::chrono::microseconds(sleep));
+    }
+  } else {
+    if (vm.count("buffer")) {
+      monitoring->enableBuffering(vm["buffer"].as<int>());
+    }
+    for (int i = 0; i <= count; i += add) {
+      monitoring->send({"string" + std::to_string(intDist(mt)), "stringMetric"});
+      monitoring->send({doubleDist(mt), "doubleMetric"});
+      monitoring->send({intDist(mt), "intMetric"});
+      monitoring->debug({intDist(mt), "intMetricDebug"});
       std::this_thread::sleep_for(std::chrono::microseconds(sleep));
     }
   }
