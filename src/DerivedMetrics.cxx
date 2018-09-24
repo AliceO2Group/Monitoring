@@ -4,18 +4,16 @@
 ///
 #include "Monitoring/DerivedMetrics.h"
 #include "Exceptions/MonitoringException.h"
-#include <boost/lexical_cast.hpp>
-#include <boost/variant/variant.hpp>
-#include <boost/variant/apply_visitor.hpp>
 #include <chrono>
 #include <iostream>
 #include <map>
 #include <memory>
 #include <string>
+#include <variant>
 #include <vector>
 #include "MonLogger.h"
-#include "VariantVisitorRate.h"
 #include "VariantVisitorAdd.h"
+#include "VariantVisitorRate.h"
 
 namespace o2
 {
@@ -27,7 +25,7 @@ Metric DerivedMetrics::rate(Metric& metric)
 {
   // disallow string
   std::string name = metric.getName();
-  if (metric.getType() == MetricType::STRING) {
+  if (std::holds_alternative<std::string>(metric.getValue())) {
     throw MonitoringException("DerivedMetrics/ProcessMetric", "Not able to process string values");
   }
 
@@ -50,12 +48,11 @@ Metric DerivedMetrics::rate(Metric& metric)
 
   auto current = metric.getValue();
   auto previous = search->second.getValue();
-  auto rate =  boost::apply_visitor(VariantVisitorRate(timestampCount), current, previous);
+  auto rate = std::visit(VariantVisitorRate(timestampCount), current, previous);
 
   // swap metrics
   mStorage.erase(name);
   mStorage.insert(std::make_pair(name, metric));
-
   return Metric{rate, name + "Rate"};
 }
 
@@ -63,9 +60,10 @@ Metric DerivedMetrics::increment(Metric& metric) {
   std::string name = metric.getName();
   auto search = mStorage.find(name);
   if (search != mStorage.end()) {
-    auto currentValue = metric.getValue();
-    auto storedValue = search->second.getValue();
-    auto value = boost::apply_visitor(VariantVisitorAdd(), currentValue, storedValue);
+    auto current = metric.getValue();
+    auto previous = search->second.getValue();
+    auto value = std::visit(VariantVisitorAdd{}, current, previous);
+
     mStorage.erase(search);
     Metric result = Metric{value, name};
     mStorage.insert(std::make_pair(name, result));

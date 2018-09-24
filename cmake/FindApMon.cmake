@@ -24,7 +24,8 @@ mark_as_advanced(ApMon_INCLUDE_DIR)
 
 # find library
 find_library(ApMon_LIBRARY NAMES apmoncpp
-  HINTS /usr/local ${APMON_ROOT}
+  HINTS ${APMON_ROOT} /usr/local
+  PATH_SUFFIXES lib lib64
 )
 
 mark_as_advanced(ApMon_LIBRARY)
@@ -37,7 +38,6 @@ find_package_handle_standard_args(ApMon "ApMon could not be found. Install packa
 if(ApMon_FOUND)
   set(ApMon_LIBRARIES ${ApMon_LIBRARY})
   set(ApMon_INCLUDE_DIRS ${ApMon_INCLUDE_DIR})
-  mark_as_advanced(ApMon_INCLUDE_DIR ApMon_LIBRARY)
 
   # add target
   if(NOT TARGET ApMon::ApMon)

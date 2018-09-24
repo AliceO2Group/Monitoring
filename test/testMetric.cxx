@@ -25,7 +25,7 @@ BOOST_AUTO_TEST_CASE(retrieveInt) {
   std::string name("metric name");
   o2::monitoring::Metric metricInstance(value,  name );
 
-  BOOST_CHECK_EQUAL(boost::get<int>(metricInstance.getValue()), 10);
+  BOOST_CHECK_EQUAL(std::get<int>(metricInstance.getValue()), 10);
   BOOST_CHECK_EQUAL(metricInstance.getType(), 0);
 }
 
@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE(retrieveDouble) {
   std::string name("metric name");
   o2::monitoring::Metric metricInstance(value,  name );
 
-  BOOST_CHECK_EQUAL(boost::get<double>(metricInstance.getValue()), 1.11);
+  BOOST_CHECK_EQUAL(std::get<double>(metricInstance.getValue()), 1.11);
   BOOST_CHECK_EQUAL(metricInstance.getType(), 2);
 }
 
@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_CASE(retrieveString)
   std::string name("metric name");
   o2::monitoring::Metric metricInstance(value,  name );
 
-  BOOST_CHECK_EQUAL(boost::get<std::string>(metricInstance.getValue()), "testString");
+  BOOST_CHECK_EQUAL(std::get<std::string>(metricInstance.getValue()), "testString");
   BOOST_CHECK_EQUAL(metricInstance.getType(), 1);
 }
 
@@ -54,17 +54,17 @@ BOOST_AUTO_TEST_CASE(retrieveUnsignedLongLong)
   std::string name("metric name");
   o2::monitoring::Metric metricInstance(value,  name );
 
-  BOOST_CHECK_EQUAL(boost::get<uint64_t>(metricInstance.getValue()), 10000000000000LL);
+  BOOST_CHECK_EQUAL(std::get<uint64_t>(metricInstance.getValue()), 10000000000000LL);
   BOOST_CHECK_EQUAL(metricInstance.getType(), 3);
 }
 
-bool is_critical(const boost::bad_get&) { return true; }
+bool is_critical(const std::bad_variant_access&) { return true; }
 
 BOOST_AUTO_TEST_CASE(retrieveWrongType) {
   double value = 1.11;
   std::string name("metric name");
   o2::monitoring::Metric metricInstance(value,  name );
-  BOOST_CHECK_EXCEPTION(boost::get<std::string>(metricInstance.getValue()), boost::bad_get, is_critical);
+  BOOST_CHECK_EXCEPTION(std::get<std::string>(metricInstance.getValue()), std::bad_variant_access, is_critical);
 }
 
 BOOST_AUTO_TEST_CASE(tags) {
@@ -81,10 +81,10 @@ BOOST_AUTO_TEST_CASE(customCopyConstructor) {
   o2::monitoring::Metric assigned{1, "assingedMetric"};
   auto copied = metric;
   assigned = metric;
-  BOOST_CHECK_EQUAL(boost::get<int>(copied.getValue()), 10);
+  BOOST_CHECK_EQUAL(std::get<int>(copied.getValue()), 10);
   BOOST_CHECK_EQUAL(copied.getName(), "myMetric");
 
-  BOOST_CHECK_EQUAL(boost::get<int>(assigned.getValue()), 10);
+  BOOST_CHECK_EQUAL(std::get<int>(assigned.getValue()), 10);
   BOOST_CHECK_EQUAL(assigned.getName(), "myMetric");
 
   std::vector<Tag> tags = copied.getTags();

@@ -127,7 +127,7 @@ target_link_libraries(Monitoring
 )
 
 # Use C++14
-target_compile_features(Monitoring PUBLIC cxx_std_14)
+target_compile_features(Monitoring PUBLIC cxx_std_17)
 
 # Handle optional ApMon dependency
 if(ApMon_FOUND)

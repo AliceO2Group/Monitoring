@@ -4,8 +4,8 @@
 ///
 
 #include "InfluxDB.h"
-#include <boost/lexical_cast.hpp>
 #include <string>
+#include <variant>
 #include "../Transports/UDP.h"
 #include "../Transports/HTTP.h"
 #include "../Exceptions/MonitoringException.h"
@@ -19,6 +19,9 @@ namespace monitoring
 namespace backends
 {
 
+template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
+template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
+
 InfluxDB::InfluxDB(const std::string& host, unsigned int port)
 {
   transport = std::make_unique<transports::UDP>(host, port);
@@ -26,13 +29,13 @@ InfluxDB::InfluxDB(const std::string& host, unsigned int port)
                    << " ("<< host << ":" << port << ")" << MonLogger::End();
 }
 
-InfluxDB::InfluxDB(const std::string& host, unsigned int port, const std::string& path)
+InfluxDB::InfluxDB(const std::string& host, unsigned int port, const std::string& path, const std::string& search)
 {
   transport = std::make_unique<transports::HTTP>(
-    "http://" + host + ":" + std::to_string(port) + "/?" + path
+    "http://" + host + ":" + std::to_string(port) + path + "?" + search
   );
   MonLogger::Get() << "InfluxDB/HTTP backend initialized" << " (" << "http://" << host
-                   << ":" <<  std::to_string(port) << "/?" << path << ")" << MonLogger::End();
+                   << ":" <<  std::to_string(port) << path << "?" << search << ")" << MonLogger::End();
 }
 
 inline unsigned long InfluxDB::convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp)
@@ -56,9 +59,14 @@ void InfluxDB::sendMultiple(std::string measurement, std::vector<Metric>&& metri
   convert << measurement << "," << tagSet << " ";
 
   for (const auto& metric : metrics) {
-    std::string value = boost::lexical_cast<std::string>(metric.getValue());
-    prepareValue(value, metric.getType());
-    convert << metric.getName() << "=" << value << ",";
+   convert << metric.getName() << "=";
+   std::visit(overloaded {
+      [&convert](uint64_t value) { convert << value << 'i'; },
+      [&convert](int value) { convert << value << 'i'; },
+      [&convert](double value) { convert << value; },
+      [&convert](const std::string& value) { convert << '"' << value << '"'; },
+      }, metric.getValue());
+    convert << ",";
   }
   convert.seekp(-1, std::ios_base::end);
   convert << " " <<  convertTimestamp(metrics.back().getTimestamp());
@@ -97,27 +105,20 @@ std::string InfluxDB::toInfluxLineProtocol(const Metric& metric) {
     metricTags += "," + tag.name + "=" + tag.value;
   }
 
-  std::string value = boost::lexical_cast<std::string>(metric.getValue());
-  prepareValue(value, metric.getType());
+  std::stringstream convert;
   std::string name = metric.getName();
   escape(name);
+  convert << name << "," << tagSet << metricTags << " value=";
 
-  std::stringstream convert;
-  convert << name << "," << tagSet << metricTags << " value=" << value << " " << convertTimestamp(metric.getTimestamp());
+  std::visit(overloaded {
+    [&convert](uint64_t value) { convert << value << 'i'; },
+    [&convert](int value) { convert << value << 'i'; },
+    [&convert](double value) { convert << value; },
+    [&convert](const std::string& value) { convert << '"' << value << '"'; },
+    }, metric.getValue());
+
+  convert << " " << convertTimestamp(metric.getTimestamp());
   return convert.str();
-}
-
-void InfluxDB::prepareValue(std::string& value, int type)
-{
-  if (type == MetricType::STRING) {
-    escape(value);
-    value.insert(value.begin(), '"');
-    value.insert(value.end(), '"');
-  }
-
-  if (type == MetricType::INT) {
-    value.insert(value.end(), 'i');
-  }
 }
 
 void InfluxDB::addGlobalTag(std::string name, std::string value)

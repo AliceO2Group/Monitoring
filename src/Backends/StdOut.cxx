@@ -4,7 +4,6 @@
 ///
 
 #include "StdOut.h"
-
 #include <iostream>
 #include "../MonLogger.h"
 
@@ -16,6 +15,9 @@ namespace monitoring
 /// Monitoring backends
 namespace backends
 {
+
+template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
+template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 
 inline unsigned long StdOut::convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp)
 {
@@ -66,7 +68,13 @@ void StdOut::send(const Metric& metric)
   if (!metricTags.empty()) {
     metricTags = "," + metricTags;
   }
-  MonLogger::Get() << "[METRIC] " << metric.getName() << "," << metric.getType() << " " << metric.getValue()
+
+  auto value = std::visit(overloaded {
+    [](const std::string& value) -> std::string { return value; },
+    [](auto value) -> std::string { return std::to_string(value); }
+    }, metric.getValue());
+
+  MonLogger::Get() << "[METRIC] " << metric.getName() << "," << metric.getType() << " " << value
     << " " << convertTimestamp(metric.getTimestamp()) << " " << tagString << metricTags
     << MonLogger::End();
 }

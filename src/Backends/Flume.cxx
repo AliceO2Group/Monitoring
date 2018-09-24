@@ -18,6 +18,9 @@ namespace monitoring
 namespace backends
 {
 
+template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
+template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
+
 Flume::Flume(const std::string& host, unsigned int port)
 {
   mTransport = std::make_unique<transports::UDP>(host, port);
@@ -31,7 +34,11 @@ std::string Flume::metricToJson(const Metric& metric)
     boost::property_tree::ptree header = globalHeader;
     header.put<std::string>("timestamp", std::to_string(convertTimestamp(metric.getTimestamp())));
     header.put<std::string>("name", metric.getName());
-    header.put<std::string>("value_value", boost::lexical_cast<std::string>(metric.getValue()));
+    auto value = std::visit(overloaded {
+      [](const std::string& value) -> std::string { return value; },
+      [](auto value) -> std::string { return std::to_string(value); }
+    }, metric.getValue());
+    header.put<std::string>("value_value", value);
     for (const auto& tag : metric.getTags()) {
       header.put<std::string>("tag_" + tag.name, tag.value);
     }   
@@ -70,7 +77,11 @@ std::string Flume::metricsToJson(std::string measurement, std::vector<Metric>&& 
     header.put<std::string>("tag_" + tag.name, tag.value);
   }
   for (auto& metric : metrics) {
-    header.put<std::string>("value_" + metric.getName(), boost::lexical_cast<std::string>(metric.getValue()));
+    auto value = std::visit(overloaded {
+      [](const std::string& value) -> std::string { return value; },
+      [](auto value) -> std::string { return std::to_string(value); }
+    }, metric.getValue());
+    header.put<std::string>("value_" + metric.getName(), value);
   }
   event.push_back(std::make_pair("headers", header));
     event.put<std::string>("body", "");

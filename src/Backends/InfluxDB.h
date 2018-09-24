@@ -36,7 +36,8 @@ class InfluxDB final : public Backend
     /// \param host      InfluxDB HTTP endpoint hostname
     /// \param port      InfluxDB HTTP endpoint port number
     /// \param path	 Query path
-    InfluxDB(const std::string& host, unsigned int port, const std::string& path);
+    /// \param path 	 Search params
+    InfluxDB(const std::string& host, unsigned int port, const std::string& path, const std::string& search);
 
     /// Default destructor
     ~InfluxDB() = default;
@@ -75,7 +76,7 @@ class InfluxDB final : public Backend
     /// Modifies values to Influx Line Protocol format
     /// \param value 	reference to value
     /// \param type	type of the metric
-    void prepareValue(std::string& value, int type);
+    std::string prepareValue(const std::variant< int, std::string, double, uint64_t >& metric);
     std::string toInfluxLineProtocol(const Metric& metric);
 };
 

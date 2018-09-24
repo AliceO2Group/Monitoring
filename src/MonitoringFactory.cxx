@@ -45,7 +45,7 @@ std::unique_ptr<Backend> getInfluxDb(http::url uri) {
     return std::make_unique<backends::InfluxDB>(uri.host, uri.port);
   }
   if (uri.protocol == "http") {
-    return std::make_unique<backends::InfluxDB>(uri.host, uri.port, uri.search);
+    return std::make_unique<backends::InfluxDB>(uri.host, uri.port, uri.path, uri.search);
   }
   throw std::runtime_error("InfluxDB transport protocol not supported");
 }

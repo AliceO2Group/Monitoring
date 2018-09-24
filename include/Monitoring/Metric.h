@@ -10,7 +10,7 @@
 #include <chrono>
 #include <mutex>
 #include <vector>
-#include <boost/variant.hpp>
+#include <variant>
 #include "Tag.h"
 
 namespace o2
@@ -18,8 +18,6 @@ namespace o2
 /// ALICE O2 Monitoring system
 namespace monitoring
 {
-
-enum MetricType { INT = 0, STRING = 1, DOUBLE = 2, UINT64_T = 3 };
 
 /// \brief Represents a metric including value, type of the value, name, timestamp and tags
 class Metric
@@ -53,7 +51,7 @@ class Metric
     /// \param value            metric value (boost variant)
     /// \param name             metric name
     /// \param timestamp        metric timestamp in milliseconds
-    Metric(boost::variant< int, std::string, double, uint64_t >, const std::string& name, std::chrono::time_point<std::chrono::system_clock> timestamp = Metric::getCurrentTimestamp());
+    Metric(std::variant< int, std::string, double, uint64_t >, const std::string& name, std::chrono::time_point<std::chrono::system_clock> timestamp = Metric::getCurrentTimestamp());
 
     /// Default destructor
     ~Metric() = default;
@@ -65,7 +63,7 @@ class Metric
     Metric& operator=(Metric const& other);
 
     /// Assign operator overload, assignes new values to the metric object
-    Metric& operator=(const boost::variant< int, std::string, double, uint64_t >& value);
+    Metric& operator=(const std::variant< int, std::string, double, uint64_t >& value);
         
     /// Name getter
     /// \return	metric name
@@ -81,7 +79,7 @@ class Metric
 	
     /// Value getter
     /// \return metric value
-    boost::variant< int, std::string, double, uint64_t > getValue() const;
+    std::variant< int, std::string, double, uint64_t > getValue() const;
 
     /// Value type getter
     /// \return type of value stores inside metric : 0 - int, 1 - std::string, 2 - double
@@ -107,7 +105,7 @@ class Metric
 
   private:
     /// Metric value
-    boost::variant< int, std::string, double, uint64_t > mValue;
+    std::variant< int, std::string, double, uint64_t > mValue;
 
     /// Metric name
     std::string mName;

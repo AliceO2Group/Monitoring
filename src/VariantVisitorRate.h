@@ -4,7 +4,7 @@ namespace o2
 namespace monitoring
 {
 /// \brief Subtracts boost variants in order to calculate rate
-class VariantVisitorRate : public boost::static_visitor<boost::variant<int, std::string, double, uint64_t>>
+class VariantVisitorRate
 {
 private:
   /// Timestamp difference in milliseconds
