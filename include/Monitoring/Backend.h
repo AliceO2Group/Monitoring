@@ -18,7 +18,7 @@ namespace monitoring
 
 namespace backend
 {
-  enum class Verbosity { PROD, DEBUG };
+  enum class Verbosity { Prod, Debug };
 }
 /// \brief Backend pure virtual interface
 ///
@@ -32,7 +32,7 @@ class Backend
 
   public:
     /// Default constructor
-    Backend() { verbosityLevel = backend::Verbosity::PROD; }
+    Backend() { verbosityLevel = backend::Verbosity::Prod; }
 
     /// Default destructor
     virtual ~Backend() = default;

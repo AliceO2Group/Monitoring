@@ -15,12 +15,12 @@
 #include "Backends/Flume.h"
 #include "Backends/Noop.h"
 
+#include "Backends/InfluxDB.h"
+#include "MonLogger.h"
+
 #ifdef _WITH_APPMON
 #include "Backends/ApMonBackend.h"
 #endif
-
-#include "Backends/InfluxDB.h"
-#include "MonLogger.h"
 
 namespace o2 
 {
@@ -70,8 +70,8 @@ std::unique_ptr<Backend> getFlume(http::url uri) {
 
 void MonitoringFactory::SetVerbosity(std::string selected, std::unique_ptr<Backend>& backend) {
   static const std::map<std::string, backend::Verbosity> verbosities = {
-    {"/prod", backend::Verbosity::PROD},
-    {"/debug", backend::Verbosity::DEBUG}
+    {"/prod", backend::Verbosity::Prod},
+    {"/debug", backend::Verbosity::Debug}
   };
 
   auto found = verbosities.find(selected);

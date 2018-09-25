@@ -18,11 +18,11 @@
 
 #include "Backends/InfoLoggerBackend.h"
 #include "Backends/Flume.h"
+#include "Backends/InfluxDB.h"
 
 #ifdef _WITH_APPMON
 #include "Backends/ApMonBackend.h"
 #endif
-#include "Backends/InfluxDB.h"
 
 namespace o2 
 {
@@ -167,7 +167,7 @@ void Monitoring::send(std::vector<Metric>&& metrics)
 void Monitoring::debug(Metric&& metric)
 {
   for (auto& b: mBackends) {
-    if (b->getVerbosity() == backend::Verbosity::DEBUG) {
+    if (b->getVerbosity() == backend::Verbosity::Debug) {
       b->send(metric);
     }
   }

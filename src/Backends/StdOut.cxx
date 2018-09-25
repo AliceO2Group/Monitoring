@@ -28,7 +28,7 @@ inline unsigned long StdOut::convertTimestamp(const std::chrono::time_point<std:
 
 StdOut::StdOut()
 {
-  setVerbosisty(backend::Verbosity::DEBUG);
+  setVerbosisty(backend::Verbosity::Debug);
   MonLogger::Get() << "StdOut backend initialized" << MonLogger::End();
 }
 

@@ -6,11 +6,11 @@
 #ifndef ALICEO2_MONITORING_BACKENDS_APMONBACKEND_H
 #define ALICEO2_MONITORING_BACKENDS_APMONBACKEND_H
 
+#include "Monitoring/Backend.h"
+#include <ApMon.h>
 #include <string>
 #include <chrono>
 #include <memory>
-#include <ApMon.h>
-#include "Monitoring/Backend.h"
 
 namespace o2
 {
