@@ -78,22 +78,6 @@ set(SRCS
   src/Exceptions/MonitoringException.cxx
 )
 
-# Detect operating system
-if (UNIX AND NOT APPLE)
-  message(STATUS "Detected Linux OS: Process monitor enabled")
-  add_definitions(-D_OS_LINUX)
-endif()
-
-if (WIN32)
-  message(STATUS "Detected Windows OS: Process monitor disabled")
-  add_definitions(-D_OS_WINDOWS)
-endif()
-
-if (APPLE)
-  message(STATUS "Detected Mac OS: Process monitor disabled")
-  add_definitions(-D_OS_MAC)
-endif()
-
 # Backends
 message(STATUS "Backends")
 message(STATUS "  Compiling InfoLoggerBackend backend")
@@ -125,6 +109,23 @@ target_link_libraries(Monitoring
   PRIVATE
     Boost::system CURL::CURL
 )
+
+# Detect operating system
+if (UNIX AND NOT APPLE)
+  message(STATUS "Detected Linux: Process monitor enabled")
+  target_compile_definitions(Monitoring PRIVATE OS_LINUX)
+endif()
+
+if (WIN32)
+  message(STATUS "Detected Windows: Process monitor disabled")
+  target_compile_definitions(Monitoring PRIVATE OS_WINDOWS)
+endif()
+
+if (APPLE)
+  message(STATUS "Detected macOS: Process monitor disabled")
+  target_compile_definitions(Monitoring PRIVATE OS_MAC)
+endif()
+
 
 # Use C++14
 target_compile_features(Monitoring PUBLIC cxx_std_14)
