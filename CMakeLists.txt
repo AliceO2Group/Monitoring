@@ -84,16 +84,8 @@ message(STATUS "  Compiling InfoLoggerBackend backend")
 message(STATUS "  Compiling Flume UDP/JSON backend")
 message(STATUS "  Compiling InfluxDB HTTP and UDP backend")
 
-if(ApMon_FOUND)
-  message(STATUS "  Compiling ApMon backend")
-  list(APPEND SRCS src/Backends/ApMonBackend.cxx)
-  add_definitions(-D_WITH_APPMON)
-else()
-  message(STATUS "  ApMon not found, skipping ApMon backend")
-endif()
-
 # Create library
-add_library(Monitoring SHARED ${SRCS})
+add_library(Monitoring SHARED ${SRCS} $<$<BOOL:${ApMon_FOUND}>:src/Backends/ApMonBackend.cxx>)
 target_include_directories(Monitoring
   PUBLIC 
     $<INSTALL_INTERFACE:include>    
@@ -110,6 +102,11 @@ target_link_libraries(Monitoring
     Boost::system CURL::CURL
 )
 
+# Handle ApMon optional dependency
+if(ApMon_FOUND)
+  message(STATUS "  Compiling ApMon backend")
+endif()
+
 # Detect operating system
 if (UNIX AND NOT APPLE)
   message(STATUS "Detected Linux: Process monitor enabled")
@@ -120,10 +117,12 @@ if (APPLE)
   message(STATUS "Detected macOS: Process monitor disabled")
 endif()
 
+# Handle custom compile definitions
 target_compile_definitions(Monitoring
   PRIVATE
     $<$<BOOL:${APPLE}>:_OS_MAC>
     $<$<BOOL:${LINUX}>:_OS_LINUX>
+    $<$<BOOL:${ApMon_FOUND}>:_WITH_APPMON>
   )
 
 # Use C++14
