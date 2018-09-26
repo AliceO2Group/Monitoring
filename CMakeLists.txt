@@ -243,7 +243,7 @@ install(EXPORT MonitoringTargets
   FILE
     MonitoringTargets.cmake
   NAMESPACE
-    Monitoring::
+    AliceO2::
   DESTINATION
     ${CMAKE_INSTALL_LIBDIR}/cmake/Monitoring
 )
