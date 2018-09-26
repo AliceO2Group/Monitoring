@@ -13,7 +13,7 @@ endif()
 
 # Define project
 project(Monitoring
-  VERSION 1.9.1
+  VERSION 1.9.2
   DESCRIPTION "O2 Monitoring library"
   LANGUAGES CXX
 )
@@ -243,7 +243,7 @@ install(EXPORT MonitoringTargets
   FILE
     MonitoringTargets.cmake
   NAMESPACE
-    Monitoring::
+    AliceO2::
   DESTINATION
     ${CMAKE_INSTALL_LIBDIR}/cmake/Monitoring
 )
