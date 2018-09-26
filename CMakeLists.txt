@@ -78,38 +78,14 @@ set(SRCS
   src/Exceptions/MonitoringException.cxx
 )
 
-# Detect operating system
-if (UNIX AND NOT APPLE)
-  message(STATUS "Detected Linux OS: Process monitor enabled")
-  add_definitions(-D_OS_LINUX)
-endif()
-
-if (WIN32)
-  message(STATUS "Detected Windows OS: Process monitor disabled")
-  add_definitions(-D_OS_WINDOWS)
-endif()
-
-if (APPLE)
-  message(STATUS "Detected Mac OS: Process monitor disabled")
-  add_definitions(-D_OS_MAC)
-endif()
-
 # Backends
 message(STATUS "Backends")
 message(STATUS "  Compiling InfoLoggerBackend backend")
 message(STATUS "  Compiling Flume UDP/JSON backend")
 message(STATUS "  Compiling InfluxDB HTTP and UDP backend")
 
-if(ApMon_FOUND)
-  message(STATUS "  Compiling ApMon backend")
-  list(APPEND SRCS src/Backends/ApMonBackend.cxx)
-  add_definitions(-D_WITH_APPMON)
-else()
-  message(STATUS "  ApMon not found, skipping ApMon backend")
-endif()
-
 # Create library
-add_library(Monitoring SHARED ${SRCS})
+add_library(Monitoring SHARED ${SRCS} $<$<BOOL:${ApMon_FOUND}>:src/Backends/ApMonBackend.cxx>)
 target_include_directories(Monitoring
   PUBLIC 
     $<INSTALL_INTERFACE:include>    
@@ -125,6 +101,29 @@ target_link_libraries(Monitoring
   PRIVATE
     Boost::system CURL::CURL
 )
+
+# Handle ApMon optional dependency
+if(ApMon_FOUND)
+  message(STATUS "  Compiling ApMon backend")
+endif()
+
+# Detect operating system
+if (UNIX AND NOT APPLE)
+  message(STATUS "Detected Linux: Process monitor enabled")
+  set(LINUX true)
+endif()
+
+if (APPLE)
+  message(STATUS "Detected macOS: Process monitor disabled")
+endif()
+
+# Handle custom compile definitions
+target_compile_definitions(Monitoring
+  PRIVATE
+    $<$<BOOL:${APPLE}>:_OS_MAC>
+    $<$<BOOL:${LINUX}>:_OS_LINUX>
+    $<$<BOOL:${ApMon_FOUND}>:_WITH_APPMON>
+  )
 
 # Use C++14
 target_compile_features(Monitoring PUBLIC cxx_std_14)
