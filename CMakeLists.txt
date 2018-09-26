@@ -113,17 +113,17 @@ target_link_libraries(Monitoring
 # Detect operating system
 if (UNIX AND NOT APPLE)
   message(STATUS "Detected Linux: Process monitor enabled")
-  target_compile_definitions(Monitoring PRIVATE OS_LINUX)
+  target_compile_definitions(Monitoring PRIVATE _OS_LINUX)
 endif()
 
 if (WIN32)
   message(STATUS "Detected Windows: Process monitor disabled")
-  target_compile_definitions(Monitoring PRIVATE OS_WINDOWS)
+  target_compile_definitions(Monitoring PRIVATE _OS_WINDOWS)
 endif()
 
 if (APPLE)
   message(STATUS "Detected macOS: Process monitor disabled")
-  target_compile_definitions(Monitoring PRIVATE OS_MAC)
+  target_compile_definitions(Monitoring PRIVATE _OS_MAC)
 endif()
 
 
