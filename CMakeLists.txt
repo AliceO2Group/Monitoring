@@ -113,19 +113,18 @@ target_link_libraries(Monitoring
 # Detect operating system
 if (UNIX AND NOT APPLE)
   message(STATUS "Detected Linux: Process monitor enabled")
-  target_compile_definitions(Monitoring PRIVATE _OS_LINUX)
-endif()
-
-if (WIN32)
-  message(STATUS "Detected Windows: Process monitor disabled")
-  target_compile_definitions(Monitoring PRIVATE _OS_WINDOWS)
+  set(LINUX true)
 endif()
 
 if (APPLE)
   message(STATUS "Detected macOS: Process monitor disabled")
-  target_compile_definitions(Monitoring PRIVATE _OS_MAC)
 endif()
 
+target_compile_definitions(Monitoring
+  PRIVATE
+    $<$<BOOL:${APPLE}>:_OS_MAC>
+    $<$<BOOL:${LINUX}>:_OS_LINUX>
+  )
 
 # Use C++14
 target_compile_features(Monitoring PUBLIC cxx_std_14)
