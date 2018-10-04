@@ -125,8 +125,8 @@ target_compile_definitions(Monitoring
     $<$<BOOL:${ApMon_FOUND}>:_WITH_APPMON>
   )
 
-# Use C++14
-target_compile_features(Monitoring PUBLIC cxx_std_14)
+# Use C++17
+target_compile_features(Monitoring PUBLIC cxx_std_17)
 
 # Handle optional ApMon dependency
 if(ApMon_FOUND)
