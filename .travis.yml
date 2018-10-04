@@ -57,7 +57,7 @@ matrix:
         on:
           branch: dev
 before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cd ..; wget https://dl.bintray.com/boostorg/release/1.68.0/source/boost_1_66_0.tar.gz; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cd ..; wget https://dl.bintray.com/boostorg/release/1.66.0/source/boost_1_66_0.tar.gz; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then tar xf boost_1_66_0.tar.gz; cd $TRAVIS_BUILD_DIR; fi
 install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 90; fi
