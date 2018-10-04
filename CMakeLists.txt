@@ -99,7 +99,9 @@ target_link_libraries(Monitoring
   PUBLIC
     Boost::boost
   PRIVATE
-    Boost::system CURL::CURL
+    Boost::system
+    CURL::CURL
+    $<$<BOOL:${ApMon_FOUND}>:ApMon::ApMon>
 )
 
 # Handle ApMon optional dependency
@@ -127,14 +129,6 @@ target_compile_definitions(Monitoring
 
 # Use C++17
 target_compile_features(Monitoring PUBLIC cxx_std_17)
-
-# Handle optional ApMon dependency
-if(ApMon_FOUND)
-  target_link_libraries(Monitoring
-    PRIVATE
-      ApMon::ApMon
-  )
-endif()
 
 
 ####################################
