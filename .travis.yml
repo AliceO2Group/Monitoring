@@ -35,20 +35,14 @@ matrix:
             - gcc-8
             - g++-8
             - cmake
-      branches:
-        only:
-          - dev
-    - os: linux
-      env: TOOL=doxygen
-      addons:
-        apt:
-          packages:
             - doxygen
             - doxygen-doc
             - doxygen-latex
             - doxygen-gui
             - graphviz
-            - cmake
+      branches:
+        only:
+          - dev
       deploy:
         provider: pages
         skip_cleanup: true
@@ -71,7 +65,7 @@ script:
   - if [[ $TOOL == "test" ]] || [[ $TOOL == "coverage" ]]; then make -j; fi
   - if [[ $TOOL == "test" ]] || [[ $TOOL == "coverage" ]]; then make test; fi
   - if [[ $TOOL == "test" ]]; then make install; fi
-  - if [[ $TOOL == "doxygen" ]]; then make doc; fi
+  - if [[ $TOOL == "coverage" ]]; then make doc; fi
   - if [[ $TOOL == "clang-format" ]] && [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
       cd $TRAVIS_BUILD_DIR;
       BASE_COMMIT=$(git rev-parse $TRAVIS_BRANCH);
