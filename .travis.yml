@@ -22,7 +22,7 @@ matrix:
            - ubuntu-toolchain-r-test
           packages:
             - gcc-8
-            - g++-6
+            - g++-8
             - cmake
     - os: linux
       env: TOOL=coverage
@@ -33,7 +33,7 @@ matrix:
           packages:
             - lcov
             - gcc-8
-            - g++-6
+            - g++-8
             - cmake
       branches:
         only:
