@@ -57,7 +57,7 @@ void Flume::send(std::vector<Metric>&& metrics)
 
 void Flume::sendMultiple(std::string measurement, std::vector<Metric>&& metrics)
 {
-  mTransport->send(metricsToJson(measurement, std::move(metrics)));
+  mTransport->send(metricsToJson(measurement, std::move(metrics)) + '\n');
 }
 
 std::string Flume::metricsToJson(std::string measurement, std::vector<Metric>&& metrics)
