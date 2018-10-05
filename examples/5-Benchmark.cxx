@@ -56,7 +56,6 @@ int main(int argc, char *argv[]) {
   if (vm["multiple"].as<bool>()) {
     for (int i = 0; i <= count; i += add) {
       monitoring->sendGrouped("benchmarkMeasurement",{
-        {"string" + std::to_string(intDist(mt)), "stringMetric"},
         {doubleDist(mt), "doubleMetric"},
         {intDist(mt), "intMetric"}
       });
@@ -65,7 +64,6 @@ int main(int argc, char *argv[]) {
   } else if (vm["vector"].as<bool>()) {
     for (int i = 0; i <= count; i += add) {
       monitoring->send({
-        {"string" + std::to_string(intDist(mt)), "stringMetric"},
         {doubleDist(mt), "doubleMetric"},
         {intDist(mt), "intMetricDebug"}
       });
@@ -76,7 +74,6 @@ int main(int argc, char *argv[]) {
       monitoring->enableBuffering(vm["buffer"].as<int>());
     }
     for (int i = 0; i <= count; i += add) {
-      monitoring->send({"string" + std::to_string(intDist(mt)), "stringMetric"});
       monitoring->send({doubleDist(mt), "doubleMetric"});
       monitoring->send({intDist(mt), "intMetric"});
       monitoring->debug({intDist(mt), "intMetricDebug"});
