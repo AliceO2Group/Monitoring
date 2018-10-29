@@ -10,10 +10,10 @@ find_dependency(Boost)
 
 list(REMOVE_AT CMAKE_MODULE_PATH -1)
 
-if(NOT TARGET Monitoring::Monitoring)
+if(NOT TARGET AliceO2::Monitoring)
   include("${Monitoring_CMAKE_DIR}/MonitoringTargets.cmake")
 endif()
 
-set(Monitoring_LIBRARIES Monitoring::Monitoring)
+set(Monitoring_LIBRARIES AliceO2::Monitoring)
 
 message(STATUS "Monitoring ${Monitoring_VERSION} found")

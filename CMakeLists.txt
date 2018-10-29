@@ -13,7 +13,7 @@ endif()
 
 # Define project
 project(Monitoring
-  VERSION 1.7.2
+  VERSION 1.9.2
   DESCRIPTION "O2 Monitoring library"
   LANGUAGES CXX
 )
@@ -26,6 +26,9 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra")
 
 # Set fPIC for all targets
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+# Set CMAKE_INSTALL_LIBDIR explicitly to lib (to avoid lib64 on CC7)
+set(CMAKE_INSTALL_LIBDIR lib)
 
 # Set the default build type to "RelWithDebInfo"
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
@@ -99,7 +102,9 @@ target_link_libraries(Monitoring
   PUBLIC
     Boost::boost
   PRIVATE
-    Boost::system CURL::CURL
+    Boost::system
+    CURL::CURL
+    $<$<BOOL:${ApMon_FOUND}>:ApMon::ApMon>
 )
 
 # Handle ApMon optional dependency
@@ -125,16 +130,8 @@ target_compile_definitions(Monitoring
     $<$<BOOL:${ApMon_FOUND}>:_WITH_APPMON>
   )
 
-# Use C++14
+# Use C++17
 target_compile_features(Monitoring PUBLIC cxx_std_17)
-
-# Handle optional ApMon dependency
-if(ApMon_FOUND)
-  target_link_libraries(Monitoring
-    PRIVATE
-      ApMon::ApMon
-  )
-endif()
 
 
 ####################################
@@ -212,10 +209,10 @@ include(GNUInstallDirs)
 # Build targets with install rpath on Mac to dramatically speed up installation
 # https://gitlab.kitware.com/cmake/community/wikis/doc/cmake/RPATH-handling
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
+list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}" isSystemDir)
 if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   if("${isSystemDir}" STREQUAL "-1")
-    set(CMAKE_INSTALL_RPATH "@loader_path/../lib")
+    set(CMAKE_INSTALL_RPATH "@loader_path/../${CMAKE_INSTALL_LIBDIR}")
   endif()
   set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 endif()
@@ -243,7 +240,7 @@ install(EXPORT MonitoringTargets
   FILE
     MonitoringTargets.cmake
   NAMESPACE
-    Monitoring::
+    AliceO2::
   DESTINATION
     ${CMAKE_INSTALL_LIBDIR}/cmake/Monitoring
 )
