@@ -24,10 +24,12 @@ class MonitoringFactory
 
     /// Provides single instance on Monitoring Monitoring (singleton)
     /// \return              renerence to Monitoring instance
-    static std::unique_ptr<Monitoring> Get(std::string urlsString);
+    /// \throw MonitoringException when backend initialisation failed
+    static std::unique_ptr<Monitoring> Get(std::string urlsString) noexcept(false);
 
     /// Provides a Monitoring backend based on the URL
     /// \return		monitoring backend
+    /// \throw MonitoringException when backend initialisation failed
     static std::unique_ptr<Backend> GetBackend(std::string& url);
   private:
     /// Private constructor disallows to create instance of Factory

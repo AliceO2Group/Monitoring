@@ -4,6 +4,7 @@
 ///
 
 #include "HTTP.h"
+#include "../MonLogger.h"
 #include "../Exceptions/MonitoringException.h"
 #include <boost/algorithm/string.hpp>
 #include <iostream>
@@ -57,10 +58,10 @@ void HTTP::send(std::string&& post)
   response = curl_easy_perform(curlHandle.get());
   curl_easy_getinfo(curlHandle.get(), CURLINFO_RESPONSE_CODE, &responseCode);
   if (response != CURLE_OK) {
-    throw MonitoringException("HTTP Tranposrt", curl_easy_strerror(response));
+    MonLogger::Get() << "HTTP Tranport " << curl_easy_strerror(response) << MonLogger::End();
   }
   if (responseCode < 200 || responseCode > 206) {
-    throw MonitoringException("HTTP Transport", "Response code : " + std::to_string(responseCode));
+    MonLogger::Get() << "HTTP Transport: Response code : " << std::to_string(responseCode) << MonLogger::End();
   }
 }
 

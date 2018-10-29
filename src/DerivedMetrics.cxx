@@ -13,7 +13,6 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include "MonLogger.h"
 #include "VariantVisitorRate.h"
 #include "VariantVisitorAdd.h"
 
