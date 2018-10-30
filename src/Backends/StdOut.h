@@ -18,9 +18,7 @@ namespace monitoring
 namespace backends
 {
 
-/// \brief Backend that injects metrics to InfoLogger
-///
-/// InfoLogger does not support std::chrono::time_point therefore timestamps is converted to unsigned long
+/// \brief Prints metrics to standard output via std::cout
 class StdOut final : public Backend
 {
   public:
@@ -30,15 +28,15 @@ class StdOut final : public Backend
     /// Default destructor
     ~StdOut() = default;
 
-    /// Sends metric to InfoLogger library
+    /// Prints metric
     /// \param metric           reference to metric object    
     void send(const Metric& metric) override;
 
-    /// Sends multiple metrics not related to each other
+    /// Prints vector of metrics
     /// \@param metrics  vector of metrics
     void send(std::vector<Metric>&& metrics) override;
 
-    /// Sending multiple metrics is NOT supported by the InfoLogger therefore it falls back to sending metric one by one
+    /// Prints a metric with multiple values (names are prefixed with measurement)
     /// \param measurement   measurement name
     /// \param metrics  list of metrics
     void sendMultiple(std::string measurement, std::vector<Metric>&& metrics) override;

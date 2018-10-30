@@ -17,14 +17,6 @@
 #include "MonLogger.h"
 #include "ProcessDetails.h"
 
-#include "Backends/InfoLoggerBackend.h"
-#include "Backends/Flume.h"
-#include "Backends/InfluxDB.h"
-
-#ifdef _WITH_APPMON
-#include "Backends/ApMonBackend.h"
-#endif
-
 namespace o2 
 {
 /// ALICE O2 Monitoring system

@@ -67,7 +67,6 @@ set(INCLUDE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/include")
 set(SRCS
   src/Monitoring.cxx
   src/Metric.cxx
-  src/Backends/InfoLoggerBackend.cxx
   src/Backends/InfluxDB.cxx
   src/Backends/Flume.cxx
   src/Backends/StdOut.cxx
@@ -83,7 +82,7 @@ set(SRCS
 
 # Backends
 message(STATUS "Backends")
-message(STATUS "  Compiling InfoLoggerBackend backend")
+message(STATUS "  Compiling StdCout backend")
 message(STATUS "  Compiling Flume UDP/JSON backend")
 message(STATUS "  Compiling InfluxDB HTTP and UDP backend")
 

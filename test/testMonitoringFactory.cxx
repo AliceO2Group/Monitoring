@@ -16,12 +16,9 @@ using Monitoring = o2::monitoring::MonitoringFactory;
 
 BOOST_AUTO_TEST_CASE(verbosity)
 {
-   std::string ilUrl = "infologger://";
+   std::string ilUrl = "stdout://";
    auto il = Monitoring::GetBackend(ilUrl);
    BOOST_CHECK_EQUAL(static_cast<std::underlying_type<backend::Verbosity>::type>(il->getVerbosity()), 1); 
-
-   std::string il2Url = "infologger://127.0.0.1:1234";
-   BOOST_CHECK_THROW(Monitoring::GetBackend(il2Url), std::runtime_error);
 
    std::string influxUrl = "influxdb-udp://127.0.0.1:1234";
    auto influx = Monitoring::GetBackend(influxUrl);
@@ -34,7 +31,7 @@ BOOST_AUTO_TEST_CASE(verbosity)
    std::string influxHttpUrl = "influxdb-http://127.0.0.1:1234/write?db=test";
    auto influxHttp = Monitoring::GetBackend(influxHttpUrl);
 
-   std::string ilProdUrl = "infologger:///prod";
+   std::string ilProdUrl = "stdout:///prod";
    auto ilProd = Monitoring::GetBackend(ilProdUrl);
    BOOST_CHECK_EQUAL(static_cast<std::underlying_type<backend::Verbosity>::type>(ilProd->getVerbosity()), 0); 
 }

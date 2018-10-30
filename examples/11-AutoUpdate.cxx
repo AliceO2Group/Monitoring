@@ -8,7 +8,7 @@
 using namespace o2::monitoring;
 
 int main() {
-  auto monitoring = MonitoringFactory::Get("infologger://");
+  auto monitoring = MonitoringFactory::Get("stdout://");
 
   // Enable periodical value pushing (default every 1s)
   monitoring->enableAutoPush();

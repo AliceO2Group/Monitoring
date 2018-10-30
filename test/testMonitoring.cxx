@@ -16,7 +16,7 @@ using Monitoring = o2::monitoring::MonitoringFactory;
 
 BOOST_AUTO_TEST_CASE(createMonitoring)
 {
-  auto monitoring = Monitoring::Get("infologger://");
+  auto monitoring = Monitoring::Get("stdout://");
 
   int intMetric = 10; 
   std::string stringMetric("monitoringString");
@@ -35,7 +35,7 @@ BOOST_AUTO_TEST_CASE(createMonitoring)
 
 BOOST_AUTO_TEST_CASE(buffering)
 {
-  auto monitoring = Monitoring::Get("infologger://,flume://localhost:1234");
+  auto monitoring = Monitoring::Get("stdout://,flume://localhost:1234");
   monitoring->enableBuffering(10);
   for (int i = 0; i < 25; i++) {
     monitoring->send({10, "myMetricInt"});
@@ -45,14 +45,14 @@ BOOST_AUTO_TEST_CASE(buffering)
 
 BOOST_AUTO_TEST_CASE(testTimer)
 {
-  auto monitoring = Monitoring::Get("infologger://");
+  auto monitoring = Monitoring::Get("stdout://");
   monitoring->startTimer("test");
   monitoring->stopAndSendTimer("timer");
 }
 
 BOOST_AUTO_TEST_CASE(testPush)
 {
-  auto monitoring = Monitoring::Get("infologger://");
+  auto monitoring = Monitoring::Get("stdout://");
   monitoring->enableAutoPush();
   auto& qcMetric = monitoring->getAutoPushMetric("qcMetric");
   auto& qcMetric2 = monitoring->getAutoPushMetric("qcMetric2");
