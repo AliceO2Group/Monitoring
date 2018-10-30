@@ -56,9 +56,7 @@ void StdOut::sendMultiple(std::string measurement, std::vector<Metric>&& metrics
     if (!metricTags.empty()) {
       metricTags = "," + metricTags;
     }
-    auto tStamp = std::chrono::system_clock::to_time_t(metric.getTimestamp());
-    mStream << std::put_time(std::localtime(&tStamp), "%Y-%m-%d %X") << "\t"
-      <<  "[METRIC] " << measurement << "/" << metric.getName() << "," << metric.getType() << " "
+    mStream <<  "[METRIC] " << measurement << "/" << metric.getName() << "," << metric.getType() << " "
       << metric.getValue() << " " << convertTimestamp(metric.getTimestamp()) << " " << tagString
       << metricTags << "\n";
   }
@@ -76,9 +74,7 @@ void StdOut::send(const Metric& metric)
   if (!metricTags.empty()) {
     metricTags = "," + metricTags;
   }
-  auto tStamp = std::chrono::system_clock::to_time_t(metric.getTimestamp());
-  mStream << std::put_time(std::localtime(&tStamp), "%Y-%m-%d %X") << "\t"
-     << "[METRIC] " << metric.getName() << "," << metric.getType() << " " << metric.getValue()
+  mStream << "[METRIC] " << metric.getName() << "," << metric.getType() << " " << metric.getValue()
     << " " << convertTimestamp(metric.getTimestamp()) << " " << tagString << metricTags
     << "\n";
 }
