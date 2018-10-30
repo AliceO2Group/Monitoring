@@ -4,6 +4,7 @@
 ///
 
 #include "Monitoring/Monitoring.h"
+#include "Exceptions/MonitoringException.h"
 
 #include <boost/lexical_cast.hpp>
 #include <chrono>
@@ -198,14 +199,17 @@ void Monitoring::pushToBackends(Metric&& metric)
 
 void Monitoring::send(Metric&& metric, DerivedMetricMode mode)
 {
-  if (mode == DerivedMetricMode::RATE) {
-    pushToBackends(mDerivedHandler->rate(metric));
-  }
+  try {
+    if (mode == DerivedMetricMode::RATE) {
+      pushToBackends(mDerivedHandler->rate(metric));
+    }
 
-  if (mode == DerivedMetricMode::INCREMENT) {
-    pushToBackends(mDerivedHandler->increment(metric));
+    if (mode == DerivedMetricMode::INCREMENT) {
+      pushToBackends(mDerivedHandler->increment(metric));
+    }
+  } catch(MonitoringException& e) {
+    MonLogger::Get() << "[WARN] " << e.what() << MonLogger::End();
   }
-
   pushToBackends(std::move(metric));
 }
 

@@ -94,15 +94,6 @@ BOOST_AUTO_TEST_CASE(customCopyConstructor) {
   }
 }
 
-BOOST_AUTO_TEST_CASE(setters) {
-  o2::monitoring::Metric metric = o2::monitoring::Metric{10, "myMetric"};
-  metric.setName("renamed");
-  auto timestamp = Metric::getCurrentTimestamp();
-  metric.setTimestamp(timestamp);
-
-  BOOST_CHECK_EQUAL(metric.getName(), "renamed");
-}
-
 } // namespace Test
 } // namespace monitoring
 } // namespace o2

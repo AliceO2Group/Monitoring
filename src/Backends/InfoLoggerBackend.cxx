@@ -43,13 +43,10 @@ void InfoLoggerBackend::send(std::vector<Metric>&& metrics) {
   }
 }
 
-void InfoLoggerBackend::sendMultiple(std::string measurement, std::vector<Metric>&& metrics)
+void InfoLoggerBackend::sendMultiple(std::string, std::vector<Metric>&& metrics)
 {
   for (auto& m : metrics) {
-    std::string tempName = m.getName();
-    m.setName(measurement + "-" + m.getName());
     send(m);
-    m.setName(tempName);
   }
 }
 

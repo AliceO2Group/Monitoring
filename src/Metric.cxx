@@ -34,11 +34,6 @@ std::string Metric::getName() const
   return mName;
 }
 
-void Metric::setName(std::string name)
-{
-  mName = name;
-}
-
 Metric::Metric(int value, const std::string& name, std::chrono::time_point<std::chrono::system_clock> timestamp) :
   mValue(value), mName(name), mTimestamp(timestamp)
 {}

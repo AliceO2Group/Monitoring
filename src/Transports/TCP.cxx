@@ -7,6 +7,7 @@
 #include <string>
 #include <iostream>
 #include "Exceptions/MonitoringException.h"
+#include "../MonLogger.h"
 
 namespace o2
 {
@@ -40,7 +41,7 @@ void TCP::send(std::string&& message)
   try {
     mSocket.send(boost::asio::buffer(message));
   } catch(const boost::system::system_error& e) {
-    throw MonitoringException("TCP send", e.what());
+    MonLogger::Get() << "TCP send: " << e.what() << MonLogger::End();
   }
 }
 
