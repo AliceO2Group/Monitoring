@@ -10,7 +10,6 @@
 #include "MonLogger.h"
 #include "UriParser/UriParser.h"
 
-#include "Backends/InfoLoggerBackend.h"
 #include "Backends/StdOut.h"
 #include "Backends/Flume.h"
 #include "Backends/Noop.h"
