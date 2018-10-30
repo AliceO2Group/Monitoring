@@ -12,7 +12,7 @@ int main() {
 
   // Configure monitoring
   // Pass string with list of URLs as parameter
-  auto monitoring = Monitoring::Get("infologger://");
+  auto monitoring = Monitoring::Get("stdout://");
 
   // now send an application specific metric with additional tags
   // 10 is the value

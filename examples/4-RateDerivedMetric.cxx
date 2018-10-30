@@ -11,7 +11,7 @@ using DerivedMetricMode =  o2::monitoring::DerivedMetricMode;
 int main() {
   // Configure monitoring
   // Pass string with list of URLs as parameter
-  auto monitoring = Monitoring::Get("infologger://");
+  auto monitoring = Monitoring::Get("stdout://");
 
   // now send at least two metrics to see the result
   for (int i = 0; i < 101; i += 10) {

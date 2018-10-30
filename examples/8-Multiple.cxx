@@ -10,7 +10,7 @@ using Monitoring = o2::monitoring::MonitoringFactory;
 int main() {
   // Configure monitoring
   // Pass string with list of URLs as parameter
-  auto monitoring = Monitoring::Get("flume://pcald03.cern.ch:8092");
+  auto monitoring = Monitoring::Get("stdout://");
 
   monitoring->sendGrouped("measurementName", {{20, "myMetricIntMultiple"}, {20.30, "myMetricFloatMultple"}});
   monitoring->send({{201, "myMetricIntMultiple"}, {2.34, "myMetricFloatMultple"}});

@@ -20,7 +20,7 @@ BOOST_AUTO_TEST_CASE(createProcessMonitor)
 
 BOOST_AUTO_TEST_CASE(monitorProcess)
 {
-  auto monitoring = o2::monitoring::MonitoringFactory::Get("infologger://");
+  auto monitoring = o2::monitoring::MonitoringFactory::Get("stdout://");
   monitoring->enableProcessMonitoring(1);
   std::this_thread::sleep_for (std::chrono::milliseconds(2100));
 }
