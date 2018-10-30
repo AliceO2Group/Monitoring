@@ -71,10 +71,6 @@ class Metric
     /// \return	metric name
     std::string getName() const;
 
-    /// Name setter
-    /// \param name	new name of the metric
-    void setName(std::string name);
-
     /// Timestamp getter
     /// \return 	metric timestamp
     std::chrono::time_point<std::chrono::system_clock> getTimestamp() const;
