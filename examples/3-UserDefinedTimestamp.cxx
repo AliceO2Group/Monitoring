@@ -11,7 +11,7 @@ using o2::monitoring::Metric;
 int main() {
   // Configure monitoring
   // Pass string with list of URLs as parameter
-  auto monitoring = Monitoring::Get("infologger://");
+  auto monitoring = Monitoring::Get("stdout://");
 
   // current timestamp
   std::chrono::time_point<std::chrono::system_clock> timestamp = std::chrono::system_clock::now();

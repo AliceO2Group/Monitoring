@@ -10,7 +10,6 @@
 #include "MonLogger.h"
 #include "UriParser/UriParser.h"
 
-#include "Backends/InfoLoggerBackend.h"
 #include "Backends/StdOut.h"
 #include "Backends/Flume.h"
 #include "Backends/Noop.h"
@@ -28,12 +27,8 @@ namespace o2
 namespace monitoring 
 {
 
-std::unique_ptr<Backend> getInfoLogger(http::url uri) {
-  if (uri.host == "") {
-    return std::make_unique<backends::StdOut>();
-  } else {
-    return std::make_unique<backends::InfoLoggerBackend>(uri.host, uri.port);
-  }
+std::unique_ptr<Backend> getStdOut(http::url) {
+  return std::make_unique<backends::StdOut>();
 }
 
 std::unique_ptr<Backend> getInfluxDb(http::url uri) {
@@ -85,7 +80,8 @@ void MonitoringFactory::SetVerbosity(std::string selected, std::unique_ptr<Backe
 
 std::unique_ptr<Backend> MonitoringFactory::GetBackend(std::string& url) {
   static const std::map<std::string, std::function<std::unique_ptr<Backend>(const http::url&)>> map = {
-    {"infologger", getInfoLogger},
+    {"infologger", getStdOut},
+    {"stdout", getStdOut},
     {"influxdb-udp", getInfluxDb},
     {"influxdb-http", getInfluxDb},
     {"apmon", getApMon},

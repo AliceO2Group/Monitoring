@@ -72,11 +72,15 @@ See table below to find out how to create `URI` for each backend:
 | InfluxDB     | HTTP      | `influxdb-http`        | `/write?db=<db>` | `prod`            |
 | InfluxDB     | UDP       | `influxdb-udp`         | -                | `prod`            |
 | ApMon        | UDP       | `apmon`                | -                | `prod`            |
-| Local InfoLogger | -     | `infologger://`        | -                | `debug`           |
-| InfoLogger   | TCP       | `infologger`           | -                | `prod`            |
+| StdOut       | -         | `stdout`, `infologger` | -                | `debug`           |
 | Flume        | UDP       | `flume`                | -                | `prod`            |
 
 Multiple backends may be used at the same time, URLs should be separated by `,` (comma).
+
+#### StdCout output format
+```
+<timestamp/%Y-%m-%d %X> [METRIC] <name>,<type> <value> <timestamp> <tags>
+```
 
 ### Sending metric
 

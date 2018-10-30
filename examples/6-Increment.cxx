@@ -11,7 +11,7 @@ using DerivedMetricMode = o2::monitoring::DerivedMetricMode;
 int main() {
   // Configure monitoring
   // Pass string with list of URLs as parameter
-  auto monitoring = Monitoring::Get("infologger://");
+  auto monitoring = Monitoring::Get("stdout://");
 
   // Increment values by ..
   monitoring->send({10, "myIncrementMetric"}, DerivedMetricMode::INCREMENT);
