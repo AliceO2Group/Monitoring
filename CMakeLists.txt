@@ -54,7 +54,7 @@ find_package(Boost REQUIRED COMPONENTS unit_test_framework program_options syste
 find_package(Git QUIET)
 find_package(ApMon MODULE)
 find_package(CURL REQUIRED MODULE)
-
+find_package(InfoLogger CONFIG REQUIRED)
 
 ####################################
 # Library
@@ -100,6 +100,7 @@ target_include_directories(Monitoring
 target_link_libraries(Monitoring
   PUBLIC
     Boost::boost
+     AliceO2::InfoLogger
   PRIVATE
     Boost::system
     CURL::CURL

@@ -18,7 +18,7 @@ MonitoringException::MonitoringException(const std::string& source, const std::s
 MonitoringException::MonitoringException(int code, const std::string& source, const std::string& message)
 : message(message)
 {
-  MonLogger::Get(Severity::Warn) << "MonitoringException["
+  MonLogger::Get() << "MonitoringException["
                        << source << "] (" << code << "): " << message << MonLogger::End();
 }
 
