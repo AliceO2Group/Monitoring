@@ -24,9 +24,9 @@ matrix:
             - gcc-8
             - g++-8
             - cmake
-            - libboost-system1.63-dev
-            - libboost-filesystem1.63-dev
-            - libboost-test1.63-dev
+            - libboost-system1.55-dev
+            - libboost-filesystem1.55-dev
+            - libboost-test1.55-dev
     - os: linux
       env: TOOL=coverage
       addons:
