@@ -12,7 +12,7 @@ matrix:
       compiler: clang
   include:
     - os: osx
-      osx_image: xcode9.2
+      osx_image: xcode10
       env: TOOL=test
     - os: linux
       env: TOOL=test
@@ -58,9 +58,9 @@ before_install:
 install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 90; fi
 #  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cd ../boost_1_64_0; ./bootstrap.sh --with-libraries=test,program_options,system,filesystem; fi
-#  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo ./b2 -j 4 install > /dev/null 2>&1; cd $TRAVIS_BUILD_DIR; fi
+#  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo ./b2 -j 4 install > /dev/null 2>&1; fi
 before_script: 
-  - mkdir build; cd build
+  - cd $TRAVIS_BUILD_DIR; mkdir build; cd build
 script:
   - if [[ $TOOL != "coverage" ]]; then cmake .. -DCMAKE_INSTALL_PREFIX=$TRAVIS_BUILD_DIR/installed;
                                   else cmake .. -DCMAKE_BUILD_TYPE=Debug; fi
