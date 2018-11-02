@@ -24,7 +24,9 @@ matrix:
             - gcc-8
             - g++-8
             - cmake
-            - libboost-all-dev
+            - libboost-system1.63-dev
+            - libboost-filesystem1.63-dev
+            - libboost-test1.63-dev
     - os: linux
       env: TOOL=coverage
       addons:
@@ -41,7 +43,6 @@ matrix:
             - doxygen-latex
             - doxygen-gui
             - graphviz
-            - libboost-all-dev
       branches:
         only:
           - dev
