@@ -71,8 +71,8 @@ BOOST_AUTO_TEST_CASE(tags) {
   o2::monitoring::Metric metric = o2::monitoring::Metric{10, "myMetric"}.addTags({{"tag1", "value1"}, {"tag2", "value2"}});
   std::vector<Tag> tags = metric.getTags();
   for (auto const& tag: tags) {
-    BOOST_TEST(tag.name.find("tag") != std::string::npos);
-    BOOST_TEST(tag.value.find("value") != std::string::npos);
+    BOOST_CHECK(tag.name.find("tag") != std::string::npos);
+    BOOST_CHECK(tag.value.find("value") != std::string::npos);
   }
 }
 
@@ -89,8 +89,8 @@ BOOST_AUTO_TEST_CASE(customCopyConstructor) {
 
   std::vector<Tag> tags = copied.getTags();
   for (auto const& tag: tags) {
-    BOOST_TEST(tag.name.find("tag") != std::string::npos);
-    BOOST_TEST(tag.value.find("value") != std::string::npos);
+    BOOST_CHECK(tag.name.find("tag") != std::string::npos);
+    BOOST_CHECK(tag.value.find("value") != std::string::npos);
   }
 }
 
