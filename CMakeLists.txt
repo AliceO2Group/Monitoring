@@ -11,6 +11,7 @@ else()
     cmake_policy(VERSION 3.12)
 endif()
 
+find_package(Git QUIET)
 # Get version from git tag
 execute_process(COMMAND ${GIT_EXECUTABLE} describe --tags --always --abbrev=0
   OUTPUT_VARIABLE GIT_TAG)
@@ -57,7 +58,6 @@ endif()
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 find_package(Boost REQUIRED COMPONENTS unit_test_framework program_options system filesystem)
-find_package(Git QUIET)
 find_package(ApMon MODULE)
 find_package(CURL REQUIRED MODULE)
 
