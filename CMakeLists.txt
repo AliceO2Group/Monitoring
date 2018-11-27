@@ -11,9 +11,15 @@ else()
     cmake_policy(VERSION 3.12)
 endif()
 
+# Get version from git tag
+execute_process(COMMAND ${GIT_EXECUTABLE} describe --tags --always --abbrev=0
+  OUTPUT_VARIABLE GIT_TAG)
+string(REPLACE "v" "" GIT_TAG "${GIT_TAG}")
+string(REPLACE "\n" "" GIT_TAG "${GIT_TAG}")
+
 # Define project
 project(Monitoring
-  VERSION 1.9.2
+  VERSION "${GIT_TAG}"
   DESCRIPTION "O2 Monitoring library"
   LANGUAGES CXX
 )
