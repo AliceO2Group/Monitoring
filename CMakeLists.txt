@@ -25,6 +25,8 @@ project(Monitoring
   LANGUAGES CXX
 )
 
+message(STATUS "Module: Monitoring ${PROJECT_VERSION}")
+
 # Documentation dir
 add_subdirectory(doc)
 
