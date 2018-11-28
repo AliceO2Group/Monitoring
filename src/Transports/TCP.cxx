@@ -52,6 +52,8 @@ void TCP::read() {
     size_t len = mSocket.read_some(boost::asio::buffer(buf), error);
     if (error == boost::asio::error::eof) {
       break;
+    } else {
+      return;
     }
     std::cout.write(buf.data(), len);
   }
