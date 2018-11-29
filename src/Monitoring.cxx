@@ -118,8 +118,8 @@ ComplexMetric& Monitoring::getAutoPushMetric(std::string name, unsigned int inte
   if (!mMonitorRunning) {
     mMonitorRunning = true;
     mMonitorThread = std::thread(&Monitoring::pushLoop, this);
+    mAutoPushInterval = interval;
   }
-  mAutoPushInterval = interval;
   mPushStore.emplace_back(boost::variant< int, std::string, double, uint64_t > {}, name);
   return mPushStore.back();
 }
