@@ -87,11 +87,6 @@ class Metric
     /// \return         vector of tags
     std::vector<Tag> getTags() const;
 
-    /// Sets user defined timestamp
-    /// \param timestamp	timestamp to set
-    /// \return         	 r-value to "this" - to be able to chain methods
-    Metric&& setTimestamp(std::chrono::time_point<std::chrono::system_clock>& timestamp);
- 
     /// Add user defined tags
     /// \param tags      r-value to vector of tags
     /// \return          r-value to "this" - to be able to chain methods
