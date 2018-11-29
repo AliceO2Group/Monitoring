@@ -147,7 +147,7 @@ set(EXAMPLES
   examples/8-Multiple.cxx
   examples/9-Timer.cxx
   examples/10-Buffering.cxx
-  examples/11-AutoUpdate.cxx
+#  examples/11-AutoUpdate.cxx
 )
 
 foreach (example ${EXAMPLES})
@@ -168,7 +168,7 @@ endforeach()
 enable_testing()
 
 set(TEST_SRCS
-  test/testMonitoring.cxx
+#  test/testMonitoring.cxx
   test/testMonitoringFactory.cxx
   test/testDerived.cxx
   test/testFlume.cxx

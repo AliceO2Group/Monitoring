@@ -127,7 +127,7 @@ void Monitoring::pushLoop()
       for (auto& metric : mPushStore) {
         metrics.push_back(metric);
       }
-      send(std::move(metrics));
+      //send(std::move(metrics));
     }
     std::this_thread::sleep_for (std::chrono::milliseconds(100));
     (loopCount >= 600) ? loopCount = 0 : loopCount++;
