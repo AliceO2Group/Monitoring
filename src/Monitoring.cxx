@@ -63,28 +63,6 @@ void Monitoring::enableProcessMonitoring(const unsigned int interval) {
   #endif
 }
 
-void Monitoring::startTimer(std::string name) {
-  auto search = mTimers.find(name);
-  if (search == mTimers.end()) {
-    auto now = std::chrono::steady_clock::now();
-    mTimers.insert(std::make_pair(name, now));
-  } else {
-    MonLogger::Get() << "Monitoring timer : Timer for " << name << " already started" << MonLogger::End();
-  }
-}
-
-void Monitoring::stopAndSendTimer(std::string name) {
-  auto search = mTimers.find(name);
-  if (search != mTimers.end()) {
-    auto now = std::chrono::duration_cast <std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
-    auto start = std::chrono::duration_cast <std::chrono::milliseconds>(search->second.time_since_epoch()).count();
-    uint64_t duration = now - start;
-    send({duration, name});
-  } else {
-    MonLogger::Get() << "Monitoring timer : Cannot stop " << name << " timer as it hasn't started" << MonLogger::End();
-  }
-}
-
 void Monitoring::addGlobalTag(std::string name, std::string value)
 {
   for (auto& backend: mBackends) {
@@ -124,17 +102,18 @@ void Monitoring::pushLoop()
 
     if (mAutoPushInterval != 0 && (loopCount % (mAutoPushInterval*10)) == 0) {
       std::vector<Metric> metrics;
-      for (auto& metric : mPushStore) {
+      for (auto metric : mPushStore) {
+        metric.resetTimestamp();
         metrics.push_back(metric);
       }
-      //send(std::move(metrics));
+      send(std::move(metrics));
     }
     std::this_thread::sleep_for (std::chrono::milliseconds(100));
     (loopCount >= 600) ? loopCount = 0 : loopCount++;
   }
 }
 
-Metric& Monitoring::getAutoPushMetric(std::string name, unsigned int interval)
+ComplexMetric& Monitoring::getAutoPushMetric(std::string name, unsigned int interval)
 {
   if (!mMonitorRunning) {
     mMonitorRunning = true;

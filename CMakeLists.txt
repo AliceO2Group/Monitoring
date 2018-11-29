@@ -67,6 +67,7 @@ set(INCLUDE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/include")
 set(SRCS
   src/Monitoring.cxx
   src/Metric.cxx
+  src/ComplexMetric.cxx
   src/Backends/InfluxDB.cxx
   src/Backends/Flume.cxx
   src/Backends/StdOut.cxx
@@ -145,9 +146,8 @@ set(EXAMPLES
   examples/6-Increment.cxx
   examples/7-Latency.cxx
   examples/8-Multiple.cxx
-  examples/9-Timer.cxx
+  examples/9-AutoUpdate.cxx
   examples/10-Buffering.cxx
-#  examples/11-AutoUpdate.cxx
 )
 
 foreach (example ${EXAMPLES})
@@ -168,7 +168,7 @@ endforeach()
 enable_testing()
 
 set(TEST_SRCS
-#  test/testMonitoring.cxx
+  test/testMonitoring.cxx
   test/testMonitoringFactory.cxx
   test/testDerived.cxx
   test/testFlume.cxx
