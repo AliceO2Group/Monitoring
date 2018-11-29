@@ -101,11 +101,7 @@ class Monitoring
     /// Returns a metric which will be periodically sent to backends
     /// \param name 		metric name
     /// \return 		periodically send metric
-    Metric& getAutoPushMetric(std::string name);
-
-    /// Enables periodical push interval
-    /// \param interval 	interval in seconds
-    void enableAutoPush(const unsigned int interval = 1);
+    Metric& getAutoPushMetric(std::string name, unsigned int interval = 1);
 
   private:
     /// Derived metrics handler

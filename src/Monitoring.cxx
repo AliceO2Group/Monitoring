@@ -134,11 +134,13 @@ void Monitoring::pushLoop()
   }
 }
 
-Metric& Monitoring::getAutoPushMetric(std::string name)
+Metric& Monitoring::getAutoPushMetric(std::string name, unsigned int interval)
 {
-  if (mAutoPushInterval == 0) {
-    MonLogger::Get() << "[WARN] AutoPush is not enabled" << MonLogger::End();
+  if (!mMonitorRunning) {
+    mMonitorRunning = true;
+    mMonitorThread = std::thread(&Monitoring::pushLoop, this);
   }
+  mAutoPushInterval = interval;
   mPushStore.emplace_back(boost::variant< int, std::string, double, uint64_t > {}, name);
   return mPushStore.back();
 }
@@ -164,15 +166,6 @@ void Monitoring::debug(Metric&& metric)
       b->send(metric);
     }
   }
-}
-
-void Monitoring::enableAutoPush(unsigned int interval)
-{
-  if (!mMonitorRunning) {
-    mMonitorRunning = true;
-    mMonitorThread = std::thread(&Monitoring::pushLoop, this);
-  }
-  mAutoPushInterval = interval;
 }
 
 void Monitoring::pushToBackends(Metric&& metric)
