@@ -178,6 +178,7 @@ set(TEST_SRCS
   test/testProcessMonitor.cxx
   test/testInfluxDb.cxx
   test/testNoop.cxx
+  test/testRegexMatch.cxx
 )
 
 if(ApMon_FOUND)
