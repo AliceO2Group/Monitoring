@@ -90,12 +90,6 @@ Metric&& Metric::addTags(std::vector<Tag>&& tags)
   return std::move(*this);
 }
 
-Metric&& Metric::setTimestamp(std::chrono::time_point<std::chrono::system_clock>& timestamp)
-{
-  mTimestamp = timestamp;
-  return std::move(*this);
-}
-
 std::vector<Tag> Metric::getTags() const
 {
   return tagSet;
