@@ -113,7 +113,6 @@ Each backend has its default verbosity (see backend in [Monitoring instance](#mo
 ### Customized metrics
 Two additional methods can be chained the to `send(Metric&& metric)` in order to __insert custom tags__ or __set custom timestamp__:
    + `addTags(std::vector<Tag>&& tags)`
-   + `setTimestamp(std::chrono::time_point<std::chrono::system_clock>& timestamp)`
 
 See how it works in the example: [examples/2-TaggedMetrics.cxx](examples/2-TaggedMetrics.cxx), [examples/3-UserDefinedTimestamp.cxx](examples/3-UserDefinedTimestamp.cxx).
 

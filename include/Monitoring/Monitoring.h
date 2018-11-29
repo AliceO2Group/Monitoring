@@ -17,6 +17,7 @@
 #include <vector>
 #include <deque>
 
+#include "Monitoring/ComplexMetric.h"
 #include "Monitoring/Backend.h"
 #include "Monitoring/DerivedMetrics.h"
 #include "Monitoring/ProcessMonitor.h"
@@ -76,16 +77,6 @@ class Monitoring
     /// \param interval		refresh interval
     void enableProcessMonitoring(const unsigned int interval = 5);
 
-    /// Starts timing
-    /// Sets a start timestamp and timeout
-    /// \param name 		metric name
-    void startTimer(std::string name);
-
-    /// Stops timing
-    /// Sets stop timestamp, calculates delta and sends value
-    /// \param name 		metric name
-    void stopAndSendTimer(std::string name);
-
     /// Flushes metric buffer (this can also happen when buffer is full)
     void flushBuffer();
 
@@ -101,11 +92,7 @@ class Monitoring
     /// Returns a metric which will be periodically sent to backends
     /// \param name 		metric name
     /// \return 		periodically send metric
-    Metric& getAutoPushMetric(std::string name);
-
-    /// Enables periodical push interval
-    /// \param interval 	interval in seconds
-    void enableAutoPush(const unsigned int interval = 1);
+    ComplexMetric& getAutoPushMetric(std::string name, unsigned int interval = 1);
 
   private:
     /// Derived metrics handler
@@ -114,9 +101,6 @@ class Monitoring
 
     /// Vector of backends (where metrics are passed to)
     std::vector <std::unique_ptr<Backend>> mBackends;
-
-    /// List of timers
-    std::unordered_map <std::string, std::chrono::time_point<std::chrono::steady_clock>> mTimers;
 
     /// Pushes metric to all backends or to the buffer
     void pushToBackends(Metric&& metric);
@@ -143,7 +127,7 @@ class Monitoring
     unsigned int mBufferSize;
 
     /// Store for automatically pushed metrics
-    std::deque<Metric> mPushStore;
+    std::deque<ComplexMetric> mPushStore;
 
     /// Process monitor interval
     std::atomic<unsigned int> mProcessMonitoringInterval;

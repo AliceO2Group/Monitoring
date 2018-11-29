@@ -8,7 +8,6 @@
 
 #include <string>
 #include <chrono>
-#include <mutex>
 #include <vector>
 #include <boost/variant.hpp>
 #include "Tag.h"
@@ -58,15 +57,6 @@ class Metric
     /// Default destructor
     ~Metric() = default;
 
-    /// Copy initialization
-    Metric(const Metric& other);
-
-    /// Copy assignment
-    Metric& operator=(Metric const& other);
-
-    /// Assign operator overload, assignes new values to the metric object
-    Metric& operator=(const boost::variant< int, std::string, double, uint64_t >& value);
-        
     /// Name getter
     /// \return	metric name
     std::string getName() const;
@@ -96,7 +86,7 @@ class Metric
     /// return          timestamp as std::chrono::system_clock
     static auto getCurrentTimestamp() -> decltype(std::chrono::system_clock::now());
 
-  private:
+  protected:
     /// Metric value
     boost::variant< int, std::string, double, uint64_t > mValue;
 
@@ -108,9 +98,6 @@ class Metric
 
     /// Metric tags
     std::vector<Tag> tagSet;
-
-    /// Mutex for accesing metric value
-    mutable std::mutex mValueMutex;
 };
 
 } // namespace monitoring

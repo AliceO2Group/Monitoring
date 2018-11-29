@@ -63,28 +63,6 @@ void Monitoring::enableProcessMonitoring(const unsigned int interval) {
   #endif
 }
 
-void Monitoring::startTimer(std::string name) {
-  auto search = mTimers.find(name);
-  if (search == mTimers.end()) {
-    auto now = std::chrono::steady_clock::now();
-    mTimers.insert(std::make_pair(name, now));
-  } else {
-    MonLogger::Get() << "Monitoring timer : Timer for " << name << " already started" << MonLogger::End();
-  }
-}
-
-void Monitoring::stopAndSendTimer(std::string name) {
-  auto search = mTimers.find(name);
-  if (search != mTimers.end()) {
-    auto now = std::chrono::duration_cast <std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
-    auto start = std::chrono::duration_cast <std::chrono::milliseconds>(search->second.time_since_epoch()).count();
-    uint64_t duration = now - start;
-    send({duration, name});
-  } else {
-    MonLogger::Get() << "Monitoring timer : Cannot stop " << name << " timer as it hasn't started" << MonLogger::End();
-  }
-}
-
 void Monitoring::addGlobalTag(std::string name, std::string value)
 {
   for (auto& backend: mBackends) {
@@ -124,7 +102,8 @@ void Monitoring::pushLoop()
 
     if (mAutoPushInterval != 0 && (loopCount % (mAutoPushInterval*10)) == 0) {
       std::vector<Metric> metrics;
-      for (auto& metric : mPushStore) {
+      for (auto metric : mPushStore) {
+        metric.resetTimestamp();
         metrics.push_back(metric);
       }
       send(std::move(metrics));
@@ -134,10 +113,12 @@ void Monitoring::pushLoop()
   }
 }
 
-Metric& Monitoring::getAutoPushMetric(std::string name)
+ComplexMetric& Monitoring::getAutoPushMetric(std::string name, unsigned int interval)
 {
-  if (mAutoPushInterval == 0) {
-    MonLogger::Get() << "[WARN] AutoPush is not enabled" << MonLogger::End();
+  if (!mMonitorRunning) {
+    mMonitorRunning = true;
+    mMonitorThread = std::thread(&Monitoring::pushLoop, this);
+    mAutoPushInterval = interval;
   }
   mPushStore.emplace_back(boost::variant< int, std::string, double, uint64_t > {}, name);
   return mPushStore.back();
@@ -164,15 +145,6 @@ void Monitoring::debug(Metric&& metric)
       b->send(metric);
     }
   }
-}
-
-void Monitoring::enableAutoPush(unsigned int interval)
-{
-  if (!mMonitorRunning) {
-    mMonitorRunning = true;
-    mMonitorThread = std::thread(&Monitoring::pushLoop, this);
-  }
-  mAutoPushInterval = interval;
 }
 
 void Monitoring::pushToBackends(Metric&& metric)
