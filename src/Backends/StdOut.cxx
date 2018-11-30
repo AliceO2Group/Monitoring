@@ -68,19 +68,16 @@ void StdOut::send(const Metric& metric)
     mStream << "[METRIC] " << metric.getConstName() << "," << metric.getType() << " " << metric.getValue()
       << " " << convertTimestamp(metric.getTimestamp()) << " " << tagString << "\n";
   } else {
-  std::string metricTags{};
-  for (const auto& tag : metric.getTags()) {
-    if (!metricTags.empty()) {
-      metricTags += ",";
+    std::string metricTags{};
+    for (const auto& tag : metric.getTags()) {
+      metricTags += "," + tag.name + "=" + tag.value;
     }
-    metricTags += tag.name + "=" + tag.value;
-  }
-  if (!metricTags.empty()) {
-    metricTags = "," + metricTags;
-  }
-  mStream << "[METRIC] " << metric.getConstName() << "," << metric.getType() << " " << metric.getValue()
-    << " " << convertTimestamp(metric.getTimestamp()) << " " << tagString << metricTags
-    << "\n";
+    if (tagString.empty()) {
+      metricTags.erase(0, 1);
+    }
+
+    mStream << "[METRIC] " << metric.getConstName() << "," << metric.getType() << " " << metric.getValue()
+      << " " << convertTimestamp(metric.getTimestamp()) << " " << tagString << metricTags << "\n";
   }
 }
 
