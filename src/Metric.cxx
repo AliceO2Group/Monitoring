@@ -30,6 +30,16 @@ std::string Metric::getName() const
   return mName;
 }
 
+const std::string& Metric::getConstName() const
+{
+  return mName;
+}
+
+std::size_t Metric::tagSize() const
+{
+  return tagSet.size();
+}
+
 Metric::Metric(int value, const std::string& name, std::chrono::time_point<std::chrono::system_clock> timestamp) :
   mValue(value), mName(name), mTimestamp(timestamp)
 {}

@@ -56,7 +56,7 @@ void StdOut::sendMultiple(std::string measurement, std::vector<Metric>&& metrics
     if (!metricTags.empty()) {
       metricTags = "," + metricTags;
     }
-    mStream <<  "[METRIC] " << measurement << "/" << metric.getName() << "," << metric.getType() << " "
+    mStream <<  "[METRIC] " << measurement << "/" << metric.getConstName() << "," << metric.getType() << " "
       << metric.getValue() << " " << convertTimestamp(metric.getTimestamp()) << " " << tagString
       << metricTags << "\n";
   }
@@ -64,19 +64,21 @@ void StdOut::sendMultiple(std::string measurement, std::vector<Metric>&& metrics
 
 void StdOut::send(const Metric& metric)
 {
-  std::string metricTags{};
-  for (const auto& tag : metric.getTags()) {
-    if (!metricTags.empty()) {
-      metricTags += ",";
+  if (metric.tagSize() == 0) {
+    mStream << "[METRIC] " << metric.getConstName() << "," << metric.getType() << " " << metric.getValue()
+      << " " << convertTimestamp(metric.getTimestamp()) << " " << tagString << "\n";
+  } else {
+    std::string metricTags{};
+    for (const auto& tag : metric.getTags()) {
+      metricTags += "," + tag.name + "=" + tag.value;
     }
-    metricTags += tag.name + "=" + tag.value;
+    if (tagString.empty()) {
+      metricTags.erase(0, 1);
+    }
+
+    mStream << "[METRIC] " << metric.getConstName() << "," << metric.getType() << " " << metric.getValue()
+      << " " << convertTimestamp(metric.getTimestamp()) << " " << tagString << metricTags << "\n";
   }
-  if (!metricTags.empty()) {
-    metricTags = "," + metricTags;
-  }
-  mStream << "[METRIC] " << metric.getName() << "," << metric.getType() << " " << metric.getValue()
-    << " " << convertTimestamp(metric.getTimestamp()) << " " << tagString << metricTags
-    << "\n";
 }
 
 } // namespace backends

@@ -61,6 +61,9 @@ class Metric
     /// \return	metric name
     std::string getName() const;
 
+    /// Const name getter
+    const std::string& getConstName() const;
+
     /// Timestamp getter
     /// \return 	metric timestamp
     std::chrono::time_point<std::chrono::system_clock> getTimestamp() const;
@@ -85,6 +88,9 @@ class Metric
     /// Generetes current timestamp
     /// return          timestamp as std::chrono::system_clock
     static auto getCurrentTimestamp() -> decltype(std::chrono::system_clock::now());
+
+    /// Tagset vector size getter
+    std::size_t tagSize() const;
 
   protected:
     /// Metric value
