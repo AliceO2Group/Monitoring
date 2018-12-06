@@ -97,9 +97,9 @@ inline unsigned long Flume::convertTimestamp(const std::chrono::time_point<std::
   ).count();
 }
 
-void Flume::addGlobalTag(std::string name, std::string value)
+void Flume::addGlobalTag(std::string_view name, std::string_view value)
 {
-  globalHeader.put<std::string>(name, value);
+  globalHeader.put<std::string>(name.data(), value.data());
 }
 
 } // namespace backends

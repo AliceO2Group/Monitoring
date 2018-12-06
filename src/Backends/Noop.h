@@ -41,7 +41,7 @@ class Noop final : public Backend
 
     /// \param name             tag name
     /// \param value            tag value that is concatenated to entity string
-    void addGlobalTag(std::string /*name*/, std::string /*value*/) final {}
+    void addGlobalTag(std::string_view /*name*/, std::string_view /*value*/) final {}
 };
 
 } // namespace backends

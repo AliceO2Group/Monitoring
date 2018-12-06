@@ -121,11 +121,14 @@ void InfluxDB::prepareValue(std::string& value, int type)
   }
 }
 
-void InfluxDB::addGlobalTag(std::string name, std::string value)
+void InfluxDB::addGlobalTag(std::string_view name, std::string_view value)
 {
-  escape(name); escape(value);
+  std::string tag = name.data();
+  tag += "=";
+  tag += value;
+  escape(tag);
   if (!tagSet.empty()) tagSet += ",";
-  tagSet += name + "=" + value;
+  tagSet += tag;
 }
 
 } // namespace backends

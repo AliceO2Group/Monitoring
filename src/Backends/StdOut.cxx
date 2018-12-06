@@ -29,12 +29,13 @@ StdOut::StdOut() : mStream(std::cout)
   MonLogger::Get() << "StdOut backend initialized" << MonLogger::End();
 }
 
-void StdOut::addGlobalTag(std::string name, std::string value)
+void StdOut::addGlobalTag(std::string_view name, std::string_view value)
 {
-  if (!tagString.empty()) {
-    tagString += ",";
-  }
-  tagString += name + "=" + value;
+  std::string tag = name.data();
+  tag += "=";
+  tag += value;
+  if (!tagString.empty()) tagString += ",";
+  tagString += tag;
 }
 
 void StdOut::send(std::vector<Metric>&& metrics) {

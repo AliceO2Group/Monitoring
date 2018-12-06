@@ -13,8 +13,9 @@ int main() {
   // Pass string with list of URLs as parameter
   auto monitoring = MonitoringFactory::Get("stdout://");
 
-  /// Add global tag
+  /// Add global tags
   monitoring->addGlobalTag("example", "yes");
+  monitoring->addGlobalTag(tags::Subsystem::DPL);
 
   // now send an application specific metric with additional tags
   // 10 is the value
