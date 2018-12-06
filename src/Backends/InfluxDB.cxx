@@ -92,18 +92,19 @@ void InfluxDB::send(const Metric& metric)
 }
 
 std::string InfluxDB::toInfluxLineProtocol(const Metric& metric) {
-  std::string metricTags{};
-  for (const auto& tag : metric.getTags()) {
-    metricTags += "," + tag.name + "=" + tag.value;
+  std::stringstream convert;
+  std::string name = metric.getConstName();
+  escape(name);
+  convert << name << "," << tagSet;
+
+  for (const auto& tagIndex : metric.getTags()) {
+    convert << "," << tags::TAG_ARRAY[tagIndex].first << "=" << tags::TAG_ARRAY[tagIndex].second;
   }
 
   std::string value = boost::lexical_cast<std::string>(metric.getValue());
   prepareValue(value, metric.getType());
-  std::string name = metric.getName();
-  escape(name);
 
-  std::stringstream convert;
-  convert << name << "," << tagSet << metricTags << " value=" << value << " " << convertTimestamp(metric.getTimestamp());
+  convert << " value=" << value << " " << convertTimestamp(metric.getTimestamp());
   return convert.str();
 }
 

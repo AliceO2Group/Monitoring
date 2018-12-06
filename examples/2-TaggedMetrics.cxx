@@ -5,18 +5,20 @@
 
 #include "Monitoring/MonitoringFactory.h"
 
-using Monitoring = o2::monitoring::MonitoringFactory;
-using o2::monitoring::Metric;
+using namespace o2::monitoring;
 
 int main() {
 
   // Configure monitoring
   // Pass string with list of URLs as parameter
-  auto monitoring = Monitoring::Get("stdout://");
+  auto monitoring = MonitoringFactory::Get("stdout://");
+
+  /// Add global tag
+  monitoring->addGlobalTag("example", "yes");
 
   // now send an application specific metric with additional tags
   // 10 is the value
   // myMetric is the name of the metric
-  // then vector of key-value tags
-  monitoring->send(Metric{10, "myMetric"}.addTags({{"tag1", "value1"}, {"tag2", "value2"}}));
+  // then add predefined tag
+  monitoring->send(Metric{10, "myMetric"}.addTags({tags::Detector::TPC}));
 }

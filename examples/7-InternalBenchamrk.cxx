@@ -19,12 +19,12 @@ void test(std::unique_ptr<Monitoring>& monitoring) {
 void testWithTags(std::unique_ptr<Monitoring>& monitoring) {
   monitoring->addGlobalTag("benchmark", "yes");
   for (int i = 0; i < 100000; i++) {
-    monitoring->send(Metric{10, "myMetricInt"}.addTags({{"tag1", "val1"}}));
-    monitoring->send(Metric{10.10, "myMetricFloat"}.addTags({{"tag2", "val2"}}));
+    monitoring->send(Metric{10, "myMetricInt"}.addTags({tags::Detector::TPC}));
+    monitoring->send(Metric{10.10, "myMetricFloat"}.addTags({tags::Subsystem::QC}));
   }
 }
 
-int main(int argc, char** argv) {
+int main() {
   static constexpr std::array<std::string_view,4> backends = {
     "no-op://",
     "flume://localhost:1234",

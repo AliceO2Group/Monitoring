@@ -10,7 +10,7 @@
 #include <chrono>
 #include <vector>
 #include <boost/variant.hpp>
-#include "Tag.h"
+#include "Tags.h"
 
 namespace o2
 {
@@ -28,31 +28,31 @@ class Metric
     /// \param value 	 	metric value (int)
     /// \param name 	 	metric name
     /// \param timestamp 	metric timestamp in milliseconds
-    Metric(int value, const std::string& name, std::chrono::time_point<std::chrono::system_clock> timestamp = Metric::getCurrentTimestamp());
+    Metric(int value, const std::string& name);
 
     /// String metric construtor
     /// \param value            metric value (string)
     /// \param name             the metric name
     /// \param timestamp        metric timestamp in milliseconds    
-    Metric(std::string value, const std::string& name, std::chrono::time_point<std::chrono::system_clock> timestamp = Metric::getCurrentTimestamp());
+    Metric(std::string value, const std::string& name);
 
     /// Double metric constructor
     /// \param value            metric value (double)
     /// \param name             metric name
     /// \param timestamp        metric timestamp in milliseconds 
-    Metric(double value, const std::string& name, std::chrono::time_point<std::chrono::system_clock> timestamp = Metric::getCurrentTimestamp());
+    Metric(double value, const std::string& name);
 
     /// uint64_t metric constructor
     /// \param value            metric value (uint64_t)
     /// \param name             metric name
     /// \param timestamp        metric timestamp in milliseconds
-    Metric(uint64_t value, const std::string& name, std::chrono::time_point<std::chrono::system_clock> timestamp = Metric::getCurrentTimestamp());
+    Metric(uint64_t value, const std::string& name);
 
     /// boost variant metric constructor, required by derived metrics logic
     /// \param value            metric value (boost variant)
     /// \param name             metric name
     /// \param timestamp        metric timestamp in milliseconds
-    Metric(boost::variant< int, std::string, double, uint64_t >, const std::string& name, std::chrono::time_point<std::chrono::system_clock> timestamp = Metric::getCurrentTimestamp());
+    Metric(boost::variant< int, std::string, double, uint64_t >, const std::string& name);
 
     /// Default destructor
     ~Metric() = default;
@@ -77,20 +77,17 @@ class Metric
     int getType() const;
 
     /// Tag list getter
-    /// \return         vector of tags
-    std::vector<Tag> getTags() const;
+    /// \return         tags
+    const std::vector<unsigned int>& getTags() const;
 
     /// Add user defined tags
     /// \param tags      r-value to vector of tags
     /// \return          r-value to "this" - to be able to chain methods
-    Metric&& addTags(std::vector<Tag>&& tags);
+    Metric&& addTags(std::initializer_list<unsigned int>&& tags);
 
     /// Generetes current timestamp
     /// return          timestamp as std::chrono::system_clock
     static auto getCurrentTimestamp() -> decltype(std::chrono::system_clock::now());
-
-    /// Tagset vector size getter
-    std::size_t tagSize() const;
 
   protected:
     /// Metric value
@@ -103,7 +100,7 @@ class Metric
     std::chrono::time_point<std::chrono::system_clock> mTimestamp;
 
     /// Metric tags
-    std::vector<Tag> tagSet;
+    std::vector<unsigned int> mTags;
 };
 
 } // namespace monitoring
