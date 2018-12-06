@@ -54,7 +54,7 @@ find_package(Boost REQUIRED COMPONENTS unit_test_framework program_options syste
 find_package(Git QUIET)
 find_package(ApMon MODULE)
 find_package(CURL REQUIRED MODULE)
-
+find_package(RdKafka CONFIG)
 
 ####################################
 # Library
@@ -88,7 +88,10 @@ message(STATUS "  Compiling Flume UDP/JSON backend")
 message(STATUS "  Compiling InfluxDB HTTP and UDP backend")
 
 # Create library
-add_library(Monitoring SHARED ${SRCS} $<$<BOOL:${ApMon_FOUND}>:src/Backends/ApMonBackend.cxx>)
+add_library(Monitoring SHARED ${SRCS}
+  $<$<BOOL:${ApMon_FOUND}>:src/Backends/ApMonBackend.cxx>
+  $<$<BOOL:${RdKafka_FOUND}>:src/Backends/Kafka.cxx>
+)
 target_include_directories(Monitoring
   PUBLIC 
     $<INSTALL_INTERFACE:include>    
@@ -105,11 +108,16 @@ target_link_libraries(Monitoring
     Boost::system
     CURL::CURL
     $<$<BOOL:${ApMon_FOUND}>:ApMon::ApMon>
+    $<$<BOOL:${RdKafka_FOUND}>:RdKafka::rdkafka++>
 )
 
 # Handle ApMon optional dependency
 if(ApMon_FOUND)
   message(STATUS "  Compiling ApMon backend")
+endif()
+
+if(RdKafka_FOUND)
+   message(STATUS "  Compiling Kafka backend")
 endif()
 
 # Detect operating system
@@ -128,6 +136,7 @@ target_compile_definitions(Monitoring
     $<$<BOOL:${APPLE}>:_OS_MAC>
     $<$<BOOL:${LINUX}>:_OS_LINUX>
     $<$<BOOL:${ApMon_FOUND}>:_WITH_APPMON>
+    $<$<BOOL:${RdKafka_FOUND}>:_WITH_KAFKA>
   )
 
 # Use C++17
