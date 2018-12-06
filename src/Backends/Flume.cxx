@@ -68,7 +68,7 @@ std::string Flume::metricsToJson(std::string measurement, std::vector<Metric>&& 
   header.put<std::string>("timestamp", std::to_string(convertTimestamp(metrics.front().getTimestamp())));
   header.put<std::string>("name", measurement);
   for (const auto& tagIndex : metrics.front().getTags()) {
-    header.put<std::string>(std::string(tags::TAG_ARRAY[tagIndex].first.data()), tags::TAG_ARRAY[tagIndex].second.data());
+    header.put<std::string>("tag_" + std::string(tags::TAG_ARRAY[tagIndex].first.data()), tags::TAG_ARRAY[tagIndex].second.data());
   }
   for (auto& metric : metrics) {
     header.put<std::string>("value_" + metric.getName(), boost::lexical_cast<std::string>(metric.getValue()));
