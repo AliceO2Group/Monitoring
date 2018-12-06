@@ -34,10 +34,10 @@ inline int ApMonBackend::convertTimestamp(const std::chrono::time_point<std::chr
   return static_cast<int>(std::chrono::system_clock::to_time_t(timestamp));
 }
 
-void ApMonBackend::addGlobalTag(std::string, std::string value)
+void ApMonBackend::addGlobalTag(std::string_view tag)
 {
   if (!entity.empty()) entity += ".";
-  entity += value;
+  entity += tag;
 }
 
 void ApMonBackend::send(std::vector<Metric>&& metrics)

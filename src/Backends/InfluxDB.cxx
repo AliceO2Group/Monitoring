@@ -92,9 +92,9 @@ void InfluxDB::send(const Metric& metric)
 }
 
 std::string InfluxDB::toInfluxLineProtocol(const Metric& metric) {
-  std::string metricTags{};
-  for (const auto& tag : metric.getTags()) {
-    metricTags += "," + tag.name + "=" + tag.value;
+  char delimeter = '\0'; 
+  if (!metric.getTags().empty() && !tagSet.empty()) {
+    delimeter = ',';
   }
 
   std::string value = boost::lexical_cast<std::string>(metric.getValue());
@@ -103,7 +103,7 @@ std::string InfluxDB::toInfluxLineProtocol(const Metric& metric) {
   escape(name);
 
   std::stringstream convert;
-  convert << name << "," << tagSet << metricTags << " value=" << value << " " << convertTimestamp(metric.getTimestamp());
+  convert << name << "," << tagSet << delimeter << metric.getTags() << " value=" << value << " " << convertTimestamp(metric.getTimestamp());
   return convert.str();
 }
 
@@ -120,11 +120,10 @@ void InfluxDB::prepareValue(std::string& value, int type)
   }
 }
 
-void InfluxDB::addGlobalTag(std::string name, std::string value)
+void InfluxDB::addGlobalTag(std::string_view tag)
 {
-  escape(name); escape(value);
   if (!tagSet.empty()) tagSet += ",";
-  tagSet += name + "=" + value;
+  tagSet += tag;
 }
 
 } // namespace backends

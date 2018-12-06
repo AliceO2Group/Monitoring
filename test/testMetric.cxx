@@ -68,16 +68,12 @@ BOOST_AUTO_TEST_CASE(retrieveWrongType) {
 }
 
 BOOST_AUTO_TEST_CASE(tags) {
-  o2::monitoring::Metric metric = o2::monitoring::Metric{10, "myMetric"}.addTags({{"tag1", "value1"}, {"tag2", "value2"}});
-  std::vector<Tag> tags = metric.getTags();
-  for (auto const& tag: tags) {
-    BOOST_CHECK(tag.name.find("tag") != std::string::npos);
-    BOOST_CHECK(tag.value.find("value") != std::string::npos);
-  }
+  o2::monitoring::Metric metric = o2::monitoring::Metric{10, "myMetric"}.addTags({o2::monitoring::tags::Detector::TPC, o2::monitoring::tags::Detector::TRD});
+  BOOST_CHECK_EQUAL("detector=TPC,detector=TRD", metric.getTags());
 }
 
-BOOST_AUTO_TEST_CASE(customCopyConstructor) {
-  o2::monitoring::Metric metric = o2::monitoring::Metric{10, "myMetric"}.addTags({{"tag1", "value1"}, {"tag2", "value2"}});
+BOOST_AUTO_TEST_CASE(metricCopy) {
+  o2::monitoring::Metric metric = o2::monitoring::Metric{10, "myMetric"}.addTags({o2::monitoring::tags::Detector::TPC, o2::monitoring::tags::Detector::TRD});
   o2::monitoring::Metric assigned{1, "assingedMetric"};
   auto copied = metric;
   assigned = metric;
@@ -87,11 +83,7 @@ BOOST_AUTO_TEST_CASE(customCopyConstructor) {
   BOOST_CHECK_EQUAL(boost::get<int>(assigned.getValue()), 10);
   BOOST_CHECK_EQUAL(assigned.getName(), "myMetric");
 
-  std::vector<Tag> tags = copied.getTags();
-  for (auto const& tag: tags) {
-    BOOST_CHECK(tag.name.find("tag") != std::string::npos);
-    BOOST_CHECK(tag.value.find("value") != std::string::npos);
-  }
+  BOOST_CHECK_EQUAL("detector=TPC,detector=TRD", copied.getTags());
 }
 
 } // namespace Test

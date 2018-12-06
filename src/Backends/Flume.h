@@ -59,7 +59,7 @@ class Flume final : public Backend
     /// Adds tag
     /// \param name      tag name
     /// \param value     tag value
-    void addGlobalTag(std::string name, std::string value) override;
+    void addGlobalTag(std::string_view tag) override;
       
   private:
     /// UDP transport

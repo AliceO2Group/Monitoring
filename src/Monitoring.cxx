@@ -63,17 +63,22 @@ void Monitoring::enableProcessMonitoring(const unsigned int interval) {
   #endif
 }
 
-void Monitoring::addGlobalTag(std::string name, std::string value)
+void Monitoring::addGlobalTag(unsigned int tag)
+{
+//  backend->addGlobalTag(tags::tagMap[tag]);
+}
+
+void Monitoring::addGlobalTag(std::string_view name, std::string_view value)
 {
   for (auto& backend: mBackends) {
-    backend->addGlobalTag(name, value);
+    backend->addGlobalTag(std::string(name) + "=" + std::string(value));
   }
 }
 
 void Monitoring::addBackend(std::unique_ptr<Backend> backend) {
    ProcessDetails processDetails{};
-   backend->addGlobalTag("hostname", processDetails.getHostname());
-   backend->addGlobalTag("name", processDetails.getProcessName());
+   backend->addGlobalTag("hostname=" + processDetails.getHostname());
+   backend->addGlobalTag("name=" + processDetails.getProcessName());
    mBackends.push_back(std::move(backend));
 }
 

@@ -8,6 +8,7 @@
 #include "../Transports/UDP.h"
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
 
 namespace o2
 {
@@ -32,9 +33,14 @@ std::string Flume::metricToJson(const Metric& metric)
     header.put<std::string>("timestamp", std::to_string(convertTimestamp(metric.getTimestamp())));
     header.put<std::string>("name", metric.getName());
     header.put<std::string>("value_value", boost::lexical_cast<std::string>(metric.getValue()));
-    for (const auto& tag : metric.getTags()) {
-      header.put<std::string>("tag_" + tag.name, tag.value);
-    }   
+
+    std::vector<std::string> metricTags;
+    boost::split(metricTags, metric.getTags(), boost::is_any_of(","));
+    for (const auto& tag : metricTags) {
+      size_t pos = tag.find('=');
+      header.put<std::string>("tag_" + tag.substr(0, pos), tag.substr(pos + 1));
+    }
+
     event.push_back(std::make_pair("headers", header));
     event.put<std::string>("body", "");
     std::stringstream ss; 
@@ -66,9 +72,14 @@ std::string Flume::metricsToJson(std::string measurement, std::vector<Metric>&& 
   boost::property_tree::ptree header = globalHeader;
   header.put<std::string>("timestamp", std::to_string(convertTimestamp(metrics.front().getTimestamp())));
   header.put<std::string>("name", measurement);
-  for (const auto& tag : metrics.front().getTags()) {
-    header.put<std::string>("tag_" + tag.name, tag.value);
+
+  std::vector<std::string> metricTags;
+  boost::split(metricTags, metrics.front().getTags(), boost::is_any_of(","));
+  for (const auto& tag : metricTags) {
+    size_t pos = tag.find('=');
+    header.put<std::string>("tag_" + tag.substr(0, pos), tag.substr(pos + 1));
   }
+
   for (auto& metric : metrics) {
     header.put<std::string>("value_" + metric.getName(), boost::lexical_cast<std::string>(metric.getValue()));
   }
@@ -96,9 +107,10 @@ inline unsigned long Flume::convertTimestamp(const std::chrono::time_point<std::
   ).count();
 }
 
-void Flume::addGlobalTag(std::string name, std::string value)
+void Flume::addGlobalTag(std::string_view tag)
 {
-  globalHeader.put<std::string>(name, value);
+  size_t pos = tag.find('=');
+  globalHeader.put<std::string>(std::string(tag.substr(0, pos)), std::string(tag.substr(pos + 1)));
 }
 
 } // namespace backends

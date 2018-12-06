@@ -54,7 +54,7 @@ class ApMonBackend final : public Backend
     /// Extends entity value
     /// \param name             tag name (unused)
     /// \param value            tag value that is concatenated to entity string
-    void addGlobalTag(std::string name, std::string value) override;
+    ovoid addGlobalTag(std::string_view tag) override;
   private:
     /// Converts timestamp to format supported by ApMonBackend
     /// \param timestamp 	timestamp in std::chrono::time_point format

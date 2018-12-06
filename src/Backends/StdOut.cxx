@@ -29,12 +29,12 @@ StdOut::StdOut() : mStream(std::cout)
   MonLogger::Get() << "StdOut backend initialized" << MonLogger::End();
 }
 
-void StdOut::addGlobalTag(std::string name, std::string value)
+void StdOut::addGlobalTag(std::string_view tag)
 {
   if (!tagString.empty()) {
     tagString += ",";
   }
-  tagString += name + "=" + value;
+  tagString += tag;
 }
 
 void StdOut::send(std::vector<Metric>&& metrics) {
@@ -46,41 +46,27 @@ void StdOut::send(std::vector<Metric>&& metrics) {
 void StdOut::sendMultiple(std::string measurement, std::vector<Metric>&& metrics)
 {
   for (auto& metric : metrics) {
-    std::string metricTags{};
-    for (const auto& tag : metric.getTags()) {
-      if (!metricTags.empty()) {
-        metricTags += ",";
-      }
-      metricTags += tag.name + "=" + tag.value;
-    }
-    if (!metricTags.empty()) {
-      metricTags = "," + metricTags;
+    char delimeter = '\0';
+    if (!metric.getTags().empty() && !tagString.empty()) {
+      delimeter = ',';
     }
     mStream <<  "[METRIC] " << measurement << "/" << metric.getConstName() << "," << metric.getType() << " "
-      << metric.getValue() << " " << convertTimestamp(metric.getTimestamp()) << " " << tagString
-      << metricTags << "\n";
+      << metric.getValue() << " " << convertTimestamp(metric.getTimestamp()) << " " << tagString << delimeter
+      << metric.getTags() << "\n";
   }
 }
 
 void StdOut::send(const Metric& metric)
 {
-  if (metric.tagSize() == 0) {
-    mStream << "[METRIC] " << metric.getConstName() << "," << metric.getType() << " " << metric.getValue()
-      << " " << convertTimestamp(metric.getTimestamp()) << " " << tagString << "\n";
-  } else {
-    std::string metricTags{};
-    for (const auto& tag : metric.getTags()) {
-      metricTags += "," + tag.name + "=" + tag.value;
-    }
-    if (tagString.empty()) {
-      metricTags.erase(0, 1);
-    }
-
-    mStream << "[METRIC] " << metric.getConstName() << "," << metric.getType() << " " << metric.getValue()
-      << " " << convertTimestamp(metric.getTimestamp()) << " " << tagString << metricTags << "\n";
+  char delimeter = '\0';
+  if (!metric.getTags().empty() && !tagString.empty()) {
+    delimeter = ',';
   }
+  mStream << "[METRIC] " << metric.getConstName() << "," << metric.getType() << " " << metric.getValue()
+    << " " << convertTimestamp(metric.getTimestamp()) << " " << tagString << delimeter << metric.getTags() << "\n";
 }
 
 } // namespace backends
 } // namespace monitoring
 } // namespace o2
+

@@ -54,7 +54,7 @@ class Backend
     virtual void sendMultiple(std::string measurement, std::vector<Metric>&& metrics) = 0;
 
     /// Sets a tag
-    virtual void addGlobalTag(std::string name, std::string value) = 0;
+    virtual void addGlobalTag(std::string_view tag) = 0;
 };
 
 } // namespace monitoring
