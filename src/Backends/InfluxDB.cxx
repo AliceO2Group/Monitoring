@@ -123,12 +123,11 @@ void InfluxDB::prepareValue(std::string& value, int type)
 
 void InfluxDB::addGlobalTag(std::string_view name, std::string_view value)
 {
-  std::string tag = name.data();
-  tag += "=";
-  tag += value;
-  escape(tag);
+  std::string sName = name.data();
+  std::string sValue = value.data();
+  escape(sName); escape(sValue);
   if (!tagSet.empty()) tagSet += ",";
-  tagSet += tag;
+  tagSet += sName + "=" + sValue;
 }
 
 } // namespace backends
