@@ -35,29 +35,25 @@ const std::string& Metric::getConstName() const
   return mName;
 }
 
-std::size_t Metric::tagSize() const
+Metric::Metric(int value, const std::string& name) :
+  mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp())
 {
-  return tagSet.size();
 }
 
-Metric::Metric(int value, const std::string& name, std::chrono::time_point<std::chrono::system_clock> timestamp) :
-  mValue(value), mName(name), mTimestamp(timestamp)
+Metric::Metric(std::string value, const std::string& name) :
+  mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp())
 {}
 
-Metric::Metric(std::string value, const std::string& name, std::chrono::time_point<std::chrono::system_clock> timestamp) :
-  mValue(value), mName(name), mTimestamp(timestamp)
+Metric::Metric(double value, const std::string& name) :
+  mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp())
 {}
 
-Metric::Metric(double value, const std::string& name, std::chrono::time_point<std::chrono::system_clock> timestamp) :
-  mValue(value), mName(name), mTimestamp(timestamp)
+Metric::Metric(uint64_t value, const std::string& name) :
+  mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp())
 {}
 
-Metric::Metric(uint64_t value, const std::string& name, std::chrono::time_point<std::chrono::system_clock> timestamp) :
-  mValue(value), mName(name), mTimestamp(timestamp)
-{}
-
-Metric::Metric(boost::variant< int, std::string, double, uint64_t > value, const std::string& name, std::chrono::time_point<std::chrono::system_clock> timestamp) :
-  mValue(value), mName(name), mTimestamp(timestamp)
+Metric::Metric(boost::variant< int, std::string, double, uint64_t > value, const std::string& name) :
+  mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp())
 {}
 
 boost::variant< int, std::string, double, uint64_t > Metric::getValue() const
@@ -65,15 +61,15 @@ boost::variant< int, std::string, double, uint64_t > Metric::getValue() const
   return mValue;
 }
 
-Metric&& Metric::addTags(std::vector<Tag>&& tags)
+Metric&& Metric::addTags(std::initializer_list<unsigned int>&& tags)
 {
-  tagSet = std::move(tags);
+  mTags = std::move(tags);
   return std::move(*this);
 }
 
-std::vector<Tag> Metric::getTags() const
+const std::vector<unsigned int>& Metric::getTags() const
 {
-  return tagSet;
+  return mTags;
 }
 
 auto Metric::getCurrentTimestamp() -> decltype(std::chrono::system_clock::now())

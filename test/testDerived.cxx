@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE(divisionByZero)
 {
   std::string name("test");
   o2::monitoring::DerivedMetrics derivedHandler;
-  o2::monitoring::Metric metric(10, name, o2::monitoring::Metric::getCurrentTimestamp());
+  o2::monitoring::Metric metric(10, name);
 
   derivedHandler.rate(metric);
   BOOST_CHECK_EXCEPTION(derivedHandler.rate(metric), MonitoringException, exceptionCheck);
