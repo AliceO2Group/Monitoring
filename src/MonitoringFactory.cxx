@@ -30,10 +30,15 @@ namespace o2
 /// ALICE O2 Monitoring system
 namespace monitoring 
 {
-
+#ifdef _WITH_KAFKA
 std::unique_ptr<Backend> getKafka(http::url uri) {
   return std::make_unique<backends::Kafka>(uri.host, uri.port);
 }
+#else
+std::unique_ptr<Backend> getKafka(http::url /*uri*/) {
+  throw std::runtime_error("Kafka backend is not enabled");
+}
+#endif
 
 std::unique_ptr<Backend> getStdOut(http::url) {
   return std::make_unique<backends::StdOut>();
