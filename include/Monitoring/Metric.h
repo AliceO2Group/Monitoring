@@ -27,31 +27,26 @@ class Metric
     /// Integer metric construtor
     /// \param value 	 	metric value (int)
     /// \param name 	 	metric name
-    /// \param timestamp 	metric timestamp in milliseconds
     Metric(int value, const std::string& name);
 
     /// String metric construtor
     /// \param value            metric value (string)
     /// \param name             the metric name
-    /// \param timestamp        metric timestamp in milliseconds    
     Metric(std::string value, const std::string& name);
 
     /// Double metric constructor
     /// \param value            metric value (double)
     /// \param name             metric name
-    /// \param timestamp        metric timestamp in milliseconds 
     Metric(double value, const std::string& name);
 
     /// uint64_t metric constructor
     /// \param value            metric value (uint64_t)
     /// \param name             metric name
-    /// \param timestamp        metric timestamp in milliseconds
     Metric(uint64_t value, const std::string& name);
 
     /// boost variant metric constructor, required by derived metrics logic
     /// \param value            metric value (boost variant)
     /// \param name             metric name
-    /// \param timestamp        metric timestamp in milliseconds
     Metric(boost::variant< int, std::string, double, uint64_t >, const std::string& name);
 
     /// Default destructor
