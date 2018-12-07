@@ -33,7 +33,7 @@ Monitoring::Monitoring()
   mMonitorRunning = false;
 }
 
-void Monitoring::enableBuffering(const unsigned int size)
+void Monitoring::enableBuffering(const std::size_t size)
 {
   mBufferSize = size;
   mBuffering = true;
@@ -63,10 +63,17 @@ void Monitoring::enableProcessMonitoring(const unsigned int interval) {
   #endif
 }
 
-void Monitoring::addGlobalTag(std::string name, std::string value)
+void Monitoring::addGlobalTag(std::string_view name, std::string_view value)
 {
   for (auto& backend: mBackends) {
     backend->addGlobalTag(name, value);
+  }
+}
+
+void Monitoring::addGlobalTag(const unsigned int tag)
+{
+  for (auto& backend: mBackends) {
+    backend->addGlobalTag(tags::TAG_ARRAY[tag].first, tags::TAG_ARRAY[tag].second);
   }
 }
 

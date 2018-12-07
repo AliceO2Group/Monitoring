@@ -34,7 +34,7 @@ inline int ApMonBackend::convertTimestamp(const std::chrono::time_point<std::chr
   return static_cast<int>(std::chrono::system_clock::to_time_t(timestamp));
 }
 
-void ApMonBackend::addGlobalTag(std::string, std::string value)
+void ApMonBackend::addGlobalTag(std::string_view /*name*/, std::string_view value)
 {
   if (!entity.empty()) entity += ".";
   entity += value;
@@ -143,8 +143,11 @@ void ApMonBackend::sendMultiple(std::string, std::vector<Metric>&& metrics)
 void ApMonBackend::send(const Metric& metric)
 {
   std::string name = metric.getName();
-  for (const auto& tag : metric.getTags()) {
-    name += "," + tag.name + "=" + tag.value;
+  for (const auto& tagIndex : metric.getTags()) {
+    name += ",";
+    name += tags::TAG_ARRAY[tagIndex].first;
+    name += "=";
+    name += tags::TAG_ARRAY[tagIndex].second;
   } 
  
   switch(metric.getType()) {

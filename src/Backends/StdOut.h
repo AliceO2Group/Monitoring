@@ -44,7 +44,7 @@ class StdOut final : public Backend
     /// Adds tag
     /// \param name         tag name
     /// \param value        tag value
-    void addGlobalTag(std::string name, std::string value) override;
+    void addGlobalTag(std::string_view name, std::string_view value) override;
 
   private:
     /// Metric stream
