@@ -82,7 +82,7 @@ class Monitoring
 
     /// Enables metric buffering
     /// \param size 		buffer size
-    void enableBuffering(const unsigned int size = 128);
+    void enableBuffering(const std::size_t size = 128);
 
     /// Adds global tag
     /// \param name 		tag name
@@ -128,7 +128,7 @@ class Monitoring
     bool mBuffering;
 
     /// Size of buffer
-    unsigned int mBufferSize;
+    std::size_t mBufferSize;
 
     /// Store for automatically pushed metrics
     std::deque<ComplexMetric> mPushStore;
