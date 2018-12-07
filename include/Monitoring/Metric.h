@@ -54,10 +54,7 @@ class Metric
 
     /// Name getter
     /// \return	metric name
-    std::string getName() const;
-
-    /// Const name getter
-    const std::string& getConstName() const;
+    const std::string& getName() const;
 
     /// Timestamp getter
     /// \return 	metric timestamp
