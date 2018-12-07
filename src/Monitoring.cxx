@@ -33,7 +33,7 @@ Monitoring::Monitoring()
   mMonitorRunning = false;
 }
 
-void Monitoring::enableBuffering(const unsigned int size)
+void Monitoring::enableBuffering(const std::size_t size)
 {
   mBufferSize = size;
   mBuffering = true;
