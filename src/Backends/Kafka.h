@@ -57,11 +57,12 @@ class Kafka final : public Backend
     /// Adds tag
     /// \param name      tag name
     /// \param value     tag value
-    void addGlobalTag(std::string name, std::string value) override;
+    void addGlobalTag(std::string_view name, std::string_view value) override;
   
   private:
     RdKafka::Producer *producer;
     std::unordered_map<std::string, std::string> globalHeader;
+    std::string tagSet; ///< Global tagset (common for each metric)
 };
 
 } // namespace backends

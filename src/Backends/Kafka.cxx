@@ -83,11 +83,12 @@ void Kafka::send(const Metric& metric)
   producer->flush(100);
 }
 
-void Kafka::addGlobalTag(std::string name, std::string value)
+void Kafka::addGlobalTag(std::string_view name, std::string_view value)
 {
-  escape(name); escape(value);
+  std::string sName = name.data();
+  std::string sValue = value.data();
   if (!tagSet.empty()) tagSet += ",";
-  tagSet += name + "=" + value;
+  tagSet += sName + "=" + sValue;
 }
 
 } // namespace backends
