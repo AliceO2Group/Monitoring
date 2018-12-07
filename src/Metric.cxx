@@ -25,12 +25,7 @@ int Metric::getType() const
   return mValue.which();
 }
 
-std::string Metric::getName() const
-{
-  return mName;
-}
-
-const std::string& Metric::getConstName() const
+const std::string& Metric::getName() const
 {
   return mName;
 }

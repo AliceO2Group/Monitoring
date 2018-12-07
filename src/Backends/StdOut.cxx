@@ -54,7 +54,7 @@ void StdOut::sendMultiple(std::string measurement, std::vector<Metric>&& metrics
     metricTags += tags::TAG_ARRAY[tagIndex].second;
   } 
   for (auto& metric : metrics) {
-    mStream << "[METRIC] " << measurement << '/' << metric.getConstName() << ',' << metric.getType() << ' '
+    mStream << "[METRIC] " << measurement << '/' << metric.getName() << ',' << metric.getType() << ' '
       << metric.getValue() << ' ' << convertTimestamp(metric.getTimestamp()) << ' ' << tagString
       << metricTags << '\n';
   }
@@ -62,7 +62,7 @@ void StdOut::sendMultiple(std::string measurement, std::vector<Metric>&& metrics
 
 void StdOut::send(const Metric& metric)
 {
-  mStream << "[METRIC] " << metric.getConstName() << ',' << metric.getType() << " " << metric.getValue()
+  mStream << "[METRIC] " << metric.getName() << ',' << metric.getType() << " " << metric.getValue()
           << ' ' << convertTimestamp(metric.getTimestamp()) << ' ' << tagString;
 
   for (const auto& tagIndex : metric.getTags()) {
