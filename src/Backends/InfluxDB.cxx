@@ -93,7 +93,7 @@ void InfluxDB::send(const Metric& metric)
 
 std::string InfluxDB::toInfluxLineProtocol(const Metric& metric) {
   std::stringstream convert;
-  std::string name = metric.getConstName();
+  std::string name = metric.getName();
   escape(name);
   convert << name << "," << tagSet;
 
