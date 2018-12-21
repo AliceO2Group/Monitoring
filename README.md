@@ -21,15 +21,15 @@ Monitoring module allows to inject user defined metrics and monitor the process 
 <br>
 
 + Compile `Monitoring` and its dependecies via `aliBuild`
-~~~
+```
 aliBuild init Monitoring@master
 aliBuild build Monitoring --defaults o2-daq
-~~~
+```
 
 + Load the enviroment for Monitoring (in the `alice` directory)
-~~~
+```
 alienv load Monitoring/latest
-~~~
+```
 
 In case of an issue with `aliBuild` refer to [the official instructions](https://alice-doc.github.io/alice-analysis-tutorial/building).
 
@@ -37,8 +37,8 @@ In case of an issue with `aliBuild` refer to [the official instructions](https:/
 Manual installation of the O<sup>2</sup> Monitoring module.
 
 #### Requirements
-+ C++ compiler with C++14 support, eg.:
-  + `gcc-c++` package from `devtoolset-6` on CentOS 7
++ C++ compiler with C++17 support, eg.:
+  + `gcc-c++` package from `devtoolset-7` on CentOS 7
   + `clang++` on Mac OS
 + Boost >= 1.56
 + libcurl
@@ -79,7 +79,7 @@ Multiple backends may be used at the same time, URLs should be separated by `,` 
 
 #### StdCout output format
 ```
-<timestamp/%Y-%m-%d %X> [METRIC] <name>,<type> <value> <timestamp> <tags>
+[METRIC] <name>,<type> <value> <timestamp> <tags>
 ```
 
 ### Sending metric
@@ -90,12 +90,16 @@ send(Metric&& metric, [DerivedMetricMode mode])
 Where metric constructor receives following parameters:
   - `T value`
   - `std::string& name`
-  - `[time_point<system_clock> timestamp]`
 
+See how it works in the example: [examples/1-Basic.cxx](examples/1-Basic.cxx).
 
-The `DerivedMetricMode` is described in [Calculating derived metrics](#calculating-derived-metrics) section.
+The `DerivedMetricMode` is optional and described in [Calculating derived metrics](#calculating-derived-metrics) section.
 
-See how it works in the example: [examples/1-Basic.cxx](examples/1-Basic.cxx)
+### Taging metric
+Each metric can be tagged with any number of [predefined tags](include/Monitoring/Tags.h).
+In order to do so use `addTags(std::initializer_list<unsigned int>&& tags)` method.
+
+See the example: [examples/2-TaggedMetrics.cxx](examples/2-TaggedMetrics.cxx).
 
 ### Debug metrics
 Debug metrics can be send by a similar method to above's `send`:
@@ -108,13 +112,6 @@ The difference is that debug metrics are only passed to backends which verbosity
 Each backend has its default verbosity (see backend in [Monitoring instance](#monitoring-instance) section). This can be changed by defining path of a backend URL:
 - `/prod` - only `send` metrics are passed to the backend
 - `/debug` - all the metrics are passed to the backend
-
-
-### Customized metrics
-Two additional methods can be chained the to `send(Metric&& metric)` in order to __insert custom tags__ or __set custom timestamp__:
-   + `addTags(std::vector<Tag>&& tags)`
-
-See how it works in the example: [examples/2-TaggedMetrics.cxx](examples/2-TaggedMetrics.cxx), [examples/3-UserDefinedTimestamp.cxx](examples/3-UserDefinedTimestamp.cxx).
 
 ## Features and additional information
 
@@ -135,7 +132,7 @@ See how it works in the example: [examples/8-Multiple.cxx](examples/8-Multiple.c
 In order to avoid sending each metric separately, metrics can be temporary stored in the buffer and flushed at the most convenient moment.
 This feature can be operated with following two methods:
 ```cpp
-monitoring->enableBuffering(const unsigned int maxSize)
+monitoring->enableBuffering(const std::size_t maxSize)
 ...
 monitoring->flushBuffer();
 ```
@@ -152,11 +149,10 @@ Metrics consist of 4 parameters: name, value, timestamp and tags.
 | name           | string                                        | yes      | -                |
 | value          | int / double / string / uint64_t    | yes      | -                |
 | timestamp      | chrono::time_point&lt;std::chrono::system_clock&gt; | no       | current timestamp     |
-| tags           | vector<Tag>                                   | no       | -**                |
+| tags           | vector<unsigned int>                                   | no       | -**                |
 
 **Default tag set is process specific and included in each metric:
 + hostname
-+ PID
 + process name
 
 ### Calculating derived metrics
@@ -186,9 +182,9 @@ The following metrics are generated every interval:
 + **memoryUsagePercentage** - ratio of the process's resident set size  to the physical memory on the machine, expressed as a percentage (Linux only)
 
 ### Automatic metric updates
-When global, higher level metrics are created it's necessary to provide values every interval of time (even though values does not change). This can be done using `AutoPushMetric`. The
+Sometimes it's necessary to provide value every exact interval of time (even though value does not change). This can be done using `AutoPushMetric`.
 ```cpp
-Metric& metric = monitoring->getAutoPushMetric("exampleMetric");
+ComplexMetric& metric = monitoring->getAutoPushMetric("exampleMetric");
 metric = 10;
 ```
 See how it works in the example: [examples/11-AutoUpdate.cxx](examples/11-AutoUpdate.cxx).
