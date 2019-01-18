@@ -5,17 +5,16 @@
 
 #include "Monitoring/MonitoringFactory.h"
 
-using Monitoring = o2::monitoring::MonitoringFactory;
-using DerivedMetricMode =  o2::monitoring::DerivedMetricMode;
+using namespace o2::monitoring;
 
 int main() {
   // Configure monitoring
   // Pass string with list of URLs as parameter
-  auto monitoring = Monitoring::Get("stdout://");
+  auto monitoring = MonitoringFactory::Get("stdout://");
 
   // now send at least two metrics to see the result
   for (int i = 0; i < 101; i += 10) {
-    monitoring->send({i, "myMetric"}, DerivedMetricMode::RATE);
-    std::this_thread::sleep_for(std::chrono::milliseconds(250));
+    monitoring->send(Metric{i, "myMetric"}.addTags({tags::Subsystem::Readout}), DerivedMetricMode::RATE);
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }
 }
