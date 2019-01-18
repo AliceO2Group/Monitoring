@@ -44,16 +44,20 @@ BOOST_AUTO_TEST_CASE(derivedRateDouble) {
     double rate;
   };
   std::vector<RateResults> results = {{1.2, 0 }, {11.2, 100}, {21.2, 100}, {41.2, 200}, {51.2, 100}, {61, 98}};
+  std::vector<RateResults> resultsTagged = {{0.5, 0 }, {5.5, 50}, {10.5, 50}, {20.5, 100}, {40.5, 200}, {45.5, 50}};
   o2::monitoring::DerivedMetrics derivedHandler;
   std::string name("metricDouble");
-
-  for (auto const result : results) {
+  for(std::size_t i = 0; i < results.size(); i++) {
     try {
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
-      o2::monitoring::Metric metric(result.value, name);
+      o2::monitoring::Metric metric(results[i].value, name);
+      o2::monitoring::Metric metricTagged = Metric{resultsTagged[i].value, name}.addTags({o2::monitoring::tags::Subsystem::Readout});
       o2::monitoring::Metric derived = derivedHandler.rate(metric);
+      o2::monitoring::Metric derivedTagged = derivedHandler.rate(metricTagged);
       BOOST_CHECK_EQUAL(derived.getName(), "metricDoubleRate");
-      BOOST_WARN_CLOSE(boost::get<double>(derived.getValue()), result.rate, 1.0);
+      BOOST_CHECK_EQUAL(derivedTagged.getName(), "metricDoubleRate");
+      BOOST_WARN_CLOSE(boost::get<double>(derived.getValue()), results[i].rate, 5.0);
+      BOOST_WARN_CLOSE(boost::get<double>(derivedTagged.getValue()), resultsTagged[i].rate, 5.0);
     } catch(MonitoringException &e) {
       BOOST_CHECK_EQUAL(e.what(), std::string("Not enough values"));
     }
