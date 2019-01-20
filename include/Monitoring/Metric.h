@@ -75,7 +75,7 @@ class Metric
     /// Add user defined tags
     /// \param tags      r-value to vector of tags
     /// \return          r-value to "this" - to be able to chain methods
-    Metric&& addTags(std::initializer_list<unsigned int>&& tags);
+    Metric&& addTags(std::vector<unsigned int>&& tags);
 
     /// Generetes current timestamp
     /// return          timestamp as std::chrono::system_clock

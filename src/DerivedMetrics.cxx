@@ -25,16 +25,17 @@ namespace monitoring
 Metric DerivedMetrics::rate(Metric& metric)
 {
   // disallow string
-  std::string name = metric.getName();
+  auto tags = metric.getTags();
+  std::string key = metric.getName() + std::string(tags.begin(), tags.end());
   if (metric.getType() == MetricType::STRING) {
     throw MonitoringException("DerivedMetrics/ProcessMetric", "Not able to process string values");
   }
 
   // search for previous value
-  auto search = mStorage.find(name);
+  auto search = mStorage.find(key);
   if (search == mStorage.end()) {
-    mStorage.insert(std::make_pair(name, metric));
-    return Metric{(double) 0.0, name + "Rate"};
+    mStorage.insert(std::make_pair(key, metric));
+    return Metric{(double) 0.0, metric.getName() + "Rate"}.addTags(std::move(tags));
   }
 
   auto timestampDifference = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -52,25 +53,25 @@ Metric DerivedMetrics::rate(Metric& metric)
   auto rate =  boost::apply_visitor(VariantVisitorRate(timestampCount), current, previous);
 
   // swap metrics
-  mStorage.erase(name);
-  mStorage.insert(std::make_pair(name, metric));
-
-  return Metric{rate, name + "Rate"};
+  mStorage.erase(key);
+  mStorage.insert(std::make_pair(key, metric));
+  return Metric{rate, metric.getName() + "Rate"}.addTags(std::move(tags));
 }
 
 Metric DerivedMetrics::increment(Metric& metric) {
-  std::string name = metric.getName();
-  auto search = mStorage.find(name);
+  auto tags = metric.getTags();
+  std::string key = metric.getName() + std::string(tags.begin(), tags.end());
+  auto search = mStorage.find(key);
   if (search != mStorage.end()) {
     auto currentValue = metric.getValue();
     auto storedValue = search->second.getValue();
     auto value = boost::apply_visitor(VariantVisitorAdd(), currentValue, storedValue);
     mStorage.erase(search);
-    Metric result = Metric{value, name};
-    mStorage.insert(std::make_pair(name, result));
+    Metric result = Metric{value, metric.getName()}.addTags(std::move(tags));
+    mStorage.insert(std::make_pair(key, result));
     return result;
   }
-  mStorage.insert(std::make_pair(name, metric));
+  mStorage.insert(std::make_pair(key, metric));
   return metric;
 }
 
