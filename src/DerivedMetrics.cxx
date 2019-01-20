@@ -64,7 +64,7 @@ Metric DerivedMetrics::process(Metric& metric, DerivedMetricMode mode) {
         int timestampCount = timestampDifference.count();
         // disallow dividing by 0
         if (timestampCount == 0) {
-          throw MonitoringException("DerivedMetrics/Calculate rate", "Division by 0");
+          throw MonitoringException("DerivedMetrics", "Division by 0");
         }
 
         auto current = metric.getValue();
@@ -79,6 +79,9 @@ Metric DerivedMetrics::process(Metric& metric, DerivedMetricMode mode) {
     }
   };
   auto iterator = map.find(mode);
+  if (iterator == map.end()) {
+    throw MonitoringException("DerivedMetrics", "Unknown mode");
+  }
   return iterator->second(metric);
 }
 
