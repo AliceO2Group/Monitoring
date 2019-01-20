@@ -58,10 +58,6 @@ class Monitoring
     /// \param mode		Derived metric mode
     void send(Metric&& metric, DerivedMetricMode mode = DerivedMetricMode::NONE);
 
-    /// Sends multiple (not related to each other) metrics
-    /// \param metrics  vector of metrics
-    void send(std::vector<Metric>&& metrics);
-
     /// Sends multiple realated to each other metric values under a common measurement name
     /// You can imagine it as a data point with multiple values
     /// If it's not supported by a backend it fallbacks into sending one by one
@@ -95,6 +91,10 @@ class Monitoring
     ComplexMetric& getAutoPushMetric(std::string name, unsigned int interval = 1);
 
   private:
+    /// Sends multiple (not related to each other) metrics
+    /// \param metrics  vector of metrics
+    void send(std::vector<Metric>&& metrics);
+
     /// Derived metrics handler
     /// \see class DerivedMetrics
     std::unique_ptr<DerivedMetrics> mDerivedHandler;
