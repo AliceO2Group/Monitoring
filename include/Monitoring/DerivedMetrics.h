@@ -35,18 +35,12 @@ class DerivedMetrics
     /// Default destructor
     ~DerivedMetrics() = default;
 
-    /// Calculates rate value based on metrics stored in mCache map
-    /// \param metric 	metric object
-    /// \return 	metric object holding calculated rate value
-    Metric rate(Metric& metric);
-
-    /// Increments the previous metric value by value stored in the metric
-    /// \param metric 	metric object
-    /// \return 	metric object holding incremented value
-    Metric increment(Metric& metric);
-
     /// Metrics store necessary for derived metrics
     std::unordered_map <std::string, Metric> mStorage;
+
+    /// Entry method to DerivedMetrics
+    /// Switches over processing modes: rate and increment
+    Metric process(Metric& metric, DerivedMetricMode mode);
 };
 
 } // namespace monitoring
