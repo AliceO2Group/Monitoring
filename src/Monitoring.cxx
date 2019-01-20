@@ -145,15 +145,6 @@ void Monitoring::send(std::vector<Metric>&& metrics)
   }
 }
 
-void Monitoring::debug(Metric&& metric)
-{
-  for (auto& b: mBackends) {
-    if (b->getVerbosity() == backend::Verbosity::Debug) {
-      b->send(metric);
-    }
-  }
-}
-
 void Monitoring::pushToBackends(Metric&& metric)
 {
   if (mBuffering) {

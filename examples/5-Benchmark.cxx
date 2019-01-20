@@ -83,7 +83,6 @@ int main(int argc, char *argv[]) {
       for (int i = 1; i <= measurements; i++) {
         monitoring->send({doubleDist(mt), "doubleMetric"  + std::to_string(i)});
         monitoring->send({intDist(mt), "intMetric" + std::to_string(i)});
-        monitoring->debug({intDist(mt), "intMetricDebug" + std::to_string(i)});
         std::this_thread::sleep_for(std::chrono::microseconds(sleep));
       }
       if (!vm.count("count")) j--;

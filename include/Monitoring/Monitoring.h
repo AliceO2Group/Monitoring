@@ -58,10 +58,6 @@ class Monitoring
     /// \param mode		Derived metric mode
     void send(Metric&& metric, DerivedMetricMode mode = DerivedMetricMode::NONE);
 
-    /// Send metrics to debug backends only
-    /// \param metric 		r-value to metric object
-    void debug(Metric&& metric);
-
     /// Sends multiple (not related to each other) metrics
     /// \param metrics  vector of metrics
     void send(std::vector<Metric>&& metrics);
