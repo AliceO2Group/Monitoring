@@ -67,13 +67,13 @@ std::unique_ptr<Monitoring> monitoring = MonitoringFactory::Get("backend[-protoc
 
 See table below to find out how to create `URI` for each backend:
 
-| Backend name | Transport | URI backend[-protocol] | URI query        | Default verbosity |
-| ------------ |:---------:|:----------------------:|:----------------:| -----------------:|
-| InfluxDB     | HTTP      | `influxdb-http`        | `/write?db=<db>` | `prod`            |
-| InfluxDB     | UDP       | `influxdb-udp`         | -                | `prod`            |
-| ApMon        | UDP       | `apmon`                | -                | `prod`            |
-| StdOut       | -         | `stdout`, `infologger` | -                | `debug`           |
-| Flume        | UDP       | `flume`                | -                | `prod`            |
+| Backend name | Transport | URI backend[-protocol] | URI query  | Default verbosity |
+| ------------ |:---------:|:----------------------:|:----------:| -----------------:|
+| InfluxDB     | HTTP      | `influxdb-http`        | `?db=<db>` | `prod`            |
+| InfluxDB     | UDP       | `influxdb-udp`         | -          | `prod`            |
+| ApMon        | UDP       | `apmon`                | -          | `prod`            |
+| StdOut       | -         | `stdout`, `infologger` | -          | `debug`           |
+| Flume        | UDP       | `flume`                | -          | `prod`            |
 
 Multiple backends may be used at the same time, URLs should be separated by `,` (comma).
 
