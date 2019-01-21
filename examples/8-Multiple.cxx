@@ -13,5 +13,4 @@ int main() {
   auto monitoring = Monitoring::Get("stdout://");
 
   monitoring->sendGrouped("measurementName", {{20, "myMetricIntMultiple"}, {20.30, "myMetricFloatMultple"}});
-  monitoring->send({{201, "myMetricIntMultiple"}, {2.34, "myMetricFloatMultple"}});
 }

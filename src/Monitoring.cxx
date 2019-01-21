@@ -46,7 +46,7 @@ void Monitoring::flushBuffer() {
     MonLogger::Get() << "Cannot flush as buffering is disabled" << MonLogger::End();
     return;
   }
-  send(std::move(mStorage));
+  transmit(std::move(mStorage));
   mStorage.clear();
 }
 
@@ -101,9 +101,9 @@ void Monitoring::pushLoop()
   std::this_thread::sleep_for (std::chrono::milliseconds(100));
   while (mMonitorRunning) {
     if (mProcessMonitoringInterval != 0 && (loopCount % (mProcessMonitoringInterval*10)) == 0) {
-      send(mProcessMonitor->getCpuAndContexts());
+      transmit(mProcessMonitor->getCpuAndContexts());
       #ifdef _OS_LINUX
-      send(mProcessMonitor->getMemoryUsage());
+      transmit(mProcessMonitor->getMemoryUsage());
       #endif
     }
 
@@ -113,7 +113,7 @@ void Monitoring::pushLoop()
         metric.resetTimestamp();
         metrics.push_back(metric);
       }
-      send(std::move(metrics));
+      transmit(std::move(metrics));
     }
     std::this_thread::sleep_for (std::chrono::milliseconds(100));
     (loopCount >= 600) ? loopCount = 0 : loopCount++;
@@ -138,7 +138,7 @@ void Monitoring::sendGrouped(std::string measurement, std::vector<Metric>&& metr
   }
 }
 
-void Monitoring::send(std::vector<Metric>&& metrics)
+void Monitoring::transmit(std::vector<Metric>&& metrics)
 {
   for (auto& b: mBackends) {
     b->send(std::move(metrics));

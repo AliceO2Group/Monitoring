@@ -27,7 +27,6 @@ int main(int argc, char *argv[]) {
     ("id", boost::program_options::value<std::string>(), "Instance ID")
     ("count", boost::program_options::value<int>(), "Number of loop cycles")
     ("multiple", boost::program_options::bool_switch()->default_value(false), "Sends multiple metrics per measurement")
-    ("vector", boost::program_options::bool_switch()->default_value(false), "Sends vector of metrics")
     ("monitor", boost::program_options::bool_switch()->default_value(false), "Enabled process monitor")
     ("buffer", boost::program_options::value<int>(), "Creates buffr of given size")
     ("measurements", boost::program_options::value<int>(), "Number of different measurements") 
@@ -59,17 +58,6 @@ int main(int argc, char *argv[]) {
         monitoring->sendGrouped("measurement" + std::to_string(i) ,{
           {doubleDist(mt), "doubleMetric"  + std::to_string(i)},
           {intDist(mt), "intMetric"  + std::to_string(i)}
-        });
-        std::this_thread::sleep_for(std::chrono::microseconds(sleep));
-      }
-      if (!vm.count("count")) j--;
-    }
-  } else if (vm["vector"].as<bool>()) {
-    for (int j = 1; j <= count; j++) {
-      for (int i = 1; i <= measurements; i++) {
-        monitoring->send({
-          {doubleDist(mt), "doubleMetric"  + std::to_string(i)},
-          {intDist(mt), "intMetricDebug"  + std::to_string(i)}
         });
         std::this_thread::sleep_for(std::chrono::microseconds(sleep));
       }

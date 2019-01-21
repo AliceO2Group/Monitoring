@@ -93,7 +93,7 @@ class Monitoring
   private:
     /// Sends multiple (not related to each other) metrics
     /// \param metrics  vector of metrics
-    void send(std::vector<Metric>&& metrics);
+    void transmit(std::vector<Metric>&& metrics);
 
     /// Derived metrics handler
     /// \see class DerivedMetrics
