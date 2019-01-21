@@ -154,7 +154,7 @@ void Monitoring::debug(Metric&& metric)
   }
 }
 
-void Monitoring::pushToBackends(Metric&& metric)
+void Monitoring::transmit(Metric&& metric)
 {
   if (mBuffering) {
     mStorage.push_back(std::move(metric));
@@ -170,18 +170,11 @@ void Monitoring::pushToBackends(Metric&& metric)
 
 void Monitoring::send(Metric&& metric, DerivedMetricMode mode)
 {
-  try {
-    if (mode == DerivedMetricMode::RATE) {
-      pushToBackends(mDerivedHandler->rate(metric));
-    }
-
-    if (mode == DerivedMetricMode::INCREMENT) {
-      pushToBackends(mDerivedHandler->increment(metric));
-    }
-  } catch(MonitoringException& e) {
-    MonLogger::Get() << "[WARN] " << e.what() << MonLogger::End();
+  if (mode != DerivedMetricMode::NONE) {
+     try { transmit(mDerivedHandler->process(metric, mode)); }
+     catch (MonitoringException& e) { MonLogger::Get() << e.what() << MonLogger::End(); }
   }
-  pushToBackends(std::move(metric));
+  transmit(std::move(metric));
 }
 
 } // namespace monitoring
