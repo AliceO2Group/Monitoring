@@ -78,8 +78,9 @@ BOOST_AUTO_TEST_CASE(tags) {
   Metric metric = Metric{10, "myMetric"}.addTags({o2::monitoring::tags::Detector::TPC, o2::monitoring::tags::Detector::TRD});
   auto tags = metric.getTags();
   int sum = 0;
-  for (auto const& tag: tags) {
-    sum += tag;
+  for (auto const& tagIndex: tags) {
+    auto value = std::visit([](auto&& tag) -> short { return static_cast<short>(tag); }, tagIndex);
+    sum += value;
   }
   BOOST_CHECK_EQUAL(sum, 27);
 }
@@ -97,8 +98,9 @@ BOOST_AUTO_TEST_CASE(customCopyConstructor) {
 
   auto tags = copied.getTags();
   int sum = 0;
-  for (auto const& tag: tags) {
-    sum += tag;
+  for (auto const& tagIndex: tags) {
+    auto value = std::visit([](auto&& tag) -> short { return static_cast<short>(tag); }, tagIndex);
+    sum += value;
   }
   BOOST_CHECK_EQUAL(sum, 27);
 }

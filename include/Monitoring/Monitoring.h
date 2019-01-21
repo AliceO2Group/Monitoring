@@ -91,7 +91,7 @@ class Monitoring
 
     /// Adds predefined global tag
     /// \param tag		tag index (use predefined enums form tag:: namespace)
-    void addGlobalTag(const unsigned int tag);
+    void addGlobalTag(std::variant<tags::Detector, tags::Subsystem>&& tag);
 
     /// Returns a metric which will be periodically sent to backends
     /// \param name 		metric name

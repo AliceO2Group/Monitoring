@@ -56,13 +56,13 @@ boost::variant< int, std::string, double, uint64_t > Metric::getValue() const
   return mValue;
 }
 
-Metric&& Metric::addTags(std::vector<unsigned int>&& tags)
+Metric&& Metric::addTags(std::vector<std::variant<tags::Detector, tags::Subsystem>>&& tags)
 {
   mTags = std::move(tags);
   return std::move(*this);
 }
 
-const std::vector<unsigned int>& Metric::getTags() const
+const std::vector<std::variant<tags::Detector, tags::Subsystem>>& Metric::getTags() const
 {
   return mTags;
 }

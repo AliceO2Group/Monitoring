@@ -70,10 +70,11 @@ void Monitoring::addGlobalTag(std::string_view name, std::string_view value)
   }
 }
 
-void Monitoring::addGlobalTag(const unsigned int tag)
+void Monitoring::addGlobalTag(std::variant<tags::Detector, tags::Subsystem>&& tag)
 {
+  auto index = std::visit([](auto&& tag) -> short { return static_cast<short>(tag); }, tag);
   for (auto& backend: mBackends) {
-    backend->addGlobalTag(tags::TAG_ARRAY[tag].first, tags::TAG_ARRAY[tag].second);
+    backend->addGlobalTag(tags::TAG_ARRAY[index].first, tags::TAG_ARRAY[index].second);
   }
 }
 

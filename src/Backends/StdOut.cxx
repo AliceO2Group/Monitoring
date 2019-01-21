@@ -48,10 +48,11 @@ void StdOut::sendMultiple(std::string measurement, std::vector<Metric>&& metrics
 {
   std::string metricTags{};
   for (const auto& tagIndex : metrics.front().getTags()) {
+    auto index = std::visit([](auto&& tag) -> short { return static_cast<short>(tag); }, tagIndex);
     metricTags += ',';
-    metricTags += tags::TAG_ARRAY[tagIndex].first;
+    metricTags += tags::TAG_ARRAY[index].first;
     metricTags += "=";
-    metricTags += tags::TAG_ARRAY[tagIndex].second;
+    metricTags += tags::TAG_ARRAY[index].second;
   } 
   for (auto& metric : metrics) {
     mStream << "[METRIC] " << measurement << '/' << metric.getName() << ',' << metric.getType() << ' '
@@ -66,7 +67,8 @@ void StdOut::send(const Metric& metric)
           << ' ' << convertTimestamp(metric.getTimestamp()) << ' ' << tagString;
 
   for (const auto& tagIndex : metric.getTags()) {
-    mStream << ',' << tags::TAG_ARRAY[tagIndex].first << "=" << tags::TAG_ARRAY[tagIndex].second;
+    auto index = std::visit([](auto&& tag) -> short { return static_cast<short>(tag); }, tagIndex);
+    mStream << ',' << tags::TAG_ARRAY[index].first << "=" << tags::TAG_ARRAY[index].second;
   }
   mStream << '\n';
 }

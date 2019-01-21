@@ -22,12 +22,22 @@ namespace o2
 namespace monitoring
 {
 
+std::string DerivedMetrics::getTagsHash(const std::vector<std::variant<tags::Detector, tags::Subsystem>>& tags)
+{
+  std::string hash{};
+  std::for_each(tags.begin(), tags.end(), [&hash](std::variant<tags::Detector, tags::Subsystem> const & tagIndex) {
+    auto value = std::visit([](auto&& tag) -> short { return static_cast<short>(tag); }, tagIndex);
+    hash += value;
+  });
+  return hash;
+}
+
 Metric DerivedMetrics::process(Metric& metric, DerivedMetricMode mode) {
   const std::map<DerivedMetricMode, std::function<Metric(Metric&)>> map = {
     {
       DerivedMetricMode::INCREMENT, [this](Metric& metric) {
         auto tags = metric.getTags();
-        std::string key = metric.getName() + std::string(tags.begin(), tags.end());
+        std::string key = metric.getName() + getTagsHash(tags);
         auto search = mStorage.find(key);
         if (search != mStorage.end()) {
           auto currentValue = metric.getValue();
@@ -43,9 +53,9 @@ Metric DerivedMetrics::process(Metric& metric, DerivedMetricMode mode) {
       }
     }, {
       DerivedMetricMode::RATE, [this](Metric& metric) {
-        // disallow string
         auto tags = metric.getTags();
-        std::string key = metric.getName() + std::string(tags.begin(), tags.end());
+        // disallow string
+        std::string key = metric.getName() + getTagsHash(tags);
         if (metric.getType() == MetricType::STRING) {
           throw MonitoringException("DerivedMetrics", "Not able to process string values");
         }

@@ -41,6 +41,8 @@ class DerivedMetrics
     /// Entry method to DerivedMetrics
     /// Switches over processing modes: rate and increment
     Metric process(Metric& metric, DerivedMetricMode mode);
+
+    std::string getTagsHash(const std::vector<std::variant<tags::Detector, tags::Subsystem>>& tags);
 };
 
 } // namespace monitoring

@@ -70,12 +70,12 @@ class Metric
 
     /// Tag list getter
     /// \return         tags
-    const std::vector<unsigned int>& getTags() const;
+    const std::vector<std::variant<tags::Detector, tags::Subsystem>>& getTags() const;
 
     /// Add user defined tags
     /// \param tags      r-value to vector of tags
     /// \return          r-value to "this" - to be able to chain methods
-    Metric&& addTags(std::vector<unsigned int>&& tags);
+    Metric&& addTags(std::vector<std::variant<tags::Detector, tags::Subsystem>>&& tags);
 
     /// Generetes current timestamp
     /// return          timestamp as std::chrono::system_clock
@@ -92,7 +92,7 @@ class Metric
     std::chrono::time_point<std::chrono::system_clock> mTimestamp;
 
     /// Metric tags
-    std::vector<unsigned int> mTags;
+    std::vector<std::variant<tags::Detector, tags::Subsystem>> mTags;
 };
 
 } // namespace monitoring

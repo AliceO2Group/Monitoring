@@ -20,11 +20,11 @@ namespace tags
 
   // Detector tag indexes
   static constexpr std::string_view detectorTag = "detector";
-  enum Detector { ACO = 0 , AD, CPV, EMC, FMD, HMP, MCH, MTR, PHS, PMD, ITS, T0, TOF, TPC, TRD, V0};
+  enum class Detector : short { ACO = 0 , AD, CPV, EMC, FMD, HMP, MCH, MTR, PHS, PMD, ITS, T0, TOF, TPC, TRD, V0};
 
   // Subsystem tag indexes
   static constexpr std::string_view subsystemTag = "subsystem";
-  enum Subsystem { QC = 16, Readout, DPL, CRU };
+  enum class Subsystem : short { QC = 16, Readout, DPL, CRU };
 
   // Single tag array
   static constexpr std::array<std::pair<std::string_view, std::string_view>, 20> TAG_ARRAY = {{
