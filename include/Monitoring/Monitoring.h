@@ -103,7 +103,7 @@ class Monitoring
     std::vector <std::unique_ptr<Backend>> mBackends;
 
     /// Pushes metric to all backends or to the buffer
-    void pushToBackends(Metric&& metric);
+    void transmit(Metric&& metric);
 
     /// States whether Process Monitor thread is running
     std::atomic<bool> mMonitorRunning;
