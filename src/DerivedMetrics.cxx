@@ -34,7 +34,7 @@ Metric DerivedMetrics::process(Metric& metric, DerivedMetricMode mode) {
           auto storedValue = search->second.getValue();
           auto value = boost::apply_visitor(VariantVisitorAdd(), currentValue, storedValue);
           mStorage.erase(search);
-          Metric result = Metric{value, metric.getName(), metric.getVerbosity()}.addTags(std::move(tags));
+          Metric result = Metric{value, metric.getName() + "Increment", metric.getVerbosity()}.addTags(std::move(tags));
           mStorage.insert(std::make_pair(key, result));
           return result;
         }
