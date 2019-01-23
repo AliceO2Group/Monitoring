@@ -153,8 +153,11 @@ void Monitoring::transmit(Metric&& metric)
       flushBuffer();
     }
   } else {
-    for (auto& b: mBackends) {
-      b->send(metric);
+    for (auto& backend: mBackends) {
+      if (backend->matchVerbosity(metric.getVerbosity()) {
+???
+      if (static_cast<std::underlying_type<Verbosity>::type>(metric.getVerbosity()) >= static_cast<std::underlying_type<Verbosity>::type>(backend-getVerbosity()) {
+      backend->send(metric);
     }
   }
 }

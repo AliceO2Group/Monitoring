@@ -18,22 +18,22 @@ BOOST_AUTO_TEST_CASE(verbosity)
 {
    std::string ilUrl = "stdout://";
    auto il = Monitoring::GetBackend(ilUrl);
-   BOOST_CHECK_EQUAL(static_cast<std::underlying_type<backend::Verbosity>::type>(il->getVerbosity()), 1); 
+   BOOST_CHECK_EQUAL(static_cast<std::underlying_type<Verbosity>::type>(il->getVerbosity()), 0);
 
    std::string influxUrl = "influxdb-udp://127.0.0.1:1234";
    auto influx = Monitoring::GetBackend(influxUrl);
-   BOOST_CHECK_EQUAL(static_cast<std::underlying_type<backend::Verbosity>::type>(influx->getVerbosity()), 0); 
+   BOOST_CHECK_EQUAL(static_cast<std::underlying_type<Verbosity>::type>(influx->getVerbosity()), 2);
 
    std::string influxDebugUrl = "influxdb-udp://127.0.0.1:1234/debug";
    auto influxDebug = Monitoring::GetBackend(influxDebugUrl);
-   BOOST_CHECK_EQUAL(static_cast<std::underlying_type<backend::Verbosity>::type>(influxDebug->getVerbosity()), 1); 
+   BOOST_CHECK_EQUAL(static_cast<std::underlying_type<Verbosity>::type>(influxDebug->getVerbosity()), 0);
 
    std::string influxHttpUrl = "influxdb-http://127.0.0.1:1234/write?db=test";
    auto influxHttp = Monitoring::GetBackend(influxHttpUrl);
 
    std::string ilProdUrl = "stdout:///prod";
    auto ilProd = Monitoring::GetBackend(ilProdUrl);
-   BOOST_CHECK_EQUAL(static_cast<std::underlying_type<backend::Verbosity>::type>(ilProd->getVerbosity()), 0); 
+   BOOST_CHECK_EQUAL(static_cast<std::underlying_type<Verbosity>::type>(ilProd->getVerbosity()), 2);
 }
 
 } // namespace Test
