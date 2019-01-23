@@ -56,6 +56,11 @@ boost::variant< int, std::string, double, uint64_t > Metric::getValue() const
   return mValue;
 }
 
+Verbosity Metric::getVerbosity()
+{
+  return mVerbosity;
+}
+
 Metric&& Metric::addTags(std::vector<unsigned int>&& tags)
 {
   mTags = std::move(tags);

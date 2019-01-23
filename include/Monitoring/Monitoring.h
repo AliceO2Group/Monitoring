@@ -63,7 +63,7 @@ class Monitoring
     /// If it's not supported by a backend it fallbacks into sending one by one
     /// \param name		measurement name
     /// \param metrics		list of metrics
-    void sendGrouped(std::string name, std::vector<Metric>&& metrics);
+    void sendGrouped(std::string name, std::vector<Metric>&& metrics, Verbosity verbosity = Metric::DEFAULT_VERBOSITY);
 
     /// Enables process monitoring
     /// \param interval		refresh interval
@@ -95,6 +95,12 @@ class Monitoring
     /// \param metrics  vector of metrics
     void transmit(std::vector<Metric>&& metrics);
 
+    /// Flush buffer of desired verbosity
+    void flushBuffer(short index);
+
+    /// Matches verbosity of a backend and a metric in order to decide whether metric should be send to the backend
+    bool matchVerbosity(Verbosity backend, Verbosity metric);
+
     /// Derived metrics handler
     /// \see class DerivedMetrics
     std::unique_ptr<DerivedMetrics> mDerivedHandler;
@@ -118,7 +124,7 @@ class Monitoring
     void pushLoop();
 
     /// Metric buffer
-    std::vector<Metric> mStorage;
+    std::unordered_map<std::underlying_type<Verbosity>::type, std::vector<Metric>> mStorage;
 
     /// Flag stating whether metric buffering is enabled
     bool mBuffering;

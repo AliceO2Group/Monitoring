@@ -18,7 +18,7 @@ namespace o2
 namespace monitoring
 {
 
-enum class Verbosity : short { DEBUG, INFO, PROD };
+enum class Verbosity : short { PROD, INFO, DEBUG };
 
 enum MetricType { INT = 0, STRING = 1, DOUBLE = 2, UINT64_T = 3 };
 
@@ -78,6 +78,9 @@ class Metric
     /// \param tags      r-value to vector of tags
     /// \return          r-value to "this" - to be able to chain methods
     Metric&& addTags(std::vector<unsigned int>&& tags);
+
+    /// Verbosity getter
+    Verbosity getVerbosity();
 
     /// Generetes current timestamp
     /// return          timestamp as std::chrono::system_clock

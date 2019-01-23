@@ -37,8 +37,8 @@ void Monitoring::enableBuffering(const std::size_t size)
 {
   mBufferSize = size;
   mBuffering = true;
-  mStorage.reserve(size);
-  MonLogger::Get() << "Buffering enabled (" << mStorage.capacity() << ")" << MonLogger::End();
+  //mStorage.reserve(size);
+  //MonLogger::Get() << "Buffering enabled (" << mStorage.capacity() << ")" << MonLogger::End();
 }
 
 void Monitoring::flushBuffer() {
@@ -46,8 +46,16 @@ void Monitoring::flushBuffer() {
     MonLogger::Get() << "Cannot flush as buffering is disabled" << MonLogger::End();
     return;
   }
-  transmit(std::move(mStorage));
-  mStorage.clear();
+  for (auto& buffer : mStorage) {
+    transmit(std::move(buffer.second));
+    buffer.second.clear();
+  }
+}
+
+void Monitoring::flushBuffer(const short index)
+{
+  transmit(std::move(mStorage[index]));
+  mStorage[index].clear();
 }
 
 void Monitoring::enableProcessMonitoring(const unsigned int interval) {
@@ -131,30 +139,35 @@ ComplexMetric& Monitoring::getAutoPushMetric(std::string name, unsigned int inte
   return mPushStore.back();
 }
 
-void Monitoring::sendGrouped(std::string measurement, std::vector<Metric>&& metrics)
+void Monitoring::sendGrouped(std::string measurement, std::vector<Metric>&& metrics, Verbosity verbosity)
 {
-  for (auto& b: mBackends) {
-    b->sendMultiple(measurement, std::move(metrics));
+  for (auto& backend : mBackends) {
+    if (matchVerbosity(backend->getVerbosity(), verbosity)) {
+      backend->sendMultiple(measurement, std::move(metrics));
+    }
   }
 }
 
 void Monitoring::transmit(std::vector<Metric>&& metrics)
 {
-  for (auto& b: mBackends) {
-    b->send(std::move(metrics));
+  for (auto& backend : mBackends) {
+    backend->send(std::move(metrics));
   }
 }
 
 void Monitoring::transmit(Metric&& metric)
 {
   if (mBuffering) {
-    mStorage.push_back(std::move(metric));
-    if (mStorage.size() >= mBufferSize) {
-      flushBuffer();
+    auto index = static_cast<std::underlying_type<Verbosity>::type>(metric.getVerbosity());
+    mStorage[index].push_back(std::move(metric));
+    if (mStorage[index].size() >= mBufferSize) {
+      flushBuffer(index);
     }
   } else {
-    for (auto& backend: mBackends) {
-      backend->send(metric);
+    for (auto& backend : mBackends) {
+      if (matchVerbosity(backend->getVerbosity(), metric.getVerbosity())) {
+        backend->send(metric);
+      }
     }
   }
 }
@@ -168,5 +181,9 @@ void Monitoring::send(Metric&& metric, DerivedMetricMode mode)
   transmit(std::move(metric));
 }
 
+inline bool Monitoring::matchVerbosity(Verbosity backend, Verbosity metric)
+{
+  return (static_cast<std::underlying_type<Verbosity>::type>(backend) >= static_cast<std::underlying_type<Verbosity>::type>(metric));
+}
 } // namespace monitoring
 } // namespace o2
