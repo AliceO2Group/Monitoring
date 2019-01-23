@@ -154,9 +154,6 @@ void Monitoring::transmit(Metric&& metric)
     }
   } else {
     for (auto& backend: mBackends) {
-      if (backend->matchVerbosity(metric.getVerbosity()) {
-???
-      if (static_cast<std::underlying_type<Verbosity>::type>(metric.getVerbosity()) >= static_cast<std::underlying_type<Verbosity>::type>(backend-getVerbosity()) {
       backend->send(metric);
     }
   }

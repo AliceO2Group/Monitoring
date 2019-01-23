@@ -100,6 +100,9 @@ class Metric
 
     /// Metric tags
     std::vector<unsigned int> mTags;
+
+    /// Metric verbosity
+    Verbosity mVerbosity;
 };
 
 } // namespace monitoring
