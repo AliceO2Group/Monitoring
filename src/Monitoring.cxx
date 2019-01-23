@@ -37,8 +37,10 @@ void Monitoring::enableBuffering(const std::size_t size)
 {
   mBufferSize = size;
   mBuffering = true;
-  //mStorage.reserve(size);
-  //MonLogger::Get() << "Buffering enabled (" << mStorage.capacity() << ")" << MonLogger::End();
+  for (short i = 0; i < static_cast<std::underlying_type<Verbosity>::type>(Verbosity::DEBUG); i++) {
+    mStorage[i].reserve(size);
+  }
+  MonLogger::Get() << "Buffering enabled (" << mStorage[0].capacity() << ")" << MonLogger::End();
 }
 
 void Monitoring::flushBuffer() {
@@ -46,9 +48,13 @@ void Monitoring::flushBuffer() {
     MonLogger::Get() << "Cannot flush as buffering is disabled" << MonLogger::End();
     return;
   }
-  for (auto& buffer : mStorage) {
-    transmit(std::move(buffer.second));
-    buffer.second.clear();
+  for (auto& [verbosity, buffer] : mStorage) {
+    for (auto& backend : mBackends) {
+      if (matchVerbosity(backend->getVerbosity(), static_cast<Verbosity>(verbosity))) {
+        backend->send(std::move(buffer));
+        buffer.clear();
+      }
+    }
   }
 }
 
