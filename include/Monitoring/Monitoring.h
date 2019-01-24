@@ -80,6 +80,10 @@ class Monitoring
     /// \param name 		tag name
     /// \param value 		tag value
     void addGlobalTag(tags::Key key, std::string_view value);
+
+    /// Adds global tag
+    /// \param name             tag name
+    /// \param value            tag value
     void addGlobalTag(tags::Key key, tags::Value value);
 
     /// Returns a metric which will be periodically sent to backends

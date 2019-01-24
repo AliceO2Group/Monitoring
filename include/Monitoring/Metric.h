@@ -18,8 +18,11 @@ namespace o2
 namespace monitoring
 {
 
+/// Metric and Backedn verbosity
 enum class Verbosity : short { PROD, INFO, DEBUG };
 
+
+/// Metric types
 enum MetricType { INT = 0, STRING = 1, DOUBLE = 2, UINT64_T = 3 };
 
 class DerivedMetrics;
@@ -77,9 +80,15 @@ class Metric
     const std::vector<std::pair<int, int>>& getTags() const;
 
     /// Add user defined tags
-    /// \param tags      r-value to vector of tags
-    /// \return          r-value to "this" - to be able to chain methods
+    /// \param key      enum tag key
+    /// \param value 	emum tag value
+    /// \return         r-value to "this" - to be able to chain methods
     Metric&& addTag(tags::Key key, tags::Value value);
+
+    /// Add user defined tags
+    /// \param key      enum tag key
+    /// \param value    numeric value
+    /// \return          r-value to "this" - to be able to chain methods
     Metric&& addTag(tags::Key key, unsigned short int number);
 
     /// Verbosity getter
@@ -95,8 +104,10 @@ class Metric
     /// Default metric verbosity
     static Verbosity DEFAULT_VERBOSITY;
   protected:
+    /// Allow DerivedMetrics access to setTags
     friend class o2::monitoring::DerivedMetrics;
 
+    /// Set full vector of tags
     Metric&& setTags(std::vector<std::pair<int, int>>&& tags);
 
     /// Metric value

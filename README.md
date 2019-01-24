@@ -108,7 +108,7 @@ Metrics need to match backends verbosity in order to be sent, eg. backend with `
 
 #### Tags
 Each metric can be tagged with any number of [predefined tags](include/Monitoring/Tags.h).
-In order to do so use `addTags(std::initializer_list<unsigned int>&& tags)` method.
+In order to do so use `addTag(tags::Key, tags::Value)` or `addTag(tags::Key, unsigned short)` methods. The latter method allows assigning numeric value to a tag.
 
 See the example: [examples/2-TaggedMetrics.cxx](examples/2-TaggedMetrics.cxx).
 
@@ -165,7 +165,7 @@ Glabal tags are tags that are added to each metric. The following tags are set t
 - `hostname`
 - `name` - process name
 
-You can add your own global tag by calling `addGlobalTag(std::string name, std::string value)`.
+You can add your own global tag by calling `addGlobalTag(tags::Key, std::string_view)` or `addGlobalTag(tags::Key, tags::Value)`.
 
 ### Process monitoring
 ```cpp
