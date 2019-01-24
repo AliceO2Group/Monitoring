@@ -61,13 +61,25 @@ Verbosity Metric::getVerbosity()
   return mVerbosity;
 }
 
-Metric&& Metric::addTags(std::vector<unsigned int>&& tags)
+Metric&& Metric::addTag(tags::Key key, tags::Value value)
+{
+  mTags.push_back({static_cast<std::underlying_type<tags::Key>::type>(key), static_cast<std::underlying_type<tags::Value>::type>(value)});
+  return std::move(*this);
+}
+
+Metric&& Metric::addTag(tags::Key key, unsigned short number)
+{
+  mTags.push_back({static_cast<std::underlying_type<tags::Key>::type>(key), 0 - number});
+  return std::move(*this);
+}
+
+Metric&& Metric::setTags(std::vector<std::pair<int, int>>&& tags)
 {
   mTags = std::move(tags);
   return std::move(*this);
 }
 
-const std::vector<unsigned int>& Metric::getTags() const
+const std::vector<std::pair<int, int>>& Metric::getTags() const
 {
   return mTags;
 }

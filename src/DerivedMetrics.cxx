@@ -27,14 +27,17 @@ Metric DerivedMetrics::process(Metric& metric, DerivedMetricMode mode) {
     {
       DerivedMetricMode::INCREMENT, [this](Metric& metric) {
         auto tags = metric.getTags();
-        std::string key = metric.getName() + std::string(tags.begin(), tags.end());
+        std::string key = metric.getName();
+        std::for_each(tags.begin(), tags.end(), [&key](auto const & pair) {
+          key += pair.second;
+        });
         auto search = mStorage.find(key);
         if (search != mStorage.end()) {
           auto currentValue = metric.getValue();
           auto storedValue = search->second.getValue();
           auto value = boost::apply_visitor(VariantVisitorAdd(), currentValue, storedValue);
           mStorage.erase(search);
-          Metric result = Metric{value, metric.getName() + "Increment", metric.getVerbosity()}.addTags(std::move(tags));
+          Metric result = Metric{value, metric.getName() + "Increment", metric.getVerbosity()}.setTags(std::move(tags));
           mStorage.insert(std::make_pair(key, result));
           return result;
         }
@@ -45,7 +48,10 @@ Metric DerivedMetrics::process(Metric& metric, DerivedMetricMode mode) {
       DerivedMetricMode::RATE, [this](Metric& metric) {
         // disallow string
         auto tags = metric.getTags();
-        std::string key = metric.getName() + std::string(tags.begin(), tags.end());
+        std::string key = metric.getName();
+        std::for_each(tags.begin(), tags.end(), [&key](auto const & pair) {
+          key += pair.second;
+        });
         if (metric.getType() == MetricType::STRING) {
           throw MonitoringException("DerivedMetrics", "Not able to process string values");
         }
@@ -54,7 +60,7 @@ Metric DerivedMetrics::process(Metric& metric, DerivedMetricMode mode) {
         auto search = mStorage.find(key);
         if (search == mStorage.end()) {
         mStorage.insert(std::make_pair(key, metric));
-          return Metric{(double) 0.0, metric.getName() + "Rate", metric.getVerbosity()}.addTags(std::move(tags));
+          return Metric{(double) 0.0, metric.getName() + "Rate", metric.getVerbosity()}.setTags(std::move(tags));
         }
 
         auto timestampDifference = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -74,7 +80,7 @@ Metric DerivedMetrics::process(Metric& metric, DerivedMetricMode mode) {
         // swap metrics
         mStorage.erase(key);
         mStorage.insert(std::make_pair(key, metric));
-        return Metric{rate, metric.getName() + "Rate", metric.getVerbosity()}.addTags(std::move(tags));
+        return Metric{rate, metric.getName() + "Rate", metric.getVerbosity()}.setTags(std::move(tags));
       }
     }
   };

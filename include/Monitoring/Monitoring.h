@@ -79,11 +79,8 @@ class Monitoring
     /// Adds global tag
     /// \param name 		tag name
     /// \param value 		tag value
-    void addGlobalTag(std::string_view name, std::string_view value);
-
-    /// Adds predefined global tag
-    /// \param tag		tag index (use predefined enums form tag:: namespace)
-    void addGlobalTag(const unsigned int tag);
+    void addGlobalTag(tags::Key key, std::string_view value);
+    void addGlobalTag(tags::Key key, tags::Value value);
 
     /// Returns a metric which will be periodically sent to backends
     /// \param name 		metric name

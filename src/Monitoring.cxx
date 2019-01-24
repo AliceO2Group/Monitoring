@@ -37,7 +37,7 @@ void Monitoring::enableBuffering(const std::size_t size)
 {
   mBufferSize = size;
   mBuffering = true;
-  for (short i = 0; i < static_cast<std::underlying_type<Verbosity>::type>(Verbosity::DEBUG); i++) {
+  for (std::underlying_type<Verbosity>::type i = 0; i < static_cast<std::underlying_type<Verbosity>::type>(Verbosity::DEBUG); i++) {
     mStorage[i].reserve(size);
   }
   MonLogger::Get() << "Buffering enabled (" << mStorage[0].capacity() << ")" << MonLogger::End();
@@ -77,17 +77,20 @@ void Monitoring::enableProcessMonitoring(const unsigned int interval) {
   #endif
 }
 
-void Monitoring::addGlobalTag(std::string_view name, std::string_view value)
+void Monitoring::addGlobalTag(tags::Key key, std::string_view value)
 {
   for (auto& backend: mBackends) {
-    backend->addGlobalTag(name, value);
+    backend->addGlobalTag(tags::TAG_KEY[static_cast<std::underlying_type<tags::Key>::type>(key)], value);
   }
 }
 
-void Monitoring::addGlobalTag(const unsigned int tag)
+void Monitoring::addGlobalTag(tags::Key key, tags::Value value)
 {
   for (auto& backend: mBackends) {
-    backend->addGlobalTag(tags::TAG_ARRAY[tag].first, tags::TAG_ARRAY[tag].second);
+    backend->addGlobalTag(
+      tags::TAG_KEY[static_cast<std::underlying_type<tags::Key>::type>(key)],
+      tags::TAG_VALUE[static_cast<std::underlying_type<tags::Value>::type>(value)]
+    );
   }
 }
 

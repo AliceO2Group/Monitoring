@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE(derivedRateDouble) {
     try {
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
       o2::monitoring::Metric metric(results[i].value, name);
-      o2::monitoring::Metric metricTagged = Metric{resultsTagged[i].value, name}.addTags({o2::monitoring::tags::Subsystem::Readout});
+      o2::monitoring::Metric metricTagged = Metric{resultsTagged[i].value, name}.addTag(o2::monitoring::tags::Key::Subsystem, o2::monitoring::tags::Value::Readout);
       o2::monitoring::Metric derived = derivedHandler.process(metric, DerivedMetricMode::RATE);
       o2::monitoring::Metric derivedTagged = derivedHandler.process(metricTagged, DerivedMetricMode::RATE);
       BOOST_CHECK_EQUAL(derived.getName(), "metricDoubleRate");

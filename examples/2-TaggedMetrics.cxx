@@ -14,12 +14,13 @@ int main() {
   auto monitoring = MonitoringFactory::Get("stdout://");
 
   /// Add global tags
-  monitoring->addGlobalTag("example", "yes");
-  monitoring->addGlobalTag(tags::Subsystem::DPL);
+  monitoring->addGlobalTag(tags::Key::Name, "test");
+  monitoring->addGlobalTag(tags::Key::Subsystem, tags::Value::DPL);
 
   // now send an application specific metric with additional tags
   // 10 is the value
   // myMetric is the name of the metric
   // then add predefined tag
-  monitoring->send(Metric{10, "myMetric"}.addTags({tags::Detector::TPC}));
+  //monitoring->send(Metric{10, "myMetric"}.addTag(tags::Key::Detector, tags::Value::TPC));
+  monitoring->send(Metric{10, "myMetric"}.addTag(tags::Key::CRU, 123));
 }
