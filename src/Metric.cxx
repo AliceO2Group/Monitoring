@@ -30,30 +30,35 @@ const std::string& Metric::getName() const
   return mName;
 }
 
-Metric::Metric(int value, const std::string& name) :
-  mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp())
+Metric::Metric(int value, const std::string& name, Verbosity verbosity) :
+  mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
 {
 }
 
-Metric::Metric(std::string value, const std::string& name) :
-  mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp())
+Metric::Metric(std::string value, const std::string& name, Verbosity verbosity) :
+  mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
 {}
 
-Metric::Metric(double value, const std::string& name) :
-  mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp())
+Metric::Metric(double value, const std::string& name, Verbosity verbosity) :
+  mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
 {}
 
-Metric::Metric(uint64_t value, const std::string& name) :
-  mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp())
+Metric::Metric(uint64_t value, const std::string& name, Verbosity verbosity) :
+  mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
 {}
 
-Metric::Metric(boost::variant< int, std::string, double, uint64_t > value, const std::string& name) :
-  mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp())
+Metric::Metric(boost::variant< int, std::string, double, uint64_t > value, const std::string& name, Verbosity verbosity) :
+  mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
 {}
 
 boost::variant< int, std::string, double, uint64_t > Metric::getValue() const
 {
   return mValue;
+}
+
+Verbosity Metric::getVerbosity()
+{
+  return mVerbosity;
 }
 
 Metric&& Metric::addTags(std::vector<unsigned int>&& tags)
@@ -71,6 +76,13 @@ auto Metric::getCurrentTimestamp() -> decltype(std::chrono::system_clock::now())
 {
   return std::chrono::system_clock::now();
 }
+
+void Metric::setDefaultVerbosity(Verbosity verbosity)
+{
+  Metric::DEFAULT_VERBOSITY = verbosity;
+}
+
+Verbosity Metric::DEFAULT_VERBOSITY = Verbosity::INFO;
 
 } // namespace monitoring
 } // namespace o2

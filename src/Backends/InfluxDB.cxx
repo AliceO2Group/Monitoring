@@ -26,13 +26,13 @@ InfluxDB::InfluxDB(const std::string& host, unsigned int port)
                    << " ("<< host << ":" << port << ")" << MonLogger::End();
 }
 
-InfluxDB::InfluxDB(const std::string& host, unsigned int port, const std::string& path)
+InfluxDB::InfluxDB(const std::string& host, unsigned int port, const std::string& search)
 {
   transport = std::make_unique<transports::HTTP>(
-    "http://" + host + ":" + std::to_string(port) + "/?" + path
+    "http://" + host + ":" + std::to_string(port) + "/write?" + search
   );
   MonLogger::Get() << "InfluxDB/HTTP backend initialized" << " (" << "http://" << host
-                   << ":" <<  std::to_string(port) << "/?" << path << ")" << MonLogger::End();
+                   << ":" <<  std::to_string(port) << "/write?" << search << ")" << MonLogger::End();
 }
 
 inline unsigned long InfluxDB::convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp)

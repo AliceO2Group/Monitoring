@@ -35,8 +35,8 @@ class InfluxDB final : public Backend
     /// Constructor for HTTP transport
     /// \param host      InfluxDB HTTP endpoint hostname
     /// \param port      InfluxDB HTTP endpoint port number
-    /// \param path	 Query path
-    InfluxDB(const std::string& host, unsigned int port, const std::string& path);
+    /// \param path	 Query search providing database name
+    InfluxDB(const std::string& host, unsigned int port, const std::string& search);
 
     /// Default destructor
     ~InfluxDB() = default;

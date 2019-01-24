@@ -18,6 +18,8 @@ namespace o2
 namespace monitoring
 {
 
+enum class Verbosity : short { PROD, INFO, DEBUG };
+
 enum MetricType { INT = 0, STRING = 1, DOUBLE = 2, UINT64_T = 3 };
 
 /// \brief Represents a metric including value, type of the value, name, timestamp and tags
@@ -27,27 +29,27 @@ class Metric
     /// Integer metric construtor
     /// \param value 	 	metric value (int)
     /// \param name 	 	metric name
-    Metric(int value, const std::string& name);
+    Metric(int value, const std::string& name, Verbosity verbosity = Metric::DEFAULT_VERBOSITY);
 
     /// String metric construtor
     /// \param value            metric value (string)
     /// \param name             the metric name
-    Metric(std::string value, const std::string& name);
+    Metric(std::string value, const std::string& name, Verbosity verbosity = Metric::DEFAULT_VERBOSITY);
 
     /// Double metric constructor
     /// \param value            metric value (double)
     /// \param name             metric name
-    Metric(double value, const std::string& name);
+    Metric(double value, const std::string& name, Verbosity verbosity = Metric::DEFAULT_VERBOSITY);
 
     /// uint64_t metric constructor
     /// \param value            metric value (uint64_t)
     /// \param name             metric name
-    Metric(uint64_t value, const std::string& name);
+    Metric(uint64_t value, const std::string& name, Verbosity verbosity = Metric::DEFAULT_VERBOSITY);
 
     /// boost variant metric constructor, required by derived metrics logic
     /// \param value            metric value (boost variant)
     /// \param name             metric name
-    Metric(boost::variant< int, std::string, double, uint64_t >, const std::string& name);
+    Metric(boost::variant< int, std::string, double, uint64_t >, const std::string& name, Verbosity verbosity = Metric::DEFAULT_VERBOSITY);
 
     /// Default destructor
     ~Metric() = default;
@@ -77,10 +79,18 @@ class Metric
     /// \return          r-value to "this" - to be able to chain methods
     Metric&& addTags(std::vector<unsigned int>&& tags);
 
+    /// Verbosity getter
+    Verbosity getVerbosity();
+
     /// Generetes current timestamp
     /// return          timestamp as std::chrono::system_clock
     static auto getCurrentTimestamp() -> decltype(std::chrono::system_clock::now());
 
+    /// Sets default verbosity of metrics
+    static void setDefaultVerbosity(Verbosity verbosity);
+
+    /// Default metric verbosity
+    static Verbosity DEFAULT_VERBOSITY;
   protected:
     /// Metric value
     boost::variant< int, std::string, double, uint64_t > mValue;
@@ -93,6 +103,9 @@ class Metric
 
     /// Metric tags
     std::vector<unsigned int> mTags;
+
+    /// Metric verbosity
+    Verbosity mVerbosity;
 };
 
 } // namespace monitoring

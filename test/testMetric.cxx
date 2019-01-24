@@ -103,6 +103,10 @@ BOOST_AUTO_TEST_CASE(customCopyConstructor) {
   BOOST_CHECK_EQUAL(sum, 27);
 }
 
+BOOST_AUTO_TEST_CASE(verbosity) {
+  Metric{10, "myMetric", Verbosity::PROD};
+}
+
 } // namespace Test
 } // namespace monitoring
 } // namespace o2
