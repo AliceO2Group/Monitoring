@@ -97,8 +97,8 @@ std::string InfluxDB::toInfluxLineProtocol(const Metric& metric) {
   escape(name);
   convert << name << "," << tagSet;
 
-  for (const auto& tagIndex : metric.getTags()) {
-    convert << "," << tags::TAG_ARRAY[tagIndex].first << "=" << tags::TAG_ARRAY[tagIndex].second;
+  for (const auto& [key, value] : metric.getTags()) {
+    convert << "," << tags::TAG_KEY[key] << "=" << tags::GetValue(value);
   }
 
   std::string value = boost::lexical_cast<std::string>(metric.getValue());

@@ -18,9 +18,14 @@ namespace o2
 namespace monitoring
 {
 
+/// Metric and Backedn verbosity
 enum class Verbosity : short { PROD, INFO, DEBUG };
 
+
+/// Metric types
 enum MetricType { INT = 0, STRING = 1, DOUBLE = 2, UINT64_T = 3 };
+
+class DerivedMetrics;
 
 /// \brief Represents a metric including value, type of the value, name, timestamp and tags
 class Metric
@@ -72,12 +77,19 @@ class Metric
 
     /// Tag list getter
     /// \return         tags
-    const std::vector<unsigned int>& getTags() const;
+    const std::vector<std::pair<int, int>>& getTags() const;
 
     /// Add user defined tags
-    /// \param tags      r-value to vector of tags
+    /// \param key      enum tag key
+    /// \param value 	emum tag value
+    /// \return         r-value to "this" - to be able to chain methods
+    Metric&& addTag(tags::Key key, tags::Value value);
+
+    /// Add user defined tags
+    /// \param key      enum tag key
+    /// \param value    numeric value
     /// \return          r-value to "this" - to be able to chain methods
-    Metric&& addTags(std::vector<unsigned int>&& tags);
+    Metric&& addTag(tags::Key key, unsigned short int number);
 
     /// Verbosity getter
     Verbosity getVerbosity();
@@ -92,6 +104,12 @@ class Metric
     /// Default metric verbosity
     static Verbosity DEFAULT_VERBOSITY;
   protected:
+    /// Allow DerivedMetrics access to setTags
+    friend class o2::monitoring::DerivedMetrics;
+
+    /// Set full vector of tags
+    Metric&& setTags(std::vector<std::pair<int, int>>&& tags);
+
     /// Metric value
     boost::variant< int, std::string, double, uint64_t > mValue;
 
@@ -102,7 +120,7 @@ class Metric
     std::chrono::time_point<std::chrono::system_clock> mTimestamp;
 
     /// Metric tags
-    std::vector<unsigned int> mTags;
+    std::vector<std::pair<int, int>> mTags;
 
     /// Metric verbosity
     Verbosity mVerbosity;

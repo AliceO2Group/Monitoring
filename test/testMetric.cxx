@@ -75,17 +75,17 @@ BOOST_AUTO_TEST_CASE(retrieveWrongType) {
 }
 
 BOOST_AUTO_TEST_CASE(tags) {
-  Metric metric = Metric{10, "myMetric"}.addTags({o2::monitoring::tags::Detector::TPC, o2::monitoring::tags::Detector::TRD});
+  Metric metric = Metric{10, "myMetric"}.addTag(o2::monitoring::tags::Key::Detector, o2::monitoring::tags::Value::TRD);
   auto tags = metric.getTags();
   int sum = 0;
   for (auto const& tag: tags) {
-    sum += tag;
+    sum += tag.second;
   }
-  BOOST_CHECK_EQUAL(sum, 27);
+  BOOST_CHECK_EQUAL(sum, 14);
 }
 
 BOOST_AUTO_TEST_CASE(customCopyConstructor) {
-  Metric metric = Metric{10, "myMetric"}.addTags({o2::monitoring::tags::Detector::TPC, o2::monitoring::tags::Detector::TRD});
+  Metric metric = Metric{10, "myMetric"}.addTag(o2::monitoring::tags::Key::Detector, 123).addTag(o2::monitoring::tags::Key::Detector, o2::monitoring::tags::Value::TRD);
   Metric assigned{1, "assingedMetric"};
   auto copied = metric;
   assigned = metric;
@@ -98,9 +98,9 @@ BOOST_AUTO_TEST_CASE(customCopyConstructor) {
   auto tags = copied.getTags();
   int sum = 0;
   for (auto const& tag: tags) {
-    sum += tag;
+    sum += tag.second;
   }
-  BOOST_CHECK_EQUAL(sum, 27);
+  BOOST_CHECK_EQUAL(sum, -109);
 }
 
 BOOST_AUTO_TEST_CASE(verbosity) {
