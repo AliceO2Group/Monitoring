@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE(tags) {
 }
 
 BOOST_AUTO_TEST_CASE(customCopyConstructor) {
-  Metric metric = Metric{10, "myMetric"}.addTag(o2::monitoring::tags::Key::Detector, o2::monitoring::tags::Value::TPC);
+  Metric metric = Metric{10, "myMetric"}.addTag(o2::monitoring::tags::Key::Detector, 123).addTag(o2::monitoring::tags::Key::Detector, o2::monitoring::tags::Value::TRD);
   Metric assigned{1, "assingedMetric"};
   auto copied = metric;
   assigned = metric;
@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE(customCopyConstructor) {
   for (auto const& tag: tags) {
     sum += tag.second;
   }
-  BOOST_CHECK_EQUAL(sum, 13);
+  BOOST_CHECK_EQUAL(sum, -109);
 }
 
 BOOST_AUTO_TEST_CASE(verbosity) {
