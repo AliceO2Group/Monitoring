@@ -22,7 +22,8 @@ BOOST_AUTO_TEST_CASE(createMonitoring)
   std::string stringMetric("monitoringString");
   double doubleMetric = static_cast <double> (rand()) / static_cast <double> (RAND_MAX);
 
-  monitoring->addGlobalTag(tags::Key::Name, "sampleDevice");
+  monitoring->addGlobalTag("name", "Readout");
+  monitoring->addGlobalTag(tags::Key::Name, tags::Value::Readout);
 
   monitoring->send({intMetric, "myCrazyMetricI"});
   monitoring->send({stringMetric, "myCrazyMetricS"});

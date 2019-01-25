@@ -91,7 +91,7 @@ A metric consist of 5 parameters: name, value, timestamp, verbosity and tags.
 | verbosity      | DEBUG / INFO / PROD                           | no       | INFO           |
 | tags           | vector<unsigned int>                          | no       | -              |
 
-A metric can be constructed by providing required parameters:
+A metric can be constructed by providing required parameters (value and name):
 ```cpp
 Metric{10, "name"}
 ```
@@ -165,7 +165,7 @@ Glabal tags are tags that are added to each metric. The following tags are set t
 - `hostname`
 - `name` - process name
 
-You can add your own global tag by calling `addGlobalTag(tags::Key, std::string_view)` or `addGlobalTag(tags::Key, tags::Value)`.
+You can add your own global tag by calling `addGlobalTag(std::string_view key, std::string_view value)` or `addGlobalTag(tags::Key, tags::Value)`.
 
 ### Process monitoring
 ```cpp

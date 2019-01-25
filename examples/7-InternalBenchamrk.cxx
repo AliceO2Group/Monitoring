@@ -17,7 +17,7 @@ void test(std::unique_ptr<Monitoring>& monitoring) {
 }
 
 void testWithTags(std::unique_ptr<Monitoring>& monitoring) {
-  monitoring->addGlobalTag(tags::Key::Name, "benchmark");
+  monitoring->addGlobalTag("name", "benchmark");
   for (int i = 0; i < 100000; i++) {
     monitoring->send(Metric{10, "myMetricInt"}.addTag(tags::Key::Detector, tags::Value::TPC));
     monitoring->send(Metric{10.10, "myMetricFloat"}.addTag(tags::Key::Subsystem, tags::Value::QC));

@@ -77,10 +77,10 @@ void Monitoring::enableProcessMonitoring(const unsigned int interval) {
   #endif
 }
 
-void Monitoring::addGlobalTag(tags::Key key, std::string_view value)
+void Monitoring::addGlobalTag(std::string_view key, std::string_view value)
 {
   for (auto& backend: mBackends) {
-    backend->addGlobalTag(tags::TAG_KEY[static_cast<std::underlying_type<tags::Key>::type>(key)], value);
+    backend->addGlobalTag(key, value);
   }
 }
 

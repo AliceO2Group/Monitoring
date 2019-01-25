@@ -79,7 +79,7 @@ class Monitoring
     /// Adds global tag
     /// \param name 		tag name
     /// \param value 		tag value
-    void addGlobalTag(tags::Key key, std::string_view value);
+    void addGlobalTag(std::string_view name, std::string_view value);
 
     /// Adds global tag
     /// \param name             tag name

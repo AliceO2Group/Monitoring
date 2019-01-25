@@ -14,7 +14,7 @@ int main() {
   auto monitoring = MonitoringFactory::Get("stdout://");
 
   /// Add global tags
-  monitoring->addGlobalTag(tags::Key::Name, "test");
+  monitoring->addGlobalTag("name", "test");
   monitoring->addGlobalTag(tags::Key::Subsystem, tags::Value::DPL);
 
   // now send an application specific metric with additional tags
