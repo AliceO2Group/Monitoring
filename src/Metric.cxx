@@ -91,10 +91,10 @@ auto Metric::getCurrentTimestamp() -> decltype(std::chrono::system_clock::now())
 
 void Metric::setDefaultVerbosity(Verbosity verbosity)
 {
-  Metric::DEFAULT_VERBOSITY = verbosity;
+  Metric::DefaultVerbosity = verbosity;
 }
 
-Verbosity Metric::DEFAULT_VERBOSITY = Verbosity::INFO;
+Verbosity Metric::DefaultVerbosity = Verbosity::Info;
 
 } // namespace monitoring
 } // namespace o2

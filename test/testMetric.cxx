@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_CASE(customCopyConstructor) {
 }
 
 BOOST_AUTO_TEST_CASE(verbosity) {
-  Metric{10, "myMetric", Verbosity::PROD};
+  Metric{10, "myMetric", Verbosity::Prod};
 }
 
 } // namespace Test
