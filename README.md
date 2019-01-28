@@ -88,7 +88,7 @@ A metric consist of 5 parameters: name, value, timestamp, verbosity and tags.
 | name           | string                                        | yes      | -              |
 | value          | int / double / string / uint64_t              | yes      | -              |
 | timestamp      | chrono::time_point&lt;std::chrono::system_clock&gt; | no | current timestamp |
-| verbosity      | DEBUG / INFO / PROD                           | no       | INFO           |
+| verbosity      | Debug / Info / Prod                           | no       | Info           |
 | tags           | vector<unsigned int>                          | no       | -              |
 
 A metric can be constructed by providing required parameters (value and name):
@@ -97,13 +97,13 @@ Metric{10, "name"}
 ```
 
 #### Verbosity
-There are 3 verbosity levels (the same as for backends): DEBUG, INFO, PROD. The default verbosity is set using: `Metric::setDefaultVerbosity(verbosity)`.
+There are 3 verbosity levels (the same as for backends): Debug, Info, Prod. The default verbosity is set using: `Metric::setDefaultVerbosity(verbosity)`.
 To overwrite verbosity on per metric basis use third, optional parameter to metric constructor:
 ```cpp
-Metric{10, "name", Verbosity::PROD}
+Metric{10, "name", Verbosity::Prod}
 ```
 
-Metrics need to match backends verbosity in order to be sent, eg. backend with `/info` verbosity will accept `INFO` and `PROD` metrics only.
+Metrics need to match backends verbosity in order to be sent, eg. backend with `/info` verbosity will accept `Info` and `Prod` metrics only.
 
 
 #### Tags

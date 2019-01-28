@@ -19,7 +19,7 @@ namespace monitoring
 {
 
 /// Metric and Backedn verbosity
-enum class Verbosity : short { PROD, INFO, DEBUG };
+enum class Verbosity : short { Prod, Info, Debug };
 
 
 /// Metric types
@@ -34,27 +34,27 @@ class Metric
     /// Integer metric construtor
     /// \param value 	 	metric value (int)
     /// \param name 	 	metric name
-    Metric(int value, const std::string& name, Verbosity verbosity = Metric::DEFAULT_VERBOSITY);
+    Metric(int value, const std::string& name, Verbosity verbosity = Metric::DefaultVerbosity);
 
     /// String metric construtor
     /// \param value            metric value (string)
     /// \param name             the metric name
-    Metric(std::string value, const std::string& name, Verbosity verbosity = Metric::DEFAULT_VERBOSITY);
+    Metric(std::string value, const std::string& name, Verbosity verbosity = Metric::DefaultVerbosity);
 
     /// Double metric constructor
     /// \param value            metric value (double)
     /// \param name             metric name
-    Metric(double value, const std::string& name, Verbosity verbosity = Metric::DEFAULT_VERBOSITY);
+    Metric(double value, const std::string& name, Verbosity verbosity = Metric::DefaultVerbosity);
 
     /// uint64_t metric constructor
     /// \param value            metric value (uint64_t)
     /// \param name             metric name
-    Metric(uint64_t value, const std::string& name, Verbosity verbosity = Metric::DEFAULT_VERBOSITY);
+    Metric(uint64_t value, const std::string& name, Verbosity verbosity = Metric::DefaultVerbosity);
 
     /// boost variant metric constructor, required by derived metrics logic
     /// \param value            metric value (boost variant)
     /// \param name             metric name
-    Metric(boost::variant< int, std::string, double, uint64_t >, const std::string& name, Verbosity verbosity = Metric::DEFAULT_VERBOSITY);
+    Metric(boost::variant< int, std::string, double, uint64_t >, const std::string& name, Verbosity verbosity = Metric::DefaultVerbosity);
 
     /// Default destructor
     ~Metric() = default;
@@ -102,7 +102,7 @@ class Metric
     static void setDefaultVerbosity(Verbosity verbosity);
 
     /// Default metric verbosity
-    static Verbosity DEFAULT_VERBOSITY;
+    static Verbosity DefaultVerbosity;
   protected:
     /// Allow DerivedMetrics access to setTags
     friend class o2::monitoring::DerivedMetrics;

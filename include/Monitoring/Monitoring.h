@@ -63,7 +63,7 @@ class Monitoring
     /// If it's not supported by a backend it fallbacks into sending one by one
     /// \param name		measurement name
     /// \param metrics		list of metrics
-    void sendGrouped(std::string name, std::vector<Metric>&& metrics, Verbosity verbosity = Metric::DEFAULT_VERBOSITY);
+    void sendGrouped(std::string name, std::vector<Metric>&& metrics, Verbosity verbosity = Metric::DefaultVerbosity);
 
     /// Enables process monitoring
     /// \param interval		refresh interval

@@ -28,7 +28,7 @@ class Backend
 
   public:
     /// Default constructor
-    Backend() { verbosityLevel = Verbosity::PROD; }
+    Backend() { verbosityLevel = Verbosity::Prod; }
 
     /// Default destructor
     virtual ~Backend() = default;
