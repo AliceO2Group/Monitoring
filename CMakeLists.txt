@@ -150,6 +150,7 @@ target_compile_features(Monitoring PUBLIC cxx_std_17)
 set(EXAMPLES
   examples/1-Basic.cxx
   examples/2-TaggedMetrics.cxx
+  examples/3-Verbosity.cxx
   examples/4-RateDerivedMetric.cxx
   examples/5-Benchmark.cxx
   examples/6-Increment.cxx

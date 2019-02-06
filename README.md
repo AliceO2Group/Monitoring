@@ -56,8 +56,8 @@ make install
 
 ## Getting started
 ### Monitoring instance
-The recommended way of getting (`unique_ptr` to) monitoring instance is `Get`ing it from  `MonitoringFactory` by passing backend URI(s) as a parameter (comma seperated if more than one).
-The library is accessible from `o2::monitoring` namespace.
+The recommended way of getting monitoring instance is `Get`ing it from  `MonitoringFactory` by passing backend's URI(s) as a parameter (comma separated if more than one).
+The factory is accessible from `o2::monitoring` namespace.
 
 ```cpp
 #include <MonitoringFactory.h>
@@ -67,53 +67,62 @@ std::unique_ptr<Monitoring> monitoring = MonitoringFactory::Get("backend[-protoc
 
 See table below to find out how to create `URI` for each backend:
 
-| Backend name | Transport | URI backend[-protocol] | URI query        | Default verbosity |
-| ------------ |:---------:|:----------------------:|:----------------:| -----------------:|
-| InfluxDB     | HTTP      | `influxdb-http`        | `/write?db=<db>` | `prod`            |
-| InfluxDB     | UDP       | `influxdb-udp`         | -                | `prod`            |
-| ApMon        | UDP       | `apmon`                | -                | `prod`            |
-| StdOut       | -         | `stdout`, `infologger` | -                | `debug`           |
-| Flume        | UDP       | `flume`                | -                | `prod`            |
+| Backend name | Transport | URI backend[-protocol] | URI query  | Default verbosity |
+| ------------ |:---------:|:----------------------:|:----------:| -----------------:|
+| InfluxDB     | HTTP      | `influxdb-http`        | `?db=<db>` | `info`            |
+| InfluxDB     | UDP       | `influxdb-udp`         | -          | `info`            |
+| ApMon        | UDP       | `apmon`                | -          | `info`            |
+| StdOut       | -         | `stdout`, `infologger` | -          | `debug`           |
+| Flume        | UDP       | `flume`                | -          | `info`            |
 
-Multiple backends may be used at the same time, URLs should be separated by `,` (comma).
-
-#### StdCout output format
+##### StdCout output format
 ```
 [METRIC] <name>,<type> <value> <timestamp> <tags>
 ```
+
+### Metrics
+A metric consist of 5 parameters: name, value, timestamp, verbosity and tags.
+
+| Parameter name | Type                                          | Required | Default        |
+| -------------- |:---------------------------------------------:|:--------:| --------------:|
+| name           | string                                        | yes      | -              |
+| value          | int / double / string / uint64_t              | yes      | -              |
+| timestamp      | chrono::time_point&lt;std::chrono::system_clock&gt; | no | current timestamp |
+| verbosity      | Debug / Info / Prod                           | no       | Info           |
+| tags           | vector<unsigned int>                          | no       | -              |
+
+A metric can be constructed by providing required parameters (value and name):
+```cpp
+Metric{10, "name"}
+```
+
+#### Verbosity
+There are 3 verbosity levels (the same as for backends): Debug, Info, Prod. The default verbosity is set using: `Metric::setDefaultVerbosity(verbosity)`.
+To overwrite verbosity on per metric basis use third, optional parameter to metric constructor:
+```cpp
+Metric{10, "name", Verbosity::Prod}
+```
+
+Metrics need to match backends verbosity in order to be sent, eg. backend with `/info` verbosity will accept `Info` and `Prod` metrics only.
+
+
+#### Tags
+Each metric can be tagged with any number of [predefined tags](include/Monitoring/Tags.h).
+In order to do so use `addTag(tags::Key, tags::Value)` or `addTag(tags::Key, unsigned short)` methods. The latter method allows assigning numeric value to a tag.
+
+See the example: [examples/2-TaggedMetrics.cxx](examples/2-TaggedMetrics.cxx).
 
 ### Sending metric
 
 ```cpp
 send(Metric&& metric, [DerivedMetricMode mode])
 ```
-Where metric constructor receives following parameters:
-  - `T value`
-  - `std::string& name`
 
 See how it works in the example: [examples/1-Basic.cxx](examples/1-Basic.cxx).
 
 The `DerivedMetricMode` is optional and described in [Calculating derived metrics](#calculating-derived-metrics) section.
 
-### Taging metric
-Each metric can be tagged with any number of [predefined tags](include/Monitoring/Tags.h).
-In order to do so use `addTags(std::initializer_list<unsigned int>&& tags)` method.
-
-See the example: [examples/2-TaggedMetrics.cxx](examples/2-TaggedMetrics.cxx).
-
-### Debug metrics
-Debug metrics can be send by a similar method to above's `send`:
-```cpp
-debug(Metric&& metric)
-```
-
-The difference is that debug metrics are only passed to backends which verbosity level is set to `debug`.
-
-Each backend has its default verbosity (see backend in [Monitoring instance](#monitoring-instance) section). This can be changed by defining path of a backend URL:
-- `/prod` - only `send` metrics are passed to the backend
-- `/debug` - all the metrics are passed to the backend
-
-## Features and additional information
+## Advanced features
 
 ### Sending more than one metric
 In order to send more than one metric in a packet group them into vector:
@@ -141,20 +150,6 @@ monitoring->flushBuffer();
 
 See how it works in the example: [examples/10-Buffering.cxx](examples/10-Buffering.cxx).
 
-### Metrics
-Metrics consist of 4 parameters: name, value, timestamp and tags.
-
-| Parameter name | Type                                          | Required | Default          |
-| -------------- |:---------------------------------------------:|:--------:| ----------------:|
-| name           | string                                        | yes      | -                |
-| value          | int / double / string / uint64_t    | yes      | -                |
-| timestamp      | chrono::time_point&lt;std::chrono::system_clock&gt; | no       | current timestamp     |
-| tags           | vector<unsigned int>                                   | no       | -**                |
-
-**Default tag set is process specific and included in each metric:
-+ hostname
-+ process name
-
 ### Calculating derived metrics
 The module can calculate derived metrics. To do so, use optional `DerivedMetricMode mode` parameter of `send` method:
 + `DerivedMetricMode::NONE` - no action,
@@ -170,9 +165,9 @@ Glabal tags are tags that are added to each metric. The following tags are set t
 - `hostname`
 - `name` - process name
 
-You can add your own global tag by calling `addGlobalTag(std::string name, std::string value)`.
+You can add your own global tag by calling `addGlobalTag(std::string_view key, std::string_view value)` or `addGlobalTag(tags::Key, tags::Value)`.
 
-### Monitoring process
+### Process monitoring
 ```cpp
 enableProcessMonitoring([interval in seconds]);
 ```
