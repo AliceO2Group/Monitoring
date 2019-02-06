@@ -143,13 +143,13 @@ void ApMonBackend::sendMultiple(std::string, std::vector<Metric>&& metrics)
 void ApMonBackend::send(const Metric& metric)
 {
   std::string name = metric.getName();
-  for (const auto& tagIndex : metric.getTags()) {
-    name += ",";
-    name += tags::TAG_ARRAY[tagIndex].first;
+  for (const auto& [key, value] : metric.getTags()) {
+    name += ',';
+    name += tags::TAG_KEY[key];
     name += "=";
-    name += tags::TAG_ARRAY[tagIndex].second;
-  } 
- 
+    name += tags::GetValue(value);
+  }
+
   switch(metric.getType()) {
     case MetricType::INT :
     {

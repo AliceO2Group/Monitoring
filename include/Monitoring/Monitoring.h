@@ -58,20 +58,12 @@ class Monitoring
     /// \param mode		Derived metric mode
     void send(Metric&& metric, DerivedMetricMode mode = DerivedMetricMode::NONE);
 
-    /// Send metrics to debug backends only
-    /// \param metric 		r-value to metric object
-    void debug(Metric&& metric);
-
-    /// Sends multiple (not related to each other) metrics
-    /// \param metrics  vector of metrics
-    void send(std::vector<Metric>&& metrics);
-
     /// Sends multiple realated to each other metric values under a common measurement name
     /// You can imagine it as a data point with multiple values
     /// If it's not supported by a backend it fallbacks into sending one by one
     /// \param name		measurement name
     /// \param metrics		list of metrics
-    void sendGrouped(std::string name, std::vector<Metric>&& metrics);
+    void sendGrouped(std::string name, std::vector<Metric>&& metrics, Verbosity verbosity = Metric::DefaultVerbosity);
 
     /// Enables process monitoring
     /// \param interval		refresh interval
@@ -89,9 +81,10 @@ class Monitoring
     /// \param value 		tag value
     void addGlobalTag(std::string_view name, std::string_view value);
 
-    /// Adds predefined global tag
-    /// \param tag		tag index (use predefined enums form tag:: namespace)
-    void addGlobalTag(const unsigned int tag);
+    /// Adds global tag
+    /// \param name             tag name
+    /// \param value            tag value
+    void addGlobalTag(tags::Key key, tags::Value value);
 
     /// Returns a metric which will be periodically sent to backends
     /// \param name 		metric name
@@ -99,6 +92,16 @@ class Monitoring
     ComplexMetric& getAutoPushMetric(std::string name, unsigned int interval = 1);
 
   private:
+    /// Sends multiple (not related to each other) metrics
+    /// \param metrics  vector of metrics
+    void transmit(std::vector<Metric>&& metrics);
+
+    /// Flush buffer of desired verbosity
+    void flushBuffer(short index);
+
+    /// Matches verbosity of a backend and a metric in order to decide whether metric should be send to the backend
+    bool matchVerbosity(Verbosity backend, Verbosity metric);
+
     /// Derived metrics handler
     /// \see class DerivedMetrics
     std::unique_ptr<DerivedMetrics> mDerivedHandler;
@@ -107,7 +110,7 @@ class Monitoring
     std::vector <std::unique_ptr<Backend>> mBackends;
 
     /// Pushes metric to all backends or to the buffer
-    void pushToBackends(Metric&& metric);
+    void transmit(Metric&& metric);
 
     /// States whether Process Monitor thread is running
     std::atomic<bool> mMonitorRunning;
@@ -122,7 +125,7 @@ class Monitoring
     void pushLoop();
 
     /// Metric buffer
-    std::vector<Metric> mStorage;
+    std::unordered_map<std::underlying_type<Verbosity>::type, std::vector<Metric>> mStorage;
 
     /// Flag stating whether metric buffering is enabled
     bool mBuffering;

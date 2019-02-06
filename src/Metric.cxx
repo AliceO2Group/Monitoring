@@ -30,25 +30,25 @@ const std::string& Metric::getName() const
   return mName;
 }
 
-Metric::Metric(int value, const std::string& name) :
-  mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp())
+Metric::Metric(int value, const std::string& name, Verbosity verbosity) :
+  mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
 {
 }
 
-Metric::Metric(std::string value, const std::string& name) :
-  mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp())
+Metric::Metric(std::string value, const std::string& name, Verbosity verbosity) :
+  mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
 {}
 
-Metric::Metric(double value, const std::string& name) :
-  mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp())
+Metric::Metric(double value, const std::string& name, Verbosity verbosity) :
+  mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
 {}
 
-Metric::Metric(uint64_t value, const std::string& name) :
-  mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp())
+Metric::Metric(uint64_t value, const std::string& name, Verbosity verbosity) :
+  mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
 {}
 
-Metric::Metric(boost::variant< int, std::string, double, uint64_t > value, const std::string& name) :
-  mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp())
+Metric::Metric(boost::variant< int, std::string, double, uint64_t > value, const std::string& name, Verbosity verbosity) :
+  mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
 {}
 
 boost::variant< int, std::string, double, uint64_t > Metric::getValue() const
@@ -56,13 +56,30 @@ boost::variant< int, std::string, double, uint64_t > Metric::getValue() const
   return mValue;
 }
 
-Metric&& Metric::addTags(std::initializer_list<unsigned int>&& tags)
+Verbosity Metric::getVerbosity()
+{
+  return mVerbosity;
+}
+
+Metric&& Metric::addTag(tags::Key key, tags::Value value)
+{
+  mTags.push_back({static_cast<std::underlying_type<tags::Key>::type>(key), static_cast<std::underlying_type<tags::Value>::type>(value)});
+  return std::move(*this);
+}
+
+Metric&& Metric::addTag(tags::Key key, unsigned short number)
+{
+  mTags.push_back({static_cast<std::underlying_type<tags::Key>::type>(key), 0 - number});
+  return std::move(*this);
+}
+
+Metric&& Metric::setTags(std::vector<std::pair<int, int>>&& tags)
 {
   mTags = std::move(tags);
   return std::move(*this);
 }
 
-const std::vector<unsigned int>& Metric::getTags() const
+const std::vector<std::pair<int, int>>& Metric::getTags() const
 {
   return mTags;
 }
@@ -71,6 +88,13 @@ auto Metric::getCurrentTimestamp() -> decltype(std::chrono::system_clock::now())
 {
   return std::chrono::system_clock::now();
 }
+
+void Metric::setDefaultVerbosity(Verbosity verbosity)
+{
+  Metric::DefaultVerbosity = verbosity;
+}
+
+Verbosity Metric::DefaultVerbosity = Verbosity::Info;
 
 } // namespace monitoring
 } // namespace o2
