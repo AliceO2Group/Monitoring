@@ -20,8 +20,13 @@ Kafka::Kafka(const std::string& host, unsigned int port) : mInfluxDB()
 {
   std::string errstr;
   RdKafka::Conf *conf = RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL);
-  std::string brokers = "localhost:1234";
-  conf->set("metadata.broker.list", brokers, errstr);
+  conf->set("bootstrap.servers", host + ":" + std::to_string(port), errstr);
+  conf->set("acks", "0", errstr);
+  conf->set("message.send.max.retries", "0", errstr);
+  conf->set("queue.buffering.max.ms", "100", errstr);
+  conf->set("batch.num.messages", "1000", errstr);
+  conf->set("debug", "msg", errstr);
+
   producer = RdKafka::Producer::create(conf, errstr);
     if (!producer) {
       MonLogger::Get() << "Failed to create producer: " << errstr << MonLogger::End();
