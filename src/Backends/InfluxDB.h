@@ -38,6 +38,8 @@ class InfluxDB final : public Backend
     /// \param path	 Query search providing database name
     InfluxDB(const std::string& host, unsigned int port, const std::string& search);
 
+    InfluxDB(const std::string& socketPath);
+
     /// Default destructor
     ~InfluxDB() = default;
 

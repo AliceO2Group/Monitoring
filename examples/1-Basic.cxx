@@ -10,7 +10,7 @@ using namespace o2::monitoring;
 int main() {
   // Configure monitoring
   // Pass string with list of URLs as parameter
-  auto monitoring = MonitoringFactory::Get("stdout://");
+  auto monitoring = MonitoringFactory::Get("influxdb-unix:///tmp/test.sock");
   
   // now send an application specific metric
   // 10 is the value

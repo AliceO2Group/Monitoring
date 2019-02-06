@@ -42,6 +42,9 @@ std::unique_ptr<Backend> getInfluxDb(http::url uri) {
   if (uri.protocol == "http") {
     return std::make_unique<backends::InfluxDB>(uri.host, uri.port, uri.search);
   }
+  if (uri.protocol == "unix") {
+    return std::make_unique<backends::InfluxDB>(uri.path);
+  }
   throw std::runtime_error("InfluxDB transport protocol not supported");
 }
 
@@ -86,6 +89,7 @@ std::unique_ptr<Backend> MonitoringFactory::GetBackend(std::string& url) {
     {"stdout", getStdOut},
     {"influxdb-udp", getInfluxDb},
     {"influxdb-http", getInfluxDb},
+    {"influxdb-unix", getInfluxDb},
     {"apmon", getApMon},
     {"flume", getFlume},
     {"no-op", getNoop}
