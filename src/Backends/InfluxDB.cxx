@@ -35,6 +35,10 @@ InfluxDB::InfluxDB(const std::string& host, unsigned int port, const std::string
                    << ":" <<  std::to_string(port) << "/?" << path << ")" << MonLogger::End();
 }
 
+InfluxDB::InfluxDB()
+{
+}
+
 inline unsigned long InfluxDB::convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp)
 {
   return std::chrono::duration_cast <std::chrono::nanoseconds>(

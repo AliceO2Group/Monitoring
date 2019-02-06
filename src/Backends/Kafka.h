@@ -7,6 +7,7 @@
 #define ALICEO2_MONITORING_BACKENDS_KAFKA_H
 
 #include "Monitoring/Backend.h"
+#include "InfluxDB.h"
 #include "../MonLogger.h"
 #include <chrono>
 #include <string>
@@ -63,6 +64,7 @@ class Kafka final : public Backend
     RdKafka::Producer *producer;
     std::unordered_map<std::string, std::string> globalHeader;
     std::string tagSet; ///< Global tagset (common for each metric)
+    InfluxDB mInfluxDB;
 };
 
 } // namespace backends
