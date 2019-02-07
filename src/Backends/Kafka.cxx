@@ -16,7 +16,8 @@ namespace monitoring
 namespace backends
 {
 
-Kafka::Kafka(const std::string& host, unsigned int port) : mInfluxDB()
+Kafka::Kafka(const std::string& host, unsigned int port, const std::string& topic) :
+  mInfluxDB(), mTopic(topic)
 {
   std::string errstr;
   RdKafka::Conf *conf = RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL);
@@ -58,12 +59,11 @@ void Kafka::send(std::vector<Metric>&& /*metrics*/)
 
 void Kafka::send(const Metric& metric)
 {
-  std::string topic_str = "test";
   std::string influxLine = mInfluxDB.toInfluxLineProtocol(metric);
   int32_t partition = RdKafka::Topic::PARTITION_UA;
 
   RdKafka::ErrorCode resp = producer->produce(
-    topic_str, partition,
+    mTopic, partition,
     RdKafka::Producer::RK_MSG_COPY,
     const_cast<char*>(influxLine.c_str()), influxLine.size(),
     NULL, 0,

@@ -29,7 +29,7 @@ class Kafka final : public Backend
   public:
     /// \param host      Kafka UDP endpoint hostname
     /// \param port      Kafka UDP endpoint port number
-    Kafka(const std::string& host, unsigned int port);
+    Kafka(const std::string& host, unsigned int port, const std::string& topic = "test");
 
     /// Default destructor
     ~Kafka();
@@ -60,6 +60,7 @@ class Kafka final : public Backend
   private:
     RdKafka::Producer *producer; ///< Kafka producer instance
     std::string tagSet; ///< Global tagset (common for each metric)
+    std::string mTopic; ///< Kafka topic
     InfluxDB mInfluxDB; ///< InfluxDB instance
 };
 

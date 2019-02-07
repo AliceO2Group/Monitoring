@@ -32,7 +32,7 @@ namespace monitoring
 {
 #ifdef _WITH_KAFKA
 std::unique_ptr<Backend> getKafka(http::url uri) {
-  return std::make_unique<backends::Kafka>(uri.host, uri.port);
+  return std::make_unique<backends::Kafka>(uri.host, uri.port, uri.search);
 }
 #else
 std::unique_ptr<Backend> getKafka(http::url /*uri*/) {
