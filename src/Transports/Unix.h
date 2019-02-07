@@ -23,7 +23,7 @@ namespace monitoring
 namespace transports
 {
 
-/// \brief Transport that sends string formatted metrics via Unix stream socket
+/// \brief Transport that sends string formatted metrics via Unix datagram socket
 class Unix : public TransportInterface
 {
   public:
@@ -42,7 +42,10 @@ class Unix : public TransportInterface
     boost::asio::io_service mIoService;
 #if defined(BOOST_ASIO_HAS_LOCAL_SOCKETS)
     /// Unix socket
-    boost::asio::local::stream_protocol::socket mSocket;
+    boost::asio::local::datagram_protocol::socket mSocket;
+
+    /// Unix endpoint
+    boost::asio::local::datagram_protocol::endpoint mEndpoint;
 #endif // defined(BOOST_ASIO_HAS_LOCAL_SOCKETS)
 };
 

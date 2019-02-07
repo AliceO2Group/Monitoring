@@ -16,14 +16,14 @@ namespace transports
 {
 #if defined(BOOST_ASIO_HAS_LOCAL_SOCKETS)
 Unix::Unix(const std::string &socketPath) :
-  mSocket(mIoService)
+  mSocket(mIoService), mEndpoint(socketPath)
 {
-    mSocket.connect(boost::asio::local::stream_protocol::endpoint(socketPath));
+  mSocket.open();
 }
 
 void Unix::send(std::string&& message)
 {
-  boost::asio::write(mSocket, boost::asio::buffer(message, message.size()));
+  mSocket.send_to(boost::asio::buffer(message, message.size()), mEndpoint);
 }
 #endif // defined(BOOST_ASIO_HAS_LOCAL_SOCKETS)
 } // namespace transports
