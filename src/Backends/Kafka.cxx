@@ -21,11 +21,10 @@ Kafka::Kafka(const std::string& host, unsigned int port) : mInfluxDB()
   std::string errstr;
   RdKafka::Conf *conf = RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL);
   conf->set("bootstrap.servers", host + ":" + std::to_string(port), errstr);
-  conf->set("acks", "0", errstr);
+  conf->set("request.required.acks", "0", errstr);
   conf->set("message.send.max.retries", "0", errstr);
-  conf->set("queue.buffering.max.ms", "100", errstr);
+  conf->set("queue.buffering.max.ms", "10", errstr);
   conf->set("batch.num.messages", "1000", errstr);
-  conf->set("debug", "msg", errstr);
 
   producer = RdKafka::Producer::create(conf, errstr);
     if (!producer) {
@@ -49,11 +48,11 @@ inline std::string Kafka::convertTimestamp(const std::chrono::time_point<std::ch
   ).count());
 }
 
-void Kafka::sendMultiple(std::string measurement, std::vector<Metric>&& metrics)
+void Kafka::sendMultiple(std::string /*measurement*/, std::vector<Metric>&& /*metrics*/)
 {
 }
 
-void Kafka::send(std::vector<Metric>&& metrics)
+void Kafka::send(std::vector<Metric>&& /*metrics*/)
 {
 }
 
@@ -75,7 +74,7 @@ void Kafka::send(const Metric& metric)
   if (resp != RdKafka::ERR_NO_ERROR) {
     MonLogger::Get() << "% Produce failed: " << RdKafka::err2str(resp) << MonLogger::End();
   }
-  producer->poll(1);
+  producer->poll(0);
 }
 
 void Kafka::addGlobalTag(std::string_view name, std::string_view value)
