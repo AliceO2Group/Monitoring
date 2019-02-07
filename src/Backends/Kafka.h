@@ -23,13 +23,10 @@ namespace monitoring
 namespace backends
 {
 
-/// \brief Backend that sends metrics to Kafka time-series databse
-///
-/// Metrics are converted into Influx Line protocol and then sent via one of available transports
+/// \brief Backend that sends metrics to Kafka over Influx Line protocol
 class Kafka final : public Backend
 {
   public:
-    /// Constructor for UDP transport
     /// \param host      Kafka UDP endpoint hostname
     /// \param port      Kafka UDP endpoint port number
     Kafka(const std::string& host, unsigned int port);
@@ -46,11 +43,11 @@ class Kafka final : public Backend
     /// \param metric    reference to metric object
     void send(const Metric& metric) override;
 
-    /// Sends multiple metrics not related to each other
+    /// Sends multiple metrics not related to each other - NOT SUPPORTED
     /// \@param metrics  vector of metrics
     void send(std::vector<Metric>&& metrics) override;
 
-    /// Sends multiple values in single measurement
+    /// Sends multiple values in single measurement - NOT SUPPORTED
     /// \param measurement measurement name
     /// \param metrics 	list of metrics
     void sendMultiple(std::string measurement, std::vector<Metric>&& metrics) override;
@@ -61,10 +58,9 @@ class Kafka final : public Backend
     void addGlobalTag(std::string_view name, std::string_view value) override;
   
   private:
-    RdKafka::Producer *producer;
-    std::unordered_map<std::string, std::string> globalHeader;
+    RdKafka::Producer *producer; ///< Kafka producer instance
     std::string tagSet; ///< Global tagset (common for each metric)
-    InfluxDB mInfluxDB;
+    InfluxDB mInfluxDB; ///< InfluxDB instance
 };
 
 } // namespace backends

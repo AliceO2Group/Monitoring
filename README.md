@@ -75,6 +75,7 @@ See table below to find out how to create `URI` for each backend:
 | ApMon        | UDP       | `apmon`                | -          | `info`            |
 | StdOut       | -         | `stdout`, `infologger` | -          | `debug`           |
 | Flume        | UDP       | `flume`                | -          | `info`            |
+| Kafka        | TCP       | `kafka`                | -          | `info`            |
 
 ##### StdCout output format
 ```
