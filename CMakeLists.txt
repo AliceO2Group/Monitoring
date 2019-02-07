@@ -220,10 +220,11 @@ endif()
 unset(isSystemDir)
 
 # Install library
-install(TARGETS Monitoring
+install(TARGETS Monitoring 5-Benchmark
   EXPORT MonitoringTargets
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
 # Create version file
