@@ -146,7 +146,7 @@ set(EXAMPLES
   examples/4-RateDerivedMetric.cxx
   examples/5-Benchmark.cxx
   examples/6-Increment.cxx
-  examples/7-InternalBenchamrk.cxx
+  examples/7-InternalBenchmark.cxx
   examples/8-Multiple.cxx
   examples/9-AutoUpdate.cxx
   examples/10-Buffering.cxx

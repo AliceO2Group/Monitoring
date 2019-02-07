@@ -7,7 +7,7 @@
 #include <boost/program_options.hpp>
 #include <random>
 
-using Monitoring = o2::monitoring::MonitoringFactory;
+using namespace o2::monitoring;
 
 int main(int argc, char *argv[]) {
   int sleep = 1000000;
@@ -29,7 +29,8 @@ int main(int argc, char *argv[]) {
     ("multiple", boost::program_options::bool_switch()->default_value(false), "Sends multiple metrics per measurement")
     ("monitor", boost::program_options::bool_switch()->default_value(false), "Enabled process monitor")
     ("buffer", boost::program_options::value<int>(), "Creates buffr of given size")
-    ("measurements", boost::program_options::value<int>(), "Number of different measurements") 
+    ("measurements", boost::program_options::value<int>(), "Number of different measurements")
+    ("latency", boost::program_options::bool_switch()->default_value(false), "Latency measurement")
  ;
   
   boost::program_options::variables_map vm;
@@ -48,7 +49,7 @@ int main(int argc, char *argv[]) {
     measurements = vm["measurements"].as<int>();
   }
 
-  auto monitoring = Monitoring::Get(vm["url"].as<std::string>());
+  auto monitoring = MonitoringFactory::Get(vm["url"].as<std::string>());
   if (vm["monitor"].as<bool>()) {
     monitoring->enableProcessMonitoring(1);
   }
@@ -62,6 +63,17 @@ int main(int argc, char *argv[]) {
         std::this_thread::sleep_for(std::chrono::microseconds(sleep));
       }
       if (!vm.count("count")) j--;
+    }
+  } else if (vm["latency"].as<bool>()) {
+    for (;;) {
+      auto timestamp = std::chrono::system_clock::now();
+      monitoring->send(
+        Metric{1.0, "latency"}.addTag(
+          tags::Key::StartTime,
+          std::chrono::duration_cast <std::chrono::nanoseconds>(timestamp.time_since_epoch()).count()
+      )
+    );
+    std::this_thread::sleep_for(std::chrono::microseconds(sleep));
     }
   } else {
     if (vm.count("buffer")) {

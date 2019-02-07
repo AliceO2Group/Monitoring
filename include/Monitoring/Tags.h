@@ -19,11 +19,11 @@ namespace tags
   using namespace std::string_view_literals; 
 
   // Tag keys
-  enum class Key : unsigned short int { Hostname, Rolename, Name, Detector, Subsystem, CRU, FLP, EPN };
+  enum class Key : unsigned short int { Hostname, Rolename, Name, Detector, Subsystem, CRU, FLP, EPN, StartTime };
 
   /// Tag keys array
-  static constexpr std::array<std::string_view, 8> TAG_KEY = {
-    "hostname"sv, "rolenane"sv, "name"sv, "detector"sv, "subsystem"sv, "CRU"sv, "FLP"sv, "EPN"sv
+  static constexpr std::array<std::string_view, 9> TAG_KEY = {
+    "hostname"sv, "rolenane"sv, "name"sv, "detector"sv, "subsystem"sv, "CRU"sv, "FLP"sv, "EPN"sv, "starttime"sv
   };
 
   // Tag values
