@@ -78,6 +78,7 @@ set(SRCS
   src/Transports/UDP.cxx
   src/Transports/TCP.cxx
   src/Transports/HTTP.cxx
+  src/Transports/Unix.cxx
   src/Exceptions/MonitoringException.cxx
 )
 

@@ -71,6 +71,7 @@ See table below to find out how to create `URI` for each backend:
 | ------------ |:---------:|:----------------------:|:----------:| -----------------:|
 | InfluxDB     | HTTP      | `influxdb-http`        | `?db=<db>` | `info`            |
 | InfluxDB     | UDP       | `influxdb-udp`         | -          | `info`            |
+| InfluxDB     | Unix datagram | `influxdb-unix`    | -          | `info`            |
 | ApMon        | UDP       | `apmon`                | -          | `info`            |
 | StdOut       | -         | `stdout`, `infologger` | -          | `debug`           |
 | Flume        | UDP       | `flume`                | -          | `info`            |

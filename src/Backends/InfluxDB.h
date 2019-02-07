@@ -41,6 +41,10 @@ class InfluxDB final : public Backend
     /// Constructor for other backends
     InfluxDB();
 
+    /// Constructor for Unix socket transport
+    InfluxDB(const std::string& socketPath);
+
+
     /// Default destructor
     ~InfluxDB() = default;
 

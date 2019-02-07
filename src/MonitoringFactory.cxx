@@ -40,6 +40,12 @@ std::unique_ptr<Backend> getKafka(http::url /*uri*/) {
 }
 #endif
 
+static const std::map<std::string, Verbosity> verbosities = {
+  {"/prod", Verbosity::Prod},
+  {"/info", Verbosity::Info},
+  {"/debug", Verbosity::Debug}
+};
+
 std::unique_ptr<Backend> getStdOut(http::url) {
   return std::make_unique<backends::StdOut>();
 }
@@ -54,6 +60,16 @@ std::unique_ptr<Backend> getInfluxDb(http::url uri) {
   }
   if (uri.protocol == "http") {
     return std::make_unique<backends::InfluxDB>(uri.host, uri.port, uri.search);
+  }
+  if (uri.protocol == "unix") {
+    std::string path = uri.path;;
+    auto found = std::find_if(begin(verbosities), end(verbosities),
+                       [&](const auto& s)
+                       {return path.find(s.first) != std::string::npos; });
+    if (found != end(verbosities)) {
+      path.erase(path.rfind('/'));
+    }
+    return std::make_unique<backends::InfluxDB>(path);
   }
   throw std::runtime_error("InfluxDB transport protocol not supported");
 }
@@ -77,12 +93,6 @@ std::unique_ptr<Backend> getFlume(http::url uri) {
 }
 
 void MonitoringFactory::SetVerbosity(std::string selected, std::unique_ptr<Backend>& backend) {
-  static const std::map<std::string, Verbosity> verbosities = {
-    {"/prod", Verbosity::Prod},
-    {"/info", Verbosity::Info},
-    {"/debug", Verbosity::Debug}
-  };
-
   auto found = verbosities.find(selected);
   if (found == verbosities.end()) {
     throw std::runtime_error("Unrecognised verbosity");
@@ -99,6 +109,7 @@ std::unique_ptr<Backend> MonitoringFactory::GetBackend(std::string& url) {
     {"stdout", getStdOut},
     {"influxdb-udp", getInfluxDb},
     {"influxdb-http", getInfluxDb},
+    {"influxdb-unix", getInfluxDb},
     {"apmon", getApMon},
     {"flume", getFlume},
     {"no-op", getNoop},
@@ -117,7 +128,7 @@ std::unique_ptr<Backend> MonitoringFactory::GetBackend(std::string& url) {
 
   auto backend = iterator->second(parsedUrl);
   if (!parsedUrl.path.empty() && parsedUrl.path != "/") {
-    SetVerbosity(parsedUrl.path, backend);
+    SetVerbosity(parsedUrl.path.substr(parsedUrl.path.rfind("/")), backend);
   }
   return backend;
 }

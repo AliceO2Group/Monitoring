@@ -8,6 +8,7 @@
 #include <string>
 #include "../Transports/UDP.h"
 #include "../Transports/HTTP.h"
+#include "../Transports/Unix.h"
 #include "../Exceptions/MonitoringException.h"
 
 namespace o2
@@ -35,8 +36,13 @@ InfluxDB::InfluxDB(const std::string& host, unsigned int port, const std::string
                    << ":" <<  std::to_string(port) << "/write?" << search << ")" << MonLogger::End();
 }
 
-InfluxDB::InfluxDB()
+
+InfluxDB::InfluxDB() {}
+
+InfluxDB::InfluxDB(const std::string& socketPath)
 {
+  transport = std::make_unique<transports::Unix>(socketPath);
+  MonLogger::Get() << "InfluxDB/Unix backend initialized (" << socketPath << ")" << MonLogger::End();
 }
 
 inline unsigned long InfluxDB::convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp)
