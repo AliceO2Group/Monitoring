@@ -20,25 +20,25 @@ namespace monitoring
 namespace backends
 {
 
-InfluxDB::InfluxDB(const std::string& host, unsigned int port)
+InfluxDB::InfluxDB(const std::string& host, unsigned int port) :
+  mTransport(std::make_unique<transports::UDP>(host, port))
 {
-  transport = std::make_unique<transports::UDP>(host, port);
   MonLogger::Get() << "InfluxDB/UDP backend initialized"
                    << " ("<< host << ":" << port << ")" << MonLogger::End();
 }
 
 InfluxDB::InfluxDB(const std::string& host, unsigned int port, const std::string& search)
 {
-  transport = std::make_unique<transports::HTTP>(
+  mTransport = std::make_unique<transports::HTTP>(
     "http://" + host + ":" + std::to_string(port) + "/write?" + search
   );
   MonLogger::Get() << "InfluxDB/HTTP backend initialized" << " (" << "http://" << host
                    << ":" <<  std::to_string(port) << "/write?" << search << ")" << MonLogger::End();
 }
 
-InfluxDB::InfluxDB(const std::string& socketPath)
+InfluxDB::InfluxDB(const std::string& socketPath) :
+  mTransport(std::make_unique<transports::Unix>(socketPath))
 {
-  transport = std::make_unique<transports::Unix>(socketPath);
   MonLogger::Get() << "InfluxDB/Unix backend initialized (" << socketPath << ")" << MonLogger::End();
 }
 
@@ -71,7 +71,7 @@ void InfluxDB::sendMultiple(std::string measurement, std::vector<Metric>&& metri
   convert << " " <<  convertTimestamp(metrics.back().getTimestamp());
 
   try {
-    transport->send(convert.str());
+    mTransport->send(convert.str());
   } catch (MonitoringException&) {
   }
 }
@@ -84,7 +84,7 @@ void InfluxDB::send(std::vector<Metric>&& metrics) {
   }
 
   try {
-    transport->send(std::move(influxMetrics));
+    mTransport->send(std::move(influxMetrics));
   } catch (MonitoringException&) {
   }
 
@@ -93,7 +93,7 @@ void InfluxDB::send(std::vector<Metric>&& metrics) {
 void InfluxDB::send(const Metric& metric)
 {
   try {
-    transport->send(toInfluxLineProtocol(metric));
+    mTransport->send(toInfluxLineProtocol(metric));
   } catch (MonitoringException&) {
   }
 }
