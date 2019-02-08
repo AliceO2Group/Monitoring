@@ -20,13 +20,13 @@ Monitoring module allows to inject user defined metrics and monitor the process 
 <strong>[Click here if you don't have aliBuild installed](https://alice-doc.github.io/alice-analysis-tutorial/building/)</strong>
 <br>
 
-+ Compile `Monitoring` and its dependecies via `aliBuild`
+  + Compile `Monitoring` and its dependecies via `aliBuild`
 ```
 aliBuild init Monitoring@master
 aliBuild build Monitoring --defaults o2-daq
 ```
 
-+ Load the enviroment for Monitoring (in the `alice` directory)
+  + Load the enviroment for Monitoring (in the `alice` directory)
 ```
 alienv load Monitoring/latest
 ```
@@ -37,12 +37,10 @@ In case of an issue with `aliBuild` refer to [the official instructions](https:/
 Manual installation of the O<sup>2</sup> Monitoring module.
 
 #### Requirements
-+ C++ compiler with C++17 support, eg.:
-  + `gcc-c++` package from `devtoolset-7` on CentOS 7
-  + `clang++` on Mac OS
-+ Boost >= 1.56
-+ libcurl
-+ [ApMon](http://monalisa.caltech.edu/monalisa__Download__ApMon.html) (optional)
+  + C++ compiler with C++17 support
+  + Boost >= 1.56
+  + libcurl
+  + [ApMon](http://monalisa.caltech.edu/monalisa__Download__ApMon.html) (optional)
 
 #### Monitoring module compilation
 
@@ -77,20 +75,20 @@ See table below to find out how to create `URI` for each backend:
 | Flume        | UDP       | `flume`                | -          | `info`            |
 
 ##### StdCout output format
-```
+```bash
 [METRIC] <name>,<type> <value> <timestamp> <tags>
 ```
 
 ### Metrics
 A metric consist of 5 parameters: name, value, timestamp, verbosity and tags.
 
-| Parameter name | Type                                          | Required | Default        |
-| -------------- |:---------------------------------------------:|:--------:| --------------:|
-| name           | string                                        | yes      | -              |
-| value          | int / double / string / uint64_t              | yes      | -              |
-| timestamp      | chrono::time_point&lt;std::chrono::system_clock&gt; | no | current timestamp |
-| verbosity      | Debug / Info / Prod                           | no       | Info           |
-| tags           | vector<unsigned int>                          | no       | -              |
+| Parameter name | Type                             | Required | Default      |
+| -------------- |:--------------------------------:|:--------:| ------------:|
+| name           | string                           | yes      | -            |
+| value          | int / double / string / uint64_t | yes      | -            |
+| timestamp      | time_point&lt;system_clock&gt;   | no       | current time |
+| verbosity      | Debug / Info / Prod              | no       | Info         |
+| tags           | vector<unsigned int>             | no       | -            |
 
 A metric can be constructed by providing required parameters (value and name):
 ```cpp
@@ -153,9 +151,9 @@ See how it works in the example: [examples/10-Buffering.cxx](examples/10-Bufferi
 
 ### Calculating derived metrics
 The module can calculate derived metrics. To do so, use optional `DerivedMetricMode mode` parameter of `send` method:
-+ `DerivedMetricMode::NONE` - no action,
-+ `DerivedMetricMode::RATE` - rate between two following metrics,
-+ `DerivedMetricMode::AVERAGE` - average value of all metrics stored in cache.
+  + `DerivedMetricMode::NONE` - no action,
+  + `DerivedMetricMode::RATE` - rate between two following metrics,
+  + `DerivedMetricMode::AVERAGE` - average value of all metrics stored in cache.
 
 Derived metrics are generated each time as new value is passed to the module. Their names are suffixed with derived mode name.
 
@@ -163,8 +161,8 @@ See how it works in the example: [examples/4-RateDerivedMetric.cxx](examples/4-R
 
 ### Global tags
 Glabal tags are tags that are added to each metric. The following tags are set to global by library itself:
-- `hostname`
-- `name` - process name
+  - `hostname`
+  - `name` - process name
 
 You can add your own global tag by calling `addGlobalTag(std::string_view key, std::string_view value)` or `addGlobalTag(tags::Key, tags::Value)`.
 
@@ -173,9 +171,9 @@ You can add your own global tag by calling `addGlobalTag(std::string_view key, s
 enableProcessMonitoring([interval in seconds]);
 ```
 The following metrics are generated every interval:
-+ **cpuUsedPercentage** - percentage of a core usage over time interval
-+ **involuntaryContextSwitches** - involuntary context switches over time interval
-+ **memoryUsagePercentage** - ratio of the process's resident set size  to the physical memory on the machine, expressed as a percentage (Linux only)
+  + **cpuUsedPercentage** - percentage of a core usage over time interval
+  + **involuntaryContextSwitches** - involuntary context switches over time interval
+  + **memoryUsagePercentage** - ratio of the process's resident set size  to the physical memory on the machine, expressed as a percentage (Linux only)
 
 ### Automatic metric updates
 Sometimes it's necessary to provide value every exact interval of time (even though value does not change). This can be done using `AutoPushMetric`.
@@ -188,8 +186,8 @@ See how it works in the example: [examples/11-AutoUpdate.cxx](examples/11-AutoUp
 ## System monitoring, server-side backends installation and configuration
 This guide explains manual installation. For `ansible` deployment see [AliceO2Group/system-configuration](https://gitlab.cern.ch/AliceO2Group/system-configuration/tree/master/ansible) gitlab repo.
 
- + [Collectd](doc/collectd.md)
- + [Flume](doc/flume.md)
- + [InfluxDB](doc/influxdb.md)
- + [Grafana](doc/grafana.md)
- + [MonALISA](http://monalisa.caltech.edu/monalisa__Documentation__Service_Installation_Guide.html) (external link)
++ [Collectd](doc/collectd.md)
++ [Flume](doc/flume.md)
++ [InfluxDB](doc/influxdb.md)
++ [Grafana](doc/grafana.md)
++ [MonALISA](http://monalisa.caltech.edu/monalisa__Documentation__Service_Installation_Guide.html) (external link)
