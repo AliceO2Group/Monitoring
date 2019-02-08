@@ -22,7 +22,7 @@ BOOST_AUTO_TEST_CASE(verbosity)
 
    std::string influxUrl = "influxdb-udp://127.0.0.1:1234";
    auto influx = Monitoring::GetBackend(influxUrl);
-   BOOST_CHECK_EQUAL(static_cast<std::underlying_type<Verbosity>::type>(influx->getVerbosity()), 0);
+   BOOST_CHECK_EQUAL(static_cast<std::underlying_type<Verbosity>::type>(influx->getVerbosity()), 1);
 
    std::string influxDebugUrl = "influxdb-udp://127.0.0.1:1234/debug";
    auto influxDebug = Monitoring::GetBackend(influxDebugUrl);
