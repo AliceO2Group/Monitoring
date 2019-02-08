@@ -2,17 +2,18 @@
 [![travis-ci](https://api.travis-ci.org/AliceO2Group/Monitoring.svg?branch=master)](https://travis-ci.org/AliceO2Group/Monitoring)
 [![aliBuild](https://img.shields.io/badge/aliBuild-dashboard-lightgrey.svg)](https://alisw.cern.ch/dashboard/d/000000001/main-dashboard?orgId=1&var-storagename=All&var-reponame=All&var-checkname=build%2FMonitoring%2Fo2-dataflow%2F0&var-upthreshold=30m&var-minuptime=30)
 [![codecov](https://codecov.io/gh/AliceO2Group/Monitoring/branch/dev/graph/badge.svg)](https://codecov.io/gh/AliceO2Group/Monitoring/branch/dev)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/3816cb37f02e4801ac62df080d5b6c9c)](https://www.codacy.com/app/awegrzyn/Monitoring?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=AliceO2Group/Monitoring&amp;utm_campaign=Badge_Grade)
 [![JIRA](https://img.shields.io/badge/JIRA-issues-blue.svg)](https://alice.its.cern.ch/jira/projects/OMON)
 [![doxygen](https://img.shields.io/badge/doxygen-documentation-blue.svg)](https://aliceo2group.github.io/Monitoring/)
 
 Monitoring module allows to inject user defined metrics and monitor the process itself. It supports multiple backends, protocols and data formats.
 
 ## Table of contents
-1. [Installation](#installation)
-2. [Getting started](#getting-started)
-3. [Features and additional information](#features-and-additional-information)
-4. [Code snippets](#code-snippets)
-5. [System monitoring and server-side backends installation and configuration](#system-monitoring-server-side-backends-installation-and-configuration)
+ 1. [Installation](#installation)
+ 2. [Getting started](#getting-started)
+ 3. [Features and additional information](#features-and-additional-information)
+ 4. [Code snippets](#code-snippets)
+ 5. [System monitoring and server-side backends installation and configuration](#system-monitoring-server-side-backends-installation-and-configuration)
 
 ## Installation
 
@@ -21,13 +22,13 @@ Monitoring module allows to inject user defined metrics and monitor the process 
 <br>
 
   + Compile `Monitoring` and its dependecies via `aliBuild`
-```
+```bash
 aliBuild init Monitoring@master
 aliBuild build Monitoring --defaults o2-daq
 ```
 
   + Load the enviroment for Monitoring (in the `alice` directory)
-```
+```bash
 alienv load Monitoring/latest
 ```
 
@@ -44,7 +45,7 @@ Manual installation of the O<sup>2</sup> Monitoring module.
 
 #### Monitoring module compilation
 
-```
+```bash
 git clone https://github.com/AliceO2Group/Monitoring.git
 cd Monitoring; mkdir build; cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=<installdir>
@@ -65,17 +66,17 @@ std::unique_ptr<Monitoring> monitoring = MonitoringFactory::Get("backend[-protoc
 
 See table below to find out how to create `URI` for each backend:
 
-| Backend name | Transport | URI backend[-protocol] | URI query  | Default verbosity |
-| ------------ |:---------:|:----------------------:|:----------:| -----------------:|
-| InfluxDB     | HTTP      | `influxdb-http`        | `?db=<db>` | `info`            |
-| InfluxDB     | UDP       | `influxdb-udp`         | -          | `info`            |
-| InfluxDB     | Unix datagram | `influxdb-unix`    | -          | `info`            |
-| ApMon        | UDP       | `apmon`                | -          | `info`            |
-| StdOut       | -         | `stdout`, `infologger` | -          | `debug`           |
-| Flume        | UDP       | `flume`                | -          | `info`            |
+| Backend name | Transport   | URI backend[-protocol] | URI query  | Default verbosity |
+| ------------ |:-----------:|:----------------------:|:----------:| -----------------:|
+| InfluxDB     | HTTP        | `influxdb-http`        | `?db=<db>` | `info`            |
+| InfluxDB     | UDP         | `influxdb-udp`         | -          | `info`            |
+| InfluxDB     | Unix socket | `influxdb-unix`        | -          | `info`            |
+| ApMon        | UDP         | `apmon`                | -          | `info`            |
+| StdOut       | -           | `stdout`, `infologger` | -          | `debug`           |
+| Flume        | UDP         | `flume`                | -          | `info`            |
 
 ##### StdCout output format
-```bash
+```
 [METRIC] <name>,<type> <value> <timestamp> <tags>
 ```
 
@@ -103,7 +104,6 @@ Metric{10, "name", Verbosity::Prod}
 ```
 
 Metrics need to match backends verbosity in order to be sent, eg. backend with `/info` verbosity will accept `Info` and `Prod` metrics only.
-
 
 #### Tags
 Each metric can be tagged with any number of [predefined tags](include/Monitoring/Tags.h).
@@ -161,8 +161,8 @@ See how it works in the example: [examples/4-RateDerivedMetric.cxx](examples/4-R
 
 ### Global tags
 Glabal tags are tags that are added to each metric. The following tags are set to global by library itself:
-  - `hostname`
-  - `name` - process name
+  + `hostname`
+  + `name` - process name
 
 You can add your own global tag by calling `addGlobalTag(std::string_view key, std::string_view value)` or `addGlobalTag(tags::Key, tags::Value)`.
 
