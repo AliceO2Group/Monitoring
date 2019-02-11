@@ -2,6 +2,7 @@
 [![travis-ci](https://api.travis-ci.org/AliceO2Group/Monitoring.svg?branch=master)](https://travis-ci.org/AliceO2Group/Monitoring)
 [![aliBuild](https://img.shields.io/badge/aliBuild-dashboard-lightgrey.svg)](https://alisw.cern.ch/dashboard/d/000000001/main-dashboard?orgId=1&var-storagename=All&var-reponame=All&var-checkname=build%2FMonitoring%2Fo2-dataflow%2F0&var-upthreshold=30m&var-minuptime=30)
 [![codecov](https://codecov.io/gh/AliceO2Group/Monitoring/branch/dev/graph/badge.svg)](https://codecov.io/gh/AliceO2Group/Monitoring/branch/dev)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/3816cb37f02e4801ac62df080d5b6c9c)](https://www.codacy.com/app/awegrzyn/Monitoring?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=AliceO2Group/Monitoring&amp;utm_campaign=Badge_Grade)
 [![JIRA](https://img.shields.io/badge/JIRA-issues-blue.svg)](https://alice.its.cern.ch/jira/projects/OMON)
 [![doxygen](https://img.shields.io/badge/doxygen-documentation-blue.svg)](https://aliceo2group.github.io/Monitoring/)
 
@@ -20,14 +21,13 @@ Monitoring module allows to inject user defined metrics and monitor the process 
 <strong>[Click here if you don't have aliBuild installed](https://alice-doc.github.io/alice-analysis-tutorial/building/)</strong>
 <br>
 
-+ Compile `Monitoring` and its dependecies via `aliBuild`
-```
-aliBuild init Monitoring@master
-aliBuild build Monitoring --defaults o2-daq
+  + Compile `Monitoring` and its dependecies via `aliBuild`
+```bash
+aliBuild build Monitoring --defaults o2-dataflow
 ```
 
-+ Load the enviroment for Monitoring (in the `alice` directory)
-```
+  + Load the enviroment for Monitoring (in the `alice` directory)
+```bash
 alienv load Monitoring/latest
 ```
 
@@ -37,16 +37,14 @@ In case of an issue with `aliBuild` refer to [the official instructions](https:/
 Manual installation of the O<sup>2</sup> Monitoring module.
 
 #### Requirements
-+ C++ compiler with C++17 support, eg.:
-  + `gcc-c++` package from `devtoolset-7` on CentOS 7
-  + `clang++` on Mac OS
-+ Boost >= 1.56
-+ libcurl
-+ [ApMon](http://monalisa.caltech.edu/monalisa__Download__ApMon.html) (optional)
+  + C++ compiler with C++17 support
+  + Boost >= 1.56
+  + libcurl
+  + [ApMon](http://monalisa.caltech.edu/monalisa__Download__ApMon.html) (optional)
 
 #### Monitoring module compilation
 
-```
+```bash
 git clone https://github.com/AliceO2Group/Monitoring.git
 cd Monitoring; mkdir build; cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=<installdir>
@@ -67,14 +65,14 @@ std::unique_ptr<Monitoring> monitoring = MonitoringFactory::Get("backend[-protoc
 
 See table below to find out how to create `URI` for each backend:
 
-| Backend name | Transport | URI backend[-protocol] | URI query  | Default verbosity |
-| ------------ |:---------:|:----------------------:|:----------:| -----------------:|
-| InfluxDB     | HTTP      | `influxdb-http`        | `?db=<db>` | `info`            |
-| InfluxDB     | UDP       | `influxdb-udp`         | -          | `info`            |
-| InfluxDB     | Unix datagram | `influxdb-unix`    | -          | `info`            |
-| ApMon        | UDP       | `apmon`                | -          | `info`            |
-| StdOut       | -         | `stdout`, `infologger` | -          | `debug`           |
-| Flume        | UDP       | `flume`                | -          | `info`            |
+| Backend name | Transport   | URI backend[-protocol] | URI query  | Default verbosity |
+| ------------ |:-----------:|:----------------------:|:----------:| -----------------:|
+| InfluxDB     | HTTP        | `influxdb-http`        | `?db=<db>` | `info`            |
+| InfluxDB     | UDP         | `influxdb-udp`         | -          | `info`            |
+| InfluxDB     | Unix socket | `influxdb-unix`        | -          | `info`            |
+| ApMon        | UDP         | `apmon`                | -          | `info`            |
+| StdOut       | -           | `stdout`, `infologger` | -          | `debug`           |
+| Flume        | UDP         | `flume`                | -          | `info`            |
 
 ##### StdCout output format
 ```
@@ -84,13 +82,13 @@ See table below to find out how to create `URI` for each backend:
 ### Metrics
 A metric consist of 5 parameters: name, value, timestamp, verbosity and tags.
 
-| Parameter name | Type                                          | Required | Default        |
-| -------------- |:---------------------------------------------:|:--------:| --------------:|
-| name           | string                                        | yes      | -              |
-| value          | int / double / string / uint64_t              | yes      | -              |
-| timestamp      | chrono::time_point&lt;std::chrono::system_clock&gt; | no | current timestamp |
-| verbosity      | Debug / Info / Prod                           | no       | Info           |
-| tags           | vector<unsigned int>                          | no       | -              |
+| Parameter name | Type                             | Required | Default      |
+| -------------- |:--------------------------------:|:--------:| ------------:|
+| name           | string                           | yes      | -            |
+| value          | int / double / string / uint64_t | yes      | -            |
+| timestamp      | time_point&lt;system_clock&gt;   | no       | current time |
+| verbosity      | Debug / Info / Prod              | no       | Info         |
+| tags           | vector<unsigned int>             | no       | -            |
 
 A metric can be constructed by providing required parameters (value and name):
 ```cpp
@@ -105,7 +103,6 @@ Metric{10, "name", Verbosity::Prod}
 ```
 
 Metrics need to match backends verbosity in order to be sent, eg. backend with `/info` verbosity will accept `Info` and `Prod` metrics only.
-
 
 #### Tags
 Each metric can be tagged with any number of [predefined tags](include/Monitoring/Tags.h).
@@ -153,9 +150,9 @@ See how it works in the example: [examples/10-Buffering.cxx](examples/10-Bufferi
 
 ### Calculating derived metrics
 The module can calculate derived metrics. To do so, use optional `DerivedMetricMode mode` parameter of `send` method:
-+ `DerivedMetricMode::NONE` - no action,
-+ `DerivedMetricMode::RATE` - rate between two following metrics,
-+ `DerivedMetricMode::AVERAGE` - average value of all metrics stored in cache.
+  + `DerivedMetricMode::NONE` - no action,
+  + `DerivedMetricMode::RATE` - rate between two following metrics,
+  + `DerivedMetricMode::AVERAGE` - average value of all metrics stored in cache.
 
 Derived metrics are generated each time as new value is passed to the module. Their names are suffixed with derived mode name.
 
@@ -163,8 +160,8 @@ See how it works in the example: [examples/4-RateDerivedMetric.cxx](examples/4-R
 
 ### Global tags
 Glabal tags are tags that are added to each metric. The following tags are set to global by library itself:
-- `hostname`
-- `name` - process name
+  + `hostname`
+  + `name` - process name
 
 You can add your own global tag by calling `addGlobalTag(std::string_view key, std::string_view value)` or `addGlobalTag(tags::Key, tags::Value)`.
 
@@ -173,9 +170,9 @@ You can add your own global tag by calling `addGlobalTag(std::string_view key, s
 enableProcessMonitoring([interval in seconds]);
 ```
 The following metrics are generated every interval:
-+ **cpuUsedPercentage** - percentage of a core usage over time interval
-+ **involuntaryContextSwitches** - involuntary context switches over time interval
-+ **memoryUsagePercentage** - ratio of the process's resident set size  to the physical memory on the machine, expressed as a percentage (Linux only)
+  + **cpuUsedPercentage** - percentage of a core usage over time interval
+  + **involuntaryContextSwitches** - involuntary context switches over time interval
+  + **memoryUsagePercentage** - ratio of the process's resident set size  to the physical memory on the machine, expressed as a percentage (Linux only)
 
 ### Automatic metric updates
 Sometimes it's necessary to provide value every exact interval of time (even though value does not change). This can be done using `AutoPushMetric`.
@@ -188,8 +185,8 @@ See how it works in the example: [examples/11-AutoUpdate.cxx](examples/11-AutoUp
 ## System monitoring, server-side backends installation and configuration
 This guide explains manual installation. For `ansible` deployment see [AliceO2Group/system-configuration](https://gitlab.cern.ch/AliceO2Group/system-configuration/tree/master/ansible) gitlab repo.
 
- + [Collectd](doc/collectd.md)
- + [Flume](doc/flume.md)
- + [InfluxDB](doc/influxdb.md)
- + [Grafana](doc/grafana.md)
- + [MonALISA](http://monalisa.caltech.edu/monalisa__Documentation__Service_Installation_Guide.html) (external link)
++ [Collectd](doc/collectd.md)
++ [Flume](doc/flume.md)
++ [InfluxDB](doc/influxdb.md)
++ [Grafana](doc/grafana.md)
++ [MonALISA](http://monalisa.caltech.edu/monalisa__Documentation__Service_Installation_Guide.html) (external link)

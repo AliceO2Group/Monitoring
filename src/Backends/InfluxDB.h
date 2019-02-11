@@ -67,7 +67,7 @@ class InfluxDB final : public Backend
     void addGlobalTag(std::string_view name, std::string_view value) override;
   
   private:
-    std::unique_ptr<transports::TransportInterface> transport; ///< InfluxDB transport
+    std::unique_ptr<transports::TransportInterface> mTransport; ///< InfluxDB transport
     std::string tagSet; ///< Global tagset (common for each metric)
 
     /// Escapes " ", "," and "=" characters

@@ -18,9 +18,9 @@ namespace monitoring
 namespace backends
 {
 
-Flume::Flume(const std::string& host, unsigned int port)
+Flume::Flume(const std::string& host, unsigned int port) :
+  mTransport(std::make_unique<transports::UDP>(host, port))
 {
-  mTransport = std::make_unique<transports::UDP>(host, port);
   MonLogger::Get() << "Flume/UDP backend initialized"
                    << " ("<< host << ":" << port << ")" << MonLogger::End();
 }
