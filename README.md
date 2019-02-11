@@ -9,11 +9,11 @@
 Monitoring module allows to inject user defined metrics and monitor the process itself. It supports multiple backends, protocols and data formats.
 
 ## Table of contents
- 1. [Installation](#installation)
- 2. [Getting started](#getting-started)
- 3. [Features and additional information](#features-and-additional-information)
- 4. [Code snippets](#code-snippets)
- 5. [System monitoring and server-side backends installation and configuration](#system-monitoring-server-side-backends-installation-and-configuration)
+1. [Installation](#installation)
+2. [Getting started](#getting-started)
+3. [Features and additional information](#features-and-additional-information)
+4. [Code snippets](#code-snippets)
+5. [System monitoring and server-side backends installation and configuration](#system-monitoring-server-side-backends-installation-and-configuration)
 
 ## Installation
 
@@ -23,8 +23,7 @@ Monitoring module allows to inject user defined metrics and monitor the process 
 
   + Compile `Monitoring` and its dependecies via `aliBuild`
 ```bash
-aliBuild init Monitoring@master
-aliBuild build Monitoring --defaults o2-daq
+aliBuild build Monitoring --defaults o2-dataflow
 ```
 
   + Load the enviroment for Monitoring (in the `alice` directory)
