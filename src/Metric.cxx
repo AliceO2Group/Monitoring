@@ -32,24 +32,23 @@ const std::string& Metric::getName() const
 
 Metric::Metric(int value, const std::string& name, Verbosity verbosity) :
   mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
-{
-}
+{ overwriteVerbosity(); }
 
 Metric::Metric(std::string value, const std::string& name, Verbosity verbosity) :
   mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
-{}
+{ overwriteVerbosity(); }
 
 Metric::Metric(double value, const std::string& name, Verbosity verbosity) :
   mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
-{}
+{ overwriteVerbosity(); }
 
 Metric::Metric(uint64_t value, const std::string& name, Verbosity verbosity) :
   mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
-{}
+{ overwriteVerbosity(); }
 
 Metric::Metric(boost::variant< int, std::string, double, uint64_t > value, const std::string& name, Verbosity verbosity) :
   mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
-{}
+{ overwriteVerbosity(); }
 
 boost::variant< int, std::string, double, uint64_t > Metric::getValue() const
 {
@@ -59,6 +58,20 @@ boost::variant< int, std::string, double, uint64_t > Metric::getValue() const
 Verbosity Metric::getVerbosity()
 {
   return mVerbosity;
+}
+
+void Metric::setVerbosityPolicy(Verbosity verbosity, const std::regex& regex)
+{
+  mRegexPolicy.insert({static_cast<std::underlying_type<tags::Value>::type>(verbosity), regex});
+}
+
+void Metric::overwriteVerbosity()
+{
+  for (auto const& [verbosity, regex] : mRegexPolicy) {
+    if (std::regex_match(mName, regex)) {
+      mVerbosity = static_cast<Verbosity>(verbosity);
+    }
+  }
 }
 
 Metric&& Metric::addTag(tags::Key key, tags::Value value)
@@ -95,6 +108,7 @@ void Metric::setDefaultVerbosity(Verbosity verbosity)
 }
 
 Verbosity Metric::DefaultVerbosity = Verbosity::Info;
+std::map<std::underlying_type<Verbosity>::type, std::regex> Metric::mRegexPolicy;
 
 } // namespace monitoring
 } // namespace o2
