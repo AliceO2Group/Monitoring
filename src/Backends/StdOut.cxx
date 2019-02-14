@@ -23,7 +23,7 @@ inline unsigned long StdOut::convertTimestamp(const std::chrono::time_point<std:
   ).count();
 }
 
-StdOut::StdOut() : mStream(std::cout)
+StdOut::StdOut(const std::string& prefix) : mStream(std::cout), mPrefix(prefix)
 {
   setVerbosisty(Verbosity::Debug);
   MonLogger::Get() << "StdOut backend initialized" << MonLogger::End();
@@ -54,7 +54,7 @@ void StdOut::sendMultiple(std::string measurement, std::vector<Metric>&& metrics
     metricTags += tags::GetValue(value);
   } 
   for (auto& metric : metrics) {
-    mStream << "[METRIC] " << measurement << '/' << metric.getName() << ',' << metric.getType() << ' '
+    mStream << "[" << mPrefix << "] " << measurement << '/' << metric.getName() << ',' << metric.getType() << ' '
       << metric.getValue() << ' ' << convertTimestamp(metric.getTimestamp()) << ' ' << tagString
       << metricTags << '\n';
   }
@@ -62,7 +62,7 @@ void StdOut::sendMultiple(std::string measurement, std::vector<Metric>&& metrics
 
 void StdOut::send(const Metric& metric)
 {
-  mStream << "[METRIC] " << metric.getName() << ',' << metric.getType() << " " << metric.getValue()
+  mStream << "[" << mPrefix << "] " << metric.getName() << ',' << metric.getType() << " " << metric.getValue()
           << ' ' << convertTimestamp(metric.getTimestamp()) << ' ' << tagString;
 
   for (const auto& [key, value] : metric.getTags()) {

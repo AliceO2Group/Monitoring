@@ -33,8 +33,12 @@ static const std::map<std::string, Verbosity> verbosities = {
   {"/debug", Verbosity::Debug}
 };
 
-std::unique_ptr<Backend> getStdOut(http::url) {
-  return std::make_unique<backends::StdOut>();
+std::unique_ptr<Backend> getStdOut(http::url uri) {
+  if (uri.host.size() > 0) {
+    return std::make_unique<backends::StdOut>(uri.host);
+  } else {
+    return std::make_unique<backends::StdOut>();
+  }
 }
 
 std::unique_ptr<Backend> getInfluxDb(http::url uri) {
