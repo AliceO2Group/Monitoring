@@ -34,8 +34,8 @@ static const std::map<std::string, Verbosity> verbosities = {
 };
 
 std::unique_ptr<Backend> getStdOut(http::url uri) {
-  if (uri.host.size() > 0) {
-    return std::make_unique<backends::StdOut>(uri.host);
+  if (uri.search.size() > 0) {
+    return std::make_unique<backends::StdOut>(uri.search);
   } else {
     return std::make_unique<backends::StdOut>();
   }
