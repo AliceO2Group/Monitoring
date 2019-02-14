@@ -23,7 +23,7 @@ class StdOut final : public Backend
 {
   public:
     /// Default constructor
-    StdOut();
+    StdOut(const std::string& prefix = "METRIC");
  
     /// Default destructor
     ~StdOut() = default;
@@ -56,6 +56,7 @@ class StdOut final : public Backend
     unsigned long convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp);
 
     std::string tagString; ///< Global tagset (common for each metric)
+    const std::string mPrefix; ///< Metric prefix
 };
 
 } // namespace backends
