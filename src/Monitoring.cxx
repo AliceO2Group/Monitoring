@@ -60,8 +60,12 @@ void Monitoring::flushBuffer() {
 
 void Monitoring::flushBuffer(const short index)
 {
-  transmit(std::move(mStorage[index]));
-  mStorage[index].clear();
+  for (auto& backend : mBackends) {
+    if (matchVerbosity(backend->getVerbosity(), static_cast<Verbosity>(index))) {
+      backend->send(std::move(mStorage[index]));
+      mStorage[index].clear();
+    }
+  }
 }
 
 void Monitoring::enableProcessMonitoring(const unsigned int interval) {
