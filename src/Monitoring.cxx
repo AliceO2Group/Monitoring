@@ -74,7 +74,7 @@ void Monitoring::enableProcessMonitoring(const unsigned int interval) {
     mMonitorRunning = true;
     mMonitorThread = std::thread(&Monitoring::pushLoop, this);
   }
-  #ifdef _OS_LINUX
+  #ifdef O2_MONITORING_OS_LINUX
   MonLogger::Get() << "Process Monitor : Automatic updates enabled" << MonLogger::End();
   #else
   MonLogger::Get() << "!! Process Monitor : Limited metrics available" << MonLogger::End();
@@ -123,7 +123,7 @@ void Monitoring::pushLoop()
   while (mMonitorRunning) {
     if (mProcessMonitoringInterval != 0 && (loopCount % (mProcessMonitoringInterval*10)) == 0) {
       transmit(mProcessMonitor->getCpuAndContexts());
-      #ifdef _OS_LINUX
+      #ifdef O2_MONITORING_OS_LINUX
       transmit(mProcessMonitor->getMemoryUsage());
       #endif
     }
