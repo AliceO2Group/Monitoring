@@ -23,7 +23,7 @@ ProcessMonitor::ProcessMonitor()
   mPid = static_cast<unsigned int>(::getpid());
   getrusage(RUSAGE_SELF, &mPreviousGetrUsage);
   mTimeLastRun = std::chrono::high_resolution_clock::now();
-  #ifdef _OS_LINUX
+  #ifdef O2_MONITORING_OS_LINUX
   setTotalMemory();
   #endif
 }

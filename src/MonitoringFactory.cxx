@@ -14,7 +14,7 @@
 #include "Backends/Flume.h"
 #include "Backends/Noop.h"
 
-#ifdef _WITH_APPMON
+#ifdef O2_MONITORING_WITH_APPMON
 #include "Backends/ApMonBackend.h"
 #endif
 
@@ -65,7 +65,7 @@ std::unique_ptr<Backend> getInfluxDb(http::url uri) {
   throw std::runtime_error("InfluxDB transport protocol not supported");
 }
 
-#ifdef _WITH_APPMON
+#ifdef O2_MONITORING_WITH_APPMON
 std::unique_ptr<Backend> getApMon(http::url uri) {
   return std::make_unique<backends::ApMonBackend>(uri.path);
 }

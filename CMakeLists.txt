@@ -126,9 +126,9 @@ endif()
 # Handle custom compile definitions
 target_compile_definitions(Monitoring
   PRIVATE
-    $<$<BOOL:${APPLE}>:_OS_MAC>
-    $<$<BOOL:${LINUX}>:_OS_LINUX>
-    $<$<BOOL:${ApMon_FOUND}>:_WITH_APPMON>
+    $<$<BOOL:${APPLE}>:O2_MONITORING_OS_MAC>
+    $<$<BOOL:${LINUX}>:O2_MONITORING_OS_LINUX>
+    $<$<BOOL:${ApMon_FOUND}>:O2_MONITORING_WITH_APPMON>
   )
 
 # Use C++17
