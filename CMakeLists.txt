@@ -53,7 +53,6 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 find_package(Boost REQUIRED COMPONENTS unit_test_framework program_options system filesystem)
 find_package(Git QUIET)
 find_package(ApMon MODULE)
-find_package(CURL REQUIRED MODULE)
 
 
 ####################################
@@ -77,7 +76,6 @@ set(SRCS
   src/MonitoringFactory.cxx
   src/Transports/UDP.cxx
   src/Transports/TCP.cxx
-  src/Transports/HTTP.cxx
   src/Transports/Unix.cxx
   src/Exceptions/MonitoringException.cxx
 )
@@ -86,7 +84,7 @@ set(SRCS
 message(STATUS "Backends")
 message(STATUS "  Compiling StdCout backend")
 message(STATUS "  Compiling Flume UDP/JSON backend")
-message(STATUS "  Compiling InfluxDB HTTP and UDP backend")
+message(STATUS "  Compiling InfluxDB backend with Unix socket and UDP transport")
 
 # Create library
 add_library(Monitoring SHARED ${SRCS} $<$<BOOL:${ApMon_FOUND}>:src/Backends/ApMonBackend.cxx>)
@@ -104,7 +102,6 @@ target_link_libraries(Monitoring
     Boost::boost
   PRIVATE
     Boost::system
-    CURL::CURL
     $<$<BOOL:${ApMon_FOUND}>:ApMon::ApMon>
 )
 

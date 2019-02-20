@@ -49,9 +49,6 @@ std::unique_ptr<Backend> getInfluxDb(http::url uri) {
   if (uri.protocol == "udp") {
     return std::make_unique<backends::InfluxDB>(uri.host, uri.port);
   }
-  if (uri.protocol == "http") {
-    return std::make_unique<backends::InfluxDB>(uri.host, uri.port, uri.search);
-  }
   if (uri.protocol == "unix") {
     std::string path = uri.path;;
     auto found = std::find_if(begin(verbosities), end(verbosities),
@@ -99,7 +96,6 @@ std::unique_ptr<Backend> MonitoringFactory::GetBackend(std::string& url) {
     {"infologger", getStdOut},
     {"stdout", getStdOut},
     {"influxdb-udp", getInfluxDb},
-    {"influxdb-http", getInfluxDb},
     {"influxdb-unix", getInfluxDb},
     {"apmon", getApMon},
     {"flume", getFlume},

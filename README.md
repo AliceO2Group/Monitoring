@@ -67,11 +67,11 @@ See table below to find out how to create `URI` for each backend:
 
 | Backend name | Transport   | URI backend[-protocol] | URI query  | Default verbosity |
 | ------------ |:-----------:|:----------------------:|:----------:| -----------------:|
-| InfluxDB     | HTTP        | `influxdb-http`        | `?db=<db>` | `info`            |
+| No-op        | -           | `no-op`                |            | -                 |
 | InfluxDB     | UDP         | `influxdb-udp`         | -          | `info`            |
 | InfluxDB     | Unix socket | `influxdb-unix`        | -          | `info`            |
 | ApMon        | UDP         | `apmon`                | -          | `info`            |
-| StdOut       | -           | `stdout`, `infologger` | -          | `debug`           |
+| StdOut       | -           | `stdout`, `infologger` | [Prefix]   | `debug`           |
 | Flume        | UDP         | `flume`                | -          | `info`            |
 
 ##### StdCout output format
