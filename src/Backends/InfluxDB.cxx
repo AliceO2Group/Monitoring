@@ -7,7 +7,6 @@
 #include <boost/lexical_cast.hpp>
 #include <string>
 #include "../Transports/UDP.h"
-#include "../Transports/HTTP.h"
 #include "../Transports/Unix.h"
 #include "../Exceptions/MonitoringException.h"
 
@@ -25,15 +24,6 @@ InfluxDB::InfluxDB(const std::string& host, unsigned int port) :
 {
   MonLogger::Get() << "InfluxDB/UDP backend initialized"
                    << " ("<< host << ":" << port << ")" << MonLogger::End();
-}
-
-InfluxDB::InfluxDB(const std::string& host, unsigned int port, const std::string& search)
-{
-  mTransport = std::make_unique<transports::HTTP>(
-    "http://" + host + ":" + std::to_string(port) + "/write?" + search
-  );
-  MonLogger::Get() << "InfluxDB/HTTP backend initialized" << " (" << "http://" << host
-                   << ":" <<  std::to_string(port) << "/write?" << search << ")" << MonLogger::End();
 }
 
 InfluxDB::InfluxDB(const std::string& socketPath) :
