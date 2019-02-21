@@ -182,6 +182,12 @@ metric = 10;
 ```
 See how it works in the example: [examples/11-AutoUpdate.cxx](examples/11-AutoUpdate.cxx).
 
+### Regex verbosity policy
+Overwrite metric verbosities using regex expression:
+```
+Metric::setVerbosityPolicy(Verbosity verbosity, const std::regex& regex)
+```
+
 ## System monitoring, server-side backends installation and configuration
 This guide explains manual installation. For `ansible` deployment see [AliceO2Group/system-configuration](https://gitlab.cern.ch/AliceO2Group/system-configuration/tree/master/ansible) gitlab repo.
 

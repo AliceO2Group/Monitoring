@@ -9,6 +9,7 @@
 #include <string>
 #include <chrono>
 #include <vector>
+#include <regex>
 #include <boost/variant.hpp>
 #include "Tags.h"
 
@@ -103,6 +104,9 @@ class Metric
 
     /// Default metric verbosity
     static Verbosity DefaultVerbosity;
+
+    /// Regex policy setter
+    static void setVerbosityPolicy(Verbosity verbosity, const std::regex& regex);
   protected:
     /// Allow DerivedMetrics access to setTags
     friend class o2::monitoring::DerivedMetrics;
@@ -124,6 +128,12 @@ class Metric
 
     /// Metric verbosity
     Verbosity mVerbosity;
+
+    /// Regex policy map
+    static std::map<std::underlying_type<Verbosity>::type, std::regex> mRegexPolicy;
+
+    /// Overwirte verbosity using regex policy
+    void overwriteVerbosity();
 };
 
 } // namespace monitoring

@@ -103,8 +103,21 @@ BOOST_AUTO_TEST_CASE(customCopyConstructor) {
   BOOST_CHECK_EQUAL(sum, -109);
 }
 
+BOOST_AUTO_TEST_CASE(regexVerbosityPolicy)
+{
+  Metric::setVerbosityPolicy(Verbosity::Prod, std::regex("myMetric", std::regex::optimize));
+  Metric metric = Metric{10, "myMetric"};
+  Metric metric2 = Metric{10, "myValue"};
+  BOOST_CHECK_EQUAL(static_cast<std::underlying_type<o2::monitoring::tags::Value>::type>(metric.getVerbosity()),
+                    static_cast<std::underlying_type<o2::monitoring::tags::Value>::type>(Verbosity::Prod));
+  BOOST_CHECK_EQUAL(static_cast<std::underlying_type<o2::monitoring::tags::Value>::type>(metric2.getVerbosity()),
+                    static_cast<std::underlying_type<o2::monitoring::tags::Value>::type>(Verbosity::Info));
+}
+
 BOOST_AUTO_TEST_CASE(verbosity) {
-  Metric{10, "myMetric", Verbosity::Prod};
+  Metric metric = Metric{10, "myMetric", Verbosity::Prod};
+  BOOST_CHECK_EQUAL(static_cast<std::underlying_type<o2::monitoring::tags::Value>::type>(metric.getVerbosity()),
+                    static_cast<std::underlying_type<o2::monitoring::tags::Value>::type>(Verbosity::Prod));
 }
 
 } // namespace Test
