@@ -7,9 +7,9 @@ matrix:
       addons:
         apt:
           sources:
-            - llvm-toolchain-6.0
+            - llvm-toolchain-xenial-7
           packages:
-            - clang-format-6.0
+            - clang-format-7.0
       compiler: clang
       branches:
         only:
@@ -67,7 +67,7 @@ before_script:
   - cd $TRAVIS_BUILD_DIR; mkdir build; cd build
 script:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then cmake .. -DCMAKE_BUILD_TYPE=Debug;
-    else cmake .. -DCMAKE_INSTALL_PREFIX=$TRAVIS_BUILD_DIR/installed -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=/usr/bin/gcc-8 -DCMAKE_CXX_COMPILER=/usr/bin/g++-8; fi
+    else if [[ $TOOL == "test" ]] || [[ $TOOL == "coverage" ]]; then cmake .. -DCMAKE_INSTALL_PREFIX=$TRAVIS_BUILD_DIR/installed -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=/usr/bin/gcc-8 -DCMAKE_CXX_COMPILER=/usr/bin/g++-8; fi; fi
   - if [[ $TOOL == "test" ]] || [[ $TOOL == "coverage" ]]; then make -j; fi
   - if [[ $TOOL == "test" ]] || [[ $TOOL == "coverage" ]]; then make test; fi
   - if [[ $TOOL == "test" ]]; then make install; fi
