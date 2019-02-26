@@ -2,7 +2,6 @@
 [![travis-ci](https://api.travis-ci.org/AliceO2Group/Monitoring.svg?branch=master)](https://travis-ci.org/AliceO2Group/Monitoring)
 [![aliBuild](https://img.shields.io/badge/aliBuild-dashboard-lightgrey.svg)](https://alisw.cern.ch/dashboard/d/000000001/main-dashboard?orgId=1&var-storagename=All&var-reponame=All&var-checkname=build%2FMonitoring%2Fo2-dataflow%2F0&var-upthreshold=30m&var-minuptime=30)
 [![codecov](https://codecov.io/gh/AliceO2Group/Monitoring/branch/dev/graph/badge.svg)](https://codecov.io/gh/AliceO2Group/Monitoring/branch/dev)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/3816cb37f02e4801ac62df080d5b6c9c)](https://www.codacy.com/app/awegrzyn/Monitoring?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=AliceO2Group/Monitoring&amp;utm_campaign=Badge_Grade)
 [![JIRA](https://img.shields.io/badge/JIRA-issues-blue.svg)](https://alice.its.cern.ch/jira/projects/OMON)
 [![doxygen](https://img.shields.io/badge/doxygen-documentation-blue.svg)](https://aliceo2group.github.io/Monitoring/)
 
