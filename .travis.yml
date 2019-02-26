@@ -14,7 +14,6 @@ matrix:
       branches:
         only:
           - dev
-  include:
     - os: osx
       osx_image: xcode10
       env: TOOL=test
