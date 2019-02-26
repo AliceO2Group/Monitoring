@@ -1,14 +1,20 @@
 sudo: required
 language: cpp
 matrix:
-  allow_failures:
+  include:
     - os: linux
+      dist: xenial
       env: TOOL=clang-format
       addons:
         apt:
-          sources: *sources
-          packages: ['clang-format-3.9']
+          sources:
+            - llvm-toolchain-6.0
+          packages:
+            - clang-format-6.0
       compiler: clang
+      branches:
+        only:
+          - dev
   include:
     - os: osx
       osx_image: xcode10
@@ -74,8 +80,7 @@ script:
       cd $TRAVIS_BUILD_DIR;
       BASE_COMMIT=$(git rev-parse $TRAVIS_BRANCH);
       COMMIT_FILES=$(git diff --name-only $BASE_COMMIT | grep -i -v LinkDef);
-      curl -O https://raw.githubusercontent.com/AliceO2Group/CodingGuidelines/master/.clang-format;
-      RESULT_OUTPUT="$(git-clang-format-3.9 --commit $BASE_COMMIT --diff --binary `which clang-format-3.9` $COMMIT_FILES)";
+      RESULT_OUTPUT="$(git-clang-format-6.0 --commit $BASE_COMMIT --diff --binary `which clang-format-6.0` $COMMIT_FILES)";
       if [ "$RESULT_OUTPUT" == "no modified files to format" ] || [ "$RESULT_OUTPUT" == "clang-format did not modify any files" ]; then
         echo "clang-format passed";
         exit 0;
