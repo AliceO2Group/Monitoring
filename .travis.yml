@@ -9,7 +9,7 @@ matrix:
           sources:
             - llvm-toolchain-xenial-7
           packages:
-            - clang-format-7.0
+            - clang-format-7
       compiler: clang
       branches:
         only:
@@ -76,7 +76,7 @@ script:
       cd $TRAVIS_BUILD_DIR;
       BASE_COMMIT=$(git rev-parse $TRAVIS_BRANCH);
       COMMIT_FILES=$(git diff --name-only $BASE_COMMIT | grep -i -v LinkDef);
-      RESULT_OUTPUT="$(git-clang-format-6.0 --commit $BASE_COMMIT --diff --binary `which clang-format-6.0` $COMMIT_FILES)";
+      RESULT_OUTPUT="$(git-clang-format-7 --commit $BASE_COMMIT --diff --binary `which clang-format-7` $COMMIT_FILES)";
       if [ "$RESULT_OUTPUT" == "no modified files to format" ] || [ "$RESULT_OUTPUT" == "clang-format did not modify any files" ]; then
         echo "clang-format passed";
         exit 0;
