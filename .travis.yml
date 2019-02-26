@@ -11,6 +11,9 @@ matrix:
           packages:
             - clang-format-6.0
       compiler: clang
+      branches:
+        only:
+          - dev
   include:
     - os: osx
       osx_image: xcode10
