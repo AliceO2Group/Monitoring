@@ -68,7 +68,7 @@ before_script:
 script:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then cmake .. -DCMAKE_BUILD_TYPE=Debug;
     else
-      if [[ $TOOL == "test" ]]; then cmake .. -DCMAKE_INSTALL_PREFIX=$TRAVIS_BUILD_DIR/installed -DCMAKE_C_COMPILER=/usr/bin/gcc-8 -DCMAKE_CXX_COMPILER=/usr/bin/g++-8; fi
+      if [[ $TOOL == "test" ]]; then cmake .. -DCMAKE_INSTALL_PREFIX=$TRAVIS_BUILD_DIR/installed -DCMAKE_C_COMPILER=/usr/bin/gcc-8 -DCMAKE_CXX_COMPILER=/usr/bin/g++-8; fi;
       if [[ $TOOL == "coverage" ]]; then cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=/usr/bin/gcc-7 -DCMAKE_CXX_COMPILER=/usr/bin/g++-7; fi
     fi
   - if [[ $TOOL == "test" ]] || [[ $TOOL == "coverage" ]]; then make -j; fi
