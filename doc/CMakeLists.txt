@@ -5,6 +5,7 @@ find_package(Doxygen OPTIONAL_COMPONENTS dot)
 if (DOXYGEN_FOUND)
   set(DOXYGEN_USE_MDFILE_AS_MAINPAGE "${CMAKE_SOURCE_DIR}/README.md")
   set(DOXYGEN_PROJECT_LOGO "${CMAKE_SOURCE_DIR}/doc/images/o2_logo.png")
+  set(DOXYGEN_GENERATE_TREEVIEW YES)
 
   doxygen_add_docs(doc
     ${CMAKE_SOURCE_DIR}
