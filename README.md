@@ -10,9 +10,8 @@ Monitoring module injects user custom metrics and monitors the process. It suppo
 ## Table of contents
 1. [Installation](#installation)
 2. [Getting started](#getting-started)
-3. [Features and additional information](#features-and-additional-information)
-4. [Code snippets](#code-snippets)
-5. [System monitoring and server-side backends installation and configuration](#system-monitoring-server-side-backends-installation-and-configuration)
+3. [Advanced features](#advanced-features)
+4. [System monitoring and server-side backends installation and configuration](#system-monitoring-server-side-backends-installation-and-configuration)
 
 ## Installation
 
@@ -167,5 +166,5 @@ Overwrite metric verbosities using regex expression:
 Metric::setVerbosityPolicy(Verbosity verbosity, const std::regex& regex)
 ```
 
-## System monitoring,server-side backends installation and configuration
+## System monitoring, server-side backends installation and configuration
 This guide explains manual installation. For `ansible` deployment see [AliceO2Group/system-configuration](https://gitlab.cern.ch/AliceO2Group/system-configuration/tree/master/ansible) gitlab repo.
