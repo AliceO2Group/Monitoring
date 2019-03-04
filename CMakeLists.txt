@@ -63,7 +63,14 @@ set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib")
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
 set(INCLUDE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/include")
 
-set(SRCS
+# Backends
+message(STATUS "Backends")
+message(STATUS "  Compiling StdCout backend")
+message(STATUS "  Compiling Flume UDP/JSON backend")
+message(STATUS "  Compiling InfluxDB backend with Unix socket and UDP transport")
+
+# Create library
+add_library(Monitoring SHARED
   src/Monitoring.cxx
   src/Metric.cxx
   src/ComplexMetric.cxx
@@ -78,16 +85,9 @@ set(SRCS
   src/Transports/TCP.cxx
   src/Transports/Unix.cxx
   src/Exceptions/MonitoringException.cxx
+  $<$<BOOL:${ApMon_FOUND}>:src/Backends/ApMonBackend.cxx>
 )
 
-# Backends
-message(STATUS "Backends")
-message(STATUS "  Compiling StdCout backend")
-message(STATUS "  Compiling Flume UDP/JSON backend")
-message(STATUS "  Compiling InfluxDB backend with Unix socket and UDP transport")
-
-# Create library
-add_library(Monitoring SHARED ${SRCS} $<$<BOOL:${ApMon_FOUND}>:src/Backends/ApMonBackend.cxx>)
 target_include_directories(Monitoring
   PUBLIC 
     $<INSTALL_INTERFACE:include>    
