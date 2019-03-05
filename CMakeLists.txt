@@ -100,16 +100,11 @@ target_include_directories(Monitoring
 target_link_libraries(Monitoring
   PUBLIC
     Boost::boost
-     AliceO2::InfoLogger
   PRIVATE
     Boost::system
     $<$<BOOL:${ApMon_FOUND}>:ApMon::ApMon>
+    $<$<BOOL:${InfoLogger_FOUND}>:AliceO2::InfoLogger>
 )
-
-# Handle ApMon optional dependency
-if(ApMon_FOUND)
-  message(STATUS "  Compiling ApMon backend")
-endif()
 
 # Detect operating system
 if (UNIX AND NOT APPLE)
@@ -127,6 +122,7 @@ target_compile_definitions(Monitoring
     $<$<BOOL:${APPLE}>:O2_MONITORING_OS_MAC>
     $<$<BOOL:${LINUX}>:O2_MONITORING_OS_LINUX>
     $<$<BOOL:${ApMon_FOUND}>:O2_MONITORING_WITH_APPMON>
+    $<$<BOOL:${InfoLogger_FOUND}>:O2_MONITORING_WITH_INFOLOGGER>
   )
 
 # Use C++17

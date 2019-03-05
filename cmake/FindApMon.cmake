@@ -47,4 +47,5 @@ if(ApMon_FOUND)
       INTERFACE_LINK_LIBRARIES "${ApMon_LIBRARY}"
     )
   endif()
+  message(STATUS "ApMon found")
 endif()
