@@ -23,18 +23,19 @@ inline unsigned long StdOut::convertTimestamp(const std::chrono::time_point<std:
   ).count();
 }
 
-StdOut::StdOut() : mStream(std::cout)
+StdOut::StdOut(const std::string& prefix) : mStream(std::cout), mPrefix(prefix)
 {
-  setVerbosisty(backend::Verbosity::Debug);
+  setVerbosisty(Verbosity::Debug);
   MonLogger::Get() << "StdOut backend initialized" << MonLogger::End();
 }
 
-void StdOut::addGlobalTag(std::string name, std::string value)
+void StdOut::addGlobalTag(std::string_view name, std::string_view value)
 {
-  if (!tagString.empty()) {
-    tagString += ",";
-  }
-  tagString += name + "=" + value;
+  std::string tag = name.data();
+  tag += "=";
+  tag += value;
+  if (!tagString.empty()) tagString += ",";
+  tagString += tag;
 }
 
 void StdOut::send(std::vector<Metric>&& metrics) {
@@ -45,38 +46,29 @@ void StdOut::send(std::vector<Metric>&& metrics) {
 
 void StdOut::sendMultiple(std::string measurement, std::vector<Metric>&& metrics)
 {
+  std::string metricTags{};
+  for (const auto& [key, value] : metrics.front().getTags()) {
+    metricTags += ',';
+    metricTags += tags::TAG_KEY[key];
+    metricTags += "=";
+    metricTags += tags::GetValue(value);
+  } 
   for (auto& metric : metrics) {
-    std::string metricTags{};
-    for (const auto& tag : metric.getTags()) {
-      if (!metricTags.empty()) {
-        metricTags += ",";
-      }
-      metricTags += tag.name + "=" + tag.value;
-    }
-    if (!metricTags.empty()) {
-      metricTags = "," + metricTags;
-    }
-    mStream <<  "[METRIC] " << measurement << "/" << metric.getName() << "," << metric.getType() << " "
-      << metric.getValue() << " " << convertTimestamp(metric.getTimestamp()) << " " << tagString
-      << metricTags << "\n";
+    mStream << "[" << mPrefix << "] " << measurement << '/' << metric.getName() << ',' << metric.getType() << ' '
+      << metric.getValue() << ' ' << convertTimestamp(metric.getTimestamp()) << ' ' << tagString
+      << metricTags << '\n';
   }
 }
 
 void StdOut::send(const Metric& metric)
 {
-  std::string metricTags{};
-  for (const auto& tag : metric.getTags()) {
-    if (!metricTags.empty()) {
-      metricTags += ",";
-    }
-    metricTags += tag.name + "=" + tag.value;
+  mStream << "[" << mPrefix << "] " << metric.getName() << ',' << metric.getType() << " " << metric.getValue()
+          << ' ' << convertTimestamp(metric.getTimestamp()) << ' ' << tagString;
+
+  for (const auto& [key, value] : metric.getTags()) {
+    mStream << ',' << tags::TAG_KEY[key] << "=" << tags::GetValue(value);
   }
-  if (!metricTags.empty()) {
-    metricTags = "," + metricTags;
-  }
-  mStream << "[METRIC] " << metric.getName() << "," << metric.getType() << " " << metric.getValue()
-    << " " << convertTimestamp(metric.getTimestamp()) << " " << tagString << metricTags
-    << "\n";
+  mStream << '\n';
 }
 
 } // namespace backends

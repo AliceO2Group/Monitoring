@@ -29,9 +29,9 @@ BOOST_AUTO_TEST_CASE(derivedRateInt)
     try {
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
       o2::monitoring::Metric metric(result.value, name);
-      o2::monitoring::Metric derived = derivedHandler.rate(metric);
+      o2::monitoring::Metric derived = derivedHandler.process(metric, DerivedMetricMode::RATE);
       BOOST_CHECK_EQUAL(derived.getName(), "metricIntRate");
-      BOOST_WARN_CLOSE(boost::get<double>(derived.getValue()), result.rate, 1.0);
+      BOOST_WARN_CLOSE(boost::get<double>(derived.getValue()), result.rate, 5.0);
     } catch(MonitoringException &e) {
       BOOST_CHECK_EQUAL(e.what(), std::string("Not enough values"));
     }
@@ -44,16 +44,20 @@ BOOST_AUTO_TEST_CASE(derivedRateDouble) {
     double rate;
   };
   std::vector<RateResults> results = {{1.2, 0 }, {11.2, 100}, {21.2, 100}, {41.2, 200}, {51.2, 100}, {61, 98}};
+  std::vector<RateResults> resultsTagged = {{0.5, 0 }, {5.5, 50}, {10.5, 50}, {20.5, 100}, {40.5, 200}, {45.5, 50}};
   o2::monitoring::DerivedMetrics derivedHandler;
   std::string name("metricDouble");
-
-  for (auto const result : results) {
+  for(std::size_t i = 0; i < results.size(); i++) {
     try {
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
-      o2::monitoring::Metric metric(result.value, name);
-      o2::monitoring::Metric derived = derivedHandler.rate(metric);
+      o2::monitoring::Metric metric(results[i].value, name);
+      o2::monitoring::Metric metricTagged = Metric{resultsTagged[i].value, name}.addTag(o2::monitoring::tags::Key::Subsystem, o2::monitoring::tags::Value::Readout);
+      o2::monitoring::Metric derived = derivedHandler.process(metric, DerivedMetricMode::RATE);
+      o2::monitoring::Metric derivedTagged = derivedHandler.process(metricTagged, DerivedMetricMode::RATE);
       BOOST_CHECK_EQUAL(derived.getName(), "metricDoubleRate");
-      BOOST_WARN_CLOSE(boost::get<double>(derived.getValue()), result.rate, 1.0);
+      BOOST_CHECK_EQUAL(derivedTagged.getName(), "metricDoubleRate");
+      BOOST_WARN_CLOSE(boost::get<double>(derived.getValue()), results[i].rate, 5.0);
+      BOOST_WARN_CLOSE(boost::get<double>(derivedTagged.getValue()), resultsTagged[i].rate, 5.0);
     } catch(MonitoringException &e) {
       BOOST_CHECK_EQUAL(e.what(), std::string("Not enough values"));
     }
@@ -73,9 +77,9 @@ BOOST_AUTO_TEST_CASE(derivedRateUint64_t) {
     try {
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
       o2::monitoring::Metric metric(result.value, name);
-      o2::monitoring::Metric derived = derivedHandler.rate(metric);
+      o2::monitoring::Metric derived = derivedHandler.process(metric, DerivedMetricMode::RATE);
       BOOST_CHECK_EQUAL(derived.getName(), "metricUint64_tRate");
-      BOOST_WARN_CLOSE(boost::get<double>(derived.getValue()), result.rate, 1.0);
+      BOOST_WARN_CLOSE(boost::get<double>(derived.getValue()), result.rate, 5.0);
     } catch(MonitoringException &e) {
       BOOST_CHECK_EQUAL(e.what(), std::string("Not enough values"));
     }
@@ -93,10 +97,10 @@ BOOST_AUTO_TEST_CASE(divisionByZero)
 {
   std::string name("test");
   o2::monitoring::DerivedMetrics derivedHandler;
-  o2::monitoring::Metric metric(10, name, o2::monitoring::Metric::getCurrentTimestamp());
+  o2::monitoring::Metric metric(10, name);
 
-  derivedHandler.rate(metric);
-  BOOST_CHECK_EXCEPTION(derivedHandler.rate(metric), MonitoringException, exceptionCheck);
+  derivedHandler.process(metric, DerivedMetricMode::RATE);
+  BOOST_CHECK_EXCEPTION(derivedHandler.process(metric, DerivedMetricMode::RATE), MonitoringException, exceptionCheck);
 }
 
 BOOST_AUTO_TEST_CASE(derivedIncrementInt) {
@@ -109,7 +113,7 @@ BOOST_AUTO_TEST_CASE(derivedIncrementInt) {
   std::string name("metricInt");
   for (auto const result : results) {
     o2::monitoring::Metric metric(result.value, name);
-    o2::monitoring::Metric derived = derivedHandler.increment(metric);
+    o2::monitoring::Metric derived = derivedHandler.process(metric, DerivedMetricMode::INCREMENT);
     BOOST_CHECK_EQUAL(boost::get<int>(derived.getValue()), result.rate);
   }
 }
@@ -124,7 +128,7 @@ BOOST_AUTO_TEST_CASE(derivedIncrementUint64_t) {
   std::string name("metricUint64_t");
   for (auto const result : results) {
     o2::monitoring::Metric metric(result.value, name);
-    o2::monitoring::Metric derived = derivedHandler.increment(metric);
+    o2::monitoring::Metric derived = derivedHandler.process(metric, DerivedMetricMode::INCREMENT);
     BOOST_CHECK_EQUAL(boost::get<uint64_t>(derived.getValue()), result.rate);
   }
 }
@@ -139,7 +143,7 @@ BOOST_AUTO_TEST_CASE(derivedIncrementDouble) {
   std::string name("metricDouble");
   for (auto const result : results) {
     o2::monitoring::Metric metric(result.value, name);
-    o2::monitoring::Metric derived = derivedHandler.increment(metric);
+    o2::monitoring::Metric derived = derivedHandler.process(metric, DerivedMetricMode::INCREMENT);
     BOOST_CHECK_CLOSE(boost::get<double>(derived.getValue()), result.rate, 0.01);
   }
 }

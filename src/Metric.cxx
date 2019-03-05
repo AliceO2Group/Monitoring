@@ -25,86 +25,90 @@ int Metric::getType() const
   return mValue.which();
 }
 
-std::string Metric::getName() const
+const std::string& Metric::getName() const
 {
   return mName;
 }
 
-Metric::Metric(int value, const std::string& name, std::chrono::time_point<std::chrono::system_clock> timestamp) :
-  mValue(value), mName(name), mTimestamp(timestamp)
-{}
+Metric::Metric(int value, const std::string& name, Verbosity verbosity) :
+  mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
+{ overwriteVerbosity(); }
 
-Metric::Metric(std::string value, const std::string& name, std::chrono::time_point<std::chrono::system_clock> timestamp) :
-  mValue(value), mName(name), mTimestamp(timestamp)
-{}
+Metric::Metric(std::string value, const std::string& name, Verbosity verbosity) :
+  mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
+{ overwriteVerbosity(); }
 
-Metric::Metric(double value, const std::string& name, std::chrono::time_point<std::chrono::system_clock> timestamp) :
-  mValue(value), mName(name), mTimestamp(timestamp)
-{}
+Metric::Metric(double value, const std::string& name, Verbosity verbosity) :
+  mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
+{ overwriteVerbosity(); }
 
-Metric::Metric(uint64_t value, const std::string& name, std::chrono::time_point<std::chrono::system_clock> timestamp) :
-  mValue(value), mName(name), mTimestamp(timestamp)
-{}
+Metric::Metric(uint64_t value, const std::string& name, Verbosity verbosity) :
+  mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
+{ overwriteVerbosity(); }
 
-Metric::Metric(boost::variant< int, std::string, double, uint64_t > value, const std::string& name, std::chrono::time_point<std::chrono::system_clock> timestamp) :
-  mValue(value), mName(name), mTimestamp(timestamp)
-{}
-
-Metric::Metric(const Metric& other)
-{
-  std::lock_guard<std::mutex> lock(other.mValueMutex);
-  mName = other.mName;
-  mValue = other.mValue;
-  mTimestamp = other.mTimestamp;
-  tagSet = other.tagSet;
-}
-
-Metric& Metric::operator=(Metric const& other)
-{
-  if (&other != this) {
-    std::unique_lock<std::mutex> lockThis(mValueMutex, std::defer_lock);
-    std::unique_lock<std::mutex> lockOther(other.mValueMutex, std::defer_lock);
-    std::lock(lockThis, lockOther);
-
-    mName = other.mName;
-    mValue = other.mValue;
-    mTimestamp = other.mTimestamp;
-    tagSet = other.tagSet;
-  }
-  return *this;
-}
+Metric::Metric(boost::variant< int, std::string, double, uint64_t > value, const std::string& name, Verbosity verbosity) :
+  mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
+{ overwriteVerbosity(); }
 
 boost::variant< int, std::string, double, uint64_t > Metric::getValue() const
 {
   return mValue;
 }
 
-Metric& Metric::operator=(const boost::variant< int, std::string, double, uint64_t >& value) {
-  mValue = value;
-  return *this;
+Verbosity Metric::getVerbosity()
+{
+  return mVerbosity;
 }
 
-Metric&& Metric::addTags(std::vector<Tag>&& tags)
+void Metric::setVerbosityPolicy(Verbosity verbosity, const std::regex& regex)
 {
-  tagSet = std::move(tags);
+  mRegexPolicy.insert({static_cast<std::underlying_type<tags::Value>::type>(verbosity), regex});
+}
+
+void Metric::overwriteVerbosity()
+{
+  for (auto const& [verbosity, regex] : mRegexPolicy) {
+    if (std::regex_match(mName, regex)) {
+      mVerbosity = static_cast<Verbosity>(verbosity);
+    }
+  }
+}
+
+Metric&& Metric::addTag(tags::Key key, tags::Value value)
+{
+  mTags.push_back({static_cast<std::underlying_type<tags::Key>::type>(key), static_cast<std::underlying_type<tags::Value>::type>(value)});
   return std::move(*this);
 }
 
-Metric&& Metric::setTimestamp(std::chrono::time_point<std::chrono::system_clock>& timestamp)
+Metric&& Metric::addTag(tags::Key key, unsigned short number)
 {
-  mTimestamp = timestamp;
+  mTags.push_back({static_cast<std::underlying_type<tags::Key>::type>(key), 0 - number});
   return std::move(*this);
 }
 
-std::vector<Tag> Metric::getTags() const
+Metric&& Metric::setTags(std::vector<std::pair<int, int>>&& tags)
 {
-  return tagSet;
+  mTags = std::move(tags);
+  return std::move(*this);
+}
+
+const std::vector<std::pair<int, int>>& Metric::getTags() const
+{
+  return mTags;
 }
 
 auto Metric::getCurrentTimestamp() -> decltype(std::chrono::system_clock::now())
 {
   return std::chrono::system_clock::now();
 }
+
+void Metric::setDefaultVerbosity(Verbosity verbosity)
+{
+  Metric::DefaultVerbosity = verbosity;
+}
+
+Verbosity Metric::DefaultVerbosity = Verbosity::Info;
+std::map<std::underlying_type<Verbosity>::type, std::regex> Metric::mRegexPolicy;
 
 } // namespace monitoring
 } // namespace o2

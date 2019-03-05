@@ -13,7 +13,7 @@ BOOST_AUTO_TEST_CASE(createProcessMonitor)
 {
   o2::monitoring::ProcessMonitor processMonitor;
   processMonitor.getCpuAndContexts();
-  #ifdef _OS_LINUX
+  #ifdef O2_MONITORING_OS_LINUX
   processMonitor.getMemoryUsage();
   #endif
 }

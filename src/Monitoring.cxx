@@ -33,12 +33,14 @@ Monitoring::Monitoring()
   mMonitorRunning = false;
 }
 
-void Monitoring::enableBuffering(const unsigned int size)
+void Monitoring::enableBuffering(const std::size_t size)
 {
   mBufferSize = size;
   mBuffering = true;
-  mStorage.reserve(size);
-  MonLogger::Get() << "Buffering enabled (" << mStorage.capacity() << ")" << MonLogger::End();
+  for (std::underlying_type<Verbosity>::type i = 0; i < static_cast<std::underlying_type<Verbosity>::type>(Verbosity::Debug); i++) {
+    mStorage[i].reserve(size);
+  }
+  MonLogger::Get() << "Buffering enabled (" << mStorage[0].capacity() << ")" << MonLogger::End();
 }
 
 void Monitoring::flushBuffer() {
@@ -46,8 +48,24 @@ void Monitoring::flushBuffer() {
     MonLogger::Get() << "Cannot flush as buffering is disabled" << MonLogger::End();
     return;
   }
-  send(std::move(mStorage));
-  mStorage.clear();
+  for (auto& [verbosity, buffer] : mStorage) {
+    for (auto& backend : mBackends) {
+      if (matchVerbosity(backend->getVerbosity(), static_cast<Verbosity>(verbosity))) {
+        backend->send(std::move(buffer));
+        buffer.clear();
+      }
+    }
+  }
+}
+
+void Monitoring::flushBuffer(const short index)
+{
+  for (auto& backend : mBackends) {
+    if (matchVerbosity(backend->getVerbosity(), static_cast<Verbosity>(index))) {
+      backend->send(std::move(mStorage[index]));
+      mStorage[index].clear();
+    }
+  }
 }
 
 void Monitoring::enableProcessMonitoring(const unsigned int interval) {
@@ -56,39 +74,27 @@ void Monitoring::enableProcessMonitoring(const unsigned int interval) {
     mMonitorRunning = true;
     mMonitorThread = std::thread(&Monitoring::pushLoop, this);
   }
-  #ifdef _OS_LINUX
+  #ifdef O2_MONITORING_OS_LINUX
   MonLogger::Get() << "Process Monitor : Automatic updates enabled" << MonLogger::End();
   #else
   MonLogger::Get() << "!! Process Monitor : Limited metrics available" << MonLogger::End();
   #endif
 }
 
-void Monitoring::startTimer(std::string name) {
-  auto search = mTimers.find(name);
-  if (search == mTimers.end()) {
-    auto now = std::chrono::steady_clock::now();
-    mTimers.insert(std::make_pair(name, now));
-  } else {
-    MonLogger::Get() << "Monitoring timer : Timer for " << name << " already started" << MonLogger::End();
-  }
-}
-
-void Monitoring::stopAndSendTimer(std::string name) {
-  auto search = mTimers.find(name);
-  if (search != mTimers.end()) {
-    auto now = std::chrono::duration_cast <std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
-    auto start = std::chrono::duration_cast <std::chrono::milliseconds>(search->second.time_since_epoch()).count();
-    uint64_t duration = now - start;
-    send({duration, name});
-  } else {
-    MonLogger::Get() << "Monitoring timer : Cannot stop " << name << " timer as it hasn't started" << MonLogger::End();
-  }
-}
-
-void Monitoring::addGlobalTag(std::string name, std::string value)
+void Monitoring::addGlobalTag(std::string_view key, std::string_view value)
 {
   for (auto& backend: mBackends) {
-    backend->addGlobalTag(name, value);
+    backend->addGlobalTag(key, value);
+  }
+}
+
+void Monitoring::addGlobalTag(tags::Key key, tags::Value value)
+{
+  for (auto& backend: mBackends) {
+    backend->addGlobalTag(
+      tags::TAG_KEY[static_cast<std::underlying_type<tags::Key>::type>(key)],
+      tags::TAG_VALUE[static_cast<std::underlying_type<tags::Value>::type>(value)]
+    );
   }
 }
 
@@ -116,94 +122,81 @@ void Monitoring::pushLoop()
   std::this_thread::sleep_for (std::chrono::milliseconds(100));
   while (mMonitorRunning) {
     if (mProcessMonitoringInterval != 0 && (loopCount % (mProcessMonitoringInterval*10)) == 0) {
-      send(mProcessMonitor->getCpuAndContexts());
-      #ifdef _OS_LINUX
-      send(mProcessMonitor->getMemoryUsage());
+      transmit(mProcessMonitor->getCpuAndContexts());
+      #ifdef O2_MONITORING_OS_LINUX
+      transmit(mProcessMonitor->getMemoryUsage());
       #endif
     }
 
     if (mAutoPushInterval != 0 && (loopCount % (mAutoPushInterval*10)) == 0) {
       std::vector<Metric> metrics;
-      for (auto& metric : mPushStore) {
+      for (auto metric : mPushStore) {
+        metric.resetTimestamp();
         metrics.push_back(metric);
       }
-      send(std::move(metrics));
+      transmit(std::move(metrics));
     }
     std::this_thread::sleep_for (std::chrono::milliseconds(100));
     (loopCount >= 600) ? loopCount = 0 : loopCount++;
   }
 }
 
-Metric& Monitoring::getAutoPushMetric(std::string name)
+ComplexMetric& Monitoring::getAutoPushMetric(std::string name, unsigned int interval)
 {
-  if (mAutoPushInterval == 0) {
-    MonLogger::Get() << "[WARN] AutoPush is not enabled" << MonLogger::End();
+  if (!mMonitorRunning) {
+    mMonitorRunning = true;
+    mMonitorThread = std::thread(&Monitoring::pushLoop, this);
+    mAutoPushInterval = interval;
   }
   mPushStore.emplace_back(boost::variant< int, std::string, double, uint64_t > {}, name);
   return mPushStore.back();
 }
 
-void Monitoring::sendGrouped(std::string measurement, std::vector<Metric>&& metrics)
+void Monitoring::sendGrouped(std::string measurement, std::vector<Metric>&& metrics, Verbosity verbosity)
 {
-  for (auto& b: mBackends) {
-    b->sendMultiple(measurement, std::move(metrics));
-  }
-}
-
-void Monitoring::send(std::vector<Metric>&& metrics)
-{
-  for (auto& b: mBackends) {
-    b->send(std::move(metrics));
-  }
-}
-
-void Monitoring::debug(Metric&& metric)
-{
-  for (auto& b: mBackends) {
-    if (b->getVerbosity() == backend::Verbosity::Debug) {
-      b->send(metric);
+  for (auto& backend : mBackends) {
+    if (matchVerbosity(backend->getVerbosity(), verbosity)) {
+      backend->sendMultiple(measurement, std::move(metrics));
     }
   }
 }
 
-void Monitoring::enableAutoPush(unsigned int interval)
+void Monitoring::transmit(std::vector<Metric>&& metrics)
 {
-  if (!mMonitorRunning) {
-    mMonitorRunning = true;
-    mMonitorThread = std::thread(&Monitoring::pushLoop, this);
+  for (auto& backend : mBackends) {
+    backend->send(std::move(metrics));
   }
-  mAutoPushInterval = interval;
 }
 
-void Monitoring::pushToBackends(Metric&& metric)
+void Monitoring::transmit(Metric&& metric)
 {
   if (mBuffering) {
-    mStorage.push_back(std::move(metric));
-    if (mStorage.size() >= mBufferSize) {
-      flushBuffer();
+    auto index = static_cast<std::underlying_type<Verbosity>::type>(metric.getVerbosity());
+    mStorage[index].push_back(std::move(metric));
+    if (mStorage[index].size() >= mBufferSize) {
+      flushBuffer(index);
     }
   } else {
-    for (auto& b: mBackends) {
-      b->send(metric);
+    for (auto& backend : mBackends) {
+      if (matchVerbosity(backend->getVerbosity(), metric.getVerbosity())) {
+        backend->send(metric);
+      }
     }
   }
 }
 
 void Monitoring::send(Metric&& metric, DerivedMetricMode mode)
 {
-  try {
-    if (mode == DerivedMetricMode::RATE) {
-      pushToBackends(mDerivedHandler->rate(metric));
-    }
-
-    if (mode == DerivedMetricMode::INCREMENT) {
-      pushToBackends(mDerivedHandler->increment(metric));
-    }
-  } catch(MonitoringException& e) {
-    MonLogger::Get() << "[WARN] " << e.what() << MonLogger::End();
+  if (mode != DerivedMetricMode::NONE) {
+     try { transmit(mDerivedHandler->process(metric, mode)); }
+     catch (MonitoringException& e) { MonLogger::Get() << e.what() << MonLogger::End(); }
   }
-  pushToBackends(std::move(metric));
+  transmit(std::move(metric));
 }
 
+inline bool Monitoring::matchVerbosity(Verbosity backend, Verbosity metric)
+{
+  return (static_cast<std::underlying_type<Verbosity>::type>(backend) >= static_cast<std::underlying_type<Verbosity>::type>(metric));
+}
 } // namespace monitoring
 } // namespace o2

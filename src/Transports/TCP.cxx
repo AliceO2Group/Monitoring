@@ -45,18 +45,6 @@ void TCP::send(std::string&& message)
   }
 }
 
-void TCP::read() {
-  for (;;) {
-    boost::system::error_code error;
-    boost::array<char, 128> buf;
-    size_t len = mSocket.read_some(boost::asio::buffer(buf), error);
-    if (error == boost::asio::error::eof) {
-      break;
-    }
-    std::cout.write(buf.data(), len);
-  }
-}
-
 } // namespace transports
 } // namespace monitoring
 } // namespace o2

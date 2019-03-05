@@ -17,6 +17,7 @@
 #include <vector>
 #include <deque>
 
+#include "Monitoring/ComplexMetric.h"
 #include "Monitoring/Backend.h"
 #include "Monitoring/DerivedMetrics.h"
 #include "Monitoring/ProcessMonitor.h"
@@ -57,57 +58,50 @@ class Monitoring
     /// \param mode		Derived metric mode
     void send(Metric&& metric, DerivedMetricMode mode = DerivedMetricMode::NONE);
 
-    /// Send metrics to debug backends only
-    /// \param metric 		r-value to metric object
-    void debug(Metric&& metric);
-
-    /// Sends multiple (not related to each other) metrics
-    /// \param metrics  vector of metrics
-    void send(std::vector<Metric>&& metrics);
-
     /// Sends multiple realated to each other metric values under a common measurement name
     /// You can imagine it as a data point with multiple values
     /// If it's not supported by a backend it fallbacks into sending one by one
     /// \param name		measurement name
     /// \param metrics		list of metrics
-    void sendGrouped(std::string name, std::vector<Metric>&& metrics);
+    void sendGrouped(std::string name, std::vector<Metric>&& metrics, Verbosity verbosity = Metric::DefaultVerbosity);
 
     /// Enables process monitoring
     /// \param interval		refresh interval
     void enableProcessMonitoring(const unsigned int interval = 5);
-
-    /// Starts timing
-    /// Sets a start timestamp and timeout
-    /// \param name 		metric name
-    void startTimer(std::string name);
-
-    /// Stops timing
-    /// Sets stop timestamp, calculates delta and sends value
-    /// \param name 		metric name
-    void stopAndSendTimer(std::string name);
 
     /// Flushes metric buffer (this can also happen when buffer is full)
     void flushBuffer();
 
     /// Enables metric buffering
     /// \param size 		buffer size
-    void enableBuffering(const unsigned int size = 128);
+    void enableBuffering(const std::size_t size = 128);
 
     /// Adds global tag
     /// \param name 		tag name
     /// \param value 		tag value
-    void addGlobalTag(std::string name, std::string value);
+    void addGlobalTag(std::string_view name, std::string_view value);
+
+    /// Adds global tag
+    /// \param name             tag name
+    /// \param value            tag value
+    void addGlobalTag(tags::Key key, tags::Value value);
 
     /// Returns a metric which will be periodically sent to backends
     /// \param name 		metric name
     /// \return 		periodically send metric
-    Metric& getAutoPushMetric(std::string name);
-
-    /// Enables periodical push interval
-    /// \param interval 	interval in seconds
-    void enableAutoPush(const unsigned int interval = 1);
+    ComplexMetric& getAutoPushMetric(std::string name, unsigned int interval = 1);
 
   private:
+    /// Sends multiple (not related to each other) metrics
+    /// \param metrics  vector of metrics
+    void transmit(std::vector<Metric>&& metrics);
+
+    /// Flush buffer of desired verbosity
+    void flushBuffer(short index);
+
+    /// Matches verbosity of a backend and a metric in order to decide whether metric should be send to the backend
+    bool matchVerbosity(Verbosity backend, Verbosity metric);
+
     /// Derived metrics handler
     /// \see class DerivedMetrics
     std::unique_ptr<DerivedMetrics> mDerivedHandler;
@@ -115,11 +109,8 @@ class Monitoring
     /// Vector of backends (where metrics are passed to)
     std::vector <std::unique_ptr<Backend>> mBackends;
 
-    /// List of timers
-    std::unordered_map <std::string, std::chrono::time_point<std::chrono::steady_clock>> mTimers;
-
     /// Pushes metric to all backends or to the buffer
-    void pushToBackends(Metric&& metric);
+    void transmit(Metric&& metric);
 
     /// States whether Process Monitor thread is running
     std::atomic<bool> mMonitorRunning;
@@ -134,16 +125,16 @@ class Monitoring
     void pushLoop();
 
     /// Metric buffer
-    std::vector<Metric> mStorage;
+    std::unordered_map<std::underlying_type<Verbosity>::type, std::vector<Metric>> mStorage;
 
     /// Flag stating whether metric buffering is enabled
     bool mBuffering;
 
     /// Size of buffer
-    unsigned int mBufferSize;
+    std::size_t mBufferSize;
 
     /// Store for automatically pushed metrics
-    std::deque<Metric> mPushStore;
+    std::deque<ComplexMetric> mPushStore;
 
     /// Process monitor interval
     std::atomic<unsigned int> mProcessMonitoringInterval;

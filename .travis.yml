@@ -1,20 +1,24 @@
-sudo: required
 language: cpp
-dist: trusty
 matrix:
-  allow_failures:
+  include:
     - os: linux
+      dist: xenial
       env: TOOL=clang-format
       addons:
         apt:
-          sources: *sources
-          packages: ['clang-format-3.9']
+          sources:
+            - llvm-toolchain-xenial-8
+          packages:
+            - clang-format-8
       compiler: clang
-  include:
+      branches:
+        only:
+          - dev
     - os: osx
       osx_image: xcode10
       env: TOOL=test
     - os: linux
+      dist: xenial
       env: TOOL=test
       addons:
         apt:
@@ -24,11 +28,12 @@ matrix:
             - gcc-8
             - g++-8
             - cmake
-            - libboost-system1.55-dev
-            - libboost-filesystem1.55-dev
-            - libboost-test1.55-dev
-            - libboost-program-options1.55-dev
+            - libboost-system1.58-dev
+            - libboost-filesystem1.58-dev
+            - libboost-test1.58-dev
+            - libboost-program-options1.58-dev
     - os: linux
+      dist: xenial
       env: TOOL=coverage
       addons:
         apt:
@@ -36,18 +41,18 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - lcov
-            - gcc-8
-            - g++-8
+            - gcc-7
+            - g++-7
             - cmake
             - doxygen
             - doxygen-doc
             - doxygen-latex
             - doxygen-gui
             - graphviz
-            - libboost-system1.55-dev
-            - libboost-filesystem1.55-dev
-            - libboost-test1.55-dev
-            - libboost-program-options1.55-dev
+            - libboost-system1.58-dev
+            - libboost-filesystem1.58-dev
+            - libboost-test1.58-dev
+            - libboost-program-options1.58-dev
       branches:
         only:
           - dev
@@ -58,13 +63,14 @@ matrix:
         local_dir: build/doc/html
         on:
           branch: dev
-install:
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 90; fi
 before_script: 
   - cd $TRAVIS_BUILD_DIR; mkdir build; cd build
 script:
-  - if [[ $TOOL != "coverage" ]]; then cmake .. -DCMAKE_INSTALL_PREFIX=$TRAVIS_BUILD_DIR/installed;
-                                  else cmake .. -DCMAKE_BUILD_TYPE=Debug; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then cmake .. -DCMAKE_BUILD_TYPE=Debug;
+    else
+      if [[ $TOOL == "test" ]]; then cmake .. -DCMAKE_INSTALL_PREFIX=$TRAVIS_BUILD_DIR/installed -DCMAKE_C_COMPILER=/usr/bin/gcc-8 -DCMAKE_CXX_COMPILER=/usr/bin/g++-8; fi;
+      if [[ $TOOL == "coverage" ]]; then cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=/usr/bin/gcc-7 -DCMAKE_CXX_COMPILER=/usr/bin/g++-7; fi
+    fi
   - if [[ $TOOL == "test" ]] || [[ $TOOL == "coverage" ]]; then make -j; fi
   - if [[ $TOOL == "test" ]] || [[ $TOOL == "coverage" ]]; then make test; fi
   - if [[ $TOOL == "test" ]]; then make install; fi
@@ -73,13 +79,10 @@ script:
       cd $TRAVIS_BUILD_DIR;
       BASE_COMMIT=$(git rev-parse $TRAVIS_BRANCH);
       COMMIT_FILES=$(git diff --name-only $BASE_COMMIT | grep -i -v LinkDef);
-      curl -O https://raw.githubusercontent.com/AliceO2Group/CodingGuidelines/master/.clang-format;
-      RESULT_OUTPUT="$(git-clang-format-3.9 --commit $BASE_COMMIT --diff --binary `which clang-format-3.9` $COMMIT_FILES)";
-      if [ "$RESULT_OUTPUT" == "no modified files to format" ] || [ "$RESULT_OUTPUT" == "clang-format did not modify any files" ]; then
-        echo "clang-format passed";
+      RESULT_OUTPUT="$(git-clang-format-8 --commit $BASE_COMMIT --diff --binary `which clang-format-8` $COMMIT_FILES)";
+      if [ "$RESULT_OUTPUT" == "no modified files to format" ]; then
         exit 0;
       else
-        echo "clang-format failed.";
         echo "$RESULT_OUTPUT";
         exit 1;
       fi

@@ -14,7 +14,7 @@
 #include "Backends/Flume.h"
 #include "Backends/Noop.h"
 
-#ifdef _WITH_APPMON
+#ifdef O2_MONITORING_WITH_APPMON
 #include "Backends/ApMonBackend.h"
 #endif
 
@@ -27,8 +27,18 @@ namespace o2
 namespace monitoring 
 {
 
-std::unique_ptr<Backend> getStdOut(http::url) {
-  return std::make_unique<backends::StdOut>();
+static const std::map<std::string, Verbosity> verbosities = {
+  {"/prod", Verbosity::Prod},
+  {"/info", Verbosity::Info},
+  {"/debug", Verbosity::Debug}
+};
+
+std::unique_ptr<Backend> getStdOut(http::url uri) {
+  if (uri.search.size() > 0) {
+    return std::make_unique<backends::StdOut>(uri.search);
+  } else {
+    return std::make_unique<backends::StdOut>();
+  }
 }
 
 std::unique_ptr<Backend> getInfluxDb(http::url uri) {
@@ -39,13 +49,20 @@ std::unique_ptr<Backend> getInfluxDb(http::url uri) {
   if (uri.protocol == "udp") {
     return std::make_unique<backends::InfluxDB>(uri.host, uri.port);
   }
-  if (uri.protocol == "http") {
-    return std::make_unique<backends::InfluxDB>(uri.host, uri.port, uri.search);
+  if (uri.protocol == "unix") {
+    std::string path = uri.path;;
+    auto found = std::find_if(begin(verbosities), end(verbosities),
+                       [&](const auto& s)
+                       {return path.find(s.first) != std::string::npos; });
+    if (found != end(verbosities)) {
+      path.erase(path.rfind('/'));
+    }
+    return std::make_unique<backends::InfluxDB>(path);
   }
   throw std::runtime_error("InfluxDB transport protocol not supported");
 }
 
-#ifdef _WITH_APPMON
+#ifdef O2_MONITORING_WITH_APPMON
 std::unique_ptr<Backend> getApMon(http::url uri) {
   return std::make_unique<backends::ApMonBackend>(uri.path);
 }
@@ -64,18 +81,14 @@ std::unique_ptr<Backend> getFlume(http::url uri) {
 }
 
 void MonitoringFactory::SetVerbosity(std::string selected, std::unique_ptr<Backend>& backend) {
-  static const std::map<std::string, backend::Verbosity> verbosities = {
-    {"/prod", backend::Verbosity::Prod},
-    {"/debug", backend::Verbosity::Debug}
-  };
-
   auto found = verbosities.find(selected);
-  if (found != verbosities.end()) {
-    backend->setVerbosisty(found->second);
-    MonLogger::Get() << "...verbosity set to "
-                     << static_cast<std::underlying_type<backend::Verbosity>::type>(found->second)
-                     << MonLogger::End();
+  if (found == verbosities.end()) {
+    throw std::runtime_error("Unrecognised verbosity");
   }
+  backend->setVerbosisty(found->second);
+  MonLogger::Get() << "...verbosity set to "
+                   << static_cast<std::underlying_type<Verbosity>::type>(found->second)
+                   << MonLogger::End();
 }
 
 std::unique_ptr<Backend> MonitoringFactory::GetBackend(std::string& url) {
@@ -83,7 +96,7 @@ std::unique_ptr<Backend> MonitoringFactory::GetBackend(std::string& url) {
     {"infologger", getStdOut},
     {"stdout", getStdOut},
     {"influxdb-udp", getInfluxDb},
-    {"influxdb-http", getInfluxDb},
+    {"influxdb-unix", getInfluxDb},
     {"apmon", getApMon},
     {"flume", getFlume},
     {"no-op", getNoop}
@@ -100,8 +113,8 @@ std::unique_ptr<Backend> MonitoringFactory::GetBackend(std::string& url) {
   }
 
   auto backend = iterator->second(parsedUrl);
-  if (!parsedUrl.path.empty()) {
-    SetVerbosity(parsedUrl.path, backend);
+  if (!parsedUrl.path.empty() && parsedUrl.path != "/") {
+    SetVerbosity(parsedUrl.path.substr(parsedUrl.path.rfind("/")), backend);
   }
   return backend;
 }

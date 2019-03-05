@@ -32,11 +32,8 @@ class InfluxDB final : public Backend
     /// \param port      InfluxDB UDP endpoint port number
     InfluxDB(const std::string& host, unsigned int port);
 
-    /// Constructor for HTTP transport
-    /// \param host      InfluxDB HTTP endpoint hostname
-    /// \param port      InfluxDB HTTP endpoint port number
-    /// \param path	 Query path
-    InfluxDB(const std::string& host, unsigned int port, const std::string& path);
+    /// Constructor for Unix socket transport
+    InfluxDB(const std::string& socketPath);
 
     /// Default destructor
     ~InfluxDB() = default;
@@ -62,10 +59,10 @@ class InfluxDB final : public Backend
     /// Adds tag
     /// \param name      tag name
     /// \param value     tag value
-    void addGlobalTag(std::string name, std::string value) override;
+    void addGlobalTag(std::string_view name, std::string_view value) override;
   
   private:
-    std::unique_ptr<transports::TransportInterface> transport; ///< InfluxDB transport
+    std::unique_ptr<transports::TransportInterface> mTransport; ///< InfluxDB transport
     std::string tagSet; ///< Global tagset (common for each metric)
 
     /// Escapes " ", "," and "=" characters
