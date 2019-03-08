@@ -10,7 +10,7 @@
 #include <chrono>
 #include <vector>
 #include <regex>
-#include <boost/variant.hpp>
+#include <variant>
 #include "Tags.h"
 
 namespace o2
