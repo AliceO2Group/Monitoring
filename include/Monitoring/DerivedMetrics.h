@@ -1,3 +1,13 @@
+// Copyright CERN and copyright holders of ALICE O2. This software is
+// distributed under the terms of the GNU General Public License v3 (GPL
+// Version 3), copied verbatim in the file "COPYING".
+//
+// See http://alice-o2.web.cern.ch/license for full licensing information.
+//
+// In applying this license CERN does not waive the privileges and immunities
+// granted to it by virtue of its status as an Intergovernmental Organization
+// or submit itself to any jurisdiction.
+
 ///
 /// \file DerivedMetrics.h
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
@@ -35,18 +45,12 @@ class DerivedMetrics
     /// Default destructor
     ~DerivedMetrics() = default;
 
-    /// Calculates rate value based on metrics stored in mCache map
-    /// \param metric 	metric object
-    /// \return 	metric object holding calculated rate value
-    Metric rate(Metric& metric);
-
-    /// Increments the previous metric value by value stored in the metric
-    /// \param metric 	metric object
-    /// \return 	metric object holding incremented value
-    Metric increment(Metric& metric);
-
     /// Metrics store necessary for derived metrics
     std::unordered_map <std::string, Metric> mStorage;
+
+    /// Entry method to DerivedMetrics
+    /// Switches over processing modes: rate and increment
+    Metric process(Metric& metric, DerivedMetricMode mode);
 };
 
 } // namespace monitoring

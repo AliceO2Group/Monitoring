@@ -9,14 +9,11 @@
 // or submit itself to any jurisdiction.
 
 ///
-/// \file MonitoringException.h
+/// \file Unix.cxx
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 ///
 
-#ifndef ALICEO2_MONITORING_EXCEPTIONS_INTERNAL_MONITORING_H
-#define ALICEO2_MONITORING_EXCEPTIONS_INTERNAL_MONITORING_H
-
-#include <exception>
+#include "Unix.h"
 #include <string>
 
 namespace o2
@@ -24,20 +21,21 @@ namespace o2
 /// ALICE O2 Monitoring system
 namespace monitoring
 {
-
-/// \brief Internal monitoring exception
-class MonitoringException : public std::exception
+/// Monitoring transports
+namespace transports
 {
-  public:
-    MonitoringException(const std::string& source, const std::string& message);
-    MonitoringException(int code, const std::string& source, const std::string& message);
-    ~MonitoringException() = default;
-    const char* what() const throw();
-  private:
-    std::string message;
-};
+#if defined(BOOST_ASIO_HAS_LOCAL_SOCKETS)
+Unix::Unix(const std::string &socketPath) :
+  mSocket(mIoService), mEndpoint(socketPath)
+{
+  mSocket.open();
+}
 
+void Unix::send(std::string&& message)
+{
+  mSocket.send_to(boost::asio::buffer(message, message.size()), mEndpoint);
+}
+#endif // defined(BOOST_ASIO_HAS_LOCAL_SOCKETS)
+} // namespace transports
 } // namespace monitoring
 } // namespace o2
-
-#endif //ALICEO2_MONITORING_EXCEPTIONS_INTERNAL_MONITORING_H

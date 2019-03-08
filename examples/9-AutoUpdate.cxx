@@ -10,9 +10,6 @@ using namespace o2::monitoring;
 int main() {
   auto monitoring = MonitoringFactory::Get("stdout://");
 
-  // Enable periodical value pushing (default every 1s)
-  monitoring->enableAutoPush();
-
   // Get reference to metrics
   auto& qcMetric = monitoring->getAutoPushMetric("qcMetric"); 
   auto& qcMetric2 = monitoring->getAutoPushMetric("qcMetric2");

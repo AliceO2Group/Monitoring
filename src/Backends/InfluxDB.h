@@ -1,3 +1,13 @@
+// Copyright CERN and copyright holders of ALICE O2. This software is
+// distributed under the terms of the GNU General Public License v3 (GPL
+// Version 3), copied verbatim in the file "COPYING".
+//
+// See http://alice-o2.web.cern.ch/license for full licensing information.
+//
+// In applying this license CERN does not waive the privileges and immunities
+// granted to it by virtue of its status as an Intergovernmental Organization
+// or submit itself to any jurisdiction.
+
 ///
 /// \file InfluxDB.h
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
@@ -32,12 +42,8 @@ class InfluxDB final : public Backend
     /// \param port      InfluxDB UDP endpoint port number
     InfluxDB(const std::string& host, unsigned int port);
 
-    /// Constructor for HTTP transport
-    /// \param host      InfluxDB HTTP endpoint hostname
-    /// \param port      InfluxDB HTTP endpoint port number
-    /// \param path	 Query path
-    /// \param path 	 Search params
-    InfluxDB(const std::string& host, unsigned int port, const std::string& path, const std::string& search);
+    /// Constructor for Unix socket transport
+    InfluxDB(const std::string& socketPath);
 
     /// Default destructor
     ~InfluxDB() = default;
@@ -63,10 +69,10 @@ class InfluxDB final : public Backend
     /// Adds tag
     /// \param name      tag name
     /// \param value     tag value
-    void addGlobalTag(std::string name, std::string value) override;
+    void addGlobalTag(std::string_view name, std::string_view value) override;
   
   private:
-    std::unique_ptr<transports::TransportInterface> transport; ///< InfluxDB transport
+    std::unique_ptr<transports::TransportInterface> mTransport; ///< InfluxDB transport
     std::string tagSet; ///< Global tagset (common for each metric)
 
     /// Escapes " ", "," and "=" characters

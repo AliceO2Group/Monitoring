@@ -9,12 +9,12 @@
 // or submit itself to any jurisdiction.
 
 ///
-/// \file UDP.h
+/// \file Unix.h
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 ///
 
-#ifndef ALICEO2_MONITORING_TRANSPORTS_UDP_H
-#define ALICEO2_MONITORING_TRANSPORTS_UDP_H
+#ifndef ALICEO2_MONITORING_TRANSPORTS_UNIX_H
+#define ALICEO2_MONITORING_TRANSPORTS_UNIX_H
 
 #include "TransportInterface.h"
 
@@ -33,36 +33,34 @@ namespace monitoring
 namespace transports
 {
 
-/// \brief Transport that sends string formatted metrics via UDP
-class UDP : public TransportInterface
+/// \brief Transport that sends string formatted metrics via Unix datagram socket
+class Unix : public TransportInterface
 {
   public:
-    /// Constructor
-    /// \param hostname      InfluxDB instance hostname
-    /// \param port          InfluxDB instance port number
-    UDP(const std::string &hostname, int port);
+    /// \param hostname
+    /// \param port
+    Unix(const std::string &socketPath);
 
     /// Default destructor
-    ~UDP() = default;
+    ~Unix() = default;
  
-    /// Sends metric via UDP
     /// \param message   r-value string formated
     void send(std::string&& message) override;   
 
   private:
     /// Boost Asio I/O functionality
     boost::asio::io_service mIoService;
+#if defined(BOOST_ASIO_HAS_LOCAL_SOCKETS)
+    /// Unix socket
+    boost::asio::local::datagram_protocol::socket mSocket;
 
-    /// UDP socket
-    boost::asio::ip::udp::socket mSocket;
-
-    /// UDP endpoint
-    boost::asio::ip::udp::endpoint mEndpoint;
-
+    /// Unix endpoint
+    boost::asio::local::datagram_protocol::endpoint mEndpoint;
+#endif // defined(BOOST_ASIO_HAS_LOCAL_SOCKETS)
 };
 
 } // namespace transports
 } // namespace monitoring
 } // namespace o2
 
-#endif // ALICEO2_MONITORING_TRANSPORTS_UDP_H
+#endif // ALICEO2_MONITORING_TRANSPORTS_UNIX_H

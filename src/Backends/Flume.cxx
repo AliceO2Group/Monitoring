@@ -1,3 +1,13 @@
+// Copyright CERN and copyright holders of ALICE O2. This software is
+// distributed under the terms of the GNU General Public License v3 (GPL
+// Version 3), copied verbatim in the file "COPYING".
+//
+// See http://alice-o2.web.cern.ch/license for full licensing information.
+//
+// In applying this license CERN does not waive the privileges and immunities
+// granted to it by virtue of its status as an Intergovernmental Organization
+// or submit itself to any jurisdiction.
+
 ///
 /// \file Flume.cxx
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
@@ -21,9 +31,9 @@ namespace backends
 template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
 template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 
-Flume::Flume(const std::string& host, unsigned int port)
+Flume::Flume(const std::string& host, unsigned int port) :
+  mTransport(std::make_unique<transports::UDP>(host, port))
 {
-  mTransport = std::make_unique<transports::UDP>(host, port);
   MonLogger::Get() << "Flume/UDP backend initialized"
                    << " ("<< host << ":" << port << ")" << MonLogger::End();
 }
@@ -34,14 +44,17 @@ std::string Flume::metricToJson(const Metric& metric)
     boost::property_tree::ptree header = globalHeader;
     header.put<std::string>("timestamp", std::to_string(convertTimestamp(metric.getTimestamp())));
     header.put<std::string>("name", metric.getName());
+
     auto value = std::visit(overloaded {
       [](const std::string& value) -> std::string { return value; },
       [](auto value) -> std::string { return std::to_string(value); }
     }, metric.getValue());
     header.put<std::string>("value_value", value);
-    for (const auto& tag : metric.getTags()) {
-      header.put<std::string>("tag_" + tag.name, tag.value);
-    }   
+
+    for (const auto& [key, value] : metric.getTags()) {
+      header.put<std::string>("tag_" + std::string(tags::TAG_KEY[key].data()), tags::GetValue(value).data());
+    }
+
     event.push_back(std::make_pair("headers", header));
     event.put<std::string>("body", "");
     std::stringstream ss; 
@@ -73,8 +86,8 @@ std::string Flume::metricsToJson(std::string measurement, std::vector<Metric>&& 
   boost::property_tree::ptree header = globalHeader;
   header.put<std::string>("timestamp", std::to_string(convertTimestamp(metrics.front().getTimestamp())));
   header.put<std::string>("name", measurement);
-  for (const auto& tag : metrics.front().getTags()) {
-    header.put<std::string>("tag_" + tag.name, tag.value);
+  for (const auto& [key, value] : metrics.front().getTags()) {
+    header.put<std::string>("tag_" + std::string(tags::TAG_KEY[key].data()), tags::GetValue(value).data());
   }
   for (auto& metric : metrics) {
     auto value = std::visit(overloaded {
@@ -107,9 +120,9 @@ inline unsigned long Flume::convertTimestamp(const std::chrono::time_point<std::
   ).count();
 }
 
-void Flume::addGlobalTag(std::string name, std::string value)
+void Flume::addGlobalTag(std::string_view name, std::string_view value)
 {
-  globalHeader.put<std::string>(name, value);
+  globalHeader.put<std::string>("tag_" + std::string(name), value.data());
 }
 
 } // namespace backends
