@@ -52,7 +52,7 @@ class ComplexMetric : public o2::monitoring::Metric
     /// boost variant metric constructor, required by derived metrics logic
     /// \param value            metric value (boost variant)
     /// \param name             metric name
-    ComplexMetric(boost::variant< int, std::string, double, uint64_t >, const std::string& name);
+    ComplexMetric(std::variant< int, std::string, double, uint64_t >, const std::string& name);
 
     /// Default destructor
     ~ComplexMetric() = default;
@@ -61,7 +61,7 @@ class ComplexMetric : public o2::monitoring::Metric
     void resetTimestamp();
 
     /// Assign operator overload, assignes new values to the metric object
-    ComplexMetric& operator=(const boost::variant< int, std::string, double, uint64_t >& value);
+    ComplexMetric& operator=(const std::variant< int, std::string, double, uint64_t >& value);
 };
 
 } // namespace monitoring

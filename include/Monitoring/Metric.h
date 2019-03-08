@@ -60,6 +60,9 @@ class Metric
     /// Default destructor
     ~Metric() = default;
 
+    /// Assign operator overload, assignes new values to the metric object
+    Metric& operator=(const std::variant< int, std::string, double, uint64_t >& value);
+
     /// Name getter
     /// \return	metric name
     const std::string& getName() const;

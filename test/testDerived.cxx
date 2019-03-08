@@ -65,7 +65,8 @@ BOOST_AUTO_TEST_CASE(derivedRateDouble) {
       o2::monitoring::Metric derived = derivedHandler.process(metric, DerivedMetricMode::RATE);
       o2::monitoring::Metric derivedTagged = derivedHandler.process(metricTagged, DerivedMetricMode::RATE);
       BOOST_CHECK_EQUAL(derived.getName(), "metricDoubleRate");
-      BOOST_WARN_CLOSE(std::get<double>(derived.getValue()), result.rate, 1.0);
+      BOOST_WARN_CLOSE(std::get<double>(derived.getValue()), results[i].rate, 1.0);
+      BOOST_WARN_CLOSE(std::get<double>(derivedTagged.getValue()), resultsTagged[i].rate, 5.0);
     } catch(MonitoringException &e) {
       BOOST_CHECK_EQUAL(e.what(), std::string("Not enough values"));
     }

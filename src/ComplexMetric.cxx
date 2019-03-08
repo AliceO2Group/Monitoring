@@ -41,7 +41,7 @@ ComplexMetric::ComplexMetric(uint64_t value, const std::string& name) :
   Metric(value, name)
 {}
 
-ComplexMetric::ComplexMetric(boost::variant< int, std::string, double, uint64_t > value, const std::string& name) :
+ComplexMetric::ComplexMetric(std::variant< int, std::string, double, uint64_t > value, const std::string& name) :
   Metric(value, name)
 {}
 
@@ -50,7 +50,7 @@ void ComplexMetric::resetTimestamp()
    mTimestamp = Metric::getCurrentTimestamp();
 }
 
-ComplexMetric& ComplexMetric::operator=(const boost::variant< int, std::string, double, uint64_t >& value) {
+ComplexMetric& ComplexMetric::operator=(const std::variant< int, std::string, double, uint64_t >& value) {
   mValue = value;
   return *this;
 }

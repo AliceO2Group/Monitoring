@@ -124,16 +124,9 @@ std::string InfluxDB::toInfluxLineProtocol(const Metric& metric) {
     [&convert](double value) { convert << value; },
     [&convert](const std::string& value) { convert << '"' << value << '"'; },
     }, metric.getValue());
-  return convert.str();
-}
 
-void InfluxDB::prepareValue(std::string& value, int type)
-{
-  if (type == MetricType::STRING) {
-    escape(value);
-    value.insert(value.begin(), '"');
-    value.insert(value.end(), '"');
-  }
+  convert << " " << convertTimestamp(metric.getTimestamp());
+  return convert.str();
 }
 
 void InfluxDB::addGlobalTag(std::string_view name, std::string_view value)
