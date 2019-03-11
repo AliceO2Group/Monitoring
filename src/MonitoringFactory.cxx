@@ -92,7 +92,7 @@ std::unique_ptr<Backend> getFlume(http::url uri) {
 void MonitoringFactory::SetVerbosity(std::string selected, std::unique_ptr<Backend>& backend) {
   auto found = verbosities.find(selected);
   if (found == verbosities.end()) {
-    throw std::runtime_error("Unrecognised verbosity");
+    return;
   }
   backend->setVerbosisty(found->second);
   MonLogger::Get() << "...verbosity set to "
