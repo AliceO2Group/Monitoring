@@ -1,3 +1,13 @@
+// Copyright CERN and copyright holders of ALICE O2. This software is
+// distributed under the terms of the GNU General Public License v3 (GPL
+// Version 3), copied verbatim in the file "COPYING".
+//
+// See http://alice-o2.web.cern.ch/license for full licensing information.
+//
+// In applying this license CERN does not waive the privileges and immunities
+// granted to it by virtue of its status as an Intergovernmental Organization
+// or submit itself to any jurisdiction.
+
 ///
 /// \file MonitoringFactory.cxx
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
@@ -14,12 +24,11 @@
 #include "Backends/Flume.h"
 #include "Backends/Noop.h"
 
+#include "Backends/InfluxDB.h"
+
 #ifdef O2_MONITORING_WITH_APPMON
 #include "Backends/ApMonBackend.h"
 #endif
-
-#include "Backends/InfluxDB.h"
-#include "MonLogger.h"
 
 namespace o2 
 {
@@ -83,7 +92,7 @@ std::unique_ptr<Backend> getFlume(http::url uri) {
 void MonitoringFactory::SetVerbosity(std::string selected, std::unique_ptr<Backend>& backend) {
   auto found = verbosities.find(selected);
   if (found == verbosities.end()) {
-    throw std::runtime_error("Unrecognised verbosity");
+    return;
   }
   backend->setVerbosisty(found->second);
   MonLogger::Get() << "...verbosity set to "

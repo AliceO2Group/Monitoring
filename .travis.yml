@@ -7,15 +7,15 @@ matrix:
       addons:
         apt:
           sources:
-            - llvm-toolchain-xenial-8
+            - llvm-toolchain-xenial-7
           packages:
-            - clang-format-8
+            - clang-format-7
       compiler: clang
       branches:
         only:
           - dev
     - os: osx
-      osx_image: xcode10
+      osx_image: xcode10.2
       env: TOOL=test
     - os: linux
       dist: xenial
@@ -79,8 +79,8 @@ script:
       cd $TRAVIS_BUILD_DIR;
       BASE_COMMIT=$(git rev-parse $TRAVIS_BRANCH);
       COMMIT_FILES=$(git diff --name-only $BASE_COMMIT | grep -i -v LinkDef);
-      RESULT_OUTPUT="$(git-clang-format-8 --commit $BASE_COMMIT --diff --binary `which clang-format-8` $COMMIT_FILES)";
-      if [ "$RESULT_OUTPUT" == "no modified files to format" ]; then
+      RESULT_OUTPUT="$(git-clang-format-7 --commit $BASE_COMMIT --diff --binary `which clang-format-7` $COMMIT_FILES)";
+      if [ "$RESULT_OUTPUT" == "no modified files to format" ] || [ "$RESULT_OUTPUT" == "clang-format did not modify any files" ] ; then
         exit 0;
       else
         echo "$RESULT_OUTPUT";

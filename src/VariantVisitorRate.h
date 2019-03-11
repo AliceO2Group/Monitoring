@@ -1,10 +1,20 @@
+// Copyright CERN and copyright holders of ALICE O2. This software is
+// distributed under the terms of the GNU General Public License v3 (GPL
+// Version 3), copied verbatim in the file "COPYING".
+//
+// See http://alice-o2.web.cern.ch/license for full licensing information.
+//
+// In applying this license CERN does not waive the privileges and immunities
+// granted to it by virtue of its status as an Intergovernmental Organization
+// or submit itself to any jurisdiction.
+
 namespace o2
 {
 // ALICE O2 Monitoring system
 namespace monitoring
 {
 /// \brief Subtracts boost variants in order to calculate rate
-class VariantVisitorRate : public boost::static_visitor<boost::variant<int, std::string, double, uint64_t>>
+class VariantVisitorRate
 {
 private:
   /// Timestamp difference in milliseconds

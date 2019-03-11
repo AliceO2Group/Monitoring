@@ -1,3 +1,13 @@
+// Copyright CERN and copyright holders of ALICE O2. This software is
+// distributed under the terms of the GNU General Public License v3 (GPL
+// Version 3), copied verbatim in the file "COPYING".
+//
+// See http://alice-o2.web.cern.ch/license for full licensing information.
+//
+// In applying this license CERN does not waive the privileges and immunities
+// granted to it by virtue of its status as an Intergovernmental Organization
+// or submit itself to any jurisdiction.
+
 ///
 /// \file ComplexMetric.h
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
@@ -42,7 +52,7 @@ class ComplexMetric : public o2::monitoring::Metric
     /// boost variant metric constructor, required by derived metrics logic
     /// \param value            metric value (boost variant)
     /// \param name             metric name
-    ComplexMetric(boost::variant< int, std::string, double, uint64_t >, const std::string& name);
+    ComplexMetric(std::variant< int, std::string, double, uint64_t >, const std::string& name);
 
     /// Default destructor
     ~ComplexMetric() = default;
@@ -51,7 +61,7 @@ class ComplexMetric : public o2::monitoring::Metric
     void resetTimestamp();
 
     /// Assign operator overload, assignes new values to the metric object
-    ComplexMetric& operator=(const boost::variant< int, std::string, double, uint64_t >& value);
+    ComplexMetric& operator=(const std::variant< int, std::string, double, uint64_t >& value);
 };
 
 } // namespace monitoring

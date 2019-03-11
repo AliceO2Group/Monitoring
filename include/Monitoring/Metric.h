@@ -8,9 +8,10 @@
 
 #include <string>
 #include <chrono>
+#include <map>
 #include <vector>
 #include <regex>
-#include <boost/variant.hpp>
+#include <variant>
 #include "Tags.h"
 
 namespace o2
@@ -55,10 +56,13 @@ class Metric
     /// boost variant metric constructor, required by derived metrics logic
     /// \param value            metric value (boost variant)
     /// \param name             metric name
-    Metric(boost::variant< int, std::string, double, uint64_t >, const std::string& name, Verbosity verbosity = Metric::DefaultVerbosity);
+    Metric(std::variant< int, std::string, double, uint64_t >, const std::string& name, Verbosity verbosity = Metric::DefaultVerbosity);
 
     /// Default destructor
     ~Metric() = default;
+
+    /// Assign operator overload, assignes new values to the metric object
+    Metric& operator=(const std::variant< int, std::string, double, uint64_t >& value);
 
     /// Name getter
     /// \return	metric name
@@ -70,7 +74,7 @@ class Metric
 	
     /// Value getter
     /// \return metric value
-    boost::variant< int, std::string, double, uint64_t > getValue() const;
+    std::variant< int, std::string, double, uint64_t > getValue() const;
 
     /// Value type getter
     /// \return type of value stores inside metric : 0 - int, 1 - std::string, 2 - double
@@ -115,7 +119,7 @@ class Metric
     Metric&& setTags(std::vector<std::pair<int, int>>&& tags);
 
     /// Metric value
-    boost::variant< int, std::string, double, uint64_t > mValue;
+    std::variant< int, std::string, double, uint64_t > mValue;
 
     /// Metric name
     std::string mName;
