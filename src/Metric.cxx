@@ -30,9 +30,13 @@ std::chrono::time_point<std::chrono::system_clock> Metric::getTimestamp() const
   return mTimestamp;
 }
 
+/// This is required for backward compability with boost::variant
 int Metric::getType() const
 {
-  return mValue.which();
+  if (std::holds_alternative<int>(mValue)) return 0;
+  else if (std::holds_alternative<std::string>(mValue)) return 1;
+  else if (std::holds_alternative<double>(mValue)) return 2;
+  else return 3;
 }
 
 const std::string& Metric::getName() const
@@ -56,11 +60,11 @@ Metric::Metric(uint64_t value, const std::string& name, Verbosity verbosity) :
   mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
 { overwriteVerbosity(); }
 
-Metric::Metric(boost::variant< int, std::string, double, uint64_t > value, const std::string& name, Verbosity verbosity) :
+Metric::Metric(std::variant< int, std::string, double, uint64_t > value, const std::string& name, Verbosity verbosity) :
   mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
 { overwriteVerbosity(); }
 
-boost::variant< int, std::string, double, uint64_t > Metric::getValue() const
+std::variant< int, std::string, double, uint64_t > Metric::getValue() const
 {
   return mValue;
 }
@@ -82,6 +86,12 @@ void Metric::overwriteVerbosity()
       mVerbosity = static_cast<Verbosity>(verbosity);
     }
   }
+}
+
+Metric& Metric::operator=(const std::variant< int, std::string, double, uint64_t >& value)
+{
+  mValue = value;
+  return *this;
 }
 
 Metric&& Metric::addTag(tags::Key key, tags::Value value)

@@ -79,10 +79,8 @@ class InfluxDB final : public Backend
     /// \param escaped   string rerference to escape characters from
     void escape(std::string& escaped);
 
-    /// Modifies values to Influx Line Protocol format
-    /// \param value 	reference to value
-    /// \param type	type of the metric
-    void prepareValue(std::string& value, int type);
+    /// Converts metric to Influx Line Protocol format
+    /// \param metric
     std::string toInfluxLineProtocol(const Metric& metric);
 };
 

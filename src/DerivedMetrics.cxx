@@ -14,17 +14,15 @@
 ///
 #include "Monitoring/DerivedMetrics.h"
 #include "Exceptions/MonitoringException.h"
-#include <boost/lexical_cast.hpp>
-#include <boost/variant/variant.hpp>
-#include <boost/variant/apply_visitor.hpp>
 #include <chrono>
 #include <iostream>
 #include <map>
 #include <memory>
 #include <string>
+#include <variant>
 #include <vector>
-#include "VariantVisitorRate.h"
 #include "VariantVisitorAdd.h"
+#include "VariantVisitorRate.h"
 
 namespace o2
 {
@@ -45,7 +43,7 @@ Metric DerivedMetrics::process(Metric& metric, DerivedMetricMode mode) {
         if (search != mStorage.end()) {
           auto currentValue = metric.getValue();
           auto storedValue = search->second.getValue();
-          auto value = boost::apply_visitor(VariantVisitorAdd(), currentValue, storedValue);
+          auto value = std::visit(VariantVisitorAdd{}, currentValue, storedValue);
           mStorage.erase(search);
           Metric result = Metric{value, metric.getName() + "Increment", metric.getVerbosity()}.setTags(std::move(tags));
           mStorage.insert(std::make_pair(key, result));
@@ -85,7 +83,7 @@ Metric DerivedMetrics::process(Metric& metric, DerivedMetricMode mode) {
 
         auto current = metric.getValue();
         auto previous = search->second.getValue();
-        auto rate =  boost::apply_visitor(VariantVisitorRate(timestampCount), current, previous);
+        auto rate = std::visit(VariantVisitorRate(timestampCount), current, previous);
 
         // swap metrics
         mStorage.erase(key);

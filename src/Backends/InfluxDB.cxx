@@ -14,8 +14,8 @@
 ///
 
 #include "InfluxDB.h"
-#include <boost/lexical_cast.hpp>
 #include <string>
+#include <variant>
 #include "../Transports/UDP.h"
 #include "../Transports/Unix.h"
 #include "../Exceptions/MonitoringException.h"
@@ -28,6 +28,9 @@ namespace monitoring
 /// Monitoring backends
 namespace backends
 {
+
+template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
+template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 
 InfluxDB::InfluxDB(const std::string& host, unsigned int port) :
   mTransport(std::make_unique<transports::UDP>(host, port))
@@ -63,9 +66,14 @@ void InfluxDB::sendMultiple(std::string measurement, std::vector<Metric>&& metri
   convert << measurement << "," << tagSet << " ";
 
   for (const auto& metric : metrics) {
-    std::string value = boost::lexical_cast<std::string>(metric.getValue());
-    prepareValue(value, metric.getType());
-    convert << metric.getName() << "=" << value << ",";
+   convert << metric.getName() << "=";
+   std::visit(overloaded {
+      [&convert](uint64_t value) { convert << value << 'i'; },
+      [&convert](int value) { convert << value << 'i'; },
+      [&convert](double value) { convert << value; },
+      [&convert](const std::string& value) { convert << '"' << value << '"'; },
+      }, metric.getValue());
+    convert << ",";
   }
   convert.seekp(-1, std::ios_base::end);
   convert << " " <<  convertTimestamp(metrics.back().getTimestamp());
@@ -108,24 +116,17 @@ std::string InfluxDB::toInfluxLineProtocol(const Metric& metric) {
     convert << "," << tags::TAG_KEY[key] << "=" << tags::GetValue(value);
   }
 
-  std::string value = boost::lexical_cast<std::string>(metric.getValue());
-  prepareValue(value, metric.getType());
+  convert << " value=";
 
-  convert << " value=" << value << " " << convertTimestamp(metric.getTimestamp());
+  std::visit(overloaded {
+    [&convert](uint64_t value) { convert << value << 'i'; },
+    [&convert](int value) { convert << value << 'i'; },
+    [&convert](double value) { convert << value; },
+    [&convert](const std::string& value) { convert << '"' << value << '"'; },
+    }, metric.getValue());
+
+  convert << " " << convertTimestamp(metric.getTimestamp());
   return convert.str();
-}
-
-void InfluxDB::prepareValue(std::string& value, int type)
-{
-  if (type == MetricType::STRING) {
-    escape(value);
-    value.insert(value.begin(), '"');
-    value.insert(value.end(), '"');
-  }
-
-  if (type == MetricType::INT) {
-    value.insert(value.end(), 'i');
-  }
 }
 
 void InfluxDB::addGlobalTag(std::string_view name, std::string_view value)

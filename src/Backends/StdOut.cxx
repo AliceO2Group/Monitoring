@@ -26,6 +26,9 @@ namespace monitoring
 namespace backends
 {
 
+template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
+template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
+
 inline unsigned long StdOut::convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp)
 {
   return std::chrono::duration_cast <std::chrono::milliseconds>(
@@ -64,15 +67,25 @@ void StdOut::sendMultiple(std::string measurement, std::vector<Metric>&& metrics
     metricTags += tags::GetValue(value);
   } 
   for (auto& metric : metrics) {
+    auto value = std::visit(overloaded {
+      [](const std::string& value) -> std::string { return value; },
+      [](auto value) -> std::string { return std::to_string(value); }
+    }, metric.getValue());
+
     mStream << "[" << mPrefix << "] " << measurement << '/' << metric.getName() << ',' << metric.getType() << ' '
-      << metric.getValue() << ' ' << convertTimestamp(metric.getTimestamp()) << ' ' << tagString
+      << value << ' ' << convertTimestamp(metric.getTimestamp()) << ' ' << tagString
       << metricTags << '\n';
   }
 }
 
 void StdOut::send(const Metric& metric)
 {
-  mStream << "[" << mPrefix << "] " << metric.getName() << ',' << metric.getType() << " " << metric.getValue()
+  auto value = std::visit(overloaded {
+    [](const std::string& value) -> std::string { return value; },
+    [](auto value) -> std::string { return std::to_string(value); }
+  }, metric.getValue());
+  
+  mStream << "[" << mPrefix << "] " << metric.getName() << ',' << metric.getType() << " " << value
           << ' ' << convertTimestamp(metric.getTimestamp()) << ' ' << tagString;
 
   for (const auto& [key, value] : metric.getTags()) {
