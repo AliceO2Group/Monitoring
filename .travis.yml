@@ -2,6 +2,7 @@ language: cpp
 matrix:
   include:
     - os: linux
+      if: branch = master
       dist: xenial
       env: TOOL=clang-format
       addons:
@@ -11,9 +12,6 @@ matrix:
           packages:
             - clang-format-7
       compiler: clang
-      branches:
-        only:
-          - dev
     - os: osx
       osx_image: xcode10.2
       env: TOOL=test
@@ -53,9 +51,6 @@ matrix:
             - libboost-filesystem1.58-dev
             - libboost-test1.58-dev
             - libboost-program-options1.58-dev
-      branches:
-        only:
-          - dev
       deploy:
         provider: pages
         skip_cleanup: true
