@@ -2,7 +2,7 @@ language: cpp
 matrix:
   include:
     - os: linux
-      if: branch = master
+      if: branch = dev
       dist: xenial
       env: TOOL=clang-format
       addons:
@@ -31,6 +31,7 @@ matrix:
             - libboost-test1.58-dev
             - libboost-program-options1.58-dev
     - os: linux
+      if: branch = dev
       dist: xenial
       env: TOOL=coverage
       addons:
