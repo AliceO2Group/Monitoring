@@ -31,7 +31,7 @@ matrix:
             - libboost-test1.58-dev
             - libboost-program-options1.58-dev
     - os: linux
-      if: branch = dev
+      if: branch = master
       dist: xenial
       env: TOOL=coverage
       addons:
