@@ -77,7 +77,9 @@ script:
       if [ "$RESULT_OUTPUT" == "no modified files to format" ] || [ "$RESULT_OUTPUT" == "clang-format did not modify any files" ] ; then
         exit 0;
       else
+        echo -e "\tgit-clang-format-7 --commit $BASE_COMMIT --diff --binary $(which clang-format-7)"
         echo "$RESULT_OUTPUT";
+        sleep 5;
         exit 1;
       fi
     fi
