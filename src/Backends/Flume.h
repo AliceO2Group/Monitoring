@@ -70,7 +70,11 @@ class Flume final : public Backend
     /// \param name      tag name
     /// \param value     tag value
     void addGlobalTag(std::string_view name, std::string_view value) override;
-      
+
+    /// Serializes metric object to JSON
+    /// \param metric
+    /// \return JSON serializes metric
+    std::string metricToJson(const Metric& metric);
   private:
     /// UDP transport
     std::unique_ptr<transports::TransportInterface> mTransport;
@@ -78,10 +82,10 @@ class Flume final : public Backend
     /// Flume backend global header (for each metric)
     boost::property_tree::ptree globalHeader;
 
-    /// Serializes metric object to JSON
-    /// \param metric
+    /// Serializes mesurement to to JSON
+    /// \param measurement
+    /// \param metrics
     /// \return JSON serializes metric
-    std::string metricToJson(const Metric& metric);
     std::string metricsToJson(std::string measurement, std::vector<Metric>&& metrics);
 };
 

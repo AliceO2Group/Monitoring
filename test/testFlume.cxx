@@ -15,7 +15,6 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
-#define private public // evil hack to test private method
 #include "../src/Backends/Flume.h"
 
 
