@@ -49,6 +49,7 @@ See the table below to find `URI`s for supported backends:
 | ApMon        | UDP         | `apmon`                | -          | `info`            |
 | StdOut       | -           | `stdout`, `infologger` | [Prefix]   | `debug`           |
 | Flume        | UDP         | `flume`                | -          | `info`            |
+| Kafka        | TCP         | `kafka`                | -          | `info`            |
 
 ##### StdCout output format
 ```

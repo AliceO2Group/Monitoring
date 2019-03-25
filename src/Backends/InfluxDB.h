@@ -42,8 +42,12 @@ class InfluxDB final : public Backend
     /// \param port      InfluxDB UDP endpoint port number
     InfluxDB(const std::string& host, unsigned int port);
 
+    /// Constructor for other backends
+    InfluxDB();
+
     /// Constructor for Unix socket transport
     InfluxDB(const std::string& socketPath);
+
 
     /// Default destructor
     ~InfluxDB() = default;
@@ -70,7 +74,10 @@ class InfluxDB final : public Backend
     /// \param name      tag name
     /// \param value     tag value
     void addGlobalTag(std::string_view name, std::string_view value) override;
-  
+
+    /// Converts metric to Influx Line Protocol format
+    /// \param metric
+    std::string toInfluxLineProtocol(const Metric& metric);
   private:
     std::unique_ptr<transports::TransportInterface> mTransport; ///< InfluxDB transport
     std::string tagSet; ///< Global tagset (common for each metric)
@@ -78,10 +85,6 @@ class InfluxDB final : public Backend
     /// Escapes " ", "," and "=" characters
     /// \param escaped   string rerference to escape characters from
     void escape(std::string& escaped);
-
-    /// Converts metric to Influx Line Protocol format
-    /// \param metric
-    std::string toInfluxLineProtocol(const Metric& metric);
 };
 
 } // namespace backends

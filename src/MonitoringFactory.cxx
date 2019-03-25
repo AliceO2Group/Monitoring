@@ -30,11 +30,28 @@
 #include "Backends/ApMonBackend.h"
 #endif
 
+#ifdef O2_MONITORING__WITH_KAFKA
+#include "Backends/Kafka.h"
+#endif
+
 namespace o2 
 {
 /// ALICE O2 Monitoring system
 namespace monitoring 
 {
+#ifdef _WITH_KAFKA
+std::unique_ptr<Backend> getKafka(http::url uri) {
+  if (uri.search.size() > 0) {
+    return std::make_unique<backends::Kafka>(uri.host, uri.port, uri.search);
+  } else {
+    return std::make_unique<backends::Kafka>(uri.host, uri.port);
+  }
+}
+#else
+std::unique_ptr<Backend> getKafka(http::url /*uri*/) {
+  throw std::runtime_error("Kafka backend is not enabled");
+}
+#endif
 
 static const std::map<std::string, Verbosity> verbosities = {
   {"/prod", Verbosity::Prod},
@@ -108,7 +125,8 @@ std::unique_ptr<Backend> MonitoringFactory::GetBackend(std::string& url) {
     {"influxdb-unix", getInfluxDb},
     {"apmon", getApMon},
     {"flume", getFlume},
-    {"no-op", getNoop}
+    {"no-op", getNoop},
+    {"kafka", getKafka}
   };
 
   http::url parsedUrl = http::ParseHttpUrl(url);

@@ -53,7 +53,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 find_package(Boost REQUIRED COMPONENTS unit_test_framework program_options system filesystem)
 find_package(Git QUIET)
 find_package(ApMon MODULE)
-
+find_package(RdKafka CONFIG)
 
 ####################################
 # Library
@@ -86,6 +86,7 @@ add_library(Monitoring SHARED
   src/Transports/Unix.cxx
   src/Exceptions/MonitoringException.cxx
   $<$<BOOL:${ApMon_FOUND}>:src/Backends/ApMonBackend.cxx>
+  $<$<BOOL:${RdKafka_FOUND}>:src/Backends/Kafka.cxx>
 )
 
 target_include_directories(Monitoring
@@ -103,11 +104,16 @@ target_link_libraries(Monitoring
   PRIVATE
     Boost::system
     $<$<BOOL:${ApMon_FOUND}>:ApMon::ApMon>
+    $<$<BOOL:${RdKafka_FOUND}>:RdKafka::rdkafka++>
 )
 
 # Handle ApMon optional dependency
 if(ApMon_FOUND)
   message(STATUS "  Compiling ApMon backend")
+endif()
+
+if(RdKafka_FOUND)
+   message(STATUS "  Compiling Kafka backend")
 endif()
 
 # Detect operating system
@@ -126,6 +132,7 @@ target_compile_definitions(Monitoring
     $<$<BOOL:${APPLE}>:O2_MONITORING_OS_MAC>
     $<$<BOOL:${LINUX}>:O2_MONITORING_OS_LINUX>
     $<$<BOOL:${ApMon_FOUND}>:O2_MONITORING_WITH_APPMON>
+    $<$<BOOL:${RdKafka_FOUND}>:O2_MONITORING_WITH__WITH_KAFKA>
   )
 
 # Use C++17

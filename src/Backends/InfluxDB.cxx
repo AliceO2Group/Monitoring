@@ -39,6 +39,8 @@ InfluxDB::InfluxDB(const std::string& host, unsigned int port) :
                    << " ("<< host << ":" << port << ")" << MonLogger::End();
 }
 
+InfluxDB::InfluxDB() {}
+
 InfluxDB::InfluxDB(const std::string& socketPath) :
   mTransport(std::make_unique<transports::Unix>(socketPath))
 {
