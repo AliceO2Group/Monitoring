@@ -57,8 +57,6 @@ matrix:
         skip_cleanup: true
         github_token: $GITHUB_API_TOKEN
         local_dir: build/doc/html
-        on:
-          branch: dev
 before_script: 
   - cd $TRAVIS_BUILD_DIR; mkdir build; cd build
 script:
