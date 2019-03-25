@@ -74,6 +74,9 @@ class InfluxDB final : public Backend
     /// \param name      tag name
     /// \param value     tag value
     void addGlobalTag(std::string_view name, std::string_view value) override;
+
+    /// Converts metric to Influx Line Protocol format
+    /// \param metric
     std::string toInfluxLineProtocol(const Metric& metric);
   private:
     std::unique_ptr<transports::TransportInterface> mTransport; ///< InfluxDB transport
@@ -82,10 +85,6 @@ class InfluxDB final : public Backend
     /// Escapes " ", "," and "=" characters
     /// \param escaped   string rerference to escape characters from
     void escape(std::string& escaped);
-
-    /// Converts metric to Influx Line Protocol format
-    /// \param metric
-    std::string toInfluxLineProtocol(const Metric& metric);
 };
 
 } // namespace backends

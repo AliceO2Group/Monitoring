@@ -60,8 +60,8 @@ class Kafka final : public Backend
   private:
     RdKafka::Producer *producer; ///< Kafka producer instance
     std::string tagSet; ///< Global tagset (common for each metric)
-    std::string mTopic; ///< Kafka topic
     InfluxDB mInfluxDB; ///< InfluxDB instance
+    std::string mTopic; ///< Kafka topic
 };
 
 } // namespace backends

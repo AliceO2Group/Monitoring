@@ -59,12 +59,9 @@ void Kafka::send(std::vector<Metric>&& /*metrics*/)
 
 void Kafka::send(const Metric& metric)
 {
-  //std::string influxLine = mInfluxDB.toInfluxLineProtocol(metric);
+  std::string influxLine = mInfluxDB.toInfluxLineProtocol(metric);
   int32_t partition = RdKafka::Topic::PARTITION_UA;
-  auto timestamp = std::chrono::system_clock::now();
-  std::string influxLine = "latency,tagkey1=tagvalue1,tagkey2=tagvalue2 doublefield=1.0,starttime=" + std::to_string(
-    std::chrono::duration_cast <std::chrono::nanoseconds>(timestamp.time_since_epoch()).count()
-  );
+
   RdKafka::ErrorCode resp = producer->produce(
     mTopic, partition,
     RdKafka::Producer::RK_MSG_COPY,
