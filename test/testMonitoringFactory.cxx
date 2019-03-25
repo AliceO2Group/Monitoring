@@ -1,3 +1,13 @@
+// Copyright CERN and copyright holders of ALICE O2. This software is
+// distributed under the terms of the GNU General Public License v3 (GPL
+// Version 3), copied verbatim in the file "COPYING".
+//
+// See http://alice-o2.web.cern.ch/license for full licensing information.
+//
+// In applying this license CERN does not waive the privileges and immunities
+// granted to it by virtue of its status as an Intergovernmental Organization
+// or submit itself to any jurisdiction.
+
 #include <chrono>
 #include <vector>
 
@@ -22,14 +32,14 @@ BOOST_AUTO_TEST_CASE(verbosity)
 
    std::string influxUrl = "influxdb-udp://127.0.0.1:1234";
    auto influx = Monitoring::GetBackend(influxUrl);
-   BOOST_CHECK_EQUAL(static_cast<std::underlying_type<Verbosity>::type>(influx->getVerbosity()), 0);
+   BOOST_CHECK_EQUAL(static_cast<std::underlying_type<Verbosity>::type>(influx->getVerbosity()), 1);
 
    std::string influxDebugUrl = "influxdb-udp://127.0.0.1:1234/debug";
    auto influxDebug = Monitoring::GetBackend(influxDebugUrl);
    BOOST_CHECK_EQUAL(static_cast<std::underlying_type<Verbosity>::type>(influxDebug->getVerbosity()), 2);
 
-   std::string influxHttpUrl = "influxdb-http://127.0.0.1:1234/?db=test";
-   auto influxHttp = Monitoring::GetBackend(influxHttpUrl);
+   std::string influxUnixUrl = "influxdb-unix://127.0.0.1:1234/?db=test";
+   auto influxHttp = Monitoring::GetBackend(influxUnixUrl);
 
    std::string ilProdUrl = "stdout:///info";
    auto ilProd = Monitoring::GetBackend(ilProdUrl);

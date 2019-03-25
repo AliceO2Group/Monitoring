@@ -15,5 +15,6 @@ ignore:
   - docs/*
   - test/*
   - src/Transports/*
+  - examples/*
 
 comment: false

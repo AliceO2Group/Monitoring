@@ -1,3 +1,13 @@
+// Copyright CERN and copyright holders of ALICE O2. This software is
+// distributed under the terms of the GNU General Public License v3 (GPL
+// Version 3), copied verbatim in the file "COPYING".
+//
+// See http://alice-o2.web.cern.ch/license for full licensing information.
+//
+// In applying this license CERN does not waive the privileges and immunities
+// granted to it by virtue of its status as an Intergovernmental Organization
+// or submit itself to any jurisdiction.
+
 ///
 /// \file StdOut.h
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
@@ -23,7 +33,7 @@ class StdOut final : public Backend
 {
   public:
     /// Default constructor
-    StdOut();
+    StdOut(const std::string& prefix = "METRIC");
  
     /// Default destructor
     ~StdOut() = default;
@@ -56,6 +66,7 @@ class StdOut final : public Backend
     unsigned long convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp);
 
     std::string tagString; ///< Global tagset (common for each metric)
+    const std::string mPrefix; ///< Metric prefix
 };
 
 } // namespace backends

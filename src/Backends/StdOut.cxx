@@ -1,3 +1,13 @@
+// Copyright CERN and copyright holders of ALICE O2. This software is
+// distributed under the terms of the GNU General Public License v3 (GPL
+// Version 3), copied verbatim in the file "COPYING".
+//
+// See http://alice-o2.web.cern.ch/license for full licensing information.
+//
+// In applying this license CERN does not waive the privileges and immunities
+// granted to it by virtue of its status as an Intergovernmental Organization
+// or submit itself to any jurisdiction.
+
 ///
 /// \file StdOut.cxx
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
@@ -16,6 +26,9 @@ namespace monitoring
 namespace backends
 {
 
+template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
+template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
+
 inline unsigned long StdOut::convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp)
 {
   return std::chrono::duration_cast <std::chrono::milliseconds>(
@@ -23,7 +36,7 @@ inline unsigned long StdOut::convertTimestamp(const std::chrono::time_point<std:
   ).count();
 }
 
-StdOut::StdOut() : mStream(std::cout)
+StdOut::StdOut(const std::string& prefix) : mStream(std::cout), mPrefix(prefix)
 {
   setVerbosisty(Verbosity::Debug);
   MonLogger::Get() << "StdOut backend initialized" << MonLogger::End();
@@ -54,15 +67,25 @@ void StdOut::sendMultiple(std::string measurement, std::vector<Metric>&& metrics
     metricTags += tags::GetValue(value);
   } 
   for (auto& metric : metrics) {
-    mStream << "[METRIC] " << measurement << '/' << metric.getName() << ',' << metric.getType() << ' '
-      << metric.getValue() << ' ' << convertTimestamp(metric.getTimestamp()) << ' ' << tagString
+    auto value = std::visit(overloaded {
+      [](const std::string& value) -> std::string { return value; },
+      [](auto value) -> std::string { return std::to_string(value); }
+    }, metric.getValue());
+
+    mStream << "[" << mPrefix << "] " << measurement << '/' << metric.getName() << ',' << metric.getType() << ' '
+      << value << ' ' << convertTimestamp(metric.getTimestamp()) << ' ' << tagString
       << metricTags << '\n';
   }
 }
 
 void StdOut::send(const Metric& metric)
 {
-  mStream << "[METRIC] " << metric.getName() << ',' << metric.getType() << " " << metric.getValue()
+  auto value = std::visit(overloaded {
+    [](const std::string& value) -> std::string { return value; },
+    [](auto value) -> std::string { return std::to_string(value); }
+  }, metric.getValue());
+  
+  mStream << "[" << mPrefix << "] " << metric.getName() << ',' << metric.getType() << " " << value
           << ' ' << convertTimestamp(metric.getTimestamp()) << ' ' << tagString;
 
   for (const auto& [key, value] : metric.getTags()) {

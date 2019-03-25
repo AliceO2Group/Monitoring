@@ -1,3 +1,13 @@
+// Copyright CERN and copyright holders of ALICE O2. This software is
+// distributed under the terms of the GNU General Public License v3 (GPL
+// Version 3), copied verbatim in the file "COPYING".
+//
+// See http://alice-o2.web.cern.ch/license for full licensing information.
+//
+// In applying this license CERN does not waive the privileges and immunities
+// granted to it by virtue of its status as an Intergovernmental Organization
+// or submit itself to any jurisdiction.
+
 ///
 /// \file Monitoring.cxx
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
@@ -60,8 +70,12 @@ void Monitoring::flushBuffer() {
 
 void Monitoring::flushBuffer(const short index)
 {
-  transmit(std::move(mStorage[index]));
-  mStorage[index].clear();
+  for (auto& backend : mBackends) {
+    if (matchVerbosity(backend->getVerbosity(), static_cast<Verbosity>(index))) {
+      backend->send(std::move(mStorage[index]));
+      mStorage[index].clear();
+    }
+  }
 }
 
 void Monitoring::enableProcessMonitoring(const unsigned int interval) {
@@ -70,7 +84,7 @@ void Monitoring::enableProcessMonitoring(const unsigned int interval) {
     mMonitorRunning = true;
     mMonitorThread = std::thread(&Monitoring::pushLoop, this);
   }
-  #ifdef _OS_LINUX
+  #ifdef O2_MONITORING_OS_LINUX
   MonLogger::Get() << "Process Monitor : Automatic updates enabled" << MonLogger::End();
   #else
   MonLogger::Get() << "!! Process Monitor : Limited metrics available" << MonLogger::End();
@@ -119,7 +133,7 @@ void Monitoring::pushLoop()
   while (mMonitorRunning) {
     if (mProcessMonitoringInterval != 0 && (loopCount % (mProcessMonitoringInterval*10)) == 0) {
       transmit(mProcessMonitor->getCpuAndContexts());
-      #ifdef _OS_LINUX
+      #ifdef O2_MONITORING_OS_LINUX
       transmit(mProcessMonitor->getMemoryUsage());
       #endif
     }
@@ -144,7 +158,7 @@ ComplexMetric& Monitoring::getAutoPushMetric(std::string name, unsigned int inte
     mMonitorThread = std::thread(&Monitoring::pushLoop, this);
     mAutoPushInterval = interval;
   }
-  mPushStore.emplace_back(boost::variant< int, std::string, double, uint64_t > {}, name);
+  mPushStore.emplace_back(std::variant< int, std::string, double, uint64_t > {}, name);
   return mPushStore.back();
 }
 

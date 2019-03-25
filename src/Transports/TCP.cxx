@@ -1,3 +1,13 @@
+// Copyright CERN and copyright holders of ALICE O2. This software is
+// distributed under the terms of the GNU General Public License v3 (GPL
+// Version 3), copied verbatim in the file "COPYING".
+//
+// See http://alice-o2.web.cern.ch/license for full licensing information.
+//
+// In applying this license CERN does not waive the privileges and immunities
+// granted to it by virtue of its status as an Intergovernmental Organization
+// or submit itself to any jurisdiction.
+
 ///
 /// \file TCP.cxx
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
@@ -42,20 +52,6 @@ void TCP::send(std::string&& message)
     mSocket.send(boost::asio::buffer(message));
   } catch(const boost::system::system_error& e) {
     MonLogger::Get() << "TCP send: " << e.what() << MonLogger::End();
-  }
-}
-
-void TCP::read() {
-  for (;;) {
-    boost::system::error_code error;
-    boost::array<char, 128> buf;
-    size_t len = mSocket.read_some(boost::asio::buffer(buf), error);
-    if (error == boost::asio::error::eof) {
-      break;
-    } else {
-      return;
-    }
-    std::cout.write(buf.data(), len);
   }
 }
 

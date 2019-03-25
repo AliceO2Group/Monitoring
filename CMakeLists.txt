@@ -13,7 +13,7 @@ endif()
 
 # Define project
 project(Monitoring
-  VERSION 2.0.0
+  VERSION 2.4.0
   DESCRIPTION "O2 Monitoring library"
   LANGUAGES CXX
 )
@@ -53,7 +53,6 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 find_package(Boost REQUIRED COMPONENTS unit_test_framework program_options system filesystem)
 find_package(Git QUIET)
 find_package(ApMon MODULE)
-find_package(CURL REQUIRED MODULE)
 find_package(RdKafka CONFIG)
 
 ####################################
@@ -64,7 +63,14 @@ set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib")
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
 set(INCLUDE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/include")
 
-set(SRCS
+# Backends
+message(STATUS "Backends")
+message(STATUS "  Compiling StdCout backend")
+message(STATUS "  Compiling Flume UDP/JSON backend")
+message(STATUS "  Compiling InfluxDB backend with Unix socket and UDP transport")
+
+# Create library
+add_library(Monitoring SHARED
   src/Monitoring.cxx
   src/Metric.cxx
   src/ComplexMetric.cxx
@@ -77,22 +83,12 @@ set(SRCS
   src/MonitoringFactory.cxx
   src/Transports/UDP.cxx
   src/Transports/TCP.cxx
-  src/Transports/HTTP.cxx
   src/Transports/Unix.cxx
   src/Exceptions/MonitoringException.cxx
-)
-
-# Backends
-message(STATUS "Backends")
-message(STATUS "  Compiling StdCout backend")
-message(STATUS "  Compiling Flume UDP/JSON backend")
-message(STATUS "  Compiling InfluxDB HTTP and UDP backend")
-
-# Create library
-add_library(Monitoring SHARED ${SRCS}
   $<$<BOOL:${ApMon_FOUND}>:src/Backends/ApMonBackend.cxx>
   $<$<BOOL:${RdKafka_FOUND}>:src/Backends/Kafka.cxx>
 )
+
 target_include_directories(Monitoring
   PUBLIC 
     $<INSTALL_INTERFACE:include>    
@@ -107,7 +103,6 @@ target_link_libraries(Monitoring
     Boost::boost
   PRIVATE
     Boost::system
-    CURL::CURL
     $<$<BOOL:${ApMon_FOUND}>:ApMon::ApMon>
     $<$<BOOL:${RdKafka_FOUND}>:RdKafka::rdkafka++>
 )
@@ -134,10 +129,10 @@ endif()
 # Handle custom compile definitions
 target_compile_definitions(Monitoring
   PRIVATE
-    $<$<BOOL:${APPLE}>:_OS_MAC>
-    $<$<BOOL:${LINUX}>:_OS_LINUX>
-    $<$<BOOL:${ApMon_FOUND}>:_WITH_APPMON>
-    $<$<BOOL:${RdKafka_FOUND}>:_WITH_KAFKA>
+    $<$<BOOL:${APPLE}>:O2_MONITORING_OS_MAC>
+    $<$<BOOL:${LINUX}>:O2_MONITORING_OS_LINUX>
+    $<$<BOOL:${ApMon_FOUND}>:O2_MONITORING_WITH_APPMON>
+    $<$<BOOL:${RdKafka_FOUND}>:O2_MONITORING_WITH__WITH_KAFKA>
   )
 
 # Use C++17

@@ -1,3 +1,13 @@
+// Copyright CERN and copyright holders of ALICE O2. This software is
+// distributed under the terms of the GNU General Public License v3 (GPL
+// Version 3), copied verbatim in the file "COPYING".
+//
+// See http://alice-o2.web.cern.ch/license for full licensing information.
+//
+// In applying this license CERN does not waive the privileges and immunities
+// granted to it by virtue of its status as an Intergovernmental Organization
+// or submit itself to any jurisdiction.
+
 ///
 /// \file InfluxDB.h
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
@@ -31,12 +41,6 @@ class InfluxDB final : public Backend
     /// \param host      InfluxDB UDP endpoint hostname
     /// \param port      InfluxDB UDP endpoint port number
     InfluxDB(const std::string& host, unsigned int port);
-
-    /// Constructor for HTTP transport
-    /// \param host      InfluxDB HTTP endpoint hostname
-    /// \param port      InfluxDB HTTP endpoint port number
-    /// \param path	 Query search providing database name
-    InfluxDB(const std::string& host, unsigned int port, const std::string& search);
 
     /// Constructor for other backends
     InfluxDB();
@@ -72,17 +76,16 @@ class InfluxDB final : public Backend
     void addGlobalTag(std::string_view name, std::string_view value) override;
     std::string toInfluxLineProtocol(const Metric& metric);
   private:
-    std::unique_ptr<transports::TransportInterface> transport; ///< InfluxDB transport
+    std::unique_ptr<transports::TransportInterface> mTransport; ///< InfluxDB transport
     std::string tagSet; ///< Global tagset (common for each metric)
 
     /// Escapes " ", "," and "=" characters
     /// \param escaped   string rerference to escape characters from
     void escape(std::string& escaped);
 
-    /// Modifies values to Influx Line Protocol format
-    /// \param value 	reference to value
-    /// \param type	type of the metric
-    void prepareValue(std::string& value, int type);
+    /// Converts metric to Influx Line Protocol format
+    /// \param metric
+    std::string toInfluxLineProtocol(const Metric& metric);
 };
 
 } // namespace backends
