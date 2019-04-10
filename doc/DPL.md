@@ -6,7 +6,7 @@ DPL stands for [Data Processing Layer](https://github.com/AliceO2Group/AliceO2/t
 
 A URL to the monitoring backend can be passed through `monitoring-url` parameter. The list of supported backends is available in the [Monitoring README](https://github.com/AliceO2Group/Monitoring#monitoring-instance) file.
 
-Then, from the `O2Device` source Monitoring instance can be accessed via [Monitoring service](https://github.com/AliceO2Group/AliceO2/tree/dev/Framework/Core#monitoring-service).
+Then, from the `DataProcessingDevice` source Monitoring instance can be accessed via [Monitoring service](https://github.com/AliceO2Group/AliceO2/tree/dev/Framework/Core#monitoring-service).
 ### Monitoring backends at CERN
 
 There are so-called _Community Services_ available at CERN GPN network and O<sup>2</sup> developers are welcome to use them in order to store and display metrics.
@@ -14,7 +14,7 @@ There are so-called _Community Services_ available at CERN GPN network and O<sup
 #### Time-series database
 A time-series database, called [InfluxDB](https://docs.influxdata.com/influxdb/v1.7/), is used for metric storage.
 
-Pass the following Monitoring URL to your `O2Device` in order to redirect metrics to _Community Services_ instance:
+Pass the following Monitoring URL to your `DataProcessingDevice` in order to redirect metrics to _Community Services_ instance:
 ```
 influxdb-udp://aido2mon-gpn:8089
 ```
