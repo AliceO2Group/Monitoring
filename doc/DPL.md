@@ -4,9 +4,10 @@ DPL stands for [Data Processing Layer](https://github.com/AliceO2Group/AliceO2/t
 
 ### Monitoring in DPL
 
-A URL to the monitoring backend can be passed through `monitoring-url` parameter. The list of supported backends is available in the [Monitoring README](https://github.com/AliceO2Group/Monitoring#monitoring-instance) file.
+A URL to the monitoring backend can be passed through `monitoring-url` parameter. This will redirect all the metric to the selected backend. The list of supported backends is available in the [Monitoring README](https://github.com/AliceO2Group/Monitoring#monitoring-instance) file.
 
 Then, from the `DataProcessingDevice` source Monitoring instance can be accessed via [Monitoring service](https://github.com/AliceO2Group/AliceO2/tree/dev/Framework/Core#monitoring-service).
+
 ### Monitoring backends at CERN
 
 There are so-called _Community Services_ available at CERN GPN network and O<sup>2</sup> developers are welcome to use them in order to store and display metrics.
