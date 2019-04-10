@@ -15,7 +15,7 @@ There are so-called _Community Services_ available at CERN GPN network and O<sup
 #### Time-series database
 A time-series database, called [InfluxDB](https://docs.influxdata.com/influxdb/v1.7/), is used for metric storage.
 
-Pass the following Monitoring URL to your `DataProcessingDevice` in order to redirect metrics to _Community Services_ instance:
+Pass the following Monitoring URL via `--monitoring-url` to your workflow in order to redirect metrics to _Community Services_ instance:
 ```
 influxdb-udp://aido2mon-gpn:8089
 ```
