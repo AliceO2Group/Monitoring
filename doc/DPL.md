@@ -4,7 +4,7 @@ DPL stands for [Data Processing Layer](https://github.com/AliceO2Group/AliceO2/t
 
 ### Monitoring in DPL
 
-A URL to the monitoring backend can be passed through `monitoring-url` parameter. This will redirect all the metric to the selected backend. The list of supported backends is available in the [Monitoring README](https://github.com/AliceO2Group/Monitoring#monitoring-instance) file.
+A URL to the monitoring backend can be passed through `monitoring-backend` parameter. This will redirect all the metric to the selected backend. The list of supported backends is available in the [Monitoring README](https://github.com/AliceO2Group/Monitoring#monitoring-instance) file.
 
 Then, from the `DataProcessingDevice` source Monitoring instance can be accessed via [Monitoring service](https://github.com/AliceO2Group/AliceO2/tree/dev/Framework/Core#monitoring-service).
 
@@ -15,7 +15,7 @@ There are so-called _Community Services_ available at CERN GPN network and O<sup
 #### Time-series database
 A time-series database, called [InfluxDB](https://docs.influxdata.com/influxdb/v1.7/), is used for metric storage.
 
-Pass the following Monitoring URL via `--monitoring-url` to your workflow in order to redirect metrics to _Community Services_ instance:
+Pass the following Monitoring URL via `--monitoring-backend` to your workflow in order to redirect metrics to _Community Services_ instance:
 ```
 influxdb-udp://aido2mon-gpn:8089
 ```
