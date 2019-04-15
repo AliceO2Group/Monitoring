@@ -38,6 +38,7 @@ Monitoring::Monitoring()
   mProcessMonitor = std::make_unique<ProcessMonitor>();
   mDerivedHandler = std::make_unique<DerivedMetrics>();
   mBuffering = false;
+  mUniqueBuffering = false;
   mProcessMonitoringInterval = 0;
   mAutoPushInterval = 0;
   mMonitorRunning = false;
@@ -53,12 +54,21 @@ void Monitoring::enableBuffering(const std::size_t size)
   MonLogger::Get() << "Buffering enabled (" << mStorage[0].capacity() << ")" << MonLogger::End();
 }
 
+void Monitoring::enableUniqueBuffering(const std::size_t size)
+{
+  mUniqueBuffering = true;
+  enableBuffering(size);
+}
+
 void Monitoring::flushBuffer() {
   if (!mBuffering) {
     MonLogger::Get() << "Cannot flush as buffering is disabled" << MonLogger::End();
     return;
   }
   for (auto& [verbosity, buffer] : mStorage) {
+    if (mUniqueBuffering && removeBufferDuplicates(verbosity)) {
+      continue;
+    }
     for (auto& backend : mBackends) {
       if (matchVerbosity(backend->getVerbosity(), static_cast<Verbosity>(verbosity))) {
         backend->send(std::move(buffer));
@@ -70,12 +80,30 @@ void Monitoring::flushBuffer() {
 
 void Monitoring::flushBuffer(const short index)
 {
+  if (mUniqueBuffering && removeBufferDuplicates(index)) {
+    return;
+  }
   for (auto& backend : mBackends) {
     if (matchVerbosity(backend->getVerbosity(), static_cast<Verbosity>(index))) {
       backend->send(std::move(mStorage[index]));
       mStorage[index].clear();
     }
   }
+}
+
+bool Monitoring::removeBufferDuplicates(const short index)
+{
+  std::sort(mStorage[index].begin(), mStorage[index].end(), [](const auto& lhs, const auto& rhs)
+  {
+    if (lhs.getName() == rhs.getName()) return (lhs.getTimestamp() >= rhs.getTimestamp());
+    return lhs.getName() < rhs.getName();
+  });
+
+  mStorage[index].erase(std::unique(mStorage[index].begin(), mStorage[index].end()), mStorage[index].end());
+  if (mStorage[index].size() < mBufferSize) {
+    return true;
+  }
+  return false;
 }
 
 void Monitoring::enableProcessMonitoring(const unsigned int interval) {
@@ -122,6 +150,7 @@ Monitoring::~Monitoring()
     mMonitorThread.join();
   }
   if (mBuffering) {
+    mUniqueBuffering = false;
     flushBuffer();
   }
 }

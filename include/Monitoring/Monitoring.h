@@ -86,6 +86,9 @@ class Monitoring
     /// \param size 		buffer size
     void enableBuffering(const std::size_t size = 128);
 
+    /// Same as enableBuffering, but when flushing buffer only the most recet value of given metric is sent
+    void enableUniqueBuffering(const std::size_t size = 128);
+
     /// Adds global tag
     /// \param name 		tag name
     /// \param value 		tag value
@@ -100,7 +103,6 @@ class Monitoring
     /// \param name 		metric name
     /// \return 		periodically send metric
     ComplexMetric& getAutoPushMetric(std::string name, unsigned int interval = 1);
-
   private:
     /// Sends multiple (not related to each other) metrics
     /// \param metrics  vector of metrics
@@ -140,6 +142,9 @@ class Monitoring
     /// Flag stating whether metric buffering is enabled
     bool mBuffering;
 
+    /// Unique metrics in the buffer flag
+    bool mUniqueBuffering;
+
     /// Size of buffer
     std::size_t mBufferSize;
 
@@ -151,6 +156,9 @@ class Monitoring
 
     /// Automatic metric push interval
     std::atomic<unsigned int> mAutoPushInterval;
+
+    /// Remove duplicate metrics in buffer
+    bool removeBufferDuplicates(const short index);
 };
 
 } // namespace monitoring

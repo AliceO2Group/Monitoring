@@ -94,6 +94,14 @@ Metric& Metric::operator=(const std::variant< int, std::string, double, uint64_t
   return *this;
 }
 
+bool Metric::operator==(const Metric& rhs) const
+{
+  if (getName() != rhs.getName()) {
+    return false;
+  }
+  return true;
+}
+
 Metric&& Metric::addTag(tags::Key key, tags::Value value)
 {
   mTags.push_back({static_cast<std::underlying_type<tags::Key>::type>(key), static_cast<std::underlying_type<tags::Value>::type>(value)});

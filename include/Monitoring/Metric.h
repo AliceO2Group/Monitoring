@@ -64,6 +64,9 @@ class Metric
     /// Assign operator overload, assignes new values to the metric object
     Metric& operator=(const std::variant< int, std::string, double, uint64_t >& value);
 
+    /// Compares metric names
+    bool operator==(const Metric& rhs) const;
+
     /// Name getter
     /// \return	metric name
     const std::string& getName() const;
