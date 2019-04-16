@@ -73,7 +73,7 @@ namespace tags
     "ns"sv, //29
     "us"sv, //30
     "ms"sv //31
-    "s" // 32
+    "s"sv // 32
   }};
   static constexpr std::string_view GetValue(const int value) {
     return value >= 0 ? TAG_VALUE[value] : std::to_string(0 - value);
