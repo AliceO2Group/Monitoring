@@ -75,13 +75,13 @@ BOOST_AUTO_TEST_CASE(retrieveWrongType) {
 }
 
 BOOST_AUTO_TEST_CASE(tags) {
-  Metric metric = Metric{10, "myMetric"}.addTag(o2::monitoring::tags::Key::Detector, o2::monitoring::tags::Value::TRD);
+  Metric metric = Metric{10, "myMetric"}.addTag(o2::monitoring::tags::Key::Detector, o2::monitoring::tags::Value::TRD).addTag(o2::monitoring::tags::Key::Unit, o2::monitoring::tags::Value::Milliseconds);
   auto tags = metric.getTags();
   int sum = 0;
   for (auto const& tag: tags) {
     sum += tag.second;
   }
-  BOOST_CHECK_EQUAL(sum, 14);
+  BOOST_CHECK_EQUAL(sum, 45);
 }
 
 BOOST_AUTO_TEST_CASE(regexVerbosityPolicy)
