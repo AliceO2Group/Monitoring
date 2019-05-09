@@ -68,6 +68,21 @@ BOOST_AUTO_TEST_CASE(testSymbols)
   BOOST_WARN_MESSAGE(BOOST_IS_DEFINED( O2_MONITORING_OS_MAC ), "Mac OS detected");
 }
 
+BOOST_AUTO_TEST_CASE(uniqueBuffering)
+{
+  auto monitoring = Monitoring::Get("stdout://");
+  monitoring->enableUniqueBuffering(4);
+  monitoring->send({10, "myMetricIntUnique"});
+  monitoring->send({11, "myMetricInt"});
+  monitoring->send({12, "myMetricInt"});
+  monitoring->send({13, "myMetricIntAnother"});
+  monitoring->send({14, "myMetricInt"});
+  monitoring->send({15, "myMetricInt"});
+  monitoring->send({16, "myMetricInt"});
+  monitoring->send({17, "myMetricIntFlush"});
+  monitoring->send({18, "myMetricInt"});
+}
+
 } // namespace Test
 } // namespace monitoring
 } // namespace o2

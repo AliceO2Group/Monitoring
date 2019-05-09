@@ -124,6 +124,12 @@ monitoring->flushBuffer();
 
 See how it works in the example: [examples/10-Buffering.cxx](examples/10-Buffering.cxx).
 
+### Unique metric buffering
+In addition to above, you may want to keep only unique metrics (defined by metric name) within the buffer (only the last metric is kept).
+```cpp
+monitoring->enableUniqueBuffering(const std::size_t maxSize)
+```
+
 ### Calculating derived metrics
 The module can calculate derived metrics. To do so, use optional `DerivedMetricMode mode` parameter of `send` method:
 ```

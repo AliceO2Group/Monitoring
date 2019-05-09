@@ -37,10 +37,17 @@ Monitoring::Monitoring()
 {
   mProcessMonitor = std::make_unique<ProcessMonitor>();
   mDerivedHandler = std::make_unique<DerivedMetrics>();
+  mUniqueBuffering = false;
   mBuffering = false;
   mProcessMonitoringInterval = 0;
   mAutoPushInterval = 0;
   mMonitorRunning = false;
+}
+
+void Monitoring::enableUniqueBuffering(const std::size_t size)
+{
+  mUniqueBuffering = true;
+  enableBuffering(size);
 }
 
 void Monitoring::enableBuffering(const std::size_t size)
@@ -182,7 +189,18 @@ void Monitoring::transmit(Metric&& metric)
 {
   if (mBuffering) {
     auto index = static_cast<std::underlying_type<Verbosity>::type>(metric.getVerbosity());
-    mStorage[index].push_back(std::move(metric));
+    if (mUniqueBuffering) {
+      auto find = std::find_if(mStorage[index].begin(), mStorage[index].end(), [&metric](Metric const& m) {
+        return m.getName() == metric.getName();
+      });
+      if (find == std::end(mStorage[index])) {
+        mStorage[index].push_back(std::move(metric));
+      } else {
+        std::swap(*find, metric);
+      }
+    } else {
+      mStorage[index].push_back(std::move(metric));
+    }
     if (mStorage[index].size() >= mBufferSize) {
       flushBuffer(index);
     }

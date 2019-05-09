@@ -82,6 +82,10 @@ class Monitoring
     /// Flushes metric buffer (this can also happen when buffer is full)
     void flushBuffer();
 
+    /// Enables unique metric buffering
+    /// There might be only unique metric name within a buffer
+    void enableUniqueBuffering(const std::size_t size = 128);
+
     /// Enables metric buffering
     /// \param size 		buffer size
     void enableBuffering(const std::size_t size = 128);
@@ -136,6 +140,9 @@ class Monitoring
 
     /// Metric buffer
     std::unordered_map<std::underlying_type<Verbosity>::type, std::vector<Metric>> mStorage;
+
+    /// Flag that states whether unique buffering is enabled
+    bool mUniqueBuffering;
 
     /// Flag stating whether metric buffering is enabled
     bool mBuffering;
