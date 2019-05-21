@@ -97,6 +97,9 @@ target_include_directories(Monitoring
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
+# Rename library
+set_target_properties(Monitoring PROPERTIES OUTPUT_NAME "O2Monitoring")
+
 # Link targets
 target_link_libraries(Monitoring
   PUBLIC
@@ -166,6 +169,7 @@ foreach (example ${EXAMPLES})
   )
 endforeach()
 
+set_target_properties(5-Benchmark PROPERTIES OUTPUT_NAME "o2-monitoring-benchmark")
 
 ####################################
 # Tests
