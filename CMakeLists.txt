@@ -106,6 +106,7 @@ target_link_libraries(Monitoring
     Boost::boost
   PRIVATE
     Boost::system
+    pthread
     $<$<BOOL:${ApMon_FOUND}>:ApMon::ApMon>
     $<$<BOOL:${RdKafka_FOUND}>:RdKafka::rdkafka++>
 )
