@@ -22,7 +22,7 @@ project(Monitoring
 add_subdirectory(doc)
 
 # Add compiler flags for warnings and debug symbols
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra -DBOOST_SYSTEM_NO_DEPRECATED -DBOOST_ERROR_CODE_HEADER_ONLY")
 
 # Set fPIC for all targets
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -97,12 +97,16 @@ target_include_directories(Monitoring
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
+# Rename library
+set_target_properties(Monitoring PROPERTIES OUTPUT_NAME "O2Monitoring")
+
 # Link targets
 target_link_libraries(Monitoring
   PUBLIC
     Boost::boost
   PRIVATE
     Boost::system
+    pthread
     $<$<BOOL:${ApMon_FOUND}>:ApMon::ApMon>
     $<$<BOOL:${RdKafka_FOUND}>:RdKafka::rdkafka++>
 )
@@ -166,6 +170,7 @@ foreach (example ${EXAMPLES})
   )
 endforeach()
 
+set_target_properties(5-Benchmark PROPERTIES OUTPUT_NAME "o2-monitoring-benchmark")
 
 ####################################
 # Tests
