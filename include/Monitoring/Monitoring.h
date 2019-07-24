@@ -46,111 +46,111 @@ namespace monitoring
 /// Monitors the process itself - including memory, cpu and network usage (seeProcessMonitor class).
 class Monitoring
 {
-  public:
-    /// Disable copy constructor
-    Monitoring & operator=(const Monitoring&) = delete;
+ public:
+  /// Disable copy constructor
+  Monitoring& operator=(const Monitoring&) = delete;
 
-    /// Disable copy constructor
-    Monitoring(const Monitoring&) = delete;
-  
-    /// Instantiates derived metrics processor (see DerivedMetrics) and process monitor (seeProcessMonitor).
-    Monitoring();
+  /// Disable copy constructor
+  Monitoring(const Monitoring&) = delete;
 
-    /// Creates and appends backend to the backend list
-    void addBackend(std::unique_ptr<Backend> backend);
+  /// Instantiates derived metrics processor (see DerivedMetrics) and process monitor (seeProcessMonitor).
+  Monitoring();
 
-    /// Joins process monitor thread if possible
-    ~Monitoring();
+  /// Creates and appends backend to the backend list
+  void addBackend(std::unique_ptr<Backend> backend);
 
-    /// Sends a metric to all avaliabes backends
-    /// If DerivedMetricMode is specified it generates and sends derived metric
-    /// \param metric           r-value to metric object
-    /// \param mode		Derived metric mode
-    void send(Metric&& metric, DerivedMetricMode mode = DerivedMetricMode::NONE);
+  /// Joins process monitor thread if possible
+  ~Monitoring();
 
-    /// Sends multiple realated to each other metric values under a common measurement name
-    /// You can imagine it as a data point with multiple values
-    /// If it's not supported by a backend it fallbacks into sending one by one
-    /// \param name		measurement name
-    /// \param metrics		list of metrics
-    void sendGrouped(std::string name, std::vector<Metric>&& metrics, Verbosity verbosity = Metric::DefaultVerbosity);
+  /// Sends a metric to all avaliabes backends
+  /// If DerivedMetricMode is specified it generates and sends derived metric
+  /// \param metric           r-value to metric object
+  /// \param mode		Derived metric mode
+  void send(Metric&& metric, DerivedMetricMode mode = DerivedMetricMode::NONE);
 
-    /// Enables process monitoring
-    /// \param interval		refresh interval
-    void enableProcessMonitoring(const unsigned int interval = 5);
+  /// Sends multiple realated to each other metric values under a common measurement name
+  /// You can imagine it as a data point with multiple values
+  /// If it's not supported by a backend it fallbacks into sending one by one
+  /// \param name		measurement name
+  /// \param metrics		list of metrics
+  void sendGrouped(std::string name, std::vector<Metric>&& metrics, Verbosity verbosity = Metric::DefaultVerbosity);
 
-    /// Flushes metric buffer (this can also happen when buffer is full)
-    void flushBuffer();
+  /// Enables process monitoring
+  /// \param interval		refresh interval
+  void enableProcessMonitoring(const unsigned int interval = 5);
 
-    /// Enables metric buffering
-    /// \param size 		buffer size
-    void enableBuffering(const std::size_t size = 128);
+  /// Flushes metric buffer (this can also happen when buffer is full)
+  void flushBuffer();
 
-    /// Adds global tag
-    /// \param name 		tag name
-    /// \param value 		tag value
-    void addGlobalTag(std::string_view name, std::string_view value);
+  /// Enables metric buffering
+  /// \param size 		buffer size
+  void enableBuffering(const std::size_t size = 128);
 
-    /// Adds global tag
-    /// \param name             tag name
-    /// \param value            tag value
-    void addGlobalTag(tags::Key key, tags::Value value);
+  /// Adds global tag
+  /// \param name 		tag name
+  /// \param value 		tag value
+  void addGlobalTag(std::string_view name, std::string_view value);
 
-    /// Returns a metric which will be periodically sent to backends
-    /// \param name 		metric name
-    /// \return 		periodically send metric
-    ComplexMetric& getAutoPushMetric(std::string name, unsigned int interval = 1);
+  /// Adds global tag
+  /// \param name             tag name
+  /// \param value            tag value
+  void addGlobalTag(tags::Key key, tags::Value value);
 
-  private:
-    /// Sends multiple (not related to each other) metrics
-    /// \param metrics  vector of metrics
-    void transmit(std::vector<Metric>&& metrics);
+  /// Returns a metric which will be periodically sent to backends
+  /// \param name 		metric name
+  /// \return 		periodically send metric
+  ComplexMetric& getAutoPushMetric(std::string name, unsigned int interval = 1);
 
-    /// Flush buffer of desired verbosity
-    void flushBuffer(short index);
+ private:
+  /// Sends multiple (not related to each other) metrics
+  /// \param metrics  vector of metrics
+  void transmit(std::vector<Metric>&& metrics);
 
-    /// Matches verbosity of a backend and a metric in order to decide whether metric should be send to the backend
-    bool matchVerbosity(Verbosity backend, Verbosity metric);
+  /// Flush buffer of desired verbosity
+  void flushBuffer(short index);
 
-    /// Derived metrics handler
-    /// \see class DerivedMetrics
-    std::unique_ptr<DerivedMetrics> mDerivedHandler;
+  /// Matches verbosity of a backend and a metric in order to decide whether metric should be send to the backend
+  bool matchVerbosity(Verbosity backend, Verbosity metric);
 
-    /// Vector of backends (where metrics are passed to)
-    std::vector <std::unique_ptr<Backend>> mBackends;
+  /// Derived metrics handler
+  /// \see class DerivedMetrics
+  std::unique_ptr<DerivedMetrics> mDerivedHandler;
 
-    /// Pushes metric to all backends or to the buffer
-    void transmit(Metric&& metric);
+  /// Vector of backends (where metrics are passed to)
+  std::vector<std::unique_ptr<Backend>> mBackends;
 
-    /// States whether Process Monitor thread is running
-    std::atomic<bool> mMonitorRunning;
+  /// Pushes metric to all backends or to the buffer
+  void transmit(Metric&& metric);
 
-    /// Process Monitor thread  
-    std::thread mMonitorThread;
+  /// States whether Process Monitor thread is running
+  std::atomic<bool> mMonitorRunning;
 
-    /// Process Monitor object that sends updates about the process itself
-    std::unique_ptr<ProcessMonitor> mProcessMonitor;
+  /// Process Monitor thread
+  std::thread mMonitorThread;
 
-    /// Push metric loop
-    void pushLoop();
+  /// Process Monitor object that sends updates about the process itself
+  std::unique_ptr<ProcessMonitor> mProcessMonitor;
 
-    /// Metric buffer
-    std::unordered_map<std::underlying_type<Verbosity>::type, std::vector<Metric>> mStorage;
+  /// Push metric loop
+  void pushLoop();
 
-    /// Flag stating whether metric buffering is enabled
-    bool mBuffering;
+  /// Metric buffer
+  std::unordered_map<std::underlying_type<Verbosity>::type, std::vector<Metric>> mStorage;
 
-    /// Size of buffer
-    std::size_t mBufferSize;
+  /// Flag stating whether metric buffering is enabled
+  bool mBuffering;
 
-    /// Store for automatically pushed metrics
-    std::deque<ComplexMetric> mPushStore;
+  /// Size of buffer
+  std::size_t mBufferSize;
 
-    /// Process monitor interval
-    std::atomic<unsigned int> mProcessMonitoringInterval;
+  /// Store for automatically pushed metrics
+  std::deque<ComplexMetric> mPushStore;
 
-    /// Automatic metric push interval
-    std::atomic<unsigned int> mAutoPushInterval;
+  /// Process monitor interval
+  std::atomic<unsigned int> mProcessMonitoringInterval;
+
+  /// Automatic metric push interval
+  std::atomic<unsigned int> mAutoPushInterval;
 };
 
 } // namespace monitoring

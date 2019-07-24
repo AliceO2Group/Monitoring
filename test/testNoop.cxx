@@ -14,9 +14,12 @@
 
 #include "../src/Backends/Noop.h"
 
-namespace o2 {
-namespace monitoring {
-namespace Test {
+namespace o2
+{
+namespace monitoring
+{
+namespace Test
+{
 
 BOOST_AUTO_TEST_CASE(noopSendMetric)
 {

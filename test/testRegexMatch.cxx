@@ -17,9 +17,12 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
-namespace o2 {
-namespace monitoring {
-namespace Test {
+namespace o2
+{
+namespace monitoring
+{
+namespace Test
+{
 
 BOOST_AUTO_TEST_CASE(retrieveOtherParams)
 {
@@ -28,8 +31,7 @@ BOOST_AUTO_TEST_CASE(retrieveOtherParams)
   std::vector<std::string> metrics = {
     "[METRIC] bkey,0 12 1789372894 hostname=test.cern.ch",
     "[METRIC] bkey,0 \"Sample string\" 1789372894 hostname=test.cern.ch",
-    "[METRIC] bkey,0 \"<matcher query: (and origin:TST (and description:A1 (and subSpec:77 (just startTime:$0 ))))>\" 1789372894 hostname=test.cern.ch"
-  };
+    "[METRIC] bkey,0 \"<matcher query: (and origin:TST (and description:A1 (and subSpec:77 (just startTime:$0 ))))>\" 1789372894 hostname=test.cern.ch"};
 
   std::smatch match;
   for (const auto& metric : metrics) {

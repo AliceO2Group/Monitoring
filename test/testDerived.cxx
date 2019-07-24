@@ -21,9 +21,12 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
-namespace o2 {
-namespace monitoring {
-namespace Test {
+namespace o2
+{
+namespace monitoring
+{
+namespace Test
+{
 
 BOOST_AUTO_TEST_CASE(derivedRateInt)
 {
@@ -31,7 +34,7 @@ BOOST_AUTO_TEST_CASE(derivedRateInt)
     int value;
     int rate;
   };
-  std::vector<RateResults> results = {{10, 0 }, {20, 100}, {30, 100}, {50, 200}, {60, 100}, {65, 50}, {70, 50}, {80, 100}, {90, 100}, {100, 100}};
+  std::vector<RateResults> results = {{10, 0}, {20, 100}, {30, 100}, {50, 200}, {60, 100}, {65, 50}, {70, 50}, {80, 100}, {90, 100}, {100, 100}};
   o2::monitoring::DerivedMetrics derivedHandler;
   std::string name("metricInt");
 
@@ -42,22 +45,23 @@ BOOST_AUTO_TEST_CASE(derivedRateInt)
       o2::monitoring::Metric derived = derivedHandler.process(metric, DerivedMetricMode::RATE);
       BOOST_CHECK_EQUAL(derived.getName(), "metricIntRate");
       BOOST_WARN_CLOSE(std::get<double>(derived.getValue()), result.rate, 1.0);
-    } catch(MonitoringException &e) {
+    } catch (MonitoringException& e) {
       BOOST_CHECK_EQUAL(e.what(), std::string("Not enough values"));
     }
   }
 }
 
-BOOST_AUTO_TEST_CASE(derivedRateDouble) {
+BOOST_AUTO_TEST_CASE(derivedRateDouble)
+{
   struct RateResults {
     double value;
     double rate;
   };
-  std::vector<RateResults> results = {{1.2, 0 }, {11.2, 100}, {21.2, 100}, {41.2, 200}, {51.2, 100}, {61, 98}};
-  std::vector<RateResults> resultsTagged = {{0.5, 0 }, {5.5, 50}, {10.5, 50}, {20.5, 100}, {40.5, 200}, {45.5, 50}};
+  std::vector<RateResults> results = {{1.2, 0}, {11.2, 100}, {21.2, 100}, {41.2, 200}, {51.2, 100}, {61, 98}};
+  std::vector<RateResults> resultsTagged = {{0.5, 0}, {5.5, 50}, {10.5, 50}, {20.5, 100}, {40.5, 200}, {45.5, 50}};
   o2::monitoring::DerivedMetrics derivedHandler;
   std::string name("metricDouble");
-  for(std::size_t i = 0; i < results.size(); i++) {
+  for (std::size_t i = 0; i < results.size(); i++) {
     try {
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
       o2::monitoring::Metric metric(results[i].value, name);
@@ -67,21 +71,22 @@ BOOST_AUTO_TEST_CASE(derivedRateDouble) {
       BOOST_CHECK_EQUAL(derived.getName(), "metricDoubleRate");
       BOOST_WARN_CLOSE(std::get<double>(derived.getValue()), results[i].rate, 1.0);
       BOOST_WARN_CLOSE(std::get<double>(derivedTagged.getValue()), resultsTagged[i].rate, 5.0);
-    } catch(MonitoringException &e) {
+    } catch (MonitoringException& e) {
       BOOST_CHECK_EQUAL(e.what(), std::string("Not enough values"));
     }
   }
 }
 
-BOOST_AUTO_TEST_CASE(derivedRateUint64_t) {
+BOOST_AUTO_TEST_CASE(derivedRateUint64_t)
+{
   struct RateResults {
     uint64_t value;
     uint64_t rate;
   };
-  std::vector<RateResults> results = {{165535, 0 }, {165545, 100}, {165555, 100}, {165575, 200}, {165585, 100}, {165590, 50}};
+  std::vector<RateResults> results = {{165535, 0}, {165545, 100}, {165555, 100}, {165575, 200}, {165585, 100}, {165590, 50}};
   o2::monitoring::DerivedMetrics derivedHandler;
   std::string name("metricUint64_t");
-  
+
   for (auto const result : results) {
     try {
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -89,16 +94,18 @@ BOOST_AUTO_TEST_CASE(derivedRateUint64_t) {
       o2::monitoring::Metric derived = derivedHandler.process(metric, DerivedMetricMode::RATE);
       BOOST_CHECK_EQUAL(derived.getName(), "metricUint64_tRate");
       BOOST_WARN_CLOSE(std::get<double>(derived.getValue()), result.rate, 1.0);
-    } catch(MonitoringException &e) {
+    } catch (MonitoringException& e) {
       BOOST_CHECK_EQUAL(e.what(), std::string("Not enough values"));
     }
   }
 }
 
-bool exceptionCheck(const MonitoringException &e)
+bool exceptionCheck(const MonitoringException& e)
 {
-  if (e.what() == std::string("Not enough values")) return true;
-  if (e.what() == std::string("Division by 0")) return true;
+  if (e.what() == std::string("Not enough values"))
+    return true;
+  if (e.what() == std::string("Division by 0"))
+    return true;
   return false;
 }
 
@@ -112,7 +119,8 @@ BOOST_AUTO_TEST_CASE(divisionByZero)
   BOOST_CHECK_EXCEPTION(derivedHandler.process(metric, DerivedMetricMode::RATE), MonitoringException, exceptionCheck);
 }
 
-BOOST_AUTO_TEST_CASE(derivedIncrementInt) {
+BOOST_AUTO_TEST_CASE(derivedIncrementInt)
+{
   struct IncrementResults {
     int value;
     int rate;
@@ -127,7 +135,8 @@ BOOST_AUTO_TEST_CASE(derivedIncrementInt) {
   }
 }
 
-BOOST_AUTO_TEST_CASE(derivedIncrementUint64_t) {
+BOOST_AUTO_TEST_CASE(derivedIncrementUint64_t)
+{
   struct IncrementResults {
     uint64_t value;
     uint64_t rate;
@@ -142,7 +151,8 @@ BOOST_AUTO_TEST_CASE(derivedIncrementUint64_t) {
   }
 }
 
-BOOST_AUTO_TEST_CASE(derivedIncrementDouble) {
+BOOST_AUTO_TEST_CASE(derivedIncrementDouble)
+{
   struct IncrementResults {
     double value;
     double rate;
@@ -157,7 +167,8 @@ BOOST_AUTO_TEST_CASE(derivedIncrementDouble) {
   }
 }
 
-BOOST_AUTO_TEST_CASE(testBoostVisitor) {
+BOOST_AUTO_TEST_CASE(testBoostVisitor)
+{
   {
     std::variant<int, std::string, double, uint64_t> a = 10;
     std::variant<int, std::string, double, uint64_t> b = 11;

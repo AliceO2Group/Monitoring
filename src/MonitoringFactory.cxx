@@ -34,13 +34,14 @@
 #include "Backends/Kafka.h"
 #endif
 
-namespace o2 
+namespace o2
 {
 /// ALICE O2 Monitoring system
-namespace monitoring 
+namespace monitoring
 {
 #ifdef _WITH_KAFKA
-std::unique_ptr<Backend> getKafka(http::url uri) {
+std::unique_ptr<Backend> getKafka(http::url uri)
+{
   if (uri.search.size() > 0) {
     return std::make_unique<backends::Kafka>(uri.host, uri.port, uri.search);
   } else {
@@ -48,7 +49,8 @@ std::unique_ptr<Backend> getKafka(http::url uri) {
   }
 }
 #else
-std::unique_ptr<Backend> getKafka(http::url /*uri*/) {
+std::unique_ptr<Backend> getKafka(http::url /*uri*/)
+{
   throw std::runtime_error("Kafka backend is not enabled");
 }
 #endif
@@ -56,10 +58,10 @@ std::unique_ptr<Backend> getKafka(http::url /*uri*/) {
 static const std::map<std::string, Verbosity> verbosities = {
   {"/prod", Verbosity::Prod},
   {"/info", Verbosity::Info},
-  {"/debug", Verbosity::Debug}
-};
+  {"/debug", Verbosity::Debug}};
 
-std::unique_ptr<Backend> getStdOut(http::url uri) {
+std::unique_ptr<Backend> getStdOut(http::url uri)
+{
   if (uri.search.size() > 0) {
     return std::make_unique<backends::StdOut>(uri.search);
   } else {
@@ -67,7 +69,8 @@ std::unique_ptr<Backend> getStdOut(http::url uri) {
   }
 }
 
-std::unique_ptr<Backend> getInfluxDb(http::url uri) {
+std::unique_ptr<Backend> getInfluxDb(http::url uri)
+{
   auto const position = uri.protocol.find_last_of('-');
   if (position != std::string::npos) {
     uri.protocol = uri.protocol.substr(position + 1);
@@ -76,10 +79,10 @@ std::unique_ptr<Backend> getInfluxDb(http::url uri) {
     return std::make_unique<backends::InfluxDB>(uri.host, uri.port);
   }
   if (uri.protocol == "unix") {
-    std::string path = uri.path;;
+    std::string path = uri.path;
+    ;
     auto found = std::find_if(begin(verbosities), end(verbosities),
-                       [&](const auto& s)
-                       {return path.find(s.first) != std::string::npos; });
+                              [&](const auto& s) { return path.find(s.first) != std::string::npos; });
     if (found != end(verbosities)) {
       path.erase(path.rfind('/'));
     }
@@ -89,24 +92,29 @@ std::unique_ptr<Backend> getInfluxDb(http::url uri) {
 }
 
 #ifdef O2_MONITORING_WITH_APPMON
-std::unique_ptr<Backend> getApMon(http::url uri) {
+std::unique_ptr<Backend> getApMon(http::url uri)
+{
   return std::make_unique<backends::ApMonBackend>(uri.path);
 }
 #else
-std::unique_ptr<Backend> getApMon(http::url /*uri*/) {
+std::unique_ptr<Backend> getApMon(http::url /*uri*/)
+{
   throw std::runtime_error("ApMon backend is not enabled");
 }
 #endif
 
-std::unique_ptr<Backend> getNoop(http::url /*uri*/) {
+std::unique_ptr<Backend> getNoop(http::url /*uri*/)
+{
   return std::make_unique<backends::Noop>();
 }
 
-std::unique_ptr<Backend> getFlume(http::url uri) {
+std::unique_ptr<Backend> getFlume(http::url uri)
+{
   return std::make_unique<backends::Flume>(uri.host, uri.port);
 }
 
-void MonitoringFactory::SetVerbosity(std::string selected, std::unique_ptr<Backend>& backend) {
+void MonitoringFactory::SetVerbosity(std::string selected, std::unique_ptr<Backend>& backend)
+{
   auto found = verbosities.find(selected);
   if (found == verbosities.end()) {
     return;
@@ -117,7 +125,8 @@ void MonitoringFactory::SetVerbosity(std::string selected, std::unique_ptr<Backe
                    << MonLogger::End();
 }
 
-std::unique_ptr<Backend> MonitoringFactory::GetBackend(std::string& url) {
+std::unique_ptr<Backend> MonitoringFactory::GetBackend(std::string& url)
+{
   static const std::map<std::string, std::function<std::unique_ptr<Backend>(const http::url&)>> map = {
     {"infologger", getStdOut},
     {"stdout", getStdOut},
@@ -126,13 +135,12 @@ std::unique_ptr<Backend> MonitoringFactory::GetBackend(std::string& url) {
     {"apmon", getApMon},
     {"flume", getFlume},
     {"no-op", getNoop},
-    {"kafka", getKafka}
-  };
+    {"kafka", getKafka}};
 
   http::url parsedUrl = http::ParseHttpUrl(url);
   if (parsedUrl.protocol.empty()) {
     throw std::runtime_error("Ill-formed URI");
-  }   
+  }
 
   auto iterator = map.find(parsedUrl.protocol);
   if (iterator == map.end()) {

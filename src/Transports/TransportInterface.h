@@ -30,14 +30,14 @@ namespace transports
 /// \brief Transport interface for backends
 class TransportInterface
 {
-  public:
-    TransportInterface() = default;
+ public:
+  TransportInterface() = default;
 
-    virtual ~TransportInterface() = default;
+  virtual ~TransportInterface() = default;
 
-    /// Sends metric via given transport
-    /// \param message   r-value to string formatted metric
-    virtual void send(std::string&& message) = 0;
+  /// Sends metric via given transport
+  /// \param message   r-value to string formatted metric
+  virtual void send(std::string&& message) = 0;
 };
 
 } // namespace transports

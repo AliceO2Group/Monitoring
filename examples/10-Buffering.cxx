@@ -7,7 +7,8 @@
 
 using Monitoring = o2::monitoring::MonitoringFactory;
 
-int main() {
+int main()
+{
   // Configure monitoring
   // Pass string with list of URLs as parameter
   auto monitoring = Monitoring::Get("stdout://");
@@ -21,4 +22,4 @@ int main() {
   }
   monitoring->send({10.10, "myMetricFloat"});
   monitoring->flushBuffer();
-}	
+}

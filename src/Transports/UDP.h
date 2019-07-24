@@ -36,29 +36,28 @@ namespace transports
 /// \brief Transport that sends string formatted metrics via UDP
 class UDP : public TransportInterface
 {
-  public:
-    /// Constructor
-    /// \param hostname      InfluxDB instance hostname
-    /// \param port          InfluxDB instance port number
-    UDP(const std::string &hostname, int port);
+ public:
+  /// Constructor
+  /// \param hostname      InfluxDB instance hostname
+  /// \param port          InfluxDB instance port number
+  UDP(const std::string& hostname, int port);
 
-    /// Default destructor
-    ~UDP() = default;
- 
-    /// Sends metric via UDP
-    /// \param message   r-value string formated
-    void send(std::string&& message) override;   
+  /// Default destructor
+  ~UDP() = default;
 
-  private:
-    /// Boost Asio I/O functionality
-    boost::asio::io_service mIoService;
+  /// Sends metric via UDP
+  /// \param message   r-value string formated
+  void send(std::string&& message) override;
 
-    /// UDP socket
-    boost::asio::ip::udp::socket mSocket;
+ private:
+  /// Boost Asio I/O functionality
+  boost::asio::io_service mIoService;
 
-    /// UDP endpoint
-    boost::asio::ip::udp::endpoint mEndpoint;
+  /// UDP socket
+  boost::asio::ip::udp::socket mSocket;
 
+  /// UDP endpoint
+  boost::asio::ip::udp::endpoint mEndpoint;
 };
 
 } // namespace transports

@@ -18,9 +18,12 @@
 
 #include "../include/Monitoring/MonitoringFactory.h"
 
-namespace o2 {
-namespace monitoring {
-namespace Test {
+namespace o2
+{
+namespace monitoring
+{
+namespace Test
+{
 
 using Monitoring = o2::monitoring::MonitoringFactory;
 
@@ -28,9 +31,9 @@ BOOST_AUTO_TEST_CASE(createMonitoring)
 {
   auto monitoring = Monitoring::Get("stdout://");
 
-  int intMetric = 10; 
+  int intMetric = 10;
   std::string stringMetric("monitoringString");
-  double doubleMetric = static_cast <double> (rand()) / static_cast <double> (RAND_MAX);
+  double doubleMetric = static_cast<double>(rand()) / static_cast<double>(RAND_MAX);
 
   monitoring->addGlobalTag("name", "Readout");
   monitoring->addGlobalTag(tags::Key::Name, tags::Value::Readout);
@@ -55,17 +58,17 @@ BOOST_AUTO_TEST_CASE(testPush)
   auto monitoring = Monitoring::Get("stdout://");
   auto& qcMetric = monitoring->getAutoPushMetric("qcMetric");
   auto& qcMetric2 = monitoring->getAutoPushMetric("qcMetric2");
-  std::this_thread::sleep_for (std::chrono::milliseconds(1500));
+  std::this_thread::sleep_for(std::chrono::milliseconds(1500));
   qcMetric = 133 + 11 + 2.2;
   qcMetric2 = 133 - 11 - 2.2;
-  std::this_thread::sleep_for (std::chrono::milliseconds(1500));
+  std::this_thread::sleep_for(std::chrono::milliseconds(1500));
 }
 
 BOOST_AUTO_TEST_CASE(testSymbols)
 {
-  BOOST_WARN_MESSAGE(!BOOST_IS_DEFINED( O2_MONITORING_WITH_APPMON ), "ApMon Backend disabled");
-  BOOST_WARN_MESSAGE(BOOST_IS_DEFINED( O2_MONITORING_OS_LINUX ), "Linux OS detected");
-  BOOST_WARN_MESSAGE(BOOST_IS_DEFINED( O2_MONITORING_OS_MAC ), "Mac OS detected");
+  BOOST_WARN_MESSAGE(!BOOST_IS_DEFINED(O2_MONITORING_WITH_APPMON), "ApMon Backend disabled");
+  BOOST_WARN_MESSAGE(BOOST_IS_DEFINED(O2_MONITORING_OS_LINUX), "Linux OS detected");
+  BOOST_WARN_MESSAGE(BOOST_IS_DEFINED(O2_MONITORING_OS_MAC), "Mac OS detected");
 }
 
 } // namespace Test

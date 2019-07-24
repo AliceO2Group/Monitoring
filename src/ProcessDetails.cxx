@@ -42,20 +42,20 @@ inline void ProcessDetails::generatePid()
 inline void ProcessDetails::generateProcessName()
 {
   char buff[255];
-  #ifdef O2_MONITORING_OS_LINUX
-  ssize_t len = ::readlink("/proc/self/exe", buff, sizeof(buff)-1);
+#ifdef O2_MONITORING_OS_LINUX
+  ssize_t len = ::readlink("/proc/self/exe", buff, sizeof(buff) - 1);
   if (len != -1) {
     buff[len] = '\0';
     mProcessName = std::string(buff);
   }
-  #endif
+#endif
 
-  #ifdef O2_MONITORING_OS_MAC
+#ifdef O2_MONITORING_OS_MAC
   uint32_t size = sizeof(buff);
   if (_NSGetExecutablePath(buff, &size) == 0) {
     mProcessName = std::string(buff);
   }
-  #endif
+#endif
 
   if (mProcessName.empty()) {
     mProcessName = "!";

@@ -27,10 +27,10 @@
 #include "MonLogger.h"
 #include "ProcessDetails.h"
 
-namespace o2 
+namespace o2
 {
 /// ALICE O2 Monitoring system
-namespace monitoring 
+namespace monitoring
 {
 
 Monitoring::Monitoring()
@@ -53,7 +53,8 @@ void Monitoring::enableBuffering(const std::size_t size)
   MonLogger::Get() << "Buffering enabled (" << mStorage[0].capacity() << ")" << MonLogger::End();
 }
 
-void Monitoring::flushBuffer() {
+void Monitoring::flushBuffer()
+{
   if (!mBuffering) {
     MonLogger::Get() << "Cannot flush as buffering is disabled" << MonLogger::End();
     return;
@@ -78,41 +79,42 @@ void Monitoring::flushBuffer(const short index)
   }
 }
 
-void Monitoring::enableProcessMonitoring(const unsigned int interval) {
+void Monitoring::enableProcessMonitoring(const unsigned int interval)
+{
   mProcessMonitoringInterval = interval;
   if (!mMonitorRunning) {
     mMonitorRunning = true;
     mMonitorThread = std::thread(&Monitoring::pushLoop, this);
   }
-  #ifdef O2_MONITORING_OS_LINUX
+#ifdef O2_MONITORING_OS_LINUX
   MonLogger::Get() << "Process Monitor : Automatic updates enabled" << MonLogger::End();
-  #else
+#else
   MonLogger::Get() << "!! Process Monitor : Limited metrics available" << MonLogger::End();
-  #endif
+#endif
 }
 
 void Monitoring::addGlobalTag(std::string_view key, std::string_view value)
 {
-  for (auto& backend: mBackends) {
+  for (auto& backend : mBackends) {
     backend->addGlobalTag(key, value);
   }
 }
 
 void Monitoring::addGlobalTag(tags::Key key, tags::Value value)
 {
-  for (auto& backend: mBackends) {
+  for (auto& backend : mBackends) {
     backend->addGlobalTag(
       tags::TAG_KEY[static_cast<std::underlying_type<tags::Key>::type>(key)],
-      tags::TAG_VALUE[static_cast<std::underlying_type<tags::Value>::type>(value)]
-    );
+      tags::TAG_VALUE[static_cast<std::underlying_type<tags::Value>::type>(value)]);
   }
 }
 
-void Monitoring::addBackend(std::unique_ptr<Backend> backend) {
-   ProcessDetails processDetails{};
-   backend->addGlobalTag("hostname", processDetails.getHostname());
-   backend->addGlobalTag("name", processDetails.getProcessName());
-   mBackends.push_back(std::move(backend));
+void Monitoring::addBackend(std::unique_ptr<Backend> backend)
+{
+  ProcessDetails processDetails{};
+  backend->addGlobalTag("hostname", processDetails.getHostname());
+  backend->addGlobalTag("name", processDetails.getProcessName());
+  mBackends.push_back(std::move(backend));
 }
 
 Monitoring::~Monitoring()
@@ -129,16 +131,16 @@ Monitoring::~Monitoring()
 void Monitoring::pushLoop()
 {
   unsigned int loopCount = 0;
-  std::this_thread::sleep_for (std::chrono::milliseconds(100));
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
   while (mMonitorRunning) {
-    if (mProcessMonitoringInterval != 0 && (loopCount % (mProcessMonitoringInterval*10)) == 0) {
+    if (mProcessMonitoringInterval != 0 && (loopCount % (mProcessMonitoringInterval * 10)) == 0) {
       transmit(mProcessMonitor->getCpuAndContexts());
-      #ifdef O2_MONITORING_OS_LINUX
+#ifdef O2_MONITORING_OS_LINUX
       transmit(mProcessMonitor->getMemoryUsage());
-      #endif
+#endif
     }
 
-    if (mAutoPushInterval != 0 && (loopCount % (mAutoPushInterval*10)) == 0) {
+    if (mAutoPushInterval != 0 && (loopCount % (mAutoPushInterval * 10)) == 0) {
       std::vector<Metric> metrics;
       for (auto metric : mPushStore) {
         metric.resetTimestamp();
@@ -146,7 +148,7 @@ void Monitoring::pushLoop()
       }
       transmit(std::move(metrics));
     }
-    std::this_thread::sleep_for (std::chrono::milliseconds(100));
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
     (loopCount >= 600) ? loopCount = 0 : loopCount++;
   }
 }
@@ -158,7 +160,7 @@ ComplexMetric& Monitoring::getAutoPushMetric(std::string name, unsigned int inte
     mMonitorThread = std::thread(&Monitoring::pushLoop, this);
     mAutoPushInterval = interval;
   }
-  mPushStore.emplace_back(std::variant< int, std::string, double, uint64_t > {}, name);
+  mPushStore.emplace_back(std::variant<int, std::string, double, uint64_t>{}, name);
   return mPushStore.back();
 }
 
@@ -198,8 +200,11 @@ void Monitoring::transmit(Metric&& metric)
 void Monitoring::send(Metric&& metric, DerivedMetricMode mode)
 {
   if (mode != DerivedMetricMode::NONE) {
-     try { transmit(mDerivedHandler->process(metric, mode)); }
-     catch (MonitoringException& e) { MonLogger::Get() << e.what() << MonLogger::End(); }
+    try {
+      transmit(mDerivedHandler->process(metric, mode));
+    } catch (MonitoringException& e) {
+      MonLogger::Get() << e.what() << MonLogger::End();
+    }
   }
   transmit(std::move(metric));
 }

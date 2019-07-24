@@ -15,10 +15,12 @@
 #include <boost/test/unit_test.hpp>
 #include "../src/Backends/InfluxDB.h"
 
-
-namespace o2 {
-namespace monitoring {
-namespace Test {
+namespace o2
+{
+namespace monitoring
+{
+namespace Test
+{
 
 BOOST_AUTO_TEST_CASE(simplySendMetric)
 {
@@ -28,8 +30,6 @@ BOOST_AUTO_TEST_CASE(simplySendMetric)
   o2::monitoring::Metric metric{10, "myCrazyMetric"};
   influxBackend.send(metric);
 }
-
-
 
 } // namespace Test
 } // namespace monitoring
