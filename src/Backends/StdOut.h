@@ -31,42 +31,42 @@ namespace backends
 /// \brief Prints metrics to standard output via std::cout
 class StdOut final : public Backend
 {
-  public:
-    /// Default constructor
-    StdOut(const std::string& prefix = "METRIC");
- 
-    /// Default destructor
-    ~StdOut() = default;
+ public:
+  /// Default constructor
+  StdOut(const std::string& prefix = "METRIC");
 
-    /// Prints metric
-    /// \param metric           reference to metric object    
-    void send(const Metric& metric) override;
+  /// Default destructor
+  ~StdOut() = default;
 
-    /// Prints vector of metrics
-    /// \@param metrics  vector of metrics
-    void send(std::vector<Metric>&& metrics) override;
+  /// Prints metric
+  /// \param metric           reference to metric object
+  void send(const Metric& metric) override;
 
-    /// Prints a metric with multiple values (names are prefixed with measurement)
-    /// \param measurement   measurement name
-    /// \param metrics  list of metrics
-    void sendMultiple(std::string measurement, std::vector<Metric>&& metrics) override;
+  /// Prints vector of metrics
+  /// \@param metrics  vector of metrics
+  void send(std::vector<Metric>&& metrics) override;
 
-    /// Adds tag
-    /// \param name         tag name
-    /// \param value        tag value
-    void addGlobalTag(std::string_view name, std::string_view value) override;
+  /// Prints a metric with multiple values (names are prefixed with measurement)
+  /// \param measurement   measurement name
+  /// \param metrics  list of metrics
+  void sendMultiple(std::string measurement, std::vector<Metric>&& metrics) override;
 
-  private:
-    /// Metric stream
-    std::ostream &mStream;
+  /// Adds tag
+  /// \param name         tag name
+  /// \param value        tag value
+  void addGlobalTag(std::string_view name, std::string_view value) override;
 
-    /// Converts timestamp to unsigned long (miliseconds from epoch)
-    /// \param timestamp    timestamp in std::chrono::time_point format
-    /// \return             timestamp as unsigned long (miliseconds from epoch)
-    unsigned long convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp);
+ private:
+  /// Metric stream
+  std::ostream& mStream;
 
-    std::string tagString; ///< Global tagset (common for each metric)
-    const std::string mPrefix; ///< Metric prefix
+  /// Converts timestamp to unsigned long (miliseconds from epoch)
+  /// \param timestamp    timestamp in std::chrono::time_point format
+  /// \return             timestamp as unsigned long (miliseconds from epoch)
+  unsigned long convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp);
+
+  std::string tagString;     ///< Global tagset (common for each metric)
+  const std::string mPrefix; ///< Metric prefix
 };
 
 } // namespace backends

@@ -38,33 +38,34 @@ class ProcessMonitor
 {
   friend class Monitoring;
 
-  public:
-    /// Prepares externam software commands (ps)
-    ProcessMonitor();
-	
-    /// Default destructor
-    ~ProcessMonitor() = default;
+ public:
+  /// Prepares externam software commands (ps)
+  ProcessMonitor();
 
-    /// Retrieves memory usage (%)
-    Metric getMemoryUsage();
+  /// Default destructor
+  ~ProcessMonitor() = default;
 
-    /// Retrieves CPU usage (%) and number of context switches during the interval
-    std::vector<Metric> getCpuAndContexts();
-  private:
-    /// PIDs that are monitored
-    unsigned int mPid;
+  /// Retrieves memory usage (%)
+  Metric getMemoryUsage();
 
-    /// Total memory size
-    unsigned int mTotalMemory;
+  /// Retrieves CPU usage (%) and number of context switches during the interval
+  std::vector<Metric> getCpuAndContexts();
 
-    /// Retrievs total memory size from /proc/meminfo
-    void setTotalMemory();
+ private:
+  /// PIDs that are monitored
+  unsigned int mPid;
 
-    /// 'getrusage' values from last execution
-    struct rusage mPreviousGetrUsage;
+  /// Total memory size
+  unsigned int mTotalMemory;
 
-    /// Timestamp when process monitoring was executed last time
-    std::chrono::high_resolution_clock::time_point mTimeLastRun;
+  /// Retrievs total memory size from /proc/meminfo
+  void setTotalMemory();
+
+  /// 'getrusage' values from last execution
+  struct rusage mPreviousGetrUsage;
+
+  /// Timestamp when process monitoring was executed last time
+  std::chrono::high_resolution_clock::time_point mTimeLastRun;
 };
 
 } // namespace monitoring

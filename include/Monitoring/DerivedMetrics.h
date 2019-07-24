@@ -28,9 +28,11 @@ namespace o2
 /// ALICE O2 Monitoring system
 namespace monitoring
 {
-	
+
 /// Available derived metric modes
-enum class DerivedMetricMode { RATE, INCREMENT, NONE };
+enum class DerivedMetricMode { RATE,
+                               INCREMENT,
+                               NONE };
 
 /// \brief Enables Calculation of derived metrics
 ///
@@ -38,19 +40,19 @@ enum class DerivedMetricMode { RATE, INCREMENT, NONE };
 /// For this purpose metrics are stored in a container.
 class DerivedMetrics
 {
-  public:
-    /// Default constructor
-    DerivedMetrics() = default;
+ public:
+  /// Default constructor
+  DerivedMetrics() = default;
 
-    /// Default destructor
-    ~DerivedMetrics() = default;
+  /// Default destructor
+  ~DerivedMetrics() = default;
 
-    /// Metrics store necessary for derived metrics
-    std::unordered_map <std::string, Metric> mStorage;
+  /// Metrics store necessary for derived metrics
+  std::unordered_map<std::string, Metric> mStorage;
 
-    /// Entry method to DerivedMetrics
-    /// Switches over processing modes: rate and increment
-    Metric process(Metric& metric, DerivedMetricMode mode);
+  /// Entry method to DerivedMetrics
+  /// Switches over processing modes: rate and increment
+  Metric process(Metric& metric, DerivedMetricMode mode);
 };
 
 } // namespace monitoring

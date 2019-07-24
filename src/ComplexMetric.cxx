@@ -25,32 +25,33 @@ namespace o2
 namespace monitoring
 {
 
-ComplexMetric::ComplexMetric(int value, const std::string& name) :
-  Metric(value, name)
-{}
+ComplexMetric::ComplexMetric(int value, const std::string& name) : Metric(value, name)
+{
+}
 
-ComplexMetric::ComplexMetric(std::string value, const std::string& name) :
-  Metric(value, name)
-{}
+ComplexMetric::ComplexMetric(std::string value, const std::string& name) : Metric(value, name)
+{
+}
 
-ComplexMetric::ComplexMetric(double value, const std::string& name) :
-  Metric(value, name)
-{}
+ComplexMetric::ComplexMetric(double value, const std::string& name) : Metric(value, name)
+{
+}
 
-ComplexMetric::ComplexMetric(uint64_t value, const std::string& name) :
-  Metric(value, name)
-{}
+ComplexMetric::ComplexMetric(uint64_t value, const std::string& name) : Metric(value, name)
+{
+}
 
-ComplexMetric::ComplexMetric(std::variant< int, std::string, double, uint64_t > value, const std::string& name) :
-  Metric(value, name)
-{}
+ComplexMetric::ComplexMetric(std::variant<int, std::string, double, uint64_t> value, const std::string& name) : Metric(value, name)
+{
+}
 
 void ComplexMetric::resetTimestamp()
 {
-   mTimestamp = Metric::getCurrentTimestamp();
+  mTimestamp = Metric::getCurrentTimestamp();
 }
 
-ComplexMetric& ComplexMetric::operator=(const std::variant< int, std::string, double, uint64_t >& value) {
+ComplexMetric& ComplexMetric::operator=(const std::variant<int, std::string, double, uint64_t>& value)
+{
   mValue = value;
   return *this;
 }

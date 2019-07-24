@@ -15,24 +15,27 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
-namespace o2 {
-namespace monitoring {
-namespace Test {
+namespace o2
+{
+namespace monitoring
+{
+namespace Test
+{
 
 BOOST_AUTO_TEST_CASE(createProcessMonitor)
 {
   o2::monitoring::ProcessMonitor processMonitor;
   processMonitor.getCpuAndContexts();
-  #ifdef O2_MONITORING_OS_LINUX
+#ifdef O2_MONITORING_OS_LINUX
   processMonitor.getMemoryUsage();
-  #endif
+#endif
 }
 
 BOOST_AUTO_TEST_CASE(monitorProcess)
 {
   auto monitoring = o2::monitoring::MonitoringFactory::Get("stdout://");
   monitoring->enableProcessMonitoring(1);
-  std::this_thread::sleep_for (std::chrono::milliseconds(2100));
+  std::this_thread::sleep_for(std::chrono::milliseconds(2100));
 }
 
 } // namespace Test

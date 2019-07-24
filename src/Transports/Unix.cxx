@@ -25,8 +25,7 @@ namespace monitoring
 namespace transports
 {
 #if defined(BOOST_ASIO_HAS_LOCAL_SOCKETS)
-Unix::Unix(const std::string &socketPath) :
-  mSocket(mIoService), mEndpoint(socketPath)
+Unix::Unix(const std::string& socketPath) : mSocket(mIoService), mEndpoint(socketPath)
 {
   mSocket.open();
 }

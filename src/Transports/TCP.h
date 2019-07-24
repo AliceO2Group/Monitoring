@@ -36,29 +36,28 @@ namespace transports
 /// \brief Transport that sends string formatted metrics via TCP
 class TCP : public TransportInterface
 {
-  public:
-    /// Constructor
-    /// \param hostname      InfluxDB instance hostname
-    /// \param port          InfluxDB instance port number
-    TCP(const std::string &hostname, int port);
+ public:
+  /// Constructor
+  /// \param hostname      InfluxDB instance hostname
+  /// \param port          InfluxDB instance port number
+  TCP(const std::string& hostname, int port);
 
-    /// Default destructor
-    ~TCP() = default;
- 
-    /// Sends metric via UDP
-    /// \param message   r-value string formated
-    void send(std::string&& message) override;
+  /// Default destructor
+  ~TCP() = default;
 
-  private:
-    /// Boost Asio I/O functionality
-    boost::asio::io_service mIoService;
+  /// Sends metric via UDP
+  /// \param message   r-value string formated
+  void send(std::string&& message) override;
 
-    /// TCP socket
-    boost::asio::ip::tcp::socket mSocket;
+ private:
+  /// Boost Asio I/O functionality
+  boost::asio::io_service mIoService;
 
-    /// TCP endpoint interator
-    boost::asio::ip::tcp::resolver::iterator mEndpoint;
+  /// TCP socket
+  boost::asio::ip::tcp::socket mSocket;
 
+  /// TCP endpoint interator
+  boost::asio::ip::tcp::resolver::iterator mEndpoint;
 };
 
 } // namespace transports

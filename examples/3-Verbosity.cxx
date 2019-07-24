@@ -7,11 +7,12 @@
 
 using namespace o2::monitoring;
 
-int main() {
+int main()
+{
   // Configure monitoring
   // Pass string with list of URLs as parameter
   auto monitoring = MonitoringFactory::Get("stdout:///info");
-  
+
   // now send an application specific metric
   // 10 is the value
   // myMetric is the name of the metric by creating and moving Metric object
@@ -27,4 +28,4 @@ int main() {
   monitoring->enableBuffering();
   monitoring->send({10, "myMetricInt", Verbosity::Debug});
   monitoring->send({10.10, "myMetricFloat", Verbosity::Prod});
-}	
+}

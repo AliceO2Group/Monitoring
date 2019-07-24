@@ -7,7 +7,8 @@
 
 using namespace o2::monitoring;
 
-int main() {
+int main()
+{
 
   // Configure monitoring
   // Pass string with list of URLs as parameter

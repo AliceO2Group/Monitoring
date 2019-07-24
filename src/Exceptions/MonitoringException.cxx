@@ -22,14 +22,13 @@ namespace o2
 namespace monitoring
 {
 
-MonitoringException::MonitoringException(const std::string& source, const std::string& message) :
-  MonitoringException(-1, source, message) {}
+MonitoringException::MonitoringException(const std::string& source, const std::string& message) : MonitoringException(-1, source, message) {}
 
 MonitoringException::MonitoringException(int code, const std::string& source, const std::string& message)
-: message(message)
+  : message(message)
 {
   MonLogger::Get(Severity::Warn) << "MonitoringException["
-                       << source << "] (" << code << "): " << message << MonLogger::End();
+                                 << source << "] (" << code << "): " << message << MonLogger::End();
 }
 
 const char* MonitoringException::what() const throw()
@@ -37,5 +36,5 @@ const char* MonitoringException::what() const throw()
   return message.c_str();
 }
 
-} // namespace monitroing
+} // namespace monitoring
 } // namespace o2

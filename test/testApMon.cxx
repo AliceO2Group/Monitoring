@@ -20,9 +20,12 @@
 
 using namespace o2::monitoring;
 
-namespace o2 {
-namespace monitoring {
-namespace Test {
+namespace o2
+{
+namespace monitoring
+{
+namespace Test
+{
 
 BOOST_AUTO_TEST_CASE(simplySendMetric)
 {
@@ -30,8 +33,6 @@ BOOST_AUTO_TEST_CASE(simplySendMetric)
   auto monitoring = MonitoringFactory::Get("apmon://" + configPath.string() + "/ApMon.conf");
   monitoring->send({10, "myCrazyMetric"});
 }
-
-
 
 } // namespace Test
 } // namespace monitoring

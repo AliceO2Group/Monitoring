@@ -23,7 +23,7 @@
 namespace o2
 {
 /// ALICE O2 Monitoring system
-namespace monitoring 
+namespace monitoring
 {
 
 /// \brief Backend pure virtual interface
@@ -32,35 +32,35 @@ namespace monitoring
 /// In addition, default tagset (for all handled metrics) can be created.
 class Backend
 {
-  private:
-    /// Verbosity level
-    Verbosity verbosityLevel;
+ private:
+  /// Verbosity level
+  Verbosity verbosityLevel;
 
-  public:
-    /// Default constructor
-    Backend() { verbosityLevel = Verbosity::Info; }
+ public:
+  /// Default constructor
+  Backend() { verbosityLevel = Verbosity::Info; }
 
-    /// Default destructor
-    virtual ~Backend() = default;
+  /// Default destructor
+  virtual ~Backend() = default;
 
-    /// Set verbosity level
-    void setVerbosisty(Verbosity level) { verbosityLevel = level; }
+  /// Set verbosity level
+  void setVerbosisty(Verbosity level) { verbosityLevel = level; }
 
-    /// Get verbosity level
-    Verbosity getVerbosity() { return verbosityLevel; }
-	
-    /// Sends metric via backend
-    virtual void send(const Metric& metric) = 0;
+  /// Get verbosity level
+  Verbosity getVerbosity() { return verbosityLevel; }
 
-    /// Sends multiple metrics not related to each other
-    virtual void send(std::vector<Metric>&& metrics) = 0;
+  /// Sends metric via backend
+  virtual void send(const Metric& metric) = 0;
 
-    /// Sends multiple related to each other metrics under a common name
-    /// If not supported by backend, falls back into sending single metrics
-    virtual void sendMultiple(std::string measurement, std::vector<Metric>&& metrics) = 0;
+  /// Sends multiple metrics not related to each other
+  virtual void send(std::vector<Metric>&& metrics) = 0;
 
-    /// Sets a tag
-    virtual void addGlobalTag(std::string_view name, std::string_view value) = 0;
+  /// Sends multiple related to each other metrics under a common name
+  /// If not supported by backend, falls back into sending single metrics
+  virtual void sendMultiple(std::string measurement, std::vector<Metric>&& metrics) = 0;
+
+  /// Sets a tag
+  virtual void addGlobalTag(std::string_view name, std::string_view value) = 0;
 };
 
 } // namespace monitoring

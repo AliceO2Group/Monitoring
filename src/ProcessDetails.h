@@ -27,37 +27,37 @@ namespace monitoring
 /// \brief Collects process and machine related details such as PID, process name, hostname
 class ProcessDetails
 {
-  public:
-    /// Generates all data
-    ProcessDetails();
+ public:
+  /// Generates all data
+  ProcessDetails();
 
-    /// PID getter
-    unsigned int getPid() const;
+  /// PID getter
+  unsigned int getPid() const;
 
-    /// Process name getter
-    std::string getProcessName() const;
+  /// Process name getter
+  std::string getProcessName() const;
 
-    /// Hostname getter
-    std::string getHostname() const;
+  /// Hostname getter
+  std::string getHostname() const;
 
-  private:
-    /// PID
-    unsigned int mPid;
+ private:
+  /// PID
+  unsigned int mPid;
 
-    /// Hostname
-    std::string mHostname;
+  /// Hostname
+  std::string mHostname;
 
-    /// Process name
-    std::string mProcessName;
+  /// Process name
+  std::string mProcessName;
 
-    /// Retrieves PID
-    void generatePid();
+  /// Retrieves PID
+  void generatePid();
 
-    /// Retrieves process name
-    void generateProcessName();
+  /// Retrieves process name
+  void generateProcessName();
 
-    /// Retrieves hostname
-    void generateHostname();
+  /// Retrieves hostname
+  void generateHostname();
 };
 
 } // namespace monitoring

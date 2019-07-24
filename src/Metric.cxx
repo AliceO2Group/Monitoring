@@ -33,10 +33,14 @@ std::chrono::time_point<std::chrono::system_clock> Metric::getTimestamp() const
 /// This is required for backward compability with boost::variant
 int Metric::getType() const
 {
-  if (std::holds_alternative<int>(mValue)) return 0;
-  else if (std::holds_alternative<std::string>(mValue)) return 1;
-  else if (std::holds_alternative<double>(mValue)) return 2;
-  else return 3;
+  if (std::holds_alternative<int>(mValue))
+    return 0;
+  else if (std::holds_alternative<std::string>(mValue))
+    return 1;
+  else if (std::holds_alternative<double>(mValue))
+    return 2;
+  else
+    return 3;
 }
 
 const std::string& Metric::getName() const
@@ -44,27 +48,32 @@ const std::string& Metric::getName() const
   return mName;
 }
 
-Metric::Metric(int value, const std::string& name, Verbosity verbosity) :
-  mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
-{ overwriteVerbosity(); }
+Metric::Metric(int value, const std::string& name, Verbosity verbosity) : mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
+{
+  overwriteVerbosity();
+}
 
-Metric::Metric(std::string value, const std::string& name, Verbosity verbosity) :
-  mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
-{ overwriteVerbosity(); }
+Metric::Metric(std::string value, const std::string& name, Verbosity verbosity) : mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
+{
+  overwriteVerbosity();
+}
 
-Metric::Metric(double value, const std::string& name, Verbosity verbosity) :
-  mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
-{ overwriteVerbosity(); }
+Metric::Metric(double value, const std::string& name, Verbosity verbosity) : mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
+{
+  overwriteVerbosity();
+}
 
-Metric::Metric(uint64_t value, const std::string& name, Verbosity verbosity) :
-  mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
-{ overwriteVerbosity(); }
+Metric::Metric(uint64_t value, const std::string& name, Verbosity verbosity) : mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
+{
+  overwriteVerbosity();
+}
 
-Metric::Metric(std::variant< int, std::string, double, uint64_t > value, const std::string& name, Verbosity verbosity) :
-  mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
-{ overwriteVerbosity(); }
+Metric::Metric(std::variant<int, std::string, double, uint64_t> value, const std::string& name, Verbosity verbosity) : mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
+{
+  overwriteVerbosity();
+}
 
-std::variant< int, std::string, double, uint64_t > Metric::getValue() const
+std::variant<int, std::string, double, uint64_t> Metric::getValue() const
 {
   return mValue;
 }
@@ -88,7 +97,7 @@ void Metric::overwriteVerbosity()
   }
 }
 
-Metric& Metric::operator=(const std::variant< int, std::string, double, uint64_t >& value)
+Metric& Metric::operator=(const std::variant<int, std::string, double, uint64_t>& value)
 {
   mValue = value;
   return *this;

@@ -17,10 +17,12 @@
 
 #include "../src/Backends/Flume.h"
 
-
-namespace o2 {
-namespace monitoring {
-namespace Test {
+namespace o2
+{
+namespace monitoring
+{
+namespace Test
+{
 
 BOOST_AUTO_TEST_CASE(checkJsonEncoding)
 {
@@ -45,8 +47,6 @@ BOOST_AUTO_TEST_CASE(simplySendMetric)
   o2::monitoring::Metric metric{10, "myCrazyMetric"};
   flumeBackend.send(metric);
 }
-
-
 
 } // namespace Test
 } // namespace monitoring

@@ -26,14 +26,18 @@ namespace monitoring
 namespace backends
 {
 
-template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
-template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
+template <class... Ts>
+struct overloaded : Ts... {
+  using Ts::operator()...;
+};
+template <class... Ts>
+overloaded(Ts...)->overloaded<Ts...>;
 
 inline unsigned long StdOut::convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp)
 {
-  return std::chrono::duration_cast <std::chrono::milliseconds>(
-    timestamp.time_since_epoch()
-  ).count();
+  return std::chrono::duration_cast<std::chrono::milliseconds>(
+           timestamp.time_since_epoch())
+    .count();
 }
 
 StdOut::StdOut(const std::string& prefix) : mStream(std::cout), mPrefix(prefix)
@@ -47,11 +51,13 @@ void StdOut::addGlobalTag(std::string_view name, std::string_view value)
   std::string tag = name.data();
   tag += "=";
   tag += value;
-  if (!tagString.empty()) tagString += ",";
+  if (!tagString.empty())
+    tagString += ",";
   tagString += tag;
 }
 
-void StdOut::send(std::vector<Metric>&& metrics) {
+void StdOut::send(std::vector<Metric>&& metrics)
+{
   for (auto& m : metrics) {
     send(m);
   }
@@ -65,26 +71,26 @@ void StdOut::sendMultiple(std::string measurement, std::vector<Metric>&& metrics
     metricTags += tags::TAG_KEY[key];
     metricTags += "=";
     metricTags += tags::GetValue(value);
-  } 
+  }
   for (auto& metric : metrics) {
-    auto value = std::visit(overloaded {
-      [](const std::string& value) -> std::string { return value; },
-      [](auto value) -> std::string { return std::to_string(value); }
-    }, metric.getValue());
+    auto value = std::visit(overloaded{
+                              [](const std::string& value) -> std::string { return value; },
+                              [](auto value) -> std::string { return std::to_string(value); }},
+                            metric.getValue());
 
     mStream << "[" << mPrefix << "] " << measurement << '/' << metric.getName() << ',' << metric.getType() << ' '
-      << value << ' ' << convertTimestamp(metric.getTimestamp()) << ' ' << tagString
-      << metricTags << '\n';
+            << value << ' ' << convertTimestamp(metric.getTimestamp()) << ' ' << tagString
+            << metricTags << '\n';
   }
 }
 
 void StdOut::send(const Metric& metric)
 {
-  auto value = std::visit(overloaded {
-    [](const std::string& value) -> std::string { return value; },
-    [](auto value) -> std::string { return std::to_string(value); }
-  }, metric.getValue());
-  
+  auto value = std::visit(overloaded{
+                            [](const std::string& value) -> std::string { return value; },
+                            [](auto value) -> std::string { return std::to_string(value); }},
+                          metric.getValue());
+
   mStream << "[" << mPrefix << "] " << metric.getName() << ',' << metric.getType() << " " << value
           << ' ' << convertTimestamp(metric.getTimestamp()) << ' ' << tagString;
 

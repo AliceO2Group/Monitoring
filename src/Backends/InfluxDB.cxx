@@ -29,29 +29,31 @@ namespace monitoring
 namespace backends
 {
 
-template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
-template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
+template <class... Ts>
+struct overloaded : Ts... {
+  using Ts::operator()...;
+};
+template <class... Ts>
+overloaded(Ts...)->overloaded<Ts...>;
 
-InfluxDB::InfluxDB(const std::string& host, unsigned int port) :
-  mTransport(std::make_unique<transports::UDP>(host, port))
+InfluxDB::InfluxDB(const std::string& host, unsigned int port) : mTransport(std::make_unique<transports::UDP>(host, port))
 {
   MonLogger::Get() << "InfluxDB/UDP backend initialized"
-                   << " ("<< host << ":" << port << ")" << MonLogger::End();
+                   << " (" << host << ":" << port << ")" << MonLogger::End();
 }
 
 InfluxDB::InfluxDB() {}
 
-InfluxDB::InfluxDB(const std::string& socketPath) :
-  mTransport(std::make_unique<transports::Unix>(socketPath))
+InfluxDB::InfluxDB(const std::string& socketPath) : mTransport(std::make_unique<transports::Unix>(socketPath))
 {
   MonLogger::Get() << "InfluxDB/Unix backend initialized (" << socketPath << ")" << MonLogger::End();
 }
 
 inline unsigned long InfluxDB::convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp)
 {
-  return std::chrono::duration_cast <std::chrono::nanoseconds>(
-    timestamp.time_since_epoch()
-  ).count();
+  return std::chrono::duration_cast<std::chrono::nanoseconds>(
+           timestamp.time_since_epoch())
+    .count();
 }
 
 void InfluxDB::escape(std::string& escaped)
@@ -68,17 +70,18 @@ void InfluxDB::sendMultiple(std::string measurement, std::vector<Metric>&& metri
   convert << measurement << "," << tagSet << " ";
 
   for (const auto& metric : metrics) {
-   convert << metric.getName() << "=";
-   std::visit(overloaded {
-      [&convert](uint64_t value) { convert << value << 'i'; },
-      [&convert](int value) { convert << value << 'i'; },
-      [&convert](double value) { convert << value; },
-      [&convert](const std::string& value) { convert << '"' << value << '"'; },
-      }, metric.getValue());
+    convert << metric.getName() << "=";
+    std::visit(overloaded{
+                 [&convert](uint64_t value) { convert << value << 'i'; },
+                 [&convert](int value) { convert << value << 'i'; },
+                 [&convert](double value) { convert << value; },
+                 [&convert](const std::string& value) { convert << '"' << value << '"'; },
+               },
+               metric.getValue());
     convert << ",";
   }
   convert.seekp(-1, std::ios_base::end);
-  convert << " " <<  convertTimestamp(metrics.back().getTimestamp());
+  convert << " " << convertTimestamp(metrics.back().getTimestamp());
 
   try {
     mTransport->send(convert.str());
@@ -86,7 +89,8 @@ void InfluxDB::sendMultiple(std::string measurement, std::vector<Metric>&& metri
   }
 }
 
-void InfluxDB::send(std::vector<Metric>&& metrics) {
+void InfluxDB::send(std::vector<Metric>&& metrics)
+{
   std::string influxMetrics = "";
   for (const auto& metric : metrics) {
     influxMetrics += toInfluxLineProtocol(metric);
@@ -97,7 +101,6 @@ void InfluxDB::send(std::vector<Metric>&& metrics) {
     mTransport->send(std::move(influxMetrics));
   } catch (MonitoringException&) {
   }
-
 }
 
 void InfluxDB::send(const Metric& metric)
@@ -108,7 +111,8 @@ void InfluxDB::send(const Metric& metric)
   }
 }
 
-std::string InfluxDB::toInfluxLineProtocol(const Metric& metric) {
+std::string InfluxDB::toInfluxLineProtocol(const Metric& metric)
+{
   std::stringstream convert;
   std::string name = metric.getName();
   escape(name);
@@ -120,12 +124,13 @@ std::string InfluxDB::toInfluxLineProtocol(const Metric& metric) {
 
   convert << " value=";
 
-  std::visit(overloaded {
-    [&convert](uint64_t value) { convert << value << 'i'; },
-    [&convert](int value) { convert << value << 'i'; },
-    [&convert](double value) { convert << value; },
-    [&convert](const std::string& value) { convert << '"' << value << '"'; },
-    }, metric.getValue());
+  std::visit(overloaded{
+               [&convert](uint64_t value) { convert << value << 'i'; },
+               [&convert](int value) { convert << value << 'i'; },
+               [&convert](double value) { convert << value; },
+               [&convert](const std::string& value) { convert << '"' << value << '"'; },
+             },
+             metric.getValue());
 
   convert << " " << convertTimestamp(metric.getTimestamp());
   return convert.str();
@@ -135,8 +140,10 @@ void InfluxDB::addGlobalTag(std::string_view name, std::string_view value)
 {
   std::string sName = name.data();
   std::string sValue = value.data();
-  escape(sName); escape(sValue);
-  if (!tagSet.empty()) tagSet += ",";
+  escape(sName);
+  escape(sValue);
+  if (!tagSet.empty())
+    tagSet += ",";
   tagSet += sName + "=" + sValue;
 }
 

@@ -28,8 +28,7 @@ namespace monitoring
 namespace transports
 {
 
-TCP::TCP(const std::string &hostname, int port) :
-  mSocket(mIoService)
+TCP::TCP(const std::string& hostname, int port) : mSocket(mIoService)
 {
   boost::asio::ip::tcp::resolver resolver(mIoService);
   boost::asio::ip::tcp::resolver::query query(hostname, std::to_string(port));
@@ -43,14 +42,14 @@ TCP::TCP(const std::string &hostname, int port) :
   }
   if (error) {
     throw MonitoringException("TCP connection", error.message());
-  } 
+  }
 }
 
 void TCP::send(std::string&& message)
 {
   try {
     mSocket.send(boost::asio::buffer(message));
-  } catch(const boost::system::system_error& e) {
+  } catch (const boost::system::system_error& e) {
     MonLogger::Get() << "TCP send: " << e.what() << MonLogger::End();
   }
 }

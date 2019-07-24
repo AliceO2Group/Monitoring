@@ -41,8 +41,7 @@ enum class Key : unsigned short int { Hostname,
 
 /// Tag keys array
 static constexpr std::array<std::string_view, 9> TAG_KEY = {
-  "hostname"sv, "rolenane"sv, "name"sv, "detector"sv, "subsystem"sv, "CRU"sv, "FLP"sv, "EPN"sv, "unit"sv
-};
+  "hostname"sv, "rolenane"sv, "name"sv, "detector"sv, "subsystem"sv, "CRU"sv, "FLP"sv, "EPN"sv, "unit"sv};
 
 // Tag values
 enum class Value : unsigned short int { ACO,
@@ -80,7 +79,7 @@ enum class Value : unsigned short int { ACO,
                                         Seconds };
 
 // Tag value array
-static constexpr std::array<std::string_view, 33> TAG_VALUE = { {
+static constexpr std::array<std::string_view, 33> TAG_VALUE = {{
   "ACO"sv,
   "AD"sv,      // 1
   "CPV"sv,     // 2
@@ -114,7 +113,7 @@ static constexpr std::array<std::string_view, 33> TAG_VALUE = { {
   "us"sv,      //30
   "ms"sv       //31
   "s"sv        // 32
-} };
+}};
 static constexpr std::string_view GetValue(const int value)
 {
   return value >= 0 ? TAG_VALUE[value] : std::to_string(0 - value);

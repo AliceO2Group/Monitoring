@@ -7,16 +7,17 @@
 
 using namespace o2::monitoring;
 
-int main() {
+int main()
+{
   auto monitoring = MonitoringFactory::Get("stdout://");
 
   // Get reference to metrics
-  auto& qcMetric = monitoring->getAutoPushMetric("qcMetric"); 
+  auto& qcMetric = monitoring->getAutoPushMetric("qcMetric");
   auto& qcMetric2 = monitoring->getAutoPushMetric("qcMetric2");
-  std::this_thread::sleep_for (std::chrono::milliseconds(2000));
+  std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
   // Update values
   qcMetric = 123;
   qcMetric2 = 321;
-  std::this_thread::sleep_for (std::chrono::milliseconds(2000));
-}	
+  std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+}
