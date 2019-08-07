@@ -57,8 +57,9 @@ matrix:
         skip_cleanup: true
         github_token: $GITHUB_API_TOKEN
         local_dir: build/doc/html
-before_script: 
+before_script:
   - cd $TRAVIS_BUILD_DIR; mkdir build; cd build
+  - CXXFLAGS="${CXXFLAGS} -Werror"
 script:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then cmake .. -DCMAKE_BUILD_TYPE=Debug;
     else
