@@ -82,6 +82,11 @@ Metric DerivedMetrics::process(Metric& metric, DerivedMetricMode mode)
        auto previous = search->second.getValue();
        auto rate = std::visit(VariantVisitorRate(timestampCount), current, previous);
 
+       // handle situation when a new run starts
+       if (rate < 0 && current == 0) {
+         rate = 0;
+       }
+
        // swap metrics
        mStorage.erase(key);
        mStorage.insert(std::make_pair(key, metric));
