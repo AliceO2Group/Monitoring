@@ -19,10 +19,16 @@
 #include <map>
 #include <memory>
 #include <string>
-#include <variant>
 #include <vector>
 #include "VariantVisitorAdd.h"
 #include "VariantVisitorRate.h"
+
+template <class... Ts>
+struct overloaded : Ts... {
+  using Ts::operator()...;
+};
+template <class... Ts>
+overloaded(Ts...)->overloaded<Ts...>;
 
 namespace o2
 {
@@ -81,6 +87,15 @@ Metric DerivedMetrics::process(Metric& metric, DerivedMetricMode mode)
        auto current = metric.getValue();
        auto previous = search->second.getValue();
        auto rate = std::visit(VariantVisitorRate(timestampCount), current, previous);
+
+       // handle situation when a new run starts
+       auto isZero = std::visit(overloaded{
+                                  [](auto arg) { return arg == 0; },
+                                  [](const std::string& arg) { return arg == ""; }},
+                                current);
+       if (rate < 0 && isZero) {
+         rate = 0;
+       }
 
        // swap metrics
        mStorage.erase(key);
