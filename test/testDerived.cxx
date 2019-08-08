@@ -51,7 +51,6 @@ BOOST_AUTO_TEST_CASE(derivedRateInt)
   }
 }
 
-
 BOOST_AUTO_TEST_CASE(derivedRateInt_newRun)
 {
   struct RateResults {
@@ -74,7 +73,6 @@ BOOST_AUTO_TEST_CASE(derivedRateInt_newRun)
     }
   }
 }
-
 
 BOOST_AUTO_TEST_CASE(derivedRateDouble)
 {
