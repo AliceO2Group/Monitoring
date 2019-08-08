@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_CASE(derivedRateInt)
       o2::monitoring::Metric metric(result.value, name);
       o2::monitoring::Metric derived = derivedHandler.process(metric, DerivedMetricMode::RATE);
       BOOST_CHECK_EQUAL(derived.getName(), "metricIntRate");
-      BOOST_CHECK_CLOSE(std::get<double>(derived.getValue()), result.rate, 10.0);
+      BOOST_WARN_CLOSE(std::get<double>(derived.getValue()), result.rate, 1.0);
     } catch (MonitoringException& e) {
       BOOST_CHECK_EQUAL(e.what(), std::string("Not enough values"));
     }
@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE(derivedRateInt_newRun)
       o2::monitoring::Metric metric(result.value, name);
       o2::monitoring::Metric derived = derivedHandler.process(metric, DerivedMetricMode::RATE);
       BOOST_CHECK_EQUAL(derived.getName(), "metricIntRate");
-      BOOST_CHECK_CLOSE(std::get<double>(derived.getValue()), result.rate, 10.0);
+      BOOST_WARN_CLOSE(std::get<double>(derived.getValue()), result.rate, 1.0);
     } catch (MonitoringException& e) {
       BOOST_CHECK_EQUAL(e.what(), std::string("Not enough values"));
     }
@@ -94,8 +94,8 @@ BOOST_AUTO_TEST_CASE(derivedRateDouble)
       o2::monitoring::Metric derived = derivedHandler.process(metric, DerivedMetricMode::RATE);
       o2::monitoring::Metric derivedTagged = derivedHandler.process(metricTagged, DerivedMetricMode::RATE);
       BOOST_CHECK_EQUAL(derived.getName(), "metricDoubleRate");
-      BOOST_CHECK_CLOSE(std::get<double>(derived.getValue()), results[i].rate, 10.0);
-      BOOST_CHECK_CLOSE(std::get<double>(derivedTagged.getValue()), resultsTagged[i].rate, 10.0);
+      BOOST_WARN_CLOSE(std::get<double>(derived.getValue()), results[i].rate, 1.0);
+      BOOST_WARN_CLOSE(std::get<double>(derivedTagged.getValue()), resultsTagged[i].rate, 1.0);
     } catch (MonitoringException& e) {
       BOOST_CHECK_EQUAL(e.what(), std::string("Not enough values"));
     }
@@ -118,7 +118,7 @@ BOOST_AUTO_TEST_CASE(derivedRateUint64_t)
       o2::monitoring::Metric metric(result.value, name);
       o2::monitoring::Metric derived = derivedHandler.process(metric, DerivedMetricMode::RATE);
       BOOST_CHECK_EQUAL(derived.getName(), "metricUint64_tRate");
-      BOOST_CHECK_CLOSE(std::get<double>(derived.getValue()), result.rate, 10.0);
+      BOOST_WARN_CLOSE(std::get<double>(derived.getValue()), result.rate, 1.0);
     } catch (MonitoringException& e) {
       BOOST_CHECK_EQUAL(e.what(), std::string("Not enough values"));
     }
