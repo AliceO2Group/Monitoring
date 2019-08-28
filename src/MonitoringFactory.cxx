@@ -30,7 +30,7 @@
 #include "Backends/ApMonBackend.h"
 #endif
 
-#ifdef O2_MONITORING__WITH_KAFKA
+#ifdef O2_MONITORING_WITH_KAFKA
 #include "Backends/Kafka.h"
 #endif
 
@@ -39,7 +39,7 @@ namespace o2
 /// ALICE O2 Monitoring system
 namespace monitoring
 {
-#ifdef _WITH_KAFKA
+#ifdef O2_MONITORING_WITH_KAFKA
 std::unique_ptr<Backend> getKafka(http::url uri)
 {
   if (uri.search.size() > 0) {

@@ -139,7 +139,7 @@ target_compile_definitions(Monitoring
     $<$<BOOL:${APPLE}>:O2_MONITORING_OS_MAC>
     $<$<BOOL:${LINUX}>:O2_MONITORING_OS_LINUX>
     $<$<BOOL:${ApMon_FOUND}>:O2_MONITORING_WITH_APPMON>
-    $<$<BOOL:${RdKafka_FOUND}>:O2_MONITORING_WITH__WITH_KAFKA>
+    $<$<BOOL:${RdKafka_FOUND}>:O2_MONITORING_WITH_KAFKA>
   )
 
 # Use C++17
