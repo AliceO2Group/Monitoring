@@ -136,6 +136,7 @@ void Metric::setDefaultVerbosity(Verbosity verbosity)
   Metric::DefaultVerbosity = verbosity;
 }
 
+bool Metric::includeTimestamp = true;
 Verbosity Metric::DefaultVerbosity = Verbosity::Info;
 std::map<std::underlying_type<Verbosity>::type, std::regex> Metric::mRegexPolicy;
 

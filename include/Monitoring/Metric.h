@@ -116,6 +116,9 @@ class Metric
   /// Regex policy setter
   static void setVerbosityPolicy(Verbosity verbosity, const std::regex& regex);
 
+  /// Whether timestamp should be included or not
+  static bool includeTimestamp;
+
  protected:
   /// Allow DerivedMetrics access to setTags
   friend class o2::monitoring::DerivedMetrics;
