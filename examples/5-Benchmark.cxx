@@ -8,6 +8,7 @@
 #include <random>
 
 using Monitoring = o2::monitoring::MonitoringFactory;
+using o2::monitoring::Metric;
 
 int main(int argc, char* argv[])
 {
@@ -22,7 +23,7 @@ int main(int argc, char* argv[])
   std::uniform_int_distribution<> intDist(1, 100);
 
   boost::program_options::options_description desc("Allowed options");
-  desc.add_options()("sleep", boost::program_options::value<int>(), "Thread sleep in microseconds")("url", boost::program_options::value<std::string>()->required(), "URL to monitoring backend (or list of comma seperated URLs)")("id", boost::program_options::value<std::string>(), "Instance ID")("count", boost::program_options::value<int>(), "Number of loop cycles")("multiple", boost::program_options::bool_switch()->default_value(false), "Sends multiple metrics per measurement")("monitor", boost::program_options::bool_switch()->default_value(false), "Enabled process monitor")("buffer", boost::program_options::value<int>(), "Creates buffr of given size")("measurements", boost::program_options::value<int>(), "Number of different measurements");
+  desc.add_options()("sleep", boost::program_options::value<int>(), "Thread sleep in microseconds")("url", boost::program_options::value<std::string>()->required(), "URL to monitoring backend (or list of comma seperated URLs)")("id", boost::program_options::value<std::string>(), "Instance ID")("count", boost::program_options::value<int>(), "Number of loop cycles")("multiple", boost::program_options::bool_switch()->default_value(false), "Sends multiple metrics per measurement")("latency", boost::program_options::bool_switch()->default_value(false), "Sends timestamp as a value")("monitor", boost::program_options::bool_switch()->default_value(false), "Enabled process monitor")("buffer", boost::program_options::value<int>(), "Creates buffr of given size")("measurements", boost::program_options::value<int>(), "Number of different measurements");
 
   boost::program_options::variables_map vm;
   boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
@@ -51,6 +52,18 @@ int main(int argc, char* argv[])
                                                                     {intDist(mt), "intMetric" + std::to_string(i)}});
         std::this_thread::sleep_for(std::chrono::microseconds(sleep));
       }
+      if (!vm.count("count"))
+        j--;
+    }
+  } else if (vm["latency"].as<bool>()) {
+    Metric::includeTimestamp = false;
+    for (int j = 1; j <= count; j++) {
+      auto timestamp = Metric::getCurrentTimestamp();
+      uint64_t nowTimestamp = std::chrono::duration_cast<std::chrono::nanoseconds>(
+           timestamp.time_since_epoch())
+          .count();
+      monitoring->send({nowTimestamp, "latency"});
+      std::this_thread::sleep_for(std::chrono::microseconds(sleep));
       if (!vm.count("count"))
         j--;
     }

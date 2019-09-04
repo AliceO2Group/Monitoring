@@ -81,7 +81,9 @@ void InfluxDB::sendMultiple(std::string measurement, std::vector<Metric>&& metri
     convert << ",";
   }
   convert.seekp(-1, std::ios_base::end);
-  convert << " " << convertTimestamp(metrics.back().getTimestamp());
+  if (Metric::includeTimestamp) {
+    convert << " " << convertTimestamp(metrics.back().getTimestamp());
+  }
 
   try {
     mTransport->send(convert.str());
@@ -131,8 +133,9 @@ std::string InfluxDB::toInfluxLineProtocol(const Metric& metric)
                [&convert](const std::string& value) { convert << '"' << value << '"'; },
              },
              metric.getValue());
-
-  convert << " " << convertTimestamp(metric.getTimestamp());
+  if (Metric::includeTimestamp) {
+    convert << " " << convertTimestamp(metric.getTimestamp());
+  }
   return convert.str();
 }
 
