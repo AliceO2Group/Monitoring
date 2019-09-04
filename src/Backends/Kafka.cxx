@@ -77,11 +77,7 @@ void Kafka::send(const Metric& metric)
 
 void Kafka::addGlobalTag(std::string_view name, std::string_view value)
 {
-  std::string sName = name.data();
-  std::string sValue = value.data();
-  if (!tagSet.empty())
-    tagSet += ",";
-  tagSet += sName + "=" + sValue;
+  mInfluxDB.addGlobalTag(name, value);
 }
 
 } // namespace backends
