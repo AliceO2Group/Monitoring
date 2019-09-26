@@ -1,0 +1,11 @@
+on:
+  release
+    types: [published]
+
+jobs:
+  bump_alidist:
+    runs-on: ubuntu-18.04
+      steps:
+        - uses: actions/checkout@v1
+        - run: echo "${GL_PASSWORD}" | kinit "${GL_USERNAME}"
+        - run: "curl -H 'ADFS_LOGIN: aliceo2ci' -X POST -k --negotiate -u : ${ALIJENKINS_URL} -H 'Content-Type: application/x-www-form-urlencoded' -d 'PACKAGE_NAME=Monitoring&DEFAULTS=o2-dataflow&ARCHITECTURE=slc7_x86-64'"
