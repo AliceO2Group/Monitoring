@@ -121,6 +121,10 @@ The alarming component sends notification to experts when triggered by Flume. Fo
 
 (...)
 
+### 3.7 Notification service
+
+TODO
+
 ## 4. Deployment
 In order to quickly and flawlessly deploy the monitoring tools [Ansible roles](https://gitlab.cern.ch/AliceO2Group/system-configuration/tree/master/ansible) were prepared for the following components:
 - Telegraf
@@ -129,7 +133,11 @@ In order to quickly and flawlessly deploy the monitoring tools [Ansible roles](h
 - InfluxDB
 - Grafana
 
+## 5. Hardware
 
- ### Team
+TODO
+
+
+### Team
  - [jvino](https://github.com/jvino) - Gioacchino Vino
  - [awegrzyn](https://github.com/awegrzyn) - Adam Wegrzynek
