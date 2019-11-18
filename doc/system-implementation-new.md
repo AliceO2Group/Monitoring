@@ -44,15 +44,35 @@ The detailed description of the library in available in the [README](https://git
 
 ### 3.2 Telegraf - system sensors
 
-Telegraf provides system sensors and it uses custom plugins to scrape metrics from various O<sup>2</sup> services and hardware (like CRU, CCDB).
+Telegraf provides system sensors and it uses custom plugins to scrape metrics from various O<sup>2</sup> services and hardware (like CRU, CCDB). It also acts as local collector - it receives metrics from all monitoring library instances on a given host over Unix socket and forwards them to Kafka in batches.
 
 #### 3.2.1 System sensors
+The following plugins were selected in order to provide system overview of each node:
+- [cpu](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/cpu)
+- [mem](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/mem)
+- [net](https://github.com/influxdata/telegraf/blob/master/plugins/inputs/net/NET_README.md)
+- [system](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/system)
+- [kernel](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/kernel)
+- [disk](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/disk)
+- [diskio](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/diskio)
+
+#### 3.2.2 Custom scrapers
+
+Custom scrapes use following plugins:
+- `inputs.exec` to execute bash scripts
+- `inputs.http` to scrape JSON-encoded metrics and transform them into Influx Line Protocol
+
+#### 3.2.3 Local collector
+
+In order to collect metrics from monitoring library instances `unixgram://` socket from `inputs.socket_listener` is used.
+Telegraf creates Unix socket file with `telegraf:telegraf` permission what limits the processes that can write to it.
+
+The metrics are output to Kafka using `outputs.kafka` plugin.
+
+#### 3.2.4 Kafka monitoring
 
 TODO
-
-#### 3.2.2 Custom plugins
-
-TODO
+`inputs.jolokia2_agent` plugin...
 
 ### 3.3 Apache Kafka - Collection, processing and routing
 
