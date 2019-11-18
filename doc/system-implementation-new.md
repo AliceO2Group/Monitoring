@@ -36,36 +36,41 @@ This section gives an overview of Modular Stack components, see Figure 2, while 
 The O<sup>2</sup> Modular Stack collects three classes of metrics (as defined in Section 2) with assistance of the [O<sup>2</sup> Monitoring library](http://github.com/AliceO2Group/Monitoring) (Application and process metrics)
 and [Telegraf](https://docs.influxdata.com/telegraf/) (System metrics). Telegraf deploys system sensors to collect metrics related to CPU, memory and I/O from all O<sup>2</sup> nodes. The core component (Apache Kafka) ensures high throughput, data pipelines and fault-tolerant services  in order to collect, route and process metrics. [InfluxDB](https://docs.influxdata.com/influxdb/v1.5/), "a custom high-performance data store written specifically for time series data", was selected as a storage backend. [Grafana](https://grafana.com/) provides graphical interfaces to display near real-time and historical metrics.
 
-### 3.1 Sensors and data sources
-This section provides more details on how three classes of metrics are collected using O<sup>2</sup> Monitoring library and Telegraf.
-
-#### 3.1.1 Monitoring library - application and process performance metrics
+### 3.1 Monitoring library - application and process performance metrics
 
 The [O<sup>2</sup> Monitoring library](https://github.com/AliceO2Group/Monitoring) is an entry point for the O<sup>2</sup> processes to the Monitoring subsystem. It forwards user defined and [process performance](https://github.com/AliceO2Group/Monitoring/blob/dev/README.md#monitoring-process) metrics to one of the [supported backends](https://github.com/AliceO2Group/Monitoring/blob/dev/README.md#monitoring-instance). It also allows to calculate [derived metrics](https://github.com/AliceO2Group/Monitoring/blob/dev/README.md#calculating-derived-metrics) (eg. rate) and supports [metric buffering](https://github.com/AliceO2Group/Monitoring/blob/dev/README.md#buffering-metrics) in order to improve the efficiency metric transport and decrease number context switches.
 
 The detailed description of the library in available in the [README](https://github.com/AliceO2Group/Monitoring/blob/dev/README.md) file.
 
-#### 3.1.2 Telegraf - system metrics
+### 3.2 Telegraf - system sensors
+
+Telegraf provides system sensors and it uses custom plugins to scrape metrics from various O<sup>2</sup> services and hardware (like CRU, CCDB).
+
+#### 3.2.1 System sensors
 
 TODO
 
-### 3.2 Apache Kafka - Collection, processing and routing
+#### 3.2.2 Custom plugins
 
 TODO
 
-#### 3.2.1 Producers
+### 3.3 Apache Kafka - Collection, processing and routing
 
 TODO
 
-#### 3.2.2 Consumers
+#### 3.3.1 Producers
 
 TODO
 
-#### 3.2.3 Scalability - Broker, Topic, Replication factor
+#### 3.3.2 Consumers
 
 TODO
 
-#### 3.2.4 Processing - Kafka Streams
+#### 3.3.3 Scalability - Broker, Topic, Replication factor
+
+TODO
+
+#### 3.3.4 Processing - Kafka Streams
 
 TODO
 
