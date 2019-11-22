@@ -160,83 +160,76 @@ In order to quickly and flawlessly deploy the monitoring tools [Ansible roles](h
 
 ## 5. Hardware
 
-### 5.1 InfluxDB Machine
-This machine must have the computation resouces in order to allow the InfluxDB instance running on it to:
-- write on disk at least 600 k value/s,
-- execute continuously inner metric aggregation tasks (continuous queries),
-- provide data to Grafana as fast as possible,
-- store data on this for the requires time (3 days for the raw data and 300 days for historical aggregated data).
+### 5.1 InfluxDB node
+The InfluxDB related performance requirements are:
+- Write up to 600 k value/s
+- Execute continuously inner metric aggregation tasks (continuous queries)
+- Serve queries to load Grafana dashboards as fast as possible
+- Store data: 3-7 days for the raw data; 300 days for historical aggregated data
 
-In order to increase the write performance, fast SSD disk are welcome.
-An extensively write test has been done in order to measure the resource usage on the machine.
+In order to translate above database specific requirements into hardware requirements two extensive write tests were performed.
 
-A 300k msg/s was sent to Kafka and written in InfluxDB using 3 InfluxDB Kafka Consumers. 
-CPU usage: 1200% avg (In Hyper threading, so 6 cores)
-RAM usage: 11 GB
-IN traffic: 36 MB/s
-Disk usage:
-- raw database: 70 GB
-- historical database: 250 GB (estimated using 6h test results)
+**Scenario 1**: **300 k msg/s** were sent to Kafka and then to InfluxDB using 3 custom InfluxDB Kafka Consumers. The results are following:
+- CPU usage (avg): 1200%
+- RAM usage: 11 GB
+- Icomming traffic: 36 MB/s
+- Disk usage:
+  - Raw database: 70 GB
+  - Historical database: 250 GB (estimated using 6h test results)
 
-Sending 600 k value/s the measured resource usage are:
-- CPU usage: 2600% avg -> 13 cores
+**Scenario 2**: Sending **600 k msg/s**:
+- CPU usage (avg): 2600% avg -> 13 cores
 - RAM usage: 15 GB
-- In traffic: 70 MB/s
+- Incomming traffic: 70 MB/s
 
 TOTAL CPU = 24 cores
 TOTAL RAM = 64 GB
 
 ![](images/influxdb_performance.png)
 
-<p align="center">Figure 3. InfluxDB Performance evaluation</p>
+<p align="center">Figure 3. InfluxDB hardware eslimation</p>
 
 
-So the proposals are:
-Considering a single InfluxDB machine:
-- CPU >= 32 cores
-- RAM >= 32 GB
-- Disk >= 2 TB fast SSD
-- Network >= 1 Gbps
-
-If 2 InfluxDB machines are allowed:
-- CPU = 16 cores
-- RAM = 16 GB
-- Disk = 1 TB fast SSD
-- Network >= 1 Gbps
+Based on above tests the recommended specification for the InfluxDB node is:
+- CPU: 20+ high performance cores
+- RAM: 128+ GB
+- Disk size: 4+ TB
+- Disk IO: 10k IOPS (4KB, QD1), 70k IOPS (4KB, QD32)
+- Disk reliability: medium (during TSs and LSs data will be backed up to EOS)
+- Network: 10+ Gbps
 
 
-### 5.2 Kafka Machines
-These machines must provide the computation resource to allow the Kafka brokers and Kafka (consumer and processing) components can work without bottleneck.
-The required functionalities are:
-Kafka Brokers:
-- manage >= 1000 of data sources (components that send data to the Kafka cluster),
-- manage at least 600k value/s from the input components and all internal data exchange,
-- be fast enogh in order to fullfil the latency requirements.
-
-Kafka components:
-- perform tasks using as less resources as possible.
+### 5.2 Kafka nodes
 
 #### Kafka brokers
 
-Tests has been done to measure the resource usage using 600k and 300k value/s:
+The Kafka broker related performance requirements are:
+- Manage >= 1000 of data sources
+- Manage at least 600k value/s
+- Do not introduce delay higher than the given requirement
+
+Tests has been done to measure the resource usage while sending 600k and 300k value/s:
 **600k value/s**
-CPU usage = avg. 150% (peak 600%) -> 2-3 cores
-RAM usage = 11GB
-IN traffic >= 80MB/s
-OUT traffic >= 60MB
+- CPU usage avg: 150%, peak: 600%
+- RAM usage: 11GB
+- Incomming traffic: 80MB/s
+- Outgoing traffic: 60MB
 
 **300k value/s**
-CPU usage = avg. 150% (peak 600%) -> 2-3 cores
-RAM usage = 11GB
-IN traffic >= 50MB/s
-OUT traffic >= 50MB
-Disk usage = 30 GB ( 2 high dense data topics with 5 minutes of retention policy)
+- CPU usage avg: 150%, peak: 600%
+- RAM usage: 11GB
+- Incoming traffic: 50MB/s
+- Outgoing traffic: 50MB
+- Disk usage: 30 GB (2 high dense data topics with 5 minutes of retention policy)
 
 ![](images/kafka_performance.png)
 
-<p align="center">Figure 3. InfluxDB Performance evaluation</p>
+<p align="center">Figure 3. Kafka hardware estimation</p>
 
 #### Kafka components
+
+Kafka consumers and Kafka Stream related processing performance requirements are:
+- Perform tasks using as less resources as possible
 
 | Component Name        | CPU usage [%] | RAM usage [GB]  |
 | :-------------: |:-------------:| :-----:|
@@ -245,12 +238,14 @@ Disk usage = 30 GB ( 2 high dense data topics with 5 minutes of retention policy
 | ChangeLog | 100 | 1.5 |
 | Avg Aggregator | 100-140 | 6 |
 
-Hardware proposal 1:
-On each machine executes a kafka broker and all kafka component types
-CPU = 16 cores
-RAM = 32GB
-Disk = 500 GB SSD
-Network >= 10 Gbps
+
+The On each machine executes a kafka broker and all kafka component types
+- CPU: 16+ low performance cores
+- RAM: 64+ GB
+- Disk size: 500+ GB
+- Disk IO: 15k IOPS (4KB, QD32), priority: sequential write
+- Disk reliability: very low (irrelevant)
+- Network: 10+ Gbps
 
 ### Team
  - [jvino](https://github.com/jvino) - Gioacchino Vino
