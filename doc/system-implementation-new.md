@@ -175,28 +175,26 @@ In order to translate above database specific requirements into hardware require
 - Icomming traffic: 36 MB/s
 - Disk usage:
   - Raw database: 70 GB (3 days)
-  - Historical database: 250 GB (estimated using 6h test results)
+  - Historical database: 250 GB (estimated using 6h test results, aggregated to 1 point per minute)
 
 **Scenario 2**: Sending **600 k msg/s**:
 - CPU usage (avg): 2600% avg
 - RAM usage: 15 GB
 - Incomming traffic: 70 MB/s with extremely high packet rate
 
-TOTAL CPU = 24 cores
-TOTAL RAM = 64 GB
-
 ![](images/influxdb_performance.png)
+<p align="center">Figure 3. InfluxDB hardware eslimation (TOTAL CPU = 24 cores, TOTAL RAM = 64 GB)</p>
 
-<p align="center">Figure 3. InfluxDB hardware eslimation</p>
-
+**Scenario 3**: Estimation of loading single Grafana dashboard:
+TODO
 
 Based on above tests the recommended specification for the InfluxDB node is:
 - CPU: 20+ high performance cores
 - RAM: 128+ GB
-- Disk size: 4+ TB
+- Disk size: 3+ TB
 - Disk IO: 10k IOPS (4KB, QD1), 70k IOPS (4KB, QD32)
 - Disk reliability: medium (during TSs and LSs data will be backed up to EOS)
-- Network: 10+ Gbps
+- Network: 20+ Gbps
 
 
 ### 5.2 Kafka nodes
