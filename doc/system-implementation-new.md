@@ -174,7 +174,7 @@ In order to translate above database specific requirements into hardware require
 - RAM usage: 11 GB
 - Icomming traffic: 36 MB/s
 - Disk usage:
-  - Raw database: 70 GB
+  - Raw database: 70 GB (3 days)
   - Historical database: 250 GB (estimated using 6h test results)
 
 **Scenario 2**: Sending **600 k msg/s**:
