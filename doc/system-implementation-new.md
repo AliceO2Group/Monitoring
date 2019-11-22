@@ -178,9 +178,9 @@ In order to translate above database specific requirements into hardware require
   - Historical database: 250 GB (estimated using 6h test results)
 
 **Scenario 2**: Sending **600 k msg/s**:
-- CPU usage (avg): 2600% avg -> 13 cores
+- CPU usage (avg): 2600% avg
 - RAM usage: 15 GB
-- Incomming traffic: 70 MB/s
+- Incomming traffic: 70 MB/s with extremely high packet rate
 
 TOTAL CPU = 24 cores
 TOTAL RAM = 64 GB
