@@ -245,6 +245,14 @@ The On each machine executes a kafka broker and all kafka component types
 - Disk reliability: very low (irrelevant)
 - Network: 10+ Gbps
 
+### 5.2 Grafana node
+
+In order to evaluate Grafana hardware requirements a simple Google Headless test was performed: A dummy dashboard contining 5 plots (14 curves) and 6 months of data (data point every 30 second) was loaded every 1 second. During the test `grafana-server` process utilized:
+- 6% of 16 core (E5520) CPU
+- 0.5% of 32 GB RAM
+
+In comparison the `influxd` process running at the same machine utilzed 500% of the same CPU, and 3% of RAM.
+
 ### Team
  - [jvino](https://github.com/jvino) - Gioacchino Vino
  - [awegrzyn](https://github.com/awegrzyn) - Adam Wegrzynek
