@@ -236,6 +236,7 @@ Kafka consumers and Kafka Stream related processing performance requirements are
 | ChangeLog | 100 | 1.5 |
 | Avg Aggregator | 100-140 | 6 |
 
+
 The On each machine executes a kafka broker and all kafka component types
 - CPU: 16+ low performance cores
 - RAM: 64+ GB
