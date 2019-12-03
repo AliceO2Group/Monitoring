@@ -168,6 +168,11 @@ The InfluxDB related performance requirements are:
 - Store data: 3-7 days for the raw data; 300 days for historical aggregated data
 
 In order to translate above database specific requirements into hardware requirements two extensive write tests were performed.
+Following, the hardware specifications of the machine hosting the InfluxDB instance under test.
+- CPU: Xeon E5-2670
+- RAM: 64 GB
+- Storage: 1.5TB (DELL PERC H730 Mini) SSD matrix
+- Ethernet: 40 Gbps
 
 **Scenario 1**: **300 k msg/s** were sent to Kafka and then to InfluxDB using 3 custom InfluxDB Kafka Consumers. The results are following:
 - CPU usage (avg): 1200%
@@ -206,7 +211,12 @@ The Kafka broker related performance requirements are:
 - Manage at least 600k value/s
 - Do not introduce delay higher than the given requirement
 
-Tests has been done to measure the resource usage while sending 600k and 300k value/s:
+Tests has been done to measure the resource usage for each of three Kafka brokers while sending 600k and 300k value/s:
+The following hardware specifications have been used to host each Kafka broker during the tests.
+- CPU: Xeon E5-2640 v3
+- RAM: 128 GB
+- Ethernet: 40 Gbps
+
 **600k value/s**
 - CPU usage avg: 150%, peak: 600%
 - RAM usage: 11GB
