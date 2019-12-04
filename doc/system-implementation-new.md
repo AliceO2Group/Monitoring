@@ -89,7 +89,7 @@ Most of the Kafka features (e.g. scalability, fault-tolerance and data pipelines
 
 Processing tasks have been implemented using Kafka Streams that inherits scalability and fault-tolerance features from Kafka. This library allows to implement both stateless (per message) and stateful (aggregation) processing tasks. Applications read and write data in topics belonging to the Kafka cluster.
 
-#### 3.2.4 Kafka monitoring
+#### 3.3.5 Kafka monitoring
 
 Apache Kafka brokers and clients report many internal metrics using JMX. Kafka statistics are exposed using Jolokia and collected over HTTP using Telegraf using the `inputs.jolokia2_agent` plugin. 
 A not-complete set of collected metrics are:
