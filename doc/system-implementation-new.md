@@ -19,13 +19,13 @@ Figure 1 shows the functional architecture of the system. Three monitoring data 
 
 These data sources send the monitoring data periodically to the server-side processing and aggregation task which can perform stream or batch operations such as: Suppression, Enrichment, Correlation, Custom aggregation and others.
 
-Afterwards data are forwarded to both storage and real-time dashboard. The storage supports high input metric rate, low storage size and downsampling. The near-real-time dashboard receives selected, processed metrics as soon as it is possible in order to allow experts to react to abnormal situations. This imposes a need of low latency transport protocol.
+Afterwards data are forwarded to both storage and real-time dashboard. The storage supports high input metric rate, low storage size and downsampling. The near-real-time dashboard receives selected, processed metrics as soon as it is possible in order to allow experts to react to abnormal situations. This imposes a need for low latency transport protocol.
 The historical dashboard displays data from the storage. As it has access to a larger variety of metrics it is mostly used by experts in order to drill down the issues and access detailed views.
 These dashboards display data as time series plots, gauges, bar, and other graphical objects. They allow access from various operating systems and from outside of the experimental area (Point 2).
 Eventually, the alarming component detects abnormal situations and notifies the experts by email, text messages or other means of notifications to quickly reaching them.
 
 ## 3. The Modular Stack
-The Modular Stack solution aims at fulfilling the requirements specified in the Section 1 by using multiple tools. Such approach enables the possibility of replacing one or more of the selected components in case alternative options provide improved performance or additional functionalities.
+The Modular Stack solution aims at fulfilling the requirements specified in Section 1 by using multiple tools. Such an approach enables the possibility of replacing one or more of the selected components in case alternative options provide improved performance or additional functionalities.
 This section gives an overview of Modular Stack components, see Figure 2, while the detailed description can be found in the following chapters.
 
 ![](images/monsta_arc.png)
@@ -33,7 +33,7 @@ This section gives an overview of Modular Stack components, see Figure 2, while 
 <p align="center">Figure 2. Modular Stack architecture</p>
 
 
-The O<sup>2</sup> Modular Stack collects three classes of metrics (as defined in Section 2) with assistance of the [O<sup>2</sup> Monitoring library](http://github.com/AliceO2Group/Monitoring) (Application and process metrics)
+The O<sup>2</sup> Modular Stack collects three classes of metrics (as defined in Section 2) with the assistance of the [O<sup>2</sup> Monitoring library](http://github.com/AliceO2Group/Monitoring) (Application and process metrics)
 and [Telegraf](https://docs.influxdata.com/telegraf/) (System metrics). Telegraf deploys system sensors to collect metrics related to CPU, memory and I/O from all O<sup>2</sup> nodes. The core component (Apache Kafka) ensures high throughput, data pipelines and fault-tolerant services  in order to collect, route and process metrics. [InfluxDB](https://docs.influxdata.com/influxdb/v1.5/), "a custom high-performance data store written specifically for time series data", was selected as a storage backend. [Grafana](https://grafana.com/) provides graphical interfaces to display near real-time and historical metrics.
 
 ### 3.1 Monitoring library - application and process performance metrics
@@ -44,7 +44,7 @@ The detailed description of the library in available in the [README](https://git
 
 ### 3.2 Telegraf - system sensors
 
-Telegraf provides system sensors and it uses custom plugins to scrape metrics from various O<sup>2</sup> services and hardware (like CRU, CCDB). It also acts as local collector - it receives metrics from all monitoring library instances on a given host over Unix socket and forwards them to Kafka in batches.
+Telegraf provides system sensors and it uses custom plugins to scrape metrics from various O<sup>2</sup> services and hardware (like CRU, CCDB). Offers a large set of plugins able to collect heterogeneous metrics from the hardware and operating system (CPU, memory, network, SNMP and IPMI). It outputs metrics in a compact format called InfluxDB Line Protocol. This protocol uses labels (aka tags) to better identify carried values. It also acts as a local collector - it receives metrics from all monitoring library instances on a given host over Unix socket and forwards them to Kafka in batches.
 
 #### 3.2.1 System sensors
 The following plugins were selected in order to provide system overview of each node:
@@ -60,7 +60,7 @@ The following plugins were selected in order to provide system overview of each 
 
 Custom scrapes use following plugins:
 - `inputs.exec` to execute bash scripts
-- `inputs.http` to scrape JSON-encoded metrics and transform them into Influx Line Protocol
+- `inputs.http` to scrape JSON-encoded metrics and transform them into InfluxDB Line Protocol
 
 #### 3.2.3 Local collector
 
@@ -69,30 +69,37 @@ Telegraf creates Unix socket file with `telegraf:telegraf` permission what limit
 
 The metrics are output to Kafka using `outputs.kafka` plugin.
 
-#### 3.2.4 Kafka monitoring
-
-TODO
-`inputs.jolokia2_agent` plugin...
-
 ### 3.3 Apache Kafka - Collection, processing and routing
 
-TODO
+Apache Kafka has been selected to collect all data coming from all hosts, process that data and route it towards specific endpoints. A Kafka cluster is able to provide these functionalities in a scalable, fault-tolerant, fast and distributed way. The processing feature is covered using Apache Kafka Streams.
 
 #### 3.3.1 Producers
 
-TODO
+In Kafka, Producers are those components that send data to the Kafka cluster. In this project, Telegraf and the Monitoring library instances are the Kafka producers. 
 
 #### 3.3.2 Consumers
 
-TODO
+Kafka Consumers are those components that retrieve data from a specific topic belonging to a Kafka Cluster in order to forward to external endpoints. Consumers have been used to write data in the database (InfluxDB), send notifications by email and Mattermost messages and retrieve live notifications to show on the Web UI.
 
 #### 3.3.3 Scalability - Broker, Topic, Replication factor
 
-TODO
+Most of the Kafka features (e.g. scalability, fault-tolerance and data pipelines) are accomplished thanks to the concept of topic: a stream of messages sharded into partitions. These partitions are replicated and distributed for high availability into Kafka servers (aka brokers). Scalability is achieved by partition configuration, increasing the topic partitions leads to higher throughput. The fault-tolerance is controlled by a replication factor: the higher the replication factor is the more broker failures can be tolerated. Kafka uses Apache Zookeeper to manage brokers, topics and partitions dynamically and with high reliability.
 
 #### 3.3.4 Processing - Kafka Streams
 
-TODO
+Processing tasks have been implemented using Kafka Streams that inherits scalability and fault-tolerance features from Kafka. This library allows to implement both stateless (per message) and stateful (aggregation) processing tasks. Applications read and write data in topics belonging to the Kafka cluster.
+
+#### 3.3.5 Kafka monitoring
+
+Apache Kafka brokers and clients report many internal metrics using JMX. Kafka statistics are exposed using Jolokia and collected over HTTP using Telegraf using the `inputs.jolokia2_agent` plugin. 
+A not-complete set of collected metrics are:
+- Input messages per topic;
+- input/output bytes per topic;
+- number of unser-replica partitions;
+- number of partitions don’t have an active leader and are hence not writable or readable;
+- number of active controller in the cluster;
+- request, produce and fetch rate;
+- latency.
 
 ### 3.4 InfluxDB - Storage
 The goal of the storage is to archive time-series metrics for the historical dashboard.
@@ -101,19 +108,20 @@ The goal of the storage is to archive time-series metrics for the historical das
 It supports [Continuous Queries and Retention Policies](https://docs.influxdata.com/influxdb/v1.5/guides/downsampling_and_retention/), that help to automate the process of downsampling data.
 
 #### 3.4.1 Data organisation
-In order to scale the storage efficiently it is foreseen to use multiple instances of InfluxDB. In addition, single [ifql](https://github.com/influxdata/ifql/) process will serve READ queries from all the instances.
+In order to scale the storage efficiently it is foreseen to use multiple instances of InfluxDB. In addition, single [ifql](https://github.com/influxdata/ifql/) process will serve READ queries from all the instances. InfluxDB do not provide high availability and horizontal scalability features in the open source version, so custom solutions has been considered. 
+InfluxDB instances are specialised in storing given subset of metrics and aggregated or raw data metrics. 
 
 (...)
 
 #### 3.4.2 Retention Policies and Continuous Queries
-Retention policies and continuous queries allow to minimise the disk usage. The goal is to store high time resolution data for a short period and low resolution data for longer time period. In order to adjust continuous queries and retention policies for the O<sup>2</sup> sample monitoring data is required.
+Retention policies and continuous queries allow to minimise the disk usage. The goal is to store high time resolution data for a short period and low resolution data for a longer time period. In order to adjust continuous queries and retention policies for the O<sup>2</sup> sample monitoring data is required.
 The details are tracked in the [OMON-123](https://alice.its.cern.ch/jira/browse/OMON-123) issue.
 
 (...)
 
 ### 3.5 Grafana - Dashboards
 [Grafana](https://grafana.com) was chosen as data visualisation tool. It allows to create custom dashboards easily.
-It is able to retrieve data from [InfluxDB](http://docs.grafana.org/features/datasources/influxdb/) and the [real-time data source](https://github.com/grafana/grafana/issues/4355) is foreseen to be implemented in the future release.
+It is able to retrieve data from [InfluxDB](http://docs.grafana.org/features/datasources/influxdb/) and the [real-time data source](https://github.com/grafana/grafana/issues/4355) is foreseen to be implemented in a future release.
  Thanks to [organisations](http://docs.grafana.org/guides/basic_concepts/#organization) and [teams](http://docs.grafana.org/guides/whats-new-in-v5/#teams) single instance of Grafana could cover whole O<sup>2</sup> project.
 In addition, [new provisioning](http://docs.grafana.org/guides/whats-new-in-v5/#data-sources) feature allows to set up new instance within seconds.
 
@@ -135,20 +143,18 @@ api_url = https://oauthresource.web.cern.ch/api/User
 
 #### 3.5.2 Live data source
 
-The Live data sources are schedule in the [Grafana roadmap](https://github.com/grafana/grafana/blob/master/ROADMAP.md) as `In a distant future far far away` which means it should be implemented not earlier than Q4 2018.
+The Live data sources are scheduled in the [Grafana roadmap](https://github.com/grafana/grafana/blob/master/ROADMAP.md) as `In a distant future far far away` which means it should be implemented not earlier than Q4 2018.
 
 It also considered to contribute this future to Grafana: [OMON-139](https://alice.its.cern.ch/jira/projects/OMON/issues/OMON-139).
 
 (...)
 
 ### 3.6 Alarming
-The alarming component sends notification to experts when triggered by Flume. For this purpose [Riemann](http://riemann.io/) was selected.
-
-(...)
+The alarming component sends notification to experts when abnormal behaviours are detected. Custom Kafka Streams components and Grafana are used to identify these scenarios. All alarming are collected in a dedicated topics in the Kafka cluster and forward using email or Mattermost messages. 
 
 ### 3.7 Notification service
 
-TODO
+A Web UI is provided that show live notifications retrieved from a topic in the Kafka cluster. 
 
 ## 4. Deployment
 In order to quickly and flawlessly deploy the monitoring tools [Ansible roles](https://gitlab.cern.ch/AliceO2Group/system-configuration/tree/master/ansible) were prepared for the following components:
@@ -174,10 +180,10 @@ Following, the hardware specifications of the machine hosting the InfluxDB insta
 - Storage: 1.5TB (DELL PERC H730 Mini) SSD matrix
 - Ethernet: 40 Gbps
 
-**Scenario 1**: **300 k msg/s** were sent to Kafka and then to InfluxDB using 3 custom InfluxDB Kafka Consumers. The results are following:
+**Scenario 1**: **300 k msg/s** were sent to Kafka and then to InfluxDB using 3 custom InfluxDB Kafka Consumers. The results are the following:
 - CPU usage (avg): 1200%
 - RAM usage: 11 GB
-- Icomming traffic: 36 MB/s
+- Incoming traffic: 36 MB/s
 - Disk usage:
   - Raw database: 70 GB (3 days)
   - Historical database: 250 GB (estimated using 6h test results, aggregated to 1 point per minute)
@@ -185,7 +191,7 @@ Following, the hardware specifications of the machine hosting the InfluxDB insta
 **Scenario 2**: Sending **600 k msg/s**:
 - CPU usage (avg): 2600% avg
 - RAM usage: 15 GB
-- Incomming traffic: 70 MB/s with extremely high packet rate
+- Incoming traffic: 70 MB/s with extremely high packet rate
 
 ![](images/influxdb_performance.png)
 <p align="center">Figure 3. InfluxDB hardware eslimation (TOTAL CPU = 24 cores, TOTAL RAM = 64 GB)</p>
@@ -220,7 +226,7 @@ The following hardware specifications have been used to host each Kafka broker d
 **600k value/s**
 - CPU usage avg: 150%, peak: 600%
 - RAM usage: 11GB
-- Incomming traffic: 80MB/s
+- Incoming traffic: 80MB/s
 - Outgoing traffic: 60MB
 
 **300k value/s**
@@ -257,11 +263,11 @@ The On each machine executes a kafka broker and all kafka component types
 
 ### 5.2 Grafana node
 
-In order to evaluate Grafana hardware requirements a simple Google Headless test was performed: A dummy dashboard contining 5 plots (14 curves) and 6 months of data (data point every 30 second) was loaded every 1 second. During the test `grafana-server` process utilized:
+In order to evaluate Grafana hardware requirements a simple Google Headless test was performed: A dummy dashboard containing 5 plots (14 curves) and 6 months of data (data point every 30 second) was loaded every 1 second. During the test `grafana-server` process utilized:
 - 6% of 16 core (E5520) CPU
 - 0.5% of 32 GB RAM
 
-In comparison the `influxd` process running at the same machine utilzed 500% of the same CPU, and 3% of RAM.
+In comparison the `influxd` process running at the same machine utilized 500% of the same CPU, and 3% of RAM.
 
 ### Team
  - [jvino](https://github.com/jvino) - Gioacchino Vino
