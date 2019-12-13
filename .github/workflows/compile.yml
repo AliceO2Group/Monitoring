@@ -1,0 +1,14 @@
+name: Compile on CC7
+
+on: push
+
+jobs:
+  build:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v1
+      - run: |
+          cd ~/alice/alidist
+          git pull origin master
+          rsync -a --delete ~/git/Monitoring/Monitoring/ ~/alice/Monitoring
+      - run: cd ~/alice; aliBuild build Monitoring --defaults o2-dataflow --debug
