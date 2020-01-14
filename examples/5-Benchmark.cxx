@@ -16,6 +16,8 @@ int main(int argc, char* argv[])
   int count = 1;
   int measurements = 1;
 
+  std::srand(std::time(nullptr));
+
   std::random_device rd;
   std::mt19937 mt(rd());
 
@@ -49,7 +51,8 @@ int main(int argc, char* argv[])
     for (int j = 1; j <= count; j++) {
       for (int i = 1; i <= measurements; i++) {
         monitoring->sendGrouped("measurement" + std::to_string(i), {{doubleDist(mt), "doubleMetric" + std::to_string(i)},
-                                                                    {intDist(mt), "intMetric" + std::to_string(i)}});
+                                                                    {intDist(mt), "intMetric" + std::to_string(i)},
+                                                                    {std::rand() % 2, "onOffMetric" + std::to_string(i)}});
         std::this_thread::sleep_for(std::chrono::microseconds(sleep));
       }
       if (!vm.count("count"))
@@ -75,6 +78,7 @@ int main(int argc, char* argv[])
       for (int i = 1; i <= measurements; i++) {
         monitoring->send({doubleDist(mt), "doubleMetric" + std::to_string(i)});
         monitoring->send({intDist(mt), "intMetric" + std::to_string(i)});
+        monitoring->send({std::rand() % 2, "onOffMetric" + std::to_string(i)});
         std::this_thread::sleep_for(std::chrono::microseconds(sleep));
       }
       if (!vm.count("count"))
