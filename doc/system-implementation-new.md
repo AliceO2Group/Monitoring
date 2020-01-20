@@ -75,7 +75,7 @@ Apache Kafka has been selected to collect all data coming from all hosts, proces
 
 #### 3.3.1 Producers
 
-In Kafka, Producers are those components that send data to the Kafka cluster. In this project, Telegraf and the Monitoring library instances are the Kafka producers. 
+In Kafka, Producers are those components that send data to the Kafka cluster. In this project, Telegraf and the Monitoring library instances are the Kafka producers.
 
 #### 3.3.2 Consumers
 
@@ -89,13 +89,87 @@ Most of the Kafka features (e.g. scalability, fault-tolerance and data pipelines
 
 Processing tasks have been implemented using Kafka Streams that inherits scalability and fault-tolerance features from Kafka. This library allows to implement both stateless (per message) and stateful (aggregation) processing tasks. Applications read and write data in topics belonging to the Kafka cluster.
 
-#### 3.3.5 Kafka monitoring
+#### 3.3.5 Custom Kafka components
+Even if Kafka provides scalability, fault-tolerant and data pipelines features, custom components are necessary in order to meet requirements.
 
-Apache Kafka brokers and clients report many internal metrics using JMX. Kafka statistics are exposed using Jolokia and collected over HTTP using Telegraf using the `inputs.jolokia2_agent` plugin. 
+##### 3.3.5.1 InfluxDB Consumer
+Being a consumer, this component retrieves messages from a particular topic belonging to the Kafka cluster in order to forward them to the InfluxDB instance. Even if are available an [official InfluxDB consumer](https://docs.confluent.io/current/connect/kafka-connect-influxdb/influx-db-sink-connector/index.html), a custom component has been implemented in order to reach the highest database writing rate and reliability. Differently from the official one, this component sends messages via UDP. Moreover, multiple destination ports can be used to increase the InfluxDB insertion rate: a round robin selection provides an uniform incoming data in each port. The implemented InfluxDB consumer expects input messages using the [InfluxDB Line protocol format](#3361-influxdb-line-protocol-format) and forwards them directly to the database. Multiple InfluxDB consumer instances along with an input topic configured with multiple partitions allow to split up the workload and achieve better performance. Finally, the component could be configured to send inner monitoring data to an InfluxDB instance via UDP.
+
+##### 3.3.5.2 Mattermost Consumer
+This component retrieves messages from the Kafka cluster and forwards them to the HTTP Mattermost endpoint. In order to successfully receive messages in Mattermost, an [Incoming Webhooks](https://docs.mattermost.com/developer/webhooks-incoming.html) must be created before. Only JSON messages and compliant to the Grafana notification message format are ingested and processed. Following an example of a well written message:
+
+```JSON
+{
+  "description": "Test notification - Someone is testing the alert notification within grafana",
+  "client_url" : "http://<grafana-instance>:3000",
+  "details"    : "Triggered metrics:\nHigh value: 100.000\nHigher Value: 200.000"
+}
+```
+
+The above JSON is converted in a Mattermost message. Only the `description` field is mandatory, the remaining two ones are shown if present. Multiple consumer instances along with an input topic configured with multiple partitions allow to split up the workload and achieve better performance. Finally, the component could be configured to send inner monitoring data to an InfluxDB instance via UDP.
+
+##### 3.3.5.3 Email Consumer
+This component retrieves messages from a particular topic belonging to a Kafka cluster and sends emails. Only JSON messages containing `subject`, `body` and `to_addresses` fields are ingested and processed. Following an example of a well written message:
+
+```JSON
+{
+  "subject": "Title1",
+  "body" : "Dear experts,\n there is a notification for you\n\nCheers,\nMonitoring Team",
+  "to_addresses"    : "expert1@cern.ch,expert2@cern.ch"
+}
+```
+
+All JSON fields are mandatory. Multiple consumer instances along with an input topic configured with multiple partitions allow to split up the workload and achieve better performance. Finally, the component could be configured to send inner monitoring data to an InfluxDB instance via UDP.
+
+##### 3.3.5.4 Aggregator Processor
+The aggregator component retrieves messages from a topic of a Kafka cluster, splits them up in configurable time windows and processes them using the following four aggregation functions:
+- average
+- sum
+- minimum
+- maximum
+
+A dedicated format, called [internal format](#3362-internal-format), is required to process correctly data. The aggregated values are formatted using the [InfluxDB Line protocol format](#3361-influxdb-line-protocol-format) and are written to the output topic. Multiple processor instances along with an input topic configured with multiple partitions allow to split up the workload and achieve better performance. Finally, the component could be configured to send inner monitoring data to an InfluxDB instance via UDP.
+
+##### 3.3.5.5 OnOff Processor
+This component extracts messages whose value is changed respect the last stored value and forwards them to an output topic. Moreover, periodically it sends all stored values to the output topic. A dedicated format, called [internal format](#3362-internal-format), is required to process correctly data. Multiple processor instances along with an input topic configured with multiple partitions allow to split up the workload and achieve better performance. Finally, the component could be configured to send inner monitoring data to an InfluxDB instance via UDP.
+
+##### 3.3.5.6 Router
+This component is able to filter, change format and route input messages to dedicated output topics. Input messages must be formatted using the [InfluxDB Line Protocol](#3361-influxdb-line-protocol-format) format. Messages could be forward to an InfluxDB instance by means of [InfluxDB Consumer](#3351-influxdb-consumer): messages are before filtered and then forwarded as they are to the consumer topic. Input messages could be also forwarded to [OnOff Processor](#3355-onoff-processor) and the [Aggregator Processor](#3354-aggregator-processor) topics: in this case data is filtered and converted to the [internal format](#3362-internal-format) before sending. As it will be explained in the dedicated section, a message using the internal format contains a single field, then the component creates as much output messages (using the Internal format) as the number of fields contained in the input messages (using the InfluxDB Line Protocol format). Multiple instances along with an input topic configured with multiple partitions allow to split up the workload and achieve better performance. Finally, the component could be configured to send inner monitoring data to an InfluxDB instance via UDP.
+
+#### 3.3.6 Message Format
+
+##### 3.3.6.1 InfluxDB Line Protocol Format
+This format, invented from InfluxData, is composed of a single string containing measurement name, multiple tags, multiple fields and a timestamp. The format uses comma, space and equals characters to serialize and deserialize data. Following an example:
+
+`<measurement>,<tags> <field_name1>=<field_value1>,...,<field_nameN>=<field_valueN> <timestamp>`
+
+Integer, double, boolean and string data type fields are supported.
+
+[Official reference page](https://docs.influxdata.com/influxdb/v1.7/write_protocols/line_protocol_reference/).
+
+##### 3.3.6.2 Internal Format
+This format has been created in order to take advantage of the policy used from Kafka to split up messages among the topic partitions. Inserting a dedicated key in the message is possible to ensure that all messages having the same key will be in the same topic partition, making easier process data.
+The internal format is a key-value pair, both string types, where:
+- key: `<measurement_name>#<field_name>`
+- value: `<tags>#<field_value>#<timestamp>`
+
+#### 3.3.7 Kafka system
+This section describes how the above components are interconnected among them in order to achieve the required functionalities. Incoming data is received from Telegraf and the Monitoring Library and containing information about systems, processes and applications. Part of this data is supposed to be written directly in the database and another part should be processed using the Aggregator and OnOff Processors before to be sent to the InfluxDB instance. The selection and routing of input data is executed from the Route Component: input messages satisfying specific conditions are sent to the [InfluxDBConsumer](#3351-influxdb-consumer) keeping the same [InfluxDB Line Protocol](#3361-influxdb-line-protocol-format) format of input messages. Same kind of filtering operations are executed before to send input data to [Aggregator Processor](#3354-aggregator-processor) and the [OnOff Processor](#3355-onoff-processor) but in this case messages are converted to the [internal format](#3362-internal-format). The Aggregator and the OnOff Processors read the input data, execute own processing task and send the processed value to the InfluxDB consumer using the [InfluxDB Line Protocol](#3361-influxdb-line-protocol-format) format.
+
+In Kafka, information can be exchanged among components only using topics: each component need at least one topic where read messages. This means that consumers ([InfluxDBConsumer](#3351-influxdb-consumer), [EmailConsumer](#3353-email-consumer)  and [MattermostConsumer](#3352-mattermost-consumer)) have own topics (`influxdb-topic`, `email-topic` and `mattermost-topic`). Likewise, for the [Aggregator Processor](#3354-aggregator-processor) and the [OnOff Processor](#3355-onoff-processor) `aggregator-topic` and `onoff-topic` must be created. To activate a given component, consumer or processor, is necessary at least another component writes data in the input topic(s) related.
+
+The following figure shows what above has been described.
+
+![](images/kafka_system.png)
+<p align="center">Figure 3. Kafka internal connection of Router, AggregatorProcessor, OnOffProcessors and InfluxDBConsumer components</p>
+
+#### 3.3.8 Kafka monitoring
+
+Apache Kafka brokers and clients report many internal metrics using JMX. Kafka statistics are exposed using Jolokia and collected over HTTP using Telegraf using the `inputs.jolokia2_agent` plugin.
 A not-complete set of collected metrics are:
 - Input messages per topic;
 - input/output bytes per topic;
-- number of unser-replica partitions;
+- number of user-replica partitions;
 - number of partitions don’t have an active leader and are hence not writable or readable;
 - number of active controller in the cluster;
 - request, produce and fetch rate;
@@ -108,8 +182,8 @@ The goal of the storage is to archive time-series metrics for the historical das
 It supports [Continuous Queries and Retention Policies](https://docs.influxdata.com/influxdb/v1.5/guides/downsampling_and_retention/), that help to automate the process of downsampling data.
 
 #### 3.4.1 Data organisation
-In order to scale the storage efficiently it is foreseen to use multiple instances of InfluxDB. In addition, single [ifql](https://github.com/influxdata/ifql/) process will serve READ queries from all the instances. InfluxDB do not provide high availability and horizontal scalability features in the open source version, so custom solutions has been considered. 
-InfluxDB instances are specialised in storing given subset of metrics and aggregated or raw data metrics. 
+In order to scale the storage efficiently it is foreseen to use multiple instances of InfluxDB. In addition, single [ifql](https://github.com/influxdata/ifql/) process will serve READ queries from all the instances. InfluxDB do not provide high availability and horizontal scalability features in the open source version, so custom solutions has been considered.
+InfluxDB instances are specialised in storing given subset of metrics and aggregated or raw data metrics.
 
 (...)
 
@@ -150,11 +224,11 @@ It also considered to contribute this future to Grafana: [OMON-139](https://alic
 (...)
 
 ### 3.6 Alarming
-The alarming component sends notification to experts when abnormal behaviours are detected. Custom Kafka Streams components and Grafana are used to identify these scenarios. All alarming are collected in a dedicated topics in the Kafka cluster and forward using email or Mattermost messages. 
+The alarming component sends notification to experts when abnormal behaviours are detected. Custom Kafka Streams components and Grafana are used to identify these scenarios. All alarming are collected in a dedicated topics in the Kafka cluster and forward using email or Mattermost messages.
 
 ### 3.7 Notification service
 
-A Web UI is provided that show live notifications retrieved from a topic in the Kafka cluster. 
+A Web UI is provided that show live notifications retrieved from a topic in the Kafka cluster.
 
 ## 4. Deployment
 In order to quickly and flawlessly deploy the monitoring tools [Ansible roles](https://gitlab.cern.ch/AliceO2Group/system-configuration/tree/master/ansible) were prepared for the following components:
@@ -194,7 +268,7 @@ Following, the hardware specifications of the machine hosting the InfluxDB insta
 - Incoming traffic: 70 MB/s with extremely high packet rate
 
 ![](images/influxdb_performance.png)
-<p align="center">Figure 3. InfluxDB hardware eslimation (TOTAL CPU = 24 cores, TOTAL RAM = 64 GB)</p>
+<p align="center">Figure 4. InfluxDB hardware estimation (TOTAL CPU = 24 cores, TOTAL RAM = 64 GB)</p>
 
 **Scenario 3**: Estimation of loading single Grafana dashboard:
 TODO
@@ -238,7 +312,7 @@ The following hardware specifications have been used to host each Kafka broker d
 
 ![](images/kafka_performance.png)
 
-<p align="center">Figure 3. Kafka hardware estimation</p>
+<p align="center">Figure 5. Kafka hardware estimation</p>
 
 #### Kafka components
 
