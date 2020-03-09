@@ -92,10 +92,13 @@ Processing tasks have been implemented using Kafka Streams that inherits scalabi
 #### 3.3.5 Custom Kafka components
 Even if Kafka provides scalability, fault-tolerant and data pipelines features, custom components are necessary in order to meet requirements.
 
-##### 3.3.5.1 InfluxDB Consumer
-Being a consumer, this component retrieves messages from a particular topic belonging to the Kafka cluster in order to forward them to the InfluxDB instance. Even if are available an [official InfluxDB consumer](https://docs.confluent.io/current/connect/kafka-connect-influxdb/influx-db-sink-connector/index.html), a custom component has been implemented in order to reach the highest database writing rate and reliability. Differently from the official one, this component sends messages via UDP. Moreover, multiple destination ports can be used to increase the InfluxDB insertion rate: a round robin selection provides an uniform incoming data in each port. The implemented InfluxDB consumer expects input messages using the [InfluxDB Line protocol format](#3361-influxdb-line-protocol-format) and forwards them directly to the database. Multiple InfluxDB consumer instances along with an input topic configured with multiple partitions allow to split up the workload and achieve better performance. Finally, the component could be configured to send inner monitoring data to an InfluxDB instance via UDP.
+##### 3.3.5.1 InfluxDB UDP Consumer
+Being a consumer, this component retrieves messages from a particular topic belonging to the Kafka cluster in order to forward them to the InfluxDB instance (1.X version). Even if are available an [official InfluxDB consumer](https://docs.confluent.io/current/connect/kafka-connect-influxdb/influx-db-sink-connector/index.html), a custom component has been implemented in order to reach the highest database writing rate and reliability. Differently from the official one, this component sends messages via UDP. Moreover, multiple destination ports can be used to increase the InfluxDB insertion rate: a round robin selection provides an uniform incoming data in each port. The implemented InfluxDB consumer expects input messages using the [InfluxDB Line protocol format](#3361-influxdb-line-protocol-format) and forwards them directly to the database. Multiple InfluxDB consumer instances along with an input topic configured with multiple partitions allow to split up the workload and achieve better performance. Finally, the component could be configured to send inner monitoring data to an InfluxDB instance via UDP.
 
-##### 3.3.5.2 Mattermost Consumer
+##### 3.3.5.2 InfluxDB HTTP Consumer
+This consumer has been implemented to be used with the InfluxDB 2.0 version. This consumer uses the HTTP procotol, the unique possibile one available on the new version of database. Multiple InfluxDB consumer instances along with an input topic configured with multiple partitions allow to split up the workload and achieve better performance.
+
+##### 3.3.5.3 Mattermost Consumer
 This component retrieves messages from the Kafka cluster and forwards them to the HTTP Mattermost endpoint. In order to successfully receive messages in Mattermost, an [Incoming Webhooks](https://docs.mattermost.com/developer/webhooks-incoming.html) must be created before. Only JSON messages and compliant to the Grafana notification message format are ingested and processed. Following an example of a well written message:
 
 ```JSON
@@ -108,7 +111,7 @@ This component retrieves messages from the Kafka cluster and forwards them to th
 
 The above JSON is converted in a Mattermost message. Only the `description` field is mandatory, the remaining two ones are shown if present. Multiple consumer instances along with an input topic configured with multiple partitions allow to split up the workload and achieve better performance. Finally, the component could be configured to send inner monitoring data to an InfluxDB instance via UDP.
 
-##### 3.3.5.3 Email Consumer
+##### 3.3.5.4 Email Consumer
 This component retrieves messages from a particular topic belonging to a Kafka cluster and sends emails. Only JSON messages containing `subject`, `body` and `to_addresses` fields are ingested and processed. Following an example of a well written message:
 
 ```JSON
@@ -121,7 +124,7 @@ This component retrieves messages from a particular topic belonging to a Kafka c
 
 All JSON fields are mandatory. Multiple consumer instances along with an input topic configured with multiple partitions allow to split up the workload and achieve better performance. Finally, the component could be configured to send inner monitoring data to an InfluxDB instance via UDP.
 
-##### 3.3.5.4 Aggregator Processor
+##### 3.3.5.5 Aggregator Processor
 The aggregator component retrieves messages from a topic of a Kafka cluster, splits them up in configurable time windows and processes them using the following four aggregation functions:
 - average
 - sum
@@ -130,10 +133,10 @@ The aggregator component retrieves messages from a topic of a Kafka cluster, spl
 
 A dedicated format, called [internal format](#3362-internal-format), is required to process correctly data. The aggregated values are formatted using the [InfluxDB Line protocol format](#3361-influxdb-line-protocol-format) and are written to the output topic. Multiple processor instances along with an input topic configured with multiple partitions allow to split up the workload and achieve better performance. Finally, the component could be configured to send inner monitoring data to an InfluxDB instance via UDP.
 
-##### 3.3.5.5 OnOff Processor
+##### 3.3.5.6 OnOff Processor
 This component extracts messages whose value is changed respect the last stored value and forwards them to an output topic. Moreover, periodically it sends all stored values to the output topic. A dedicated format, called [internal format](#3362-internal-format), is required to process correctly data. Multiple processor instances along with an input topic configured with multiple partitions allow to split up the workload and achieve better performance. Finally, the component could be configured to send inner monitoring data to an InfluxDB instance via UDP.
 
-##### 3.3.5.6 Router
+##### 3.3.5.7 Router
 This component is able to filter, change format and route input messages to dedicated output topics. Input messages must be formatted using the [InfluxDB Line Protocol](#3361-influxdb-line-protocol-format) format. Messages could be forward to an InfluxDB instance by means of [InfluxDB Consumer](#3351-influxdb-consumer): messages are before filtered and then forwarded as they are to the consumer topic. Input messages could be also forwarded to [OnOff Processor](#3355-onoff-processor) and the [Aggregator Processor](#3354-aggregator-processor) topics: in this case data is filtered and converted to the [internal format](#3362-internal-format) before sending. As it will be explained in the dedicated section, a message using the internal format contains a single field, then the component creates as much output messages (using the Internal format) as the number of fields contained in the input messages (using the InfluxDB Line Protocol format). Multiple instances along with an input topic configured with multiple partitions allow to split up the workload and achieve better performance. Finally, the component could be configured to send inner monitoring data to an InfluxDB instance via UDP.
 
 #### 3.3.6 Message Format
@@ -335,13 +338,32 @@ The On each machine executes a kafka broker and all kafka component types
 - Disk reliability: very low (irrelevant)
 - Network: 10+ Gbps
 
-### 5.2 Grafana node
+### 5.3 Grafana node
 
 In order to evaluate Grafana hardware requirements a simple Google Headless test was performed: A dummy dashboard containing 5 plots (14 curves) and 6 months of data (data point every 30 second) was loaded every 1 second. During the test `grafana-server` process utilized:
 - 6% of 16 core (E5520) CPU
 - 0.5% of 32 GB RAM
 
 In comparison the `influxd` process running at the same machine utilized 500% of the same CPU, and 3% of RAM.
+
+## 6 Overall tests
+
+### 6.1 Latency
+Latency has been measured as a function of input data rate. The producer has been implemented in order to send messages containing the generation unix epoch as value and without the timestamp: Influxdb will insert the timestamp when the record is written on disk.
+So the latency is evaluated extracting the difference between the two timestamps. All used machines have sum milliseconds delay among them (ntp synchronization).
+For the test a three broker Kafka cluster has been used. The InfluxDB 2.0 instance has been installed on the (#51-influxdb-node). The returned results are inserted in the following table and the average values are plotted in the Figure 6.
+
+| Input rate [kHz]   |  Average latency [ms] | 50th latency [ms] | 70th latency [ms] | 90th latency [ms] | 95th latency [ms] | 99th latency [ms] 
+| :-------------: |:-------------:| :-----:|:-----:|:-----:|:-----:|:-----:|
+| 1 | 507 | 506 | 706 | 905 | 955 | 995 |
+| 10 | 487 | 482 | 615 | 792 | 868 | 977 |
+| 60 | 105 | 104 | 144 | 185 | 195 | 203 |
+| 100 | 67 | 65 | 89 | 113 | 120 | 125 |
+| 300 | 41 | 26 | 34 | 43 | 104 | 497 |
+| 600 | 317 | 19 | 33 | 1070 | 1967 | 4122 |
+| 700 | 199 | 17 | 42 | 502 | 837 | 3584 |
+| 800 | 308 | 17 | 138 | 1031 | 1813 | 3265 |
+| 900 | 499 | 20 | 83 | 947 | 4134 | 6600 |
 
 ### Team
  - [jvino](https://github.com/jvino) - Gioacchino Vino
