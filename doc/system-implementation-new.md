@@ -356,7 +356,7 @@ In comparison the `influxd` process running at the same machine utilized 500% of
 
 ### 6.1 Producers-Database Latency 
 In order to measure the producers-database latency a Kafka cluster and the InfluxDB instance has been used. The producer has been implemented in order to send messages containing the generation time (unix epoch format) as value without the timestamp field: the Influxdb instance will add it once the record is written on disk. Finally, the latency is evaluated extracting the difference between the two timestamps. All used machines have sub milliseconds delay among them (ntp synchronization).
-For the test a three broker Kafka cluster has been used deployed on the [Kafka machines](#52-Kafka-nodes) and an InfluxDB 2.0 instance has been installed on the [InfluxDB node](#511-influxdb-node). The HTTP influxDB Kafka consumer (#3352 InfluxDB HTTP Consumer) has been used. The returned latency statistic as function of the input reate is inserted in the following table and plotted in the Figure 6.
+For the test a three broker Kafka cluster has been used deployed on the [Kafka nodes](#52-Kafka-nodes) and an InfluxDB 2.0 instance has been installed on the [InfluxDB node](51-influxdb-node). The [HTTP influxDB Kafka consumer](3352-influxdb-http-consumer) has been used. The returned latency statistic as function of the input reate is inserted in the following table and plotted in the Figure 6.
 
 | Input rate [kHz]   |  Average latency [ms] | 70th latency [ms] | 90th latency [ms] | 95th latency [ms] | 99th latency [ms] 
 | :-------------: |:-------------:| :-----:|:-----:|:-----:|:-----:|
