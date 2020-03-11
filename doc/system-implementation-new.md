@@ -137,7 +137,7 @@ A dedicated format, called [internal format](#3362-internal-format), is required
 This component extracts messages whose value is changed respect the last stored value and forwards them to an output topic. Moreover, periodically it sends all stored values to the output topic. A dedicated format, called [internal format](#3362-internal-format), is required to process correctly data. Multiple processor instances along with an input topic configured with multiple partitions allow to split up the workload and achieve better performance. Finally, the component could be configured to send inner monitoring data to an InfluxDB instance via UDP.
 
 ##### 3.3.5.7 Router
-This component is able to filter, change format and route input messages to dedicated output topics. Input messages must be formatted using the [InfluxDB Line Protocol](#3361-influxdb-line-protocol-format) format. Messages could be forward to an InfluxDB instance by means of [InfluxDB Consumer](#3351-influxdb-consumer): messages are before filtered and then forwarded as they are to the consumer topic. Input messages could be also forwarded to [OnOff Processor](#3355-onoff-processor) and the [Aggregator Processor](#3354-aggregator-processor) topics: in this case data is filtered and converted to the [internal format](#3362-internal-format) before sending. As it will be explained in the dedicated section, a message using the internal format contains a single field, then the component creates as much output messages (using the Internal format) as the number of fields contained in the input messages (using the InfluxDB Line Protocol format). Multiple instances along with an input topic configured with multiple partitions allow to split up the workload and achieve better performance. Finally, the component could be configured to send inner monitoring data to an InfluxDB instance via UDP.
+This component is able to filter, change format and route input messages to dedicated output topics. Input messages must be formatted using the [InfluxDB Line Protocol](#3361-influxdb-line-protocol-format) format. Messages could be forward to an InfluxDB instance by means of [InfluxDB Consumer](#3351-influxdb-consumer): messages are before filtered and then forwarded as they are to the consumer topic. Input messages could be also forwarded to [OnOff Processor](#3356-onoff-processor) and the [Aggregator Processor](#3355-aggregator-processor) topics: in this case data is filtered and converted to the [internal format](#3362-internal-format) before sending. As it will be explained in the dedicated section, a message using the internal format contains a single field, then the component creates as much output messages (using the Internal format) as the number of fields contained in the input messages (using the InfluxDB Line Protocol format). Multiple instances along with an input topic configured with multiple partitions allow to split up the workload and achieve better performance. Finally, the component could be configured to send inner monitoring data to an InfluxDB instance via UDP.
 
 #### 3.3.6 Message Format
 
@@ -157,9 +157,9 @@ The internal format is a key-value pair, both string types, where:
 - value: `<tags>#<field_value>#<timestamp>`
 
 #### 3.3.7 Kafka system
-This section describes how the above components are interconnected among them in order to achieve the required functionalities. Incoming data is received from Telegraf and the Monitoring Library and containing information about systems, processes and applications. Part of this data is supposed to be written directly in the database and another part should be processed using the Aggregator and OnOff Processors before to be sent to the InfluxDB instance. The selection and routing of input data is executed from the Route Component: input messages satisfying specific conditions are sent to the [InfluxDBConsumer](#3351-influxdb-consumer) keeping the same [InfluxDB Line Protocol](#3361-influxdb-line-protocol-format) format of input messages. Same kind of filtering operations are executed before to send input data to [Aggregator Processor](#3354-aggregator-processor) and the [OnOff Processor](#3355-onoff-processor) but in this case messages are converted to the [internal format](#3362-internal-format). The Aggregator and the OnOff Processors read the input data, execute own processing task and send the processed value to the InfluxDB consumer using the [InfluxDB Line Protocol](#3361-influxdb-line-protocol-format) format.
+This section describes how the above components are interconnected among them in order to achieve the required functionalities. Incoming data is received from Telegraf and the Monitoring Library and containing information about systems, processes and applications. Part of this data is supposed to be written directly in the database and another part should be processed using the Aggregator and OnOff Processors before to be sent to the InfluxDB instance. The selection and routing of input data is executed from the Route Component: input messages satisfying specific conditions are sent to the [InfluxDBConsumer](#3351-influxdb-consumer) keeping the same [InfluxDB Line Protocol](#3361-influxdb-line-protocol-format) format of input messages. Same kind of filtering operations are executed before to send input data to [Aggregator Processor](#3355-aggregator-processor) and the [OnOff Processor](#3356-onoff-processor) but in this case messages are converted to the [internal format](#3362-internal-format). The Aggregator and the OnOff Processors read the input data, execute own processing task and send the processed value to the InfluxDB consumer using the [InfluxDB Line Protocol](#3361-influxdb-line-protocol-format) format.
 
-In Kafka, information can be exchanged among components only using topics: each component need at least one topic where read messages. This means that consumers ([InfluxDBConsumer](#3351-influxdb-consumer), [EmailConsumer](#3353-email-consumer)  and [MattermostConsumer](#3352-mattermost-consumer)) have own topics (`influxdb-topic`, `email-topic` and `mattermost-topic`). Likewise, for the [Aggregator Processor](#3354-aggregator-processor) and the [OnOff Processor](#3355-onoff-processor) `aggregator-topic` and `onoff-topic` must be created. To activate a given component, consumer or processor, is necessary at least another component writes data in the input topic(s) related.
+In Kafka, information can be exchanged among components only using topics: each component need at least one topic where read messages. This means that consumers ([InfluxDBConsumer](#3351-influxdb-consumer), [EmailConsumer](#3354-email-consumer)  and [MattermostConsumer](#3353-mattermost-consumer)) have own topics (`influxdb-topic`, `email-topic` and `mattermost-topic`). Likewise, for the [Aggregator Processor](#3355-aggregator-processor) and the [OnOff Processor](#3356-onoff-processor) `aggregator-topic` and `onoff-topic` must be created. To activate a given component, consumer or processor, is necessary at least another component writes data in the input topic(s) related.
 
 The following figure shows what above has been described.
 
@@ -244,6 +244,9 @@ In order to quickly and flawlessly deploy the monitoring tools [Ansible roles](h
 ## 5. Hardware
 
 ### 5.1 InfluxDB node
+
+#### 5.1.1 InfluxDB 1.7
+
 The InfluxDB related performance requirements are:
 - Write up to 600 k value/s
 - Execute continuously inner metric aggregation tasks (continuous queries)
@@ -284,6 +287,9 @@ Based on above tests the recommended specification for the InfluxDB node is:
 - Disk reliability: medium (during TSs and LSs data will be backed up to EOS)
 - Network: 20+ Gbps
 
+#### 5.1.2 InfluxDB 2.0
+
+TO DO
 
 ### 5.2 Kafka nodes
 
@@ -348,22 +354,26 @@ In comparison the `influxd` process running at the same machine utilized 500% of
 
 ## 6 Overall tests
 
-### 6.1 Latency
-Latency has been measured as a function of input data rate. The producer has been implemented in order to send messages containing the generation unix epoch as value and without the timestamp: Influxdb will insert the timestamp when the record is written on disk.
-So the latency is evaluated extracting the difference between the two timestamps. All used machines have sum milliseconds delay among them (ntp synchronization).
-For the test a three broker Kafka cluster has been used. The InfluxDB 2.0 instance has been installed on the (#51-influxdb-node). The returned results are inserted in the following table and the average values are plotted in the Figure 6.
+### 6.1 Producers-Database Latency 
+In order to measure the producers-database latency a Kafka cluster and the InfluxDB instance has been used. The producer has been implemented in order to send messages containing the generation time (unix epoch format) as value without the timestamp field: the Influxdb instance will add it once the record is written on disk. Finally, the latency is evaluated extracting the difference between the two timestamps. All used machines have sub milliseconds delay among them (ntp synchronization).
+For the test a three broker Kafka cluster has been used using machines described in (#52-Kafka-nodes) and an InfluxDB 2.0 instance has been installed on the (#511-influxdb-node). The HTTP influxDB Kafka consumer (#3352 InfluxDB HTTP Consumer) has been used. The returned latency statistic as function of the input reate is inserted in the following table and plotted in the Figure 6.
 
-| Input rate [kHz]   |  Average latency [ms] | 50th latency [ms] | 70th latency [ms] | 90th latency [ms] | 95th latency [ms] | 99th latency [ms] 
-| :-------------: |:-------------:| :-----:|:-----:|:-----:|:-----:|:-----:|
-| 1 | 507 | 506 | 706 | 905 | 955 | 995 |
-| 10 | 487 | 482 | 615 | 792 | 868 | 977 |
-| 60 | 105 | 104 | 144 | 185 | 195 | 203 |
-| 100 | 67 | 65 | 89 | 113 | 120 | 125 |
-| 300 | 41 | 26 | 34 | 43 | 104 | 497 |
-| 600 | 317 | 19 | 33 | 1070 | 1967 | 4122 |
-| 700 | 199 | 17 | 42 | 502 | 837 | 3584 |
-| 800 | 308 | 17 | 138 | 1031 | 1813 | 3265 |
-| 900 | 499 | 20 | 83 | 947 | 4134 | 6600 |
+| Input rate [kHz]   |  Average latency [ms] | 70th latency [ms] | 90th latency [ms] | 95th latency [ms] | 99th latency [ms] 
+| :-------------: |:-------------:| :-----:|:-----:|:-----:|:-----:|
+| 1 | 507 | 706 | 905 | 955 | 1004 |
+| 10 | 487 | 634 | 868 | 936 | 1003 |
+| 60 | 106 | 144 | 185 | 195 | 450 |
+| 100 | 68 | 90 | 114 | 120 | 396 |
+| 300 | 41 | 34 | 43 | 104 | 727 |
+| 600 | 103 | 23 | 317 | 537 | 1982 |
+| 700 | - | - | - | - | - |
+| 800 | - | - | - | - | - |
+| 900 | - | - | - | - | - |
+
+![](images/latency.png)
+
+<p align="center">Figure 6. End-to-end latency statistics as a function of the input rate</p>
+
 
 ### Team
  - [jvino](https://github.com/jvino) - Gioacchino Vino
