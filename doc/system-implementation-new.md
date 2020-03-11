@@ -330,10 +330,10 @@ Kafka consumers and Kafka Stream related processing performance requirements are
 
 | Component Name        | CPU usage [%] | RAM usage [GB]  |
 | :-------------: |:-------------:| :-----:|
-| InfluxDB Consumer | 100 | 1 |
-| Import Data | 100-160      |   1 |
-| ChangeLog | 100 | 1.5 |
-| Avg Aggregator | 100-140 | 6 |
+| InfluxDB Consumer | 150 | 10 |
+| Router | 150 |   10 |
+| OnOff | 100 | 2 |
+| Aggregator | 140 | 3 |
 
 
 The On each machine executes a kafka broker and all kafka component types
