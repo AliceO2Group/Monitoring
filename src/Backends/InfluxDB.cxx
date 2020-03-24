@@ -67,7 +67,11 @@ void InfluxDB::sendMultiple(std::string measurement, std::vector<Metric>&& metri
 {
   escape(measurement);
   std::stringstream convert;
-  convert << measurement << "," << tagSet << " ";
+  convert << measurement << "," << tagSet;
+  for (const auto& [key, value] : metrics.front().getTags()) {
+    convert << "," << tags::TAG_KEY[key] << "=" << tags::GetValue(value);
+  }
+  convert << " ";
 
   for (const auto& metric : metrics) {
     convert << metric.getName() << "=";
