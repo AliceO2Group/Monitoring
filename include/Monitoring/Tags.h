@@ -29,57 +29,76 @@ namespace tags
 using namespace std::string_view_literals;
 
 // Tag keys
-enum class Key : unsigned short int { Hostname,
-                                      Rolename,
-                                      Name,
-                                      Detector,
-                                      Subsystem,
-                                      CRU,
-                                      FLP,
-                                      EPN,
-                                      Unit };
+enum class Key : unsigned short int {
+  Hostname,
+  Rolename,
+  Name,
+  Detector,
+  Subsystem,
+  CRU,
+  FLP,
+  EPN,
+  Unit
+};
 
 /// Tag keys array
-static constexpr std::array<std::string_view, 9> TAG_KEY = {
-  "hostname"sv, "rolenane"sv, "name"sv, "detector"sv, "subsystem"sv, "CRU"sv, "FLP"sv, "EPN"sv, "unit"sv};
+static constexpr std::array<std::string_view, 11> TAG_KEY = {
+  "hostname"sv,
+  "rolenane"sv,
+  "name"sv,
+  "detector"sv,
+  "subsystem"sv,
+  "CRU"sv,
+  "FLP"sv,
+  "EPN"sv,
+  "unit"sv,
+  "run"sv,
+  "id"sv
+};
 
 // Tag values
-enum class Value : unsigned short int { ACO,
-                                        AD,
-                                        CPV,
-                                        EMC,
-                                        FMD,
-                                        HMP,
-                                        MCH,
-                                        MTR,
-                                        PHS,
-                                        PMD,
-                                        ITS,
-                                        T0,
-                                        TOF,
-                                        TPC,
-                                        TRD,
-                                        V0,
-                                        QC,
-                                        Readout,
-                                        DPL,
-                                        CRU,
-                                        Bytes,
-                                        Megabytes,
-                                        Gigabytes,
-                                        Bits,
-                                        Megabits,
-                                        Gigabits,
-                                        bps,
-                                        Mbps,
-                                        Gbps,
-                                        Nanoseconds,
-                                        Microseconds,
-                                        Milliseconds,
-                                        Seconds };
+enum class Value : unsigned short int {
+  ACO,
+  AD,            // 1
+  CPV,           // 2
+  EMC,           // 3
+  FMD,           // 4
+  HMP,           // 5
+  MCH,           // 6
+  MTR,           // 7
+  PHS,           // 8
+  PMD,           // 9
+  ITS,           // 10
+  T0,            // 11
+  TOF,           // 12
+  TPC,           // 13
+  TRD,           // 14
+  V0,            // 15
+  QC,            // 16
+  Readout,       // 17
+  DPL,           // 18
+  CRU,           // 19
+  Bytes,         // 20
+  Megabytes,     // 21
+  Gigabytes,     // 22
+  Bits,          // 23
+  Megabits,      // 24
+  Gigabits,      // 25
+  bps,           // 26
+  Mbps,          // 27
+  Gbps,          // 28
+  Nanoseconds,   // 29
+  Microseconds,  // 30
+  Milliseconds,  // 31
+  Seconds,       // 32
+  PerSecond,     // 33
+  PerCycle,      // 34
+  PerRun,         // 35
+  Monitoring
+};
 
 // Tag value array
-static constexpr std::array<std::string_view, 33> TAG_VALUE = {{
+static constexpr std::array<std::string_view, 37> TAG_VALUE = {{
   "ACO"sv,
   "AD"sv,      // 1
   "CPV"sv,     // 2
@@ -97,7 +116,7 @@ static constexpr std::array<std::string_view, 33> TAG_VALUE = {{
   "TRD"sv,     // 14
   "V0"sv,      // 15
   "QC"sv,      // 16
-  "Readout"sv, //17
+  "Readout"sv, // 17
   "DPL"sv,     // 18
   "CRU"sv,     // 19
   "B"sv,       // 20
@@ -108,18 +127,23 @@ static constexpr std::array<std::string_view, 33> TAG_VALUE = {{
   "Gb"sv,      // 25
   "bps"sv,     // 26
   "Mbps"sv,    // 27
-  "Gbps"sv,    //28
-  "ns"sv,      //29
-  "us"sv,      //30
-  "ms"sv       //31
-  "s"sv        // 32
+  "Gbps"sv,    // 28
+  "ns"sv,      // 29
+  "us"sv,      // 30
+  "ms"sv,      // 31
+  "s"sv,       // 32
+  "ps"sv,      // 33
+  "pcycle"sv,  // 34
+  "prun"sv,    // 35
+  "monitoring"sv
 }};
+
 static constexpr std::string_view GetValue(const int value)
 {
   return value >= 0 ? TAG_VALUE[value] : std::to_string(0 - value);
 }
-} // namespace tags
 
+} // namespace tags
 } // namespace monitoring
 } // namespace o2
 
