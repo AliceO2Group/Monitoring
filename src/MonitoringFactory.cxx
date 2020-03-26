@@ -21,7 +21,6 @@
 #include "UriParser/UriParser.h"
 
 #include "Backends/StdOut.h"
-#include "Backends/Flume.h"
 #include "Backends/Noop.h"
 
 #include "Backends/InfluxDB.h"
@@ -108,11 +107,6 @@ std::unique_ptr<Backend> getNoop(http::url /*uri*/)
   return std::make_unique<backends::Noop>();
 }
 
-std::unique_ptr<Backend> getFlume(http::url uri)
-{
-  return std::make_unique<backends::Flume>(uri.host, uri.port);
-}
-
 void MonitoringFactory::SetVerbosity(std::string selected, std::unique_ptr<Backend>& backend)
 {
   auto found = verbosities.find(selected);
@@ -133,7 +127,6 @@ std::unique_ptr<Backend> MonitoringFactory::GetBackend(std::string& url)
     {"influxdb-udp", getInfluxDb},
     {"influxdb-unix", getInfluxDb},
     {"apmon", getApMon},
-    {"flume", getFlume},
     {"no-op", getNoop},
     {"kafka", getKafka}};
 

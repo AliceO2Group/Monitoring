@@ -30,7 +30,6 @@ int main()
 {
   static constexpr std::array<std::string_view, 4> backends = {
     "no-op://",
-    "flume://localhost:1234",
     "influxdb-udp://localhost:1234",
     "stdout://"};
   std::cout << "| " << std::setw(30) << "Backend"

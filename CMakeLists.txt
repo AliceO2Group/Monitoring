@@ -86,7 +86,6 @@ set(INCLUDE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/include")
 # Backends
 message(STATUS "Backends")
 message(STATUS "  Compiling StdCout backend")
-message(STATUS "  Compiling Flume UDP/JSON backend")
 message(STATUS "  Compiling InfluxDB backend with Unix socket and UDP transport")
 
 # Create library
@@ -95,7 +94,6 @@ add_library(Monitoring SHARED
   src/Metric.cxx
   src/ComplexMetric.cxx
   src/Backends/InfluxDB.cxx
-  src/Backends/Flume.cxx
   src/Backends/StdOut.cxx
   src/DerivedMetrics.cxx
   src/ProcessMonitor.cxx
@@ -202,7 +200,6 @@ set(TEST_SRCS
   test/testMonitoring.cxx
   test/testMonitoringFactory.cxx
   test/testDerived.cxx
-  test/testFlume.cxx
   test/testMetric.cxx
   test/testProcessDetails.cxx
   test/testProcessMonitor.cxx

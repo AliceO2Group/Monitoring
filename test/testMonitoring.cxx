@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE(createMonitoring)
 
 BOOST_AUTO_TEST_CASE(buffering)
 {
-  auto monitoring = Monitoring::Get("stdout://,flume://localhost:1234");
+  auto monitoring = Monitoring::Get("stdout://,influxdb-udp://localhost:1234");
   monitoring->enableBuffering(10);
   for (int i = 0; i < 25; i++) {
     monitoring->send({10, "myMetricInt"});
