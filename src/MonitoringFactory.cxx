@@ -26,6 +26,7 @@
 
 #include "Transports/UDP.h"
 #include "Transports/Unix.h"
+#include "Transports/StdOut.h"
 
 #ifdef O2_MONITORING_WITH_APPMON
 #include "Backends/ApMonBackend.h"
@@ -90,7 +91,10 @@ std::unique_ptr<Backend> getInfluxDb(http::url uri)
     auto transport = std::make_unique<transports::Unix>(path);
     return std::make_unique<backends::InfluxDB>(std::move(transport));
   }
-
+  if (uri.protocol == "stdout") {
+    auto transport = std::make_unique<transports::StdOut>();
+    return std::make_unique<backends::InfluxDB>(std::move(transport));
+  }
   throw std::runtime_error("InfluxDB transport protocol not supported");
 }
 
@@ -130,6 +134,7 @@ std::unique_ptr<Backend> MonitoringFactory::GetBackend(std::string& url)
     {"stdout", getStdOut},
     {"influxdb-udp", getInfluxDb},
     {"influxdb-unix", getInfluxDb},
+    {"influxdb-stdout", getInfluxDb},
     {"apmon", getApMon},
     {"no-op", getNoop},
     {"kafka", getKafka}};

@@ -102,6 +102,7 @@ add_library(Monitoring SHARED
   src/Transports/UDP.cxx
   src/Transports/TCP.cxx
   src/Transports/Unix.cxx
+  src/Transports/StdOut.cxx
   src/Exceptions/MonitoringException.cxx
   $<$<BOOL:${ApMon_FOUND}>:src/Backends/ApMonBackend.cxx>
   $<$<BOOL:${RdKafka_FOUND}>:src/Backends/Kafka.cxx>
