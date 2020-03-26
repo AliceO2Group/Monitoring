@@ -37,16 +37,12 @@ namespace backends
 class InfluxDB final : public Backend
 {
  public:
-  /// Constructor for UDP transport
-  /// \param host      InfluxDB UDP endpoint hostname
-  /// \param port      InfluxDB UDP endpoint port number
-  InfluxDB(const std::string& host, unsigned int port);
+  /// Constuctor
+  /// \param transport 	Any available transport (udp, unix, kafka)
+  InfluxDB(std::unique_ptr<transports::TransportInterface> transport);
 
   /// Constructor for other backends
   InfluxDB();
-
-  /// Constructor for Unix socket transport
-  InfluxDB(const std::string& socketPath);
 
   /// Default destructor
   ~InfluxDB() = default;

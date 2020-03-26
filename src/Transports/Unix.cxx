@@ -15,6 +15,7 @@
 
 #include "Unix.h"
 #include <string>
+#include "../MonLogger.h"
 
 namespace o2
 {
@@ -28,6 +29,7 @@ namespace transports
 Unix::Unix(const std::string& socketPath) : mSocket(mIoService), mEndpoint(socketPath)
 {
   mSocket.open();
+  MonLogger::Get() << "Unix socket transport initialized (" << socketPath << ")" << MonLogger::End();
 }
 
 void Unix::send(std::string&& message)

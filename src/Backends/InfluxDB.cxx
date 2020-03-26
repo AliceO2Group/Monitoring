@@ -14,10 +14,10 @@
 ///
 
 #include "InfluxDB.h"
+#include <sstream>
 #include <string>
 #include <variant>
-#include "../Transports/UDP.h"
-#include "../Transports/Unix.h"
+#include <boost/algorithm/string/replace.hpp>
 #include "../Exceptions/MonitoringException.h"
 
 namespace o2
@@ -36,18 +36,13 @@ struct overloaded : Ts... {
 template <class... Ts>
 overloaded(Ts...)->overloaded<Ts...>;
 
-InfluxDB::InfluxDB(const std::string& host, unsigned int port) : mTransport(std::make_unique<transports::UDP>(host, port))
+InfluxDB::InfluxDB(std::unique_ptr<transports::TransportInterface> transport)
+  : mTransport(std::move(transport))
 {
-  MonLogger::Get() << "InfluxDB/UDP backend initialized"
-                   << " (" << host << ":" << port << ")" << MonLogger::End();
+  MonLogger::Get() << "InfluxDB backend initialized" << MonLogger::End();
 }
 
 InfluxDB::InfluxDB() {}
-
-InfluxDB::InfluxDB(const std::string& socketPath) : mTransport(std::make_unique<transports::Unix>(socketPath))
-{
-  MonLogger::Get() << "InfluxDB/Unix backend initialized (" << socketPath << ")" << MonLogger::End();
-}
 
 inline unsigned long InfluxDB::convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp)
 {
