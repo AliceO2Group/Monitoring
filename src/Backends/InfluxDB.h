@@ -37,7 +37,6 @@ namespace backends
 class InfluxDB final : public Backend
 {
  public:
-
   /// Constuctor
   /// \param transport 	Any available transport (udp, unix, kafka)
   InfluxDB(std::unique_ptr<transports::TransportInterface> transport);
