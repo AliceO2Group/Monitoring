@@ -38,7 +38,6 @@ StdOut& StdOut::operator<<(const T& msg)
   return *this;
 }
 
-
 } // namespace transports
 } // namespace monitoring
 } // namespace o2
