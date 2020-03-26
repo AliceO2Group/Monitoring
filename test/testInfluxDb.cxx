@@ -13,6 +13,7 @@
 #define BOOST_TEST_MODULE Test Monitoring InfluxDB
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
+#include "../src/Transports/UDP.h"
 #include "../src/Backends/InfluxDB.h"
 
 namespace o2
@@ -26,7 +27,8 @@ BOOST_AUTO_TEST_CASE(simplySendMetric)
 {
   std::string url = "influxdb-udp://localhost:1000";
   auto parsed = http::ParseHttpUrl(url);
-  o2::monitoring::backends::InfluxDB influxBackend(parsed.host, parsed.port);
+  auto transport = std::make_unique<transports::UDP>(parsed.host, parsed.port);
+  o2::monitoring::backends::InfluxDB influxBackend(std::move(transport));
   o2::monitoring::Metric metric{10, "myCrazyMetric"};
   influxBackend.send(metric);
 }

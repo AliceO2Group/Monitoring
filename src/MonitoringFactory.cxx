@@ -22,8 +22,10 @@
 
 #include "Backends/StdOut.h"
 #include "Backends/Noop.h"
-
 #include "Backends/InfluxDB.h"
+
+#include "Transports/UDP.h"
+#include "Transports/Unix.h"
 
 #ifdef O2_MONITORING_WITH_APPMON
 #include "Backends/ApMonBackend.h"
@@ -75,18 +77,20 @@ std::unique_ptr<Backend> getInfluxDb(http::url uri)
     uri.protocol = uri.protocol.substr(position + 1);
   }
   if (uri.protocol == "udp") {
-    return std::make_unique<backends::InfluxDB>(uri.host, uri.port);
+    auto transport = std::make_unique<transports::UDP>(uri.host, uri.port);
+    return std::make_unique<backends::InfluxDB>(std::move(transport));
   }
   if (uri.protocol == "unix") {
     std::string path = uri.path;
-    ;
     auto found = std::find_if(begin(verbosities), end(verbosities),
                               [&](const auto& s) { return path.find(s.first) != std::string::npos; });
     if (found != end(verbosities)) {
       path.erase(path.rfind('/'));
     }
-    return std::make_unique<backends::InfluxDB>(path);
+    auto transport = std::make_unique<transports::Unix>(path);
+    return std::make_unique<backends::InfluxDB>(std::move(transport));
   }
+
   throw std::runtime_error("InfluxDB transport protocol not supported");
 }
 
