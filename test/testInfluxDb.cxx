@@ -10,7 +10,7 @@
 
 #include "../src/UriParser/UriParser.h"
 
-#define BOOST_TEST_MODULE Test Monitoring Flume
+#define BOOST_TEST_MODULE Test Monitoring InfluxDB
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 #include "../src/Backends/InfluxDB.h"

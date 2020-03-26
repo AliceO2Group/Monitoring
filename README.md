@@ -48,7 +48,6 @@ See the table below to find `URI`s for supported backends:
 | InfluxDB     | Unix socket | `influxdb-unix`        | -          | `info`            |
 | ApMon        | UDP         | `apmon`                | -          | `info`            |
 | StdOut       | -           | `stdout`, `infologger` | [Prefix]   | `debug`           |
-| Flume        | UDP         | `flume`                | -          | `info`            |
 | Kafka        | TCP         | `kafka`                | -          | `info`            |
 
 ##### StdCout output format
@@ -104,7 +103,7 @@ In order to send more than one metric in a packet group them into vector:
 monitoring->send(std::vector<Metric>&& metrics);
 ```
 
-It's also possible to send multiple, grouped values (only `Flume` and `InfluxDB` backends are supported); For example `cpu` metric can be composed of `cpuUser`, `cpuSystem` values.
+It's also possible to send multiple, grouped values (`InfluxDB` backends are supported); For example `cpu` metric can be composed of `cpuUser`, `cpuSystem` values.
 ```cpp
 void sendGroupped(std::string name, std::vector<Metric>&& metrics)
 ```
