@@ -59,7 +59,7 @@ void Kafka::send(std::string&& message)
     RdKafka::Producer::RK_MSG_COPY,
     const_cast<char*>(message.c_str()), message.size(),
     NULL, 0,
-    0,  
+    0,
     NULL,
     NULL);
   if (resp != RdKafka::ERR_NO_ERROR) {

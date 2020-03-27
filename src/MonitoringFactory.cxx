@@ -81,12 +81,12 @@ std::unique_ptr<Backend> getInfluxDb(http::url uri)
     return std::make_unique<backends::InfluxDB>(std::move(transport));
   }
   if (uri.protocol == "kafka") {
-    #ifdef O2_MONITORING_WITH_KAFKA
+#ifdef O2_MONITORING_WITH_KAFKA
     auto transport = std::make_unique<transports::Kafka>(uri.host, uri.port, uri.search);
     return std::make_unique<backends::InfluxDB>(std::move(transport));
-    #else
+#else
     throw std::runtime_error("Kafka transport is not enabled");
-    #endif
+#endif
   }
   throw std::runtime_error("InfluxDB transport not supported: " + uri.protocol);
 }
