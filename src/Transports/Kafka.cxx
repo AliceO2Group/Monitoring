@@ -34,7 +34,7 @@ Kafka::Kafka(const std::string& host, unsigned int port, const std::string& topi
   conf->set("bootstrap.servers", host + ":" + std::to_string(port), errstr);
   conf->set("request.required.acks", "0", errstr);
   conf->set("message.send.max.retries", "0", errstr);
-  conf->set("queue.buffering.max.ms", "10", errstr);
+  conf->set("queue.buffering.max.ms", "100", errstr);
   conf->set("batch.num.messages", "1000", errstr);
 
   producer = RdKafka::Producer::create(conf, errstr);
@@ -63,7 +63,7 @@ void Kafka::send(std::string&& message)
     NULL,
     NULL);
   if (resp != RdKafka::ERR_NO_ERROR) {
-    MonLogger::Get() << "% Produce failed: " << RdKafka::err2str(resp) << MonLogger::End();
+    MonLogger::Get() << "Kafka send failed: " << RdKafka::err2str(resp) << MonLogger::End();
   }
   producer->poll(0);
 }
