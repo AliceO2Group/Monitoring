@@ -105,7 +105,7 @@ add_library(Monitoring SHARED
   src/Transports/StdOut.cxx
   src/Exceptions/MonitoringException.cxx
   $<$<BOOL:${ApMon_FOUND}>:src/Backends/ApMonBackend.cxx>
-  $<$<BOOL:${RdKafka_FOUND}>:src/Backends/Kafka.cxx>
+  $<$<BOOL:${RdKafka_FOUND}>:src/Transports/Kafka.cxx>
 )
 
 target_include_directories(Monitoring
@@ -136,7 +136,7 @@ if(ApMon_FOUND)
 endif()
 
 if(RdKafka_FOUND)
-   message(STATUS "  Compiling Kafka backend")
+   message(STATUS "  Compiling Kafka transport")
 endif()
 
 # Detect operating system
