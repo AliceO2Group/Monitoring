@@ -27,8 +27,8 @@ namespace transports
 {
 
 Kafka::Kafka(const std::string& host, unsigned int port, const std::string& topic)
-  : mTopic(topic)
 {
+  topic.length() > 0 ? mTopic = topic : mTopic = "test";
   std::string errstr;
   RdKafka::Conf* conf = RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL);
   conf->set("bootstrap.servers", host + ":" + std::to_string(port), errstr);
