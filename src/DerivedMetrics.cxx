@@ -65,9 +65,6 @@ Metric DerivedMetrics::process(Metric& metric, DerivedMetricMode mode)
        std::for_each(tags.begin(), tags.end(), [&key](auto const& pair) {
          key += pair.second;
        });
-       if (metric.getType() == MetricType::STRING) {
-         throw MonitoringException("DerivedMetrics", "Not able to process string values");
-       }
 
        // search for previous value
        auto search = mStorage.find(key);

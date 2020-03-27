@@ -193,13 +193,13 @@ BOOST_AUTO_TEST_CASE(derivedIncrementDouble)
 BOOST_AUTO_TEST_CASE(testBoostVisitor)
 {
   {
-    std::variant<int, std::string, double, uint64_t> a = 10;
-    std::variant<int, std::string, double, uint64_t> b = 11;
+    std::variant<int, double, uint64_t> a = 10;
+    std::variant<int, double, uint64_t> b = 11;
     auto value = std::visit(VariantVisitorAdd{}, a, b);
   }
   {
-    std::variant<int, std::string, double, uint64_t> a = 10;
-    std::variant<int, std::string, double, uint64_t> b = 10.10;
+    std::variant<int, double, uint64_t> a = 10;
+    std::variant<int, double, uint64_t> b = 10.10;
     BOOST_CHECK_THROW(std::visit(VariantVisitorAdd{}, a, b), o2::monitoring::MonitoringException);
     BOOST_CHECK_THROW(std::visit(VariantVisitorRate(1000), a, b), o2::monitoring::MonitoringException);
   }

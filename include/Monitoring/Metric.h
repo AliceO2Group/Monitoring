@@ -27,7 +27,6 @@ enum class Verbosity : short { Prod,
 
 /// Metric types
 enum MetricType { INT = 0,
-                  STRING = 1,
                   DOUBLE = 2,
                   UINT64_T = 3 };
 
@@ -42,11 +41,6 @@ class Metric
   /// \param name 	 	metric name
   Metric(int value, const std::string& name, Verbosity verbosity = Metric::DefaultVerbosity);
 
-  /// String metric construtor
-  /// \param value            metric value (string)
-  /// \param name             the metric name
-  Metric(std::string value, const std::string& name, Verbosity verbosity = Metric::DefaultVerbosity);
-
   /// Double metric constructor
   /// \param value            metric value (double)
   /// \param name             metric name
@@ -60,13 +54,13 @@ class Metric
   /// boost variant metric constructor, required by derived metrics logic
   /// \param value            metric value (boost variant)
   /// \param name             metric name
-  Metric(std::variant<int, std::string, double, uint64_t>, const std::string& name, Verbosity verbosity = Metric::DefaultVerbosity);
+  Metric(std::variant<int, double, uint64_t>, const std::string& name, Verbosity verbosity = Metric::DefaultVerbosity);
 
   /// Default destructor
   ~Metric() = default;
 
   /// Assign operator overload, assignes new values to the metric object
-  Metric& operator=(const std::variant<int, std::string, double, uint64_t>& value);
+  Metric& operator=(const std::variant<int, double, uint64_t>& value);
 
   /// Name getter
   /// \return	metric name
@@ -78,7 +72,7 @@ class Metric
 
   /// Value getter
   /// \return metric value
-  std::variant<int, std::string, double, uint64_t> getValue() const;
+  std::variant<int, double, uint64_t> getValue() const;
 
   /// Value type getter
   /// \return type of value stores inside metric : 0 - int, 1 - std::string, 2 - double
@@ -127,7 +121,7 @@ class Metric
   Metric&& setTags(std::vector<std::pair<int, int>>&& tags);
 
   /// Metric value
-  std::variant<int, std::string, double, uint64_t> mValue;
+  std::variant<int, double, uint64_t> mValue;
 
   /// Metric name
   std::string mName;

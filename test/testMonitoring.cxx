@@ -39,7 +39,6 @@ BOOST_AUTO_TEST_CASE(createMonitoring)
   monitoring->addGlobalTag(tags::Key::Name, tags::Value::Readout);
 
   monitoring->send({intMetric, "myCrazyMetricI"});
-  monitoring->send({stringMetric, "myCrazyMetricS"});
   monitoring->send({doubleMetric, "myCrazyMetricD"});
 }
 

@@ -83,11 +83,6 @@ void ApMonBackend::send(std::vector<Metric>&& metrics)
                    doubleValue = value;
                    paramValues[i] = reinterpret_cast<char*>(&doubleValue);
                  },
-                 [&](const std::string& value) {
-                   valueTypes[i] = XDR_STRING;
-                   stringValue = value;
-                   paramValues[i] = const_cast<char*>(stringValue.c_str());
-                 },
                  [&](uint64_t value) {
                    valueTypes[i] = XDR_REAL64;
                    doubleValue = static_cast<double>(value);
@@ -129,10 +124,6 @@ void ApMonBackend::send(const Metric& metric)
                [this, &metric](double value) {
                  mApMon->sendTimedParameter(const_cast<char*>(entity.c_str()), const_cast<char*>(entity.c_str()),
                                             const_cast<char*>(metric.getName().c_str()), XDR_REAL64, reinterpret_cast<char*>(&value), convertTimestamp(metric.getTimestamp()));
-               },
-               [this, &metric](const std::string& value) {
-                 mApMon->sendTimedParameter(const_cast<char*>(entity.c_str()), const_cast<char*>(entity.c_str()),
-                                            const_cast<char*>(metric.getName().c_str()), XDR_STRING, const_cast<char*>(value.c_str()), convertTimestamp(metric.getTimestamp()));
                },
                [this, &metric](uint64_t value) {
                  mApMon->sendTimedParameter(const_cast<char*>(entity.c_str()), const_cast<char*>(entity.c_str()),

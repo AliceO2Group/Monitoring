@@ -72,7 +72,6 @@ void InfluxDB::sendMultiple(std::string measurement, std::vector<Metric>&& metri
                  [&convert](uint64_t value) { convert << value << 'i'; },
                  [&convert](int value) { convert << value << 'i'; },
                  [&convert](double value) { convert << value; },
-                 [&convert](const std::string& value) { convert << '"' << value << '"'; },
                },
                metric.getValue());
     convert << ",";

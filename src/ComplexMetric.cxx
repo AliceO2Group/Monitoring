@@ -29,10 +29,6 @@ ComplexMetric::ComplexMetric(int value, const std::string& name) : Metric(value,
 {
 }
 
-ComplexMetric::ComplexMetric(std::string value, const std::string& name) : Metric(value, name)
-{
-}
-
 ComplexMetric::ComplexMetric(double value, const std::string& name) : Metric(value, name)
 {
 }
@@ -41,7 +37,7 @@ ComplexMetric::ComplexMetric(uint64_t value, const std::string& name) : Metric(v
 {
 }
 
-ComplexMetric::ComplexMetric(std::variant<int, std::string, double, uint64_t> value, const std::string& name) : Metric(value, name)
+ComplexMetric::ComplexMetric(std::variant<int, double, uint64_t> value, const std::string& name) : Metric(value, name)
 {
 }
 
@@ -50,7 +46,7 @@ void ComplexMetric::resetTimestamp()
   mTimestamp = Metric::getCurrentTimestamp();
 }
 
-ComplexMetric& ComplexMetric::operator=(const std::variant<int, std::string, double, uint64_t>& value)
+ComplexMetric& ComplexMetric::operator=(const std::variant<int, double, uint64_t>& value)
 {
   mValue = value;
   return *this;

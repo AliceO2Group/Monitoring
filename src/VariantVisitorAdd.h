@@ -23,7 +23,7 @@ class VariantVisitorAdd
   template <
     typename T,
     typename = typename std::enable_if<std::is_arithmetic<T>::value, T>::type>
-  std::variant<int, std::string, double, uint64_t> operator()(const T& a, const T& b) const
+  std::variant<int, double, uint64_t> operator()(const T& a, const T& b) const
   {
     return a + b;
   }
@@ -31,7 +31,7 @@ class VariantVisitorAdd
   /// If arguments have different type an exception is raised
   /// \throws MonitoringException
   template <typename T, typename U>
-  std::variant<int, std::string, double, uint64_t> operator()(const T&, const U&) const
+  std::variant<int, double, uint64_t> operator()(const T&, const U&) const
   {
     throw MonitoringException("DerivedMetrics/Visitor", "Cannot operate on different or non-numeric types");
   }
