@@ -41,14 +41,15 @@ std::unique_ptr<Monitoring> monitoring = MonitoringFactory::Get("backend[-protoc
 
 See the table below to find `URI`s for supported backends:
 
-| Backend name | Transport   | URI backend[-protocol] | URI query  | Default verbosity |
-| ------------ |:-----------:|:----------------------:|:----------:| -----------------:|
-| No-op        | -           | `no-op`                |            | -                 |
-| InfluxDB     | UDP         | `influxdb-udp`         | -          | `info`            |
-| InfluxDB     | Unix socket | `influxdb-unix`        | -          | `info`            |
-| ApMon        | UDP         | `apmon`                | -          | `info`            |
-| StdOut       | -           | `stdout`, `infologger` | [Prefix]   | `debug`           |
-| Kafka        | TCP         | `kafka`                | -          | `info`            |
+| Backend name | Transport   | URI backend[-protocol] | URI query   | Default verbosity |
+| ------------ |:-----------:|:----------------------:|:-----------:| -----------------:|
+| No-op        | -           | `no-op`                |             | -                 |
+| InfluxDB     | UDP         | `influxdb-udp`         | -           | `info`            |
+| InfluxDB     | Unix socket | `influxdb-unix`        | -           | `info`            |
+| InfluxDB     | StdOut      | `influxdb-stdout`      | -           | `info`            |
+| InfluxDB     | Kafka       | `influxdb-kafka`       | Kafka topic | `info`            |
+| ApMon        | UDP         | `apmon`                | -           | `info`            |
+| StdOut       | -           | `stdout`, `infologger` | [Prefix]    | `debug`           |
 
 ##### StdCout output format
 ```

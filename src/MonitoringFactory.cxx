@@ -33,7 +33,7 @@
 #endif
 
 #ifdef O2_MONITORING_WITH_KAFKA
-#include "Backends/Kafka.h"
+#include "Transports/Kafka.h"
 #endif
 
 namespace o2
@@ -41,21 +41,6 @@ namespace o2
 /// ALICE O2 Monitoring system
 namespace monitoring
 {
-#ifdef O2_MONITORING_WITH_KAFKA
-std::unique_ptr<Backend> getKafka(http::url uri)
-{
-  if (uri.search.size() > 0) {
-    return std::make_unique<backends::Kafka>(uri.host, uri.port, uri.search);
-  } else {
-    return std::make_unique<backends::Kafka>(uri.host, uri.port);
-  }
-}
-#else
-std::unique_ptr<Backend> getKafka(http::url /*uri*/)
-{
-  throw std::runtime_error("Kafka backend is not enabled");
-}
-#endif
 
 static const std::map<std::string, Verbosity> verbosities = {
   {"/prod", Verbosity::Prod},
@@ -95,7 +80,15 @@ std::unique_ptr<Backend> getInfluxDb(http::url uri)
     auto transport = std::make_unique<transports::StdOut>();
     return std::make_unique<backends::InfluxDB>(std::move(transport));
   }
-  throw std::runtime_error("InfluxDB transport protocol not supported");
+  if (uri.protocol == "kafka") {
+#ifdef O2_MONITORING_WITH_KAFKA
+    auto transport = std::make_unique<transports::Kafka>(uri.host, uri.port, uri.search);
+    return std::make_unique<backends::InfluxDB>(std::move(transport));
+#else
+    throw std::runtime_error("Kafka transport is not enabled");
+#endif
+  }
+  throw std::runtime_error("InfluxDB transport not supported: " + uri.protocol);
 }
 
 #ifdef O2_MONITORING_WITH_APPMON
@@ -135,9 +128,10 @@ std::unique_ptr<Backend> MonitoringFactory::GetBackend(std::string& url)
     {"influxdb-udp", getInfluxDb},
     {"influxdb-unix", getInfluxDb},
     {"influxdb-stdout", getInfluxDb},
+    {"influxdb-kafka", getInfluxDb},
     {"apmon", getApMon},
-    {"no-op", getNoop},
-    {"kafka", getKafka}};
+    {"no-op", getNoop}
+  };
 
   http::url parsedUrl = http::ParseHttpUrl(url);
   if (parsedUrl.protocol.empty()) {

@@ -42,8 +42,6 @@ InfluxDB::InfluxDB(std::unique_ptr<transports::TransportInterface> transport)
   MonLogger::Get() << "InfluxDB backend initialized" << MonLogger::End();
 }
 
-InfluxDB::InfluxDB() {}
-
 inline unsigned long InfluxDB::convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp)
 {
   return std::chrono::duration_cast<std::chrono::nanoseconds>(

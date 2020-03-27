@@ -41,9 +41,6 @@ class InfluxDB final : public Backend
   /// \param transport 	Any available transport (udp, unix, kafka)
   InfluxDB(std::unique_ptr<transports::TransportInterface> transport);
 
-  /// Constructor for other backends
-  InfluxDB();
-
   /// Default destructor
   ~InfluxDB() = default;
 
