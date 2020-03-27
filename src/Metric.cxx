@@ -136,6 +136,33 @@ void Metric::setDefaultVerbosity(Verbosity verbosity)
   Metric::DefaultVerbosity = verbosity;
 }
 
+Metric::Metric(const std::string& name, Verbosity verbosity)
+  : mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
+{
+  overwriteVerbosity();
+}
+
+Metric&& Metric::addValue(const std::string& name, int value)
+{
+  mValues.push_back({name, value});
+  return std::move(*this);
+}
+Metric&& Metric::addValue(const std::string& name, double value)
+{
+  mValues.push_back({name, value});
+  return std::move(*this);
+}
+Metric&& Metric::addValue(const std::string& name, uint64_t value)
+{
+  mValues.push_back({name, value});
+  return std::move(*this);
+}
+
+const std::vector<std::pair<std::string, std::variant<int, double, uint64_t>>>& Metric::getValues() const
+{
+  return mValues;
+}
+
 bool Metric::includeTimestamp = true;
 Verbosity Metric::DefaultVerbosity = Verbosity::Info;
 std::map<std::underlying_type<Verbosity>::type, std::regex> Metric::mRegexPolicy;

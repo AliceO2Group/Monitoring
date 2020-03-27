@@ -12,8 +12,8 @@ using namespace std::chrono;
 void test(std::unique_ptr<Monitoring>& monitoring)
 {
   for (int i = 0; i < 100000; i++) {
-    monitoring->send({10, "myMetricInt"});
-    monitoring->send({10.10, "myMetricFloat"});
+    monitoring->send(Metric{"myMetricInt"}.addValue("value", 10));
+    monitoring->send(Metric{"myMetricFloat"}.addValue("value", 10.10));
   }
 }
 
@@ -21,17 +21,17 @@ void testWithTags(std::unique_ptr<Monitoring>& monitoring)
 {
   monitoring->addGlobalTag("name", "benchmark");
   for (int i = 0; i < 100000; i++) {
-    monitoring->send(Metric{10, "myMetricInt"}.addTag(tags::Key::Detector, tags::Value::TPC));
-    monitoring->send(Metric{10.10, "myMetricFloat"}.addTag(tags::Key::Subsystem, tags::Value::QC));
+    monitoring->send(Metric{"myMetricInt"}.addValue("value", 10).addTag(tags::Key::Detector, tags::Value::TPC));
+    monitoring->send(Metric{"myMetricFloat"}.addValue("value", 10.10).addTag(tags::Key::Subsystem, tags::Value::QC));
   }
 }
 
 int main()
 {
-  static constexpr std::array<std::string_view, 4> backends = {
+  static constexpr std::array<std::string_view, 3> backends = {
     "no-op://",
     "influxdb-udp://localhost:1234",
-    "stdout://"};
+    "influxdb-stdout://"};
   std::cout << "| " << std::setw(30) << "Backend"
             << " |"
             << std::setw(10) << "no tags"

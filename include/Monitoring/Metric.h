@@ -9,9 +9,9 @@
 #include <string>
 #include <chrono>
 #include <map>
-#include <vector>
 #include <regex>
 #include <variant>
+#include <vector>
 #include "Tags.h"
 
 namespace o2
@@ -57,6 +57,11 @@ class Metric
   /// \param name             metric name
   Metric(uint64_t value, const std::string& name, Verbosity verbosity = Metric::DefaultVerbosity);
 
+  Metric(const std::string& name, Verbosity verbosity = Metric::DefaultVerbosity);
+  Metric&& addValue(const std::string& name, int value);
+  Metric&& addValue(const std::string& name, double value);
+  Metric&& addValue(const std::string& name, uint64_t value);
+
   /// boost variant metric constructor, required by derived metrics logic
   /// \param value            metric value (boost variant)
   /// \param name             metric name
@@ -87,6 +92,7 @@ class Metric
   /// Tag list getter
   /// \return         tags
   const std::vector<std::pair<int, int>>& getTags() const;
+  const std::vector<std::pair<std::string, std::variant<int, double, uint64_t>>>& getValues() const;
 
   /// Add user defined tags
   /// \param key      enum tag key
@@ -128,6 +134,7 @@ class Metric
 
   /// Metric value
   std::variant<int, std::string, double, uint64_t> mValue;
+  std::vector<std::pair<std::string, std::variant<int, double, uint64_t>>> mValues;
 
   /// Metric name
   std::string mName;

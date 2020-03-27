@@ -120,16 +120,18 @@ std::string InfluxDB::toInfluxLineProtocol(const Metric& metric)
   for (const auto& [key, value] : metric.getTags()) {
     convert << "," << tags::TAG_KEY[key] << "=" << tags::GetValue(value);
   }
-
-  convert << " value=";
-
-  std::visit(overloaded{
+  convert << ' ';
+  for (const auto& [name, value] : metric.getValues()) {
+    convert << name << '=';
+    std::visit(overloaded{
                [&convert](uint64_t value) { convert << value << 'i'; },
                [&convert](int value) { convert << value << 'i'; },
                [&convert](double value) { convert << value; },
                [&convert](const std::string& value) { convert << '"' << value << '"'; },
-             },
-             metric.getValue());
+             },  
+             value);
+    convert << ',';
+  }
   if (Metric::includeTimestamp) {
     convert << " " << convertTimestamp(metric.getTimestamp());
   }
