@@ -11,11 +11,11 @@ int main()
 {
   // Configure monitoring
   // Pass string with list of URLs as parameter
-  auto monitoring = MonitoringFactory::Get("stdout://");
+  auto monitoring = MonitoringFactory::Get("influxdb-stdout://");
 
   // now send an application specific metric
   // 10 is the value
   // myMetric is the name of the metric by creating and moving Metric object
-  monitoring->send({10, "myMetricInt"});
-  monitoring->send({10.10, "myMetricFloat"});
+  monitoring->send(Metric{"myMetricInt"}.addValue("value", 10));
+  monitoring->send(Metric{"myMetricFloat"}.addValue("value", 10.10));
 }

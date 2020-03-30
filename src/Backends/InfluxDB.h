@@ -57,11 +57,6 @@ class InfluxDB final : public Backend
   /// \@param metrics  vector of metrics
   void send(std::vector<Metric>&& metrics) override;
 
-  /// Sends multiple values in single measurement
-  /// \param measurement measurement name
-  /// \param metrics 	list of metrics
-  void sendMultiple(std::string measurement, std::vector<Metric>&& metrics) override;
-
   /// Adds tag
   /// \param name      tag name
   /// \param value     tag value

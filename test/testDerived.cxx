@@ -42,9 +42,10 @@ BOOST_AUTO_TEST_CASE(derivedRateInt)
     try {
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
       o2::monitoring::Metric metric(result.value, name);
-      o2::monitoring::Metric derived = derivedHandler.process(metric, DerivedMetricMode::RATE);
-      BOOST_CHECK_EQUAL(derived.getName(), "metricIntRate");
-      BOOST_WARN_CLOSE(std::get<double>(derived.getValue()), result.rate, 1.0);
+      derivedHandler.process(metric, DerivedMetricMode::RATE);
+      BOOST_CHECK_EQUAL(metric.getName(), "metricInt");
+      BOOST_CHECK_EQUAL(metric.getValues().back().first, "value_rate");
+      BOOST_WARN_CLOSE(std::get<double>(metric.getValues().back().second), result.rate, 1.0);
     } catch (MonitoringException& e) {
       BOOST_CHECK_EQUAL(e.what(), std::string("Not enough values"));
     }
@@ -65,9 +66,10 @@ BOOST_AUTO_TEST_CASE(derivedRateInt_newRun)
     try {
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
       o2::monitoring::Metric metric(result.value, name);
-      o2::monitoring::Metric derived = derivedHandler.process(metric, DerivedMetricMode::RATE);
-      BOOST_CHECK_EQUAL(derived.getName(), "metricIntRate");
-      BOOST_WARN_CLOSE(std::get<double>(derived.getValue()), result.rate, 1.0);
+      derivedHandler.process(metric, DerivedMetricMode::RATE);
+      BOOST_CHECK_EQUAL(metric.getName(), "metricInt");
+      BOOST_CHECK_EQUAL(metric.getValues().back().first, "value_rate");
+      BOOST_WARN_CLOSE(std::get<double>(metric.getValues().back().second), result.rate, 1.0);
     } catch (MonitoringException& e) {
       BOOST_CHECK_EQUAL(e.what(), std::string("Not enough values"));
     }
@@ -89,11 +91,13 @@ BOOST_AUTO_TEST_CASE(derivedRateDouble)
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
       o2::monitoring::Metric metric(results[i].value, name);
       o2::monitoring::Metric metricTagged = Metric{resultsTagged[i].value, name}.addTag(o2::monitoring::tags::Key::Subsystem, o2::monitoring::tags::Value::Readout);
-      o2::monitoring::Metric derived = derivedHandler.process(metric, DerivedMetricMode::RATE);
-      o2::monitoring::Metric derivedTagged = derivedHandler.process(metricTagged, DerivedMetricMode::RATE);
-      BOOST_CHECK_EQUAL(derived.getName(), "metricDoubleRate");
-      BOOST_WARN_CLOSE(std::get<double>(derived.getValue()), results[i].rate, 1.0);
-      BOOST_WARN_CLOSE(std::get<double>(derivedTagged.getValue()), resultsTagged[i].rate, 1.0);
+      derivedHandler.process(metric, DerivedMetricMode::RATE);
+      derivedHandler.process(metricTagged, DerivedMetricMode::RATE);
+      BOOST_CHECK_EQUAL(metric.getName(), "metricDouble");
+      BOOST_WARN_CLOSE(std::get<double>(metric.getValues().back().second), results[i].rate, 1.0);
+      BOOST_CHECK_EQUAL(metric.getValues().back().first, "value_rate");
+      BOOST_WARN_CLOSE(std::get<double>(metricTagged.getValues().back().second), resultsTagged[i].rate, 1.0);
+      BOOST_CHECK_EQUAL(metricTagged.getValues().back().first, "value_rate");
     } catch (MonitoringException& e) {
       BOOST_CHECK_EQUAL(e.what(), std::string("Not enough values"));
     }
@@ -114,9 +118,10 @@ BOOST_AUTO_TEST_CASE(derivedRateUint64_t)
     try {
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
       o2::monitoring::Metric metric(result.value, name);
-      o2::monitoring::Metric derived = derivedHandler.process(metric, DerivedMetricMode::RATE);
-      BOOST_CHECK_EQUAL(derived.getName(), "metricUint64_tRate");
-      BOOST_WARN_CLOSE(std::get<double>(derived.getValue()), result.rate, 1.0);
+      derivedHandler.process(metric, DerivedMetricMode::RATE);
+      BOOST_CHECK_EQUAL(metric.getName(), "metricUint64_t");
+      BOOST_CHECK_EQUAL(metric.getValues().back().first, "value_rate");
+      BOOST_WARN_CLOSE(std::get<double>(metric.getValues().back().second), result.rate, 1.0);
     } catch (MonitoringException& e) {
       BOOST_CHECK_EQUAL(e.what(), std::string("Not enough values"));
     }
@@ -146,15 +151,16 @@ BOOST_AUTO_TEST_CASE(derivedIncrementInt)
 {
   struct IncrementResults {
     int value;
-    int rate;
+    int increment;
   };
   std::vector<IncrementResults> results = {{10, 10}, {20, 30}, {30, 60}, {50, 110}, {60, 170}, {65, 235}, {70, 305}, {80, 385}, {90, 475}, {100, 575}};
   o2::monitoring::DerivedMetrics derivedHandler;
   std::string name("metricInt");
   for (auto const result : results) {
     o2::monitoring::Metric metric(result.value, name);
-    o2::monitoring::Metric derived = derivedHandler.process(metric, DerivedMetricMode::INCREMENT);
-    BOOST_CHECK_EQUAL(std::get<int>(derived.getValue()), result.rate);
+    derivedHandler.process(metric, DerivedMetricMode::INCREMENT);
+    BOOST_CHECK_EQUAL(std::get<int>(metric.getValues().back().second), result.increment);
+    BOOST_CHECK_EQUAL(metric.getValues().back().first, "value_increment");
   }
 }
 
@@ -169,8 +175,9 @@ BOOST_AUTO_TEST_CASE(derivedIncrementUint64_t)
   std::string name("metricUint64_t");
   for (auto const result : results) {
     o2::monitoring::Metric metric(result.value, name);
-    o2::monitoring::Metric derived = derivedHandler.process(metric, DerivedMetricMode::INCREMENT);
-    BOOST_CHECK_EQUAL(std::get<uint64_t>(derived.getValue()), result.rate);
+    derivedHandler.process(metric, DerivedMetricMode::INCREMENT);
+    BOOST_CHECK_EQUAL(std::get<uint64_t>(metric.getValues().back().second), result.rate);
+    BOOST_CHECK_EQUAL(metric.getValues().back().first, "value_increment");
   }
 }
 
@@ -185,8 +192,9 @@ BOOST_AUTO_TEST_CASE(derivedIncrementDouble)
   std::string name("metricDouble");
   for (auto const result : results) {
     o2::monitoring::Metric metric(result.value, name);
-    o2::monitoring::Metric derived = derivedHandler.process(metric, DerivedMetricMode::INCREMENT);
-    BOOST_CHECK_CLOSE(std::get<double>(derived.getValue()), result.rate, 0.01);
+    derivedHandler.process(metric, DerivedMetricMode::INCREMENT);
+    BOOST_CHECK_CLOSE(std::get<double>(metric.getValues().back().second), result.rate, 0.01);
+    BOOST_CHECK_EQUAL(metric.getValues().back().first, "value_increment");
   }
 }
 

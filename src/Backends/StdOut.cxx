@@ -63,36 +63,21 @@ void StdOut::send(std::vector<Metric>&& metrics)
   }
 }
 
-void StdOut::sendMultiple(std::string measurement, std::vector<Metric>&& metrics)
-{
-  std::string metricTags{};
-  for (const auto& [key, value] : metrics.front().getTags()) {
-    metricTags += ',';
-    metricTags += tags::TAG_KEY[key];
-    metricTags += "=";
-    metricTags += tags::GetValue(value);
-  }
-  for (auto& metric : metrics) {
-    auto value = std::visit(overloaded{
-                              [](const std::string& value) -> std::string { return value; },
-                              [](auto value) -> std::string { return std::to_string(value); }},
-                            metric.getValue());
-
-    mStream << "[" << mPrefix << "] " << measurement << '/' << metric.getName() << ',' << metric.getType() << ' '
-            << value << ' ' << convertTimestamp(metric.getTimestamp()) << ' ' << tagString
-            << metricTags << '\n';
-  }
-}
-
 void StdOut::send(const Metric& metric)
 {
-  auto value = std::visit(overloaded{
-                            [](const std::string& value) -> std::string { return value; },
-                            [](auto value) -> std::string { return std::to_string(value); }},
-                          metric.getValue());
-
-  mStream << "[" << mPrefix << "] " << metric.getName() << ',' << metric.getType() << " " << value
-          << ' ' << convertTimestamp(metric.getTimestamp()) << ' ' << tagString;
+  mStream << "[" << mPrefix << "] "  << metric.getName();
+  for (auto& value : metric.getValues()) {
+    auto stringValue = std::visit(overloaded{
+      [](const std::string& value) -> std::string { return value; },
+      [](auto value) -> std::string { return std::to_string(value); }
+    }, value.second);
+    if (metric.getValuesSize() == 1) {
+      mStream << ",0 " << stringValue;
+    } else {
+      mStream << ' ' << value.first << '=' << stringValue;
+    }
+  }
+  mStream << ' ' << convertTimestamp(metric.getTimestamp()) << ' ' << tagString;
 
   for (const auto& [key, value] : metric.getTags()) {
     mStream << ',' << tags::TAG_KEY[key] << "=" << tags::GetValue(value);

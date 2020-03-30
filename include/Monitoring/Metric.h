@@ -56,22 +56,15 @@ class Metric
   /// \param value            metric value (uint64_t)
   /// \param name             metric name
   Metric(uint64_t value, const std::string& name, Verbosity verbosity = Metric::DefaultVerbosity);
-
   Metric(const std::string& name, Verbosity verbosity = Metric::DefaultVerbosity);
   Metric&& addValue(const std::string& name, int value);
   Metric&& addValue(const std::string& name, double value);
   Metric&& addValue(const std::string& name, uint64_t value);
-
-  /// boost variant metric constructor, required by derived metrics logic
-  /// \param value            metric value (boost variant)
-  /// \param name             metric name
-  Metric(std::variant<int, std::string, double, uint64_t>, const std::string& name, Verbosity verbosity = Metric::DefaultVerbosity);
+  Metric&& addValue(const std::string& name, std::string value);
+  Metric&& addValue(const std::string& name, const std::variant<int, std::string, double, uint64_t>& value);
 
   /// Default destructor
   ~Metric() = default;
-
-  /// Assign operator overload, assignes new values to the metric object
-  Metric& operator=(const std::variant<int, std::string, double, uint64_t>& value);
 
   /// Name getter
   /// \return	metric name
@@ -81,18 +74,18 @@ class Metric
   /// \return 	metric timestamp
   std::chrono::time_point<std::chrono::system_clock> getTimestamp() const;
 
-  /// Value getter
+  /// Values getter
   /// \return metric value
-  std::variant<int, std::string, double, uint64_t> getValue() const;
+  const std::vector<std::pair<std::string, std::variant<int, std::string, double, uint64_t>>>& getValues() const;
 
-  /// Value type getter
-  /// \return type of value stores inside metric : 0 - int, 1 - std::string, 2 - double
-  int getType() const;
+  const std::pair<std::string, std::variant<int, std::string, double, uint64_t>>& getFirstValue() const;
+
+  /// Values vector size getter
+  std::size_t getValuesSize() const noexcept;
 
   /// Tag list getter
   /// \return         tags
   const std::vector<std::pair<int, int>>& getTags() const;
-  const std::vector<std::pair<std::string, std::variant<int, double, uint64_t>>>& getValues() const;
 
   /// Add user defined tags
   /// \param key      enum tag key
@@ -132,9 +125,8 @@ class Metric
   /// Set full vector of tags
   Metric&& setTags(std::vector<std::pair<int, int>>&& tags);
 
-  /// Metric value
-  std::variant<int, std::string, double, uint64_t> mValue;
-  std::vector<std::pair<std::string, std::variant<int, double, uint64_t>>> mValues;
+  /// Metric values
+  std::vector<std::pair<std::string, std::variant<int, std::string, double, uint64_t>>> mValues;
 
   /// Metric name
   std::string mName;

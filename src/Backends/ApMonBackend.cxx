@@ -105,11 +105,6 @@ void ApMonBackend::send(std::vector<Metric>&& metrics)
   std::free(valueTypes);
 }
 
-void ApMonBackend::sendMultiple(std::string, std::vector<Metric>&& metrics)
-{
-  send(std::move(metrics));
-}
-
 void ApMonBackend::send(const Metric& metric)
 {
   std::string name = metric.getName();

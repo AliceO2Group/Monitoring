@@ -36,8 +36,9 @@ BOOST_AUTO_TEST_CASE(retrieveInt)
   std::string name("metric name");
   Metric metricInstance(value, name);
 
-  BOOST_CHECK_EQUAL(std::get<int>(metricInstance.getValue()), 10);
-  BOOST_CHECK_EQUAL(metricInstance.getType(), 0);
+  BOOST_CHECK_EQUAL(std::get<int>(metricInstance.getFirstValue().second), 10);
+  BOOST_CHECK_EQUAL(metricInstance.getFirstValue().first, "value");
+  BOOST_CHECK(std::holds_alternative<int>(metricInstance.getFirstValue().second));
 }
 
 BOOST_AUTO_TEST_CASE(retrieveDouble)
@@ -46,8 +47,9 @@ BOOST_AUTO_TEST_CASE(retrieveDouble)
   std::string name("metric name");
   Metric metricInstance(value, name);
 
-  BOOST_CHECK_EQUAL(std::get<double>(metricInstance.getValue()), 1.11);
-  BOOST_CHECK_EQUAL(metricInstance.getType(), 2);
+  BOOST_CHECK_EQUAL(std::get<double>(metricInstance.getFirstValue().second), 1.11);
+  BOOST_CHECK_EQUAL(metricInstance.getFirstValue().first, "value");
+  BOOST_CHECK(std::holds_alternative<double>(metricInstance.getFirstValue().second));
 }
 
 BOOST_AUTO_TEST_CASE(retrieveString)
@@ -56,8 +58,9 @@ BOOST_AUTO_TEST_CASE(retrieveString)
   std::string name("metric name");
   Metric metricInstance(value, name);
 
-  BOOST_CHECK_EQUAL(std::get<std::string>(metricInstance.getValue()), "testString");
-  BOOST_CHECK_EQUAL(metricInstance.getType(), 1);
+  BOOST_CHECK_EQUAL(std::get<std::string>(metricInstance.getFirstValue().second), "testString");
+  BOOST_CHECK_EQUAL(metricInstance.getFirstValue().first, "value");
+  BOOST_CHECK(std::holds_alternative<std::string>(metricInstance.getFirstValue().second));
 }
 
 BOOST_AUTO_TEST_CASE(retrieveUnsignedLongLong)
@@ -66,8 +69,9 @@ BOOST_AUTO_TEST_CASE(retrieveUnsignedLongLong)
   std::string name("metric name");
   Metric metricInstance(value, name);
 
-  BOOST_CHECK_EQUAL(std::get<uint64_t>(metricInstance.getValue()), 10000000000000LL);
-  BOOST_CHECK_EQUAL(metricInstance.getType(), 3);
+  BOOST_CHECK_EQUAL(std::get<uint64_t>(metricInstance.getFirstValue().second), 10000000000000LL);
+  BOOST_CHECK_EQUAL(metricInstance.getFirstValue().first, "value");
+  BOOST_CHECK(std::holds_alternative<uint64_t>(metricInstance.getFirstValue().second));
 }
 
 bool is_critical(const std::bad_variant_access&) { return true; }
@@ -77,7 +81,7 @@ BOOST_AUTO_TEST_CASE(retrieveWrongType)
   double value = 1.11;
   std::string name("metric name");
   o2::monitoring::Metric metricInstance(value, name);
-  BOOST_CHECK_EXCEPTION(std::get<std::string>(metricInstance.getValue()), std::bad_variant_access, is_critical);
+  BOOST_CHECK_EXCEPTION(std::get<std::string>(metricInstance.getFirstValue().second), std::bad_variant_access, is_critical);
 }
 
 BOOST_AUTO_TEST_CASE(tags)

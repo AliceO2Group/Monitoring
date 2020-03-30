@@ -52,7 +52,7 @@ class DerivedMetrics
 
   /// Entry method to DerivedMetrics
   /// Switches over processing modes: rate and increment
-  Metric process(Metric& metric, DerivedMetricMode mode);
+  void process(Metric& metric, DerivedMetricMode mode);
 };
 
 } // namespace monitoring

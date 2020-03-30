@@ -55,10 +55,10 @@ int main(int argc, char* argv[])
   if (vm["multiple"].as<bool>()) {
     for (int j = 1; j <= count; j++) {
       for (int i = 1; i <= measurements; i++) {
-        monitoring->sendGrouped("measurement" + std::to_string(i), {{doubleDist(mt), "doubleMetric" + std::to_string(i)},
+/*        monitoring->sendGrouped("measurement" + std::to_string(i), {{doubleDist(mt), "doubleMetric" + std::to_string(i)},
                                                                     {intDist(mt), "intMetric" + std::to_string(i)},
                                                                     {std::rand() % 2, "onOffMetric" + std::to_string(i)}});
-        std::this_thread::sleep_for(std::chrono::microseconds(sleep));
+*/        std::this_thread::sleep_for(std::chrono::microseconds(sleep));
       }
       if (!vm.count("count"))
         j--;

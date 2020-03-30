@@ -56,11 +56,6 @@ class ApMonBackend final : public Backend
   /// \param metric           reference to metric object:
   void send(const Metric& metric) override;
 
-  /// Sends grouped metrics  under common measuremet name
-  /// \param measurement     measurement name
-  /// \param metrics  list of metrics
-  void sendMultiple(std::string measurement, std::vector<Metric>&& metrics) override;
-
   /// Extends entity value
   /// \param name             tag name (unused)
   /// \param value            tag value that is concatenated to entity string

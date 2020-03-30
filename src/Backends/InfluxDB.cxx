@@ -56,38 +56,6 @@ void InfluxDB::escape(std::string& escaped)
   boost::replace_all(escaped, " ", "\\ ");
 }
 
-void InfluxDB::sendMultiple(std::string measurement, std::vector<Metric>&& metrics)
-{
-  escape(measurement);
-  std::stringstream convert;
-  convert << measurement << "," << tagSet;
-  for (const auto& [key, value] : metrics.front().getTags()) {
-    convert << "," << tags::TAG_KEY[key] << "=" << tags::GetValue(value);
-  }
-  convert << " ";
-
-  for (const auto& metric : metrics) {
-    convert << metric.getName() << "=";
-    std::visit(overloaded{
-                 [&convert](uint64_t value) { convert << value << 'i'; },
-                 [&convert](int value) { convert << value << 'i'; },
-                 [&convert](double value) { convert << value; },
-                 [&convert](const std::string& value) { convert << '"' << value << '"'; },
-               },
-               metric.getValue());
-    convert << ",";
-  }
-  convert.seekp(-1, std::ios_base::end);
-  if (Metric::includeTimestamp) {
-    convert << " " << convertTimestamp(metrics.back().getTimestamp());
-  }
-
-  try {
-    mTransport->send(convert.str());
-  } catch (MonitoringException&) {
-  }
-}
-
 void InfluxDB::send(std::vector<Metric>&& metrics)
 {
   std::string influxMetrics = "";
@@ -132,6 +100,7 @@ std::string InfluxDB::toInfluxLineProtocol(const Metric& metric)
              value);
     convert << ',';
   }
+  convert.seekp(-1, std::ios_base::end);
   if (Metric::includeTimestamp) {
     convert << " " << convertTimestamp(metric.getTimestamp());
   }

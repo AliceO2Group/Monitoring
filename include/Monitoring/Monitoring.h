@@ -27,7 +27,6 @@
 #include <vector>
 #include <deque>
 
-#include "Monitoring/ComplexMetric.h"
 #include "Monitoring/Backend.h"
 #include "Monitoring/DerivedMetrics.h"
 #include "Monitoring/ProcessMonitor.h"
@@ -68,13 +67,6 @@ class Monitoring
   /// \param mode		Derived metric mode
   void send(Metric&& metric, DerivedMetricMode mode = DerivedMetricMode::NONE);
 
-  /// Sends multiple realated to each other metric values under a common measurement name
-  /// You can imagine it as a data point with multiple values
-  /// If it's not supported by a backend it fallbacks into sending one by one
-  /// \param name		measurement name
-  /// \param metrics		list of metrics
-  void sendGrouped(std::string name, std::vector<Metric>&& metrics, Verbosity verbosity = Metric::DefaultVerbosity);
-
   /// Enables process monitoring
   /// \param interval		refresh interval
   void enableProcessMonitoring(const unsigned int interval = 5);
@@ -99,7 +91,7 @@ class Monitoring
   /// Returns a metric which will be periodically sent to backends
   /// \param name 		metric name
   /// \return 		periodically send metric
-  ComplexMetric& getAutoPushMetric(std::string name, unsigned int interval = 1);
+  //ComplexMetric& getAutoPushMetric(std::string name, unsigned int interval = 1);
 
  private:
   /// Sends multiple (not related to each other) metrics
@@ -144,13 +136,13 @@ class Monitoring
   std::size_t mBufferSize;
 
   /// Store for automatically pushed metrics
-  std::deque<ComplexMetric> mPushStore;
+  //std::deque<ComplexMetric> mPushStore;
 
   /// Process monitor interval
   std::atomic<unsigned int> mProcessMonitoringInterval;
 
   /// Automatic metric push interval
-  std::atomic<unsigned int> mAutoPushInterval;
+  //std::atomic<unsigned int> mAutoPushInterval;
 };
 
 } // namespace monitoring

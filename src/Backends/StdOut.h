@@ -46,11 +46,6 @@ class StdOut final : public Backend
   /// \@param metrics  vector of metrics
   void send(std::vector<Metric>&& metrics) override;
 
-  /// Prints a metric with multiple values (names are prefixed with measurement)
-  /// \param measurement   measurement name
-  /// \param metrics  list of metrics
-  void sendMultiple(std::string measurement, std::vector<Metric>&& metrics) override;
-
   /// Adds tag
   /// \param name         tag name
   /// \param value        tag value

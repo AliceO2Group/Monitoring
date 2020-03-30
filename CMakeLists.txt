@@ -92,7 +92,6 @@ message(STATUS "  Compiling InfluxDB backend with Unix socket and UDP transport"
 add_library(Monitoring SHARED
   src/Monitoring.cxx
   src/Metric.cxx
-  src/ComplexMetric.cxx
   src/Backends/InfluxDB.cxx
   src/Backends/StdOut.cxx
   src/DerivedMetrics.cxx
@@ -174,8 +173,6 @@ set(EXAMPLES
   examples/5-Benchmark.cxx
   examples/6-Increment.cxx
   examples/7-InternalBenchamrk.cxx
-  examples/8-Multiple.cxx
-  examples/9-AutoUpdate.cxx
   examples/10-Buffering.cxx
 )
 

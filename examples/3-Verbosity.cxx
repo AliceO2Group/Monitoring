@@ -19,8 +19,8 @@ int main()
   monitoring->send({10, "myMetricInt", Verbosity::Debug}, DerivedMetricMode::INCREMENT);
   monitoring->send({10.10, "myMetricFloat", Verbosity::Prod}, DerivedMetricMode::INCREMENT);
 
-  monitoring->sendGrouped("measurementName", {{20, "myMetricIntMultiple"}, {20.30, "myMetricFloatMultple"}}, Verbosity::Debug);
-  monitoring->sendGrouped("measurementName", {{20, "myMetricIntMultiple"}, {20.30, "myMetricFloatMultple"}}, Verbosity::Prod);
+  //monitoring->sendGrouped("measurementName", {{20, "myMetricIntMultiple"}, {20.30, "myMetricFloatMultple"}}, Verbosity::Debug);
+  //monitoring->sendGrouped("measurementName", {{20, "myMetricIntMultiple"}, {20.30, "myMetricFloatMultple"}}, Verbosity::Prod);
 
   monitoring->send({10, "myMetricInt", Verbosity::Debug}, DerivedMetricMode::INCREMENT);
   monitoring->send({10.10, "myMetricFloat", Verbosity::Prod}, DerivedMetricMode::INCREMENT);
