@@ -12,8 +12,8 @@ using namespace std::chrono;
 void test(std::unique_ptr<Monitoring>& monitoring)
 {
   for (int i = 0; i < 100000; i++) {
-    monitoring->send(Metric{"myMetricInt"}.addValue("value", 10));
-    monitoring->send(Metric{"myMetricFloat"}.addValue("value", 10.10));
+    monitoring->send(Metric{"myMetricInt"}.addValue(10, "value"));
+    monitoring->send(Metric{"myMetricFloat"}.addValue(10.10, "value"));
   }
 }
 
@@ -21,8 +21,8 @@ void testWithTags(std::unique_ptr<Monitoring>& monitoring)
 {
   monitoring->addGlobalTag("name", "benchmark");
   for (int i = 0; i < 100000; i++) {
-    monitoring->send(Metric{"myMetricInt"}.addValue("value", 10).addTag(tags::Key::Detector, tags::Value::TPC));
-    monitoring->send(Metric{"myMetricFloat"}.addValue("value", 10.10).addTag(tags::Key::Subsystem, tags::Value::QC));
+    monitoring->send(Metric{"myMetricInt"}.addValue(10, "value").addTag(tags::Key::Detector, tags::Value::TPC));
+    monitoring->send(Metric{"myMetricFloat"}.addValue(10.10, "value").addTag(tags::Key::Subsystem, tags::Value::QC));
   }
 }
 

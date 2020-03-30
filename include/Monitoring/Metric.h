@@ -56,12 +56,35 @@ class Metric
   /// \param value            metric value (uint64_t)
   /// \param name             metric name
   Metric(uint64_t value, const std::string& name, Verbosity verbosity = Metric::DefaultVerbosity);
+
+  /// Constructor that  does not require any value to be specified, .addValue needs to be used
+  /// \param name             metric name
   Metric(const std::string& name, Verbosity verbosity = Metric::DefaultVerbosity);
-  Metric&& addValue(const std::string& name, int value);
-  Metric&& addValue(const std::string& name, double value);
-  Metric&& addValue(const std::string& name, uint64_t value);
-  Metric&& addValue(const std::string& name, std::string value);
-  Metric&& addValue(const std::string& name, const std::variant<int, std::string, double, uint64_t>& value);
+
+  /// Adds additional int value to metric
+  /// \param value
+  /// \param name
+  Metric&& addValue(int value, const std::string& name);
+
+  /// Adds additional double value to metric
+  /// \param value
+  /// \param name
+  Metric&& addValue(double value, const std::string& name);
+
+  /// Adds additional uint64_t value to metric
+  /// \param value
+  /// \param name
+  Metric&& addValue(uint64_t value, const std::string& name);
+
+  /// Adds additional string value to metric
+  /// \param value
+  /// \param name
+  Metric&& addValue(std::string value, const std::string& name);
+
+  /// Adds additional variant value to metric
+  /// \param value
+  /// \param name
+  Metric&& addValue(const std::variant<int, std::string, double, uint64_t>& value, const std::string& name);
 
   /// Default destructor
   ~Metric() = default;
@@ -75,9 +98,11 @@ class Metric
   std::chrono::time_point<std::chrono::system_clock> getTimestamp() const;
 
   /// Values getter
-  /// \return metric value
+  /// \return vector of values
   const std::vector<std::pair<std::string, std::variant<int, std::string, double, uint64_t>>>& getValues() const;
 
+  /// First value getter
+  /// \return first value as pair
   const std::pair<std::string, std::variant<int, std::string, double, uint64_t>>& getFirstValue() const;
 
   /// Values vector size getter
@@ -145,6 +170,9 @@ class Metric
 
   /// Overwirte verbosity using regex policy
   void overwriteVerbosity();
+
+  /// Default value name
+  static constexpr char mDefaultValueName[] = "value";
 };
 
 } // namespace monitoring

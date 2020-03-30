@@ -30,18 +30,6 @@ std::chrono::time_point<std::chrono::system_clock> Metric::getTimestamp() const
   return mTimestamp;
 }
 
-/*int Metric::getType() const
-{
-  if (std::holds_alternative<int>(mValue))
-    return 0;
-  else if (std::holds_alternative<std::string>(mValue))
-    return 1;
-  else if (std::holds_alternative<double>(mValue))
-    return 2;
-  else
-    return 3;
-}*/
-
 const std::string& Metric::getName() const
 {
   return mName;
@@ -50,25 +38,53 @@ const std::string& Metric::getName() const
 Metric::Metric(int value, const std::string& name, Verbosity verbosity) : mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
 {
   overwriteVerbosity();
-  addValue("value", value);
+  addValue(value, Metric::mDefaultValueName);
 }
 
 Metric::Metric(std::string value, const std::string& name, Verbosity verbosity) : mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
 {
   overwriteVerbosity();
-  addValue("value", value);
+  addValue(value, Metric::mDefaultValueName);
 }
 
 Metric::Metric(double value, const std::string& name, Verbosity verbosity) : mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
 {
   overwriteVerbosity();
-  addValue("value", value);
+  addValue(value, Metric::mDefaultValueName);
 }
 
 Metric::Metric(uint64_t value, const std::string& name, Verbosity verbosity) : mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
 {
   overwriteVerbosity();
-  addValue("value", value);
+  addValue(value, Metric::mDefaultValueName);
+}
+
+Metric&& Metric::addValue(int value, const std::string& name)
+{
+  mValues.push_back({name, value});
+  return std::move(*this);
+}
+Metric&& Metric::addValue(double value, const std::string& name)
+{
+  mValues.push_back({name, value});
+  return std::move(*this);
+}
+Metric&& Metric::addValue(uint64_t value, const std::string& name)
+{
+  mValues.push_back({name, value});
+  return std::move(*this);
+}
+
+Metric&& Metric::addValue(std::string value, const std::string& name)
+{
+  mValues.push_back({name, value});
+  return std::move(*this);
+}
+
+Metric&& Metric::addValue(const std::variant<int, std::string, double, uint64_t>& value, const std::string& name)
+{
+  mValues.push_back({name, value});
+  return std::move(*this);
 }
 
 Metric::Metric(const std::string& name, Verbosity verbosity) : mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
@@ -126,34 +142,6 @@ auto Metric::getCurrentTimestamp() -> decltype(std::chrono::system_clock::now())
 void Metric::setDefaultVerbosity(Verbosity verbosity)
 {
   Metric::DefaultVerbosity = verbosity;
-}
-
-Metric&& Metric::addValue(const std::string& name, int value)
-{
-  mValues.push_back({name, value});
-  return std::move(*this);
-}
-Metric&& Metric::addValue(const std::string& name, double value)
-{
-  mValues.push_back({name, value});
-  return std::move(*this);
-}
-Metric&& Metric::addValue(const std::string& name, uint64_t value)
-{
-  mValues.push_back({name, value});
-  return std::move(*this);
-}
-
-Metric&& Metric::addValue(const std::string& name, std::string value)
-{
-  mValues.push_back({name, value});
-  return std::move(*this);
-}
-
-Metric&& Metric::addValue(const std::string& name, const std::variant<int, std::string, double, uint64_t>& value)
-{
-  mValues.push_back({name, value});
-  return std::move(*this);
 }
 
 const std::vector<std::pair<std::string, std::variant<int, std::string, double, uint64_t>>>& Metric::getValues() const

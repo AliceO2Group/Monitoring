@@ -51,9 +51,9 @@ void DerivedMetrics::process(Metric& metric, DerivedMetricMode mode)
          auto storedValue = search->second.getValues().back().second;
          auto value = std::visit(VariantVisitorAdd{}, currentValue, storedValue);
          mStorage.erase(search);
-         metric.addValue(metric.getFirstValue().first + "_increment", value);
+         metric.addValue(value, metric.getFirstValue().first + "_increment");
        } else {
-         metric.addValue(metric.getFirstValue().first + "_increment", metric.getFirstValue().second);
+         metric.addValue(metric.getFirstValue().second, metric.getFirstValue().first + "_increment");
        }
        mStorage.insert(std::make_pair(key, metric));
      }},
@@ -69,7 +69,7 @@ void DerivedMetrics::process(Metric& metric, DerivedMetricMode mode)
        auto search = mStorage.find(key);
        if (search == mStorage.end()) {
          mStorage.insert(std::make_pair(key, metric));
-         metric.addValue(metric.getFirstValue().first + "_rate", (double)0.0);
+         metric.addValue((double)0.0, metric.getFirstValue().first + "_rate");
          return;
        }
 
@@ -98,7 +98,7 @@ void DerivedMetrics::process(Metric& metric, DerivedMetricMode mode)
        mStorage.erase(key);
        mStorage.insert(std::make_pair(key, metric));
        // add rate field
-       metric.addValue(metric.getFirstValue().first + "_rate", rate);
+       metric.addValue(rate, metric.getFirstValue().first + "_rate");
      }}};
   auto iterator = map.find(mode);
   if (iterator == map.end()) {
