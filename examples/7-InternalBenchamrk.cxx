@@ -31,6 +31,7 @@ int main()
   static constexpr std::array<std::string_view, 3> backends = {
     "no-op://",
     "influxdb-udp://localhost:1234",
+    "stdout://",
     "influxdb-stdout://"};
   std::cout << "| " << std::setw(30) << "Backend"
             << " |"
