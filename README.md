@@ -109,12 +109,6 @@ Metric{10, "name", Verbosity::Prod}
 
 Metrics need to match backends verbosity in order to be sent, eg. backend with `/info` verbosity will accept `Info` and `Prod` metrics only.
 
-### Sending more than one metric
-In order to send more than one metric group them into vector:
-```cpp
-monitoring->send({{1, "name"}, {2, "name"}});
-```
-
 ### Buffering metrics
 In order to avoid sending each metric separately, metrics can be temporary stored in the buffer and flushed at the most convenient moment.
 This feature can be controlled with following two methods:
