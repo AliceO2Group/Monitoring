@@ -43,7 +43,7 @@ See the table below to find `URI`s for supported backends:
 
 | Backend name | Transport   | URI backend[-protocol] | URI query   | Default verbosity |
 | ------------ |:-----------:|:----------------------:|:-----------:| -----------------:|
-| No-op        | -           | `no-op`                |             | -                 |
+| No-op        | -           | `no-op`                | -           | -                 |
 | InfluxDB     | UDP         | `influxdb-udp`         | -           | `info`            |
 | InfluxDB     | Unix socket | `influxdb-unix`        | -           | `info`            |
 | InfluxDB     | StdOut      | `influxdb-stdout`      | -           | `info`            |
@@ -51,29 +51,56 @@ See the table below to find `URI`s for supported backends:
 | ApMon        | UDP         | `apmon`                | -           | `info`            |
 | StdOut       | -           | `stdout`, `infologger` | [Prefix]    | `debug`           |
 
-##### StdCout output format
-```
-[METRIC] <name>,<type> <value> <timestamp> <tags>
-```
-The prefix (`[METRIC]`) can be changed using query component.
-
 ### Metrics
-A metric consist of 5 parameters: name, value, timestamp, verbosity and tags.
+A metric consist of 5 parameters:
+- name - metric name
+- values - vector of value and value name pairs
+- timestamp - time of creation
+- verbosity - metric "severity"
+- tags - metric metadata represented as map
 
 | Parameter name | Type                             | Required | Default                 |
 | -------------- |:--------------------------------:|:--------:| -----------------------:|
 | name           | string                           | yes      | -                       |
-| value          | int / double / string / uint64_t | yes      | -                       |
+| values          | map&lt;string, int/double/string/uint64_t&gt; | no/1      | -                       |
 | timestamp      | time_point&lt;system_clock&gt;   | no       | current time            |
 | verbosity      | Enum (Debug/Info/Prod)           | no       | Verbosity::Info         |
-| tags           | vector<unsigned int>             | no       | host and process names  |
+| tags           | map             | no       | host and process names  |
 
-A metric can be constructed by providing required parameters (value and name):
+A metric can be constructed by providing required parameters (value and metric name, value name is set to `value`):
 ```cpp
 Metric{10, "name"}
 ```
+#### Values
+By default metric can be created with zero or one value (in such case value name is set to `value`). Any additional value may be added using `.addValue` method, therefore the following two metrics are identical:
+```cpp
+Metric{10, "name"}
+Metric{"name"}.addValue(10, "value")
+```
 
-#### Verbosity
+#### Tags
+Each metric can be tagged with any number of [predefined tags](include/Monitoring/Tags.h).
+In order to do so use `addTag(tags::Key, tags::Value)` or `addTag(tags::Key, unsigned short)` methods. The latter method allows assigning numeric value to a tag.
+
+```cpp
+Metric{10, "name"}.addTag(tags::Key::Subsystem, tags::Value::QC)
+```
+
+See the example: [examples/2-TaggedMetrics.cxx](examples/2-TaggedMetrics.cxx).
+
+### Sending metric
+Pass metric object to `send` method as l-value reference:
+```cpp
+send({10, "name"})
+send(Metric{20, "name"}.addTag(tags::Key::CRU, 123))
+send(Metric{"throughput"}.addValue(100, "tx").addValue(200, "rx"))
+```
+
+See how it works in the example: [examples/1-Basic.cxx](examples/1-Basic.cxx).
+
+## Advanced features
+
+### Metric verbosity
 There are 3 verbosity levels (the same as for backends): Debug, Info, Prod. By default it is set to `Verbosity::Info`. The default value can be overwritten using: `Metric::setDefaultVerbosity(verbosity)`.
 To overwrite verbosity on per metric basis use third, optional parameter to metric constructor:
 ```cpp
@@ -82,38 +109,9 @@ Metric{10, "name", Verbosity::Prod}
 
 Metrics need to match backends verbosity in order to be sent, eg. backend with `/info` verbosity will accept `Info` and `Prod` metrics only.
 
-#### Tags
-Each metric can be tagged with any number of [predefined tags](include/Monitoring/Tags.h).
-In order to do so use `addTag(tags::Key, tags::Value)` or `addTag(tags::Key, unsigned short)` methods. The latter method allows assigning numeric value to a tag.
-
-See the example: [examples/2-TaggedMetrics.cxx](examples/2-TaggedMetrics.cxx).
-
-### Sending metric
-Pass metric object to send method and l-value reference:
-```cpp
-send({10, "name"})
-```
-
-See how it works in the example: [examples/1-Basic.cxx](examples/1-Basic.cxx).
-
-## Advanced features
-
-### Sending more than one metric
-In order to send more than one metric in a packet group them into vector:
-```cpp
-monitoring->send(std::vector<Metric>&& metrics);
-```
-
-It's also possible to send multiple, grouped values (`InfluxDB` backends are supported); For example `cpu` metric can be composed of `cpuUser`, `cpuSystem` values.
-```cpp
-void sendGroupped(std::string name, std::vector<Metric>&& metrics)
-```
-
-See how it works in the example: [examples/8-Multiple.cxx](examples/8-Multiple.cxx)
-
 ### Buffering metrics
 In order to avoid sending each metric separately, metrics can be temporary stored in the buffer and flushed at the most convenient moment.
-This feature can be operated with following two methods:
+This feature can be controlled with following two methods:
 ```cpp
 monitoring->enableBuffering(const std::size_t maxSize)
 ...
@@ -124,27 +122,29 @@ monitoring->flushBuffer();
 
 See how it works in the example: [examples/10-Buffering.cxx](examples/10-Buffering.cxx).
 
-### Calculating derived metrics
-The module can calculate derived metrics. To do so, use optional `DerivedMetricMode mode` parameter of `send` method:
+### Calculating derived values
+This feature can calculate derived values. To do so, use optional `DerivedMetricMode mode` parameter of `send` method:
 ```
 send(Metric&& metric, [DerivedMetricMode mode])
 ```
 
-Three modes are available:
-  + `DerivedMetricMode::NONE` - no action,
-  + `DerivedMetricMode::RATE` - rate between two following metrics,
-  + `DerivedMetricMode::AVERAGE` - average value of all metrics stored in cache.
+Two modes are available:
+  + `DerivedMetricMode::RATE` - rate between two following values,
+  + `DerivedMetricMode::INCREMENT` - sum of all passed values.
 
-Derived metrics are generated each time as new value is passed to the module. Their names are suffixed with derived mode name.
+The derived value is generated only from the first value of the metric and it is added to the same metric with the value name suffixed with `_rate`, `_increment` accordingly.
 
 See how it works in the example: [examples/4-RateDerivedMetric.cxx](examples/4-RateDerivedMetric.cxx).
 
 ### Global tags
-Global tags are added to each metric. Two tags: `hostname` and `name` (process name) are set as global by the library.
+Global tags are added to each metric sent using given monitoring instance. Two tags: `hostname` and `name` (process name) are set as global by default.
 
 You can add your own global tag by calling `addGlobalTag(std::string_view key, std::string_view value)` or `addGlobalTag(tags::Key, tags::Value)`.
 
 ### Process monitoring
+
+This feature provides basic performance status of the process. Note that is runs in separate thread (without mutex).
+
 ```cpp
 enableProcessMonitoring([interval in seconds]);
 ```
@@ -153,16 +153,14 @@ The following metrics are generated every interval:
   + **involuntaryContextSwitches** - involuntary context switches over time interval
   + **memoryUsagePercentage** - ratio of the process's resident set size  to the physical memory on the machine, expressed as a percentage (Linux only)
 
-### Automatic metric updates
-Sometimes it's necessary to provide value every exact interval of time (even though value does not change). This can be done using `AutoPushMetric`.
-```cpp
-ComplexMetric& metric = monitoring->getAutoPushMetric("exampleMetric");
-metric = 10;
+### StdOut backend output format
 ```
-See how it works in the example: [examples/11-AutoUpdate.cxx](examples/11-AutoUpdate.cxx).
+[METRIC] <name>,<type> <values> <timestamp> <tags>
+```
+The prefix (`[METRIC]`) can be changed using query component.
 
 ### Regex verbosity policy
-Overwrite metric verbosities using regex expression:
+Overwrite metric verbosity using regex expression:
 ```
 Metric::setVerbosityPolicy(Verbosity verbosity, const std::regex& regex)
 ```

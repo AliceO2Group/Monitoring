@@ -56,11 +56,6 @@ class ApMonBackend final : public Backend
   /// \param metric           reference to metric object:
   void send(const Metric& metric) override;
 
-  /// Sends grouped metrics  under common measuremet name
-  /// \param measurement     measurement name
-  /// \param metrics  list of metrics
-  void sendMultiple(std::string measurement, std::vector<Metric>&& metrics) override;
-
   /// Extends entity value
   /// \param name             tag name (unused)
   /// \param value            tag value that is concatenated to entity string
@@ -73,7 +68,7 @@ class ApMonBackend final : public Backend
   int convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp);
 
   std::unique_ptr<ApMon> mApMon; ///< ApMon object
-  std::string entity;            ///< MonALISA entity, created out of global tags
+  std::string mEntity;            ///< MonALISA entity, created out of global tags
 };
 
 } // namespace backends

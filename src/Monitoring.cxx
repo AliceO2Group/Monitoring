@@ -39,7 +39,7 @@ Monitoring::Monitoring()
   mDerivedHandler = std::make_unique<DerivedMetrics>();
   mBuffering = false;
   mProcessMonitoringInterval = 0;
-  mAutoPushInterval = 0;
+  //mAutoPushInterval = 0;
   mMonitorRunning = false;
 }
 
@@ -140,20 +140,20 @@ void Monitoring::pushLoop()
 #endif
     }
 
-    if (mAutoPushInterval != 0 && (loopCount % (mAutoPushInterval * 10)) == 0) {
+    /*if (mAutoPushInterval != 0 && (loopCount % (mAutoPushInterval * 10)) == 0) {
       std::vector<Metric> metrics;
       for (auto metric : mPushStore) {
         metric.resetTimestamp();
         metrics.push_back(metric);
       }
       transmit(std::move(metrics));
-    }
+    }*/
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
     (loopCount >= 600) ? loopCount = 0 : loopCount++;
   }
 }
 
-ComplexMetric& Monitoring::getAutoPushMetric(std::string name, unsigned int interval)
+/*ComplexMetric& Monitoring::getAutoPushMetric(std::string name, unsigned int interval)
 {
   if (!mMonitorRunning) {
     mMonitorRunning = true;
@@ -162,16 +162,7 @@ ComplexMetric& Monitoring::getAutoPushMetric(std::string name, unsigned int inte
   }
   mPushStore.emplace_back(std::variant<int, std::string, double, uint64_t>{}, name);
   return mPushStore.back();
-}
-
-void Monitoring::sendGrouped(std::string measurement, std::vector<Metric>&& metrics, Verbosity verbosity)
-{
-  for (auto& backend : mBackends) {
-    if (matchVerbosity(backend->getVerbosity(), verbosity)) {
-      backend->sendMultiple(measurement, std::move(metrics));
-    }
-  }
-}
+}*/
 
 void Monitoring::transmit(std::vector<Metric>&& metrics)
 {
@@ -201,7 +192,8 @@ void Monitoring::send(Metric&& metric, DerivedMetricMode mode)
 {
   if (mode != DerivedMetricMode::NONE) {
     try {
-      transmit(mDerivedHandler->process(metric, mode));
+      mDerivedHandler->process(metric, mode);
+      transmit(std::move(metric));
     } catch (MonitoringException& e) {
       MonLogger::Get() << e.what() << MonLogger::End();
     }

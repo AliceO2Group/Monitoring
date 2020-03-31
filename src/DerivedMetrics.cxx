@@ -36,9 +36,9 @@ namespace o2
 namespace monitoring
 {
 
-Metric DerivedMetrics::process(Metric& metric, DerivedMetricMode mode)
+void DerivedMetrics::process(Metric& metric, DerivedMetricMode mode)
 {
-  const std::map<DerivedMetricMode, std::function<Metric(Metric&)>> map = {
+  const std::map<DerivedMetricMode, std::function<void(Metric&)>> map = {
     {DerivedMetricMode::INCREMENT, [this](Metric& metric) {
        auto tags = metric.getTags();
        std::string key = metric.getName();
@@ -47,33 +47,30 @@ Metric DerivedMetrics::process(Metric& metric, DerivedMetricMode mode)
        });
        auto search = mStorage.find(key);
        if (search != mStorage.end()) {
-         auto currentValue = metric.getValue();
-         auto storedValue = search->second.getValue();
+         auto currentValue = metric.getFirstValue().second;
+         auto storedValue = search->second.getValues().back().second;
          auto value = std::visit(VariantVisitorAdd{}, currentValue, storedValue);
          mStorage.erase(search);
-         Metric result = Metric{value, metric.getName() + "Increment", metric.getVerbosity()}.setTags(std::move(tags));
-         mStorage.insert(std::make_pair(key, result));
-         return result;
+         metric.addValue(value, metric.getFirstValue().first + "_increment");
+       } else {
+         metric.addValue(metric.getFirstValue().second, metric.getFirstValue().first + "_increment");
        }
        mStorage.insert(std::make_pair(key, metric));
-       return metric;
      }},
     {DerivedMetricMode::RATE, [this](Metric& metric) {
-       // disallow string
+       /// create pseudo unique key
        auto tags = metric.getTags();
        std::string key = metric.getName();
        std::for_each(tags.begin(), tags.end(), [&key](auto const& pair) {
          key += pair.second;
        });
-       if (metric.getType() == MetricType::STRING) {
-         throw MonitoringException("DerivedMetrics", "Not able to process string values");
-       }
 
        // search for previous value
        auto search = mStorage.find(key);
        if (search == mStorage.end()) {
          mStorage.insert(std::make_pair(key, metric));
-         return Metric{(double)0.0, metric.getName() + "Rate", metric.getVerbosity()}.setTags(std::move(tags));
+         metric.addValue((double)0.0, metric.getFirstValue().first + "_rate");
+         return;
        }
 
        auto timestampDifference = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -84,15 +81,15 @@ Metric DerivedMetrics::process(Metric& metric, DerivedMetricMode mode)
          throw MonitoringException("DerivedMetrics", "Division by 0");
        }
 
-       auto current = metric.getValue();
-       auto previous = search->second.getValue();
+       auto current = metric.getFirstValue().second;
+       auto previous = search->second.getFirstValue().second;
        auto rate = std::visit(VariantVisitorRate(timestampCount), current, previous);
 
        // handle situation when a new run starts
        auto isZero = std::visit(overloaded{
-                                  [](auto arg) { return arg == 0; },
-                                  [](const std::string& arg) { return arg == ""; }},
-                                current);
+         [](auto arg) { return arg == 0; },
+         [](const std::string& arg) { return arg == ""; }
+       }, current);
        if (rate < 0 && isZero) {
          rate = 0;
        }
@@ -100,13 +97,14 @@ Metric DerivedMetrics::process(Metric& metric, DerivedMetricMode mode)
        // swap metrics
        mStorage.erase(key);
        mStorage.insert(std::make_pair(key, metric));
-       return Metric{rate, metric.getName() + "Rate", metric.getVerbosity()}.setTags(std::move(tags));
+       // add rate field
+       metric.addValue(rate, metric.getFirstValue().first + "_rate");
      }}};
   auto iterator = map.find(mode);
   if (iterator == map.end()) {
     throw MonitoringException("DerivedMetrics", "Unknown mode");
   }
-  return iterator->second(metric);
+  iterator->second(metric);
 }
 
 } // namespace monitoring

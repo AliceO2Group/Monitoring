@@ -30,52 +30,66 @@ std::chrono::time_point<std::chrono::system_clock> Metric::getTimestamp() const
   return mTimestamp;
 }
 
-/// This is required for backward compability with boost::variant
-int Metric::getType() const
-{
-  if (std::holds_alternative<int>(mValue))
-    return 0;
-  else if (std::holds_alternative<std::string>(mValue))
-    return 1;
-  else if (std::holds_alternative<double>(mValue))
-    return 2;
-  else
-    return 3;
-}
-
 const std::string& Metric::getName() const
 {
   return mName;
 }
 
-Metric::Metric(int value, const std::string& name, Verbosity verbosity) : mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
+Metric::Metric(int value, const std::string& name, Verbosity verbosity) : mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
 {
   overwriteVerbosity();
+  addValue(value, Metric::mDefaultValueName);
 }
 
-Metric::Metric(std::string value, const std::string& name, Verbosity verbosity) : mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
+Metric::Metric(std::string value, const std::string& name, Verbosity verbosity) : mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
 {
   overwriteVerbosity();
+  addValue(value, Metric::mDefaultValueName);
 }
 
-Metric::Metric(double value, const std::string& name, Verbosity verbosity) : mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
+Metric::Metric(double value, const std::string& name, Verbosity verbosity) : mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
 {
   overwriteVerbosity();
+  addValue(value, Metric::mDefaultValueName);
 }
 
-Metric::Metric(uint64_t value, const std::string& name, Verbosity verbosity) : mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
+Metric::Metric(uint64_t value, const std::string& name, Verbosity verbosity) : mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
 {
   overwriteVerbosity();
+  addValue(value, Metric::mDefaultValueName);
 }
 
-Metric::Metric(std::variant<int, std::string, double, uint64_t> value, const std::string& name, Verbosity verbosity) : mValue(value), mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
+Metric&& Metric::addValue(int value, const std::string& name)
+{
+  mValues.push_back({name, value});
+  return std::move(*this);
+}
+Metric&& Metric::addValue(double value, const std::string& name)
+{
+  mValues.push_back({name, value});
+  return std::move(*this);
+}
+Metric&& Metric::addValue(uint64_t value, const std::string& name)
+{
+  mValues.push_back({name, value});
+  return std::move(*this);
+}
+
+Metric&& Metric::addValue(std::string value, const std::string& name)
+{
+  mValues.push_back({name, value});
+  return std::move(*this);
+}
+
+Metric&& Metric::addValue(const std::variant<int, std::string, double, uint64_t>& value, const std::string& name)
+{
+  mValues.push_back({name, value});
+  return std::move(*this);
+}
+
+Metric::Metric(const std::string& name, Verbosity verbosity) : mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
 {
   overwriteVerbosity();
-}
-
-std::variant<int, std::string, double, uint64_t> Metric::getValue() const
-{
-  return mValue;
 }
 
 Verbosity Metric::getVerbosity()
@@ -95,12 +109,6 @@ void Metric::overwriteVerbosity()
       mVerbosity = static_cast<Verbosity>(verbosity);
     }
   }
-}
-
-Metric& Metric::operator=(const std::variant<int, std::string, double, uint64_t>& value)
-{
-  mValue = value;
-  return *this;
 }
 
 Metric&& Metric::addTag(tags::Key key, tags::Value value)
@@ -134,6 +142,21 @@ auto Metric::getCurrentTimestamp() -> decltype(std::chrono::system_clock::now())
 void Metric::setDefaultVerbosity(Verbosity verbosity)
 {
   Metric::DefaultVerbosity = verbosity;
+}
+
+const std::vector<std::pair<std::string, std::variant<int, std::string, double, uint64_t>>>& Metric::getValues() const
+{
+  return mValues;
+}
+
+const std::pair<std::string, std::variant<int, std::string, double, uint64_t>>& Metric::getFirstValue() const
+{
+  return mValues.front();
+}
+
+std::size_t Metric::getValuesSize() const noexcept
+{
+  return mValues.size();
 }
 
 bool Metric::includeTimestamp = true;

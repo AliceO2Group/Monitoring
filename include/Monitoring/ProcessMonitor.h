@@ -18,10 +18,8 @@
 
 #include <atomic>
 #include <boost/algorithm/string.hpp>
-#include <mutex>
 #include <iostream>
 #include <string>
-#include <thread>
 #include <vector>
 #include <sys/resource.h>
 

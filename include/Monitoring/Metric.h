@@ -9,9 +9,9 @@
 #include <string>
 #include <chrono>
 #include <map>
-#include <vector>
 #include <regex>
 #include <variant>
+#include <vector>
 #include "Tags.h"
 
 namespace o2
@@ -57,16 +57,37 @@ class Metric
   /// \param name             metric name
   Metric(uint64_t value, const std::string& name, Verbosity verbosity = Metric::DefaultVerbosity);
 
-  /// boost variant metric constructor, required by derived metrics logic
-  /// \param value            metric value (boost variant)
+  /// Constructor that  does not require any value to be specified, .addValue needs to be used
   /// \param name             metric name
-  Metric(std::variant<int, std::string, double, uint64_t>, const std::string& name, Verbosity verbosity = Metric::DefaultVerbosity);
+  Metric(const std::string& name, Verbosity verbosity = Metric::DefaultVerbosity);
+
+  /// Adds additional int value to metric
+  /// \param value
+  /// \param name
+  Metric&& addValue(int value, const std::string& name);
+
+  /// Adds additional double value to metric
+  /// \param value
+  /// \param name
+  Metric&& addValue(double value, const std::string& name);
+
+  /// Adds additional uint64_t value to metric
+  /// \param value
+  /// \param name
+  Metric&& addValue(uint64_t value, const std::string& name);
+
+  /// Adds additional string value to metric
+  /// \param value
+  /// \param name
+  Metric&& addValue(std::string value, const std::string& name);
+
+  /// Adds additional variant value to metric
+  /// \param value
+  /// \param name
+  Metric&& addValue(const std::variant<int, std::string, double, uint64_t>& value, const std::string& name);
 
   /// Default destructor
   ~Metric() = default;
-
-  /// Assign operator overload, assignes new values to the metric object
-  Metric& operator=(const std::variant<int, std::string, double, uint64_t>& value);
 
   /// Name getter
   /// \return	metric name
@@ -76,13 +97,16 @@ class Metric
   /// \return 	metric timestamp
   std::chrono::time_point<std::chrono::system_clock> getTimestamp() const;
 
-  /// Value getter
-  /// \return metric value
-  std::variant<int, std::string, double, uint64_t> getValue() const;
+  /// Values getter
+  /// \return vector of values
+  const std::vector<std::pair<std::string, std::variant<int, std::string, double, uint64_t>>>& getValues() const;
 
-  /// Value type getter
-  /// \return type of value stores inside metric : 0 - int, 1 - std::string, 2 - double
-  int getType() const;
+  /// First value getter
+  /// \return first value as pair
+  const std::pair<std::string, std::variant<int, std::string, double, uint64_t>>& getFirstValue() const;
+
+  /// Values vector size getter
+  std::size_t getValuesSize() const noexcept;
 
   /// Tag list getter
   /// \return         tags
@@ -126,8 +150,8 @@ class Metric
   /// Set full vector of tags
   Metric&& setTags(std::vector<std::pair<int, int>>&& tags);
 
-  /// Metric value
-  std::variant<int, std::string, double, uint64_t> mValue;
+  /// Metric values
+  std::vector<std::pair<std::string, std::variant<int, std::string, double, uint64_t>>> mValues;
 
   /// Metric name
   std::string mName;
@@ -146,6 +170,9 @@ class Metric
 
   /// Overwirte verbosity using regex policy
   void overwriteVerbosity();
+
+  /// Default value name
+  static constexpr char mDefaultValueName[] = "value";
 };
 
 } // namespace monitoring
