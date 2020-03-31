@@ -28,7 +28,7 @@ void testWithTags(std::unique_ptr<Monitoring>& monitoring)
 
 int main()
 {
-  static constexpr std::array<std::string_view, 3> backends = {
+  static constexpr std::array<std::string_view, 4> backends = {
     "no-op://",
     "influxdb-udp://localhost:1234",
     "stdout://",
