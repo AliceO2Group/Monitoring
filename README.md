@@ -67,12 +67,12 @@ A metric consist of 5 parameters:
 | verbosity      | Enum (Debug/Info/Prod)           | no       | Verbosity::Info         |
 | tags           | map             | no       | host and process names  |
 
-A metric can be constructed by providing required parameters (value and name):
+A metric can be constructed by providing required parameters (value and metric name, value name is set to `value`):
 ```cpp
 Metric{10, "name"}
 ```
 #### Values
-By default metric can be created with zero or one value (in such case value name is set to `value`). Any additional value may be added using `.addValue` method, therefore these two metrics are identical:
+By default metric can be created with zero or one value (in such case value name is set to `value`). Any additional value may be added using `.addValue` method, therefore the following two metrics are identical:
 ```cpp
 Metric{10, "name"}
 Metric{"name"}.addValue(10, "value")
@@ -81,6 +81,10 @@ Metric{"name"}.addValue(10, "value")
 #### Tags
 Each metric can be tagged with any number of [predefined tags](include/Monitoring/Tags.h).
 In order to do so use `addTag(tags::Key, tags::Value)` or `addTag(tags::Key, unsigned short)` methods. The latter method allows assigning numeric value to a tag.
+
+```cpp
+Metric{10, "name"}.addTag(tags::Key::Subsystem, tags::Value::QC)
+```
 
 See the example: [examples/2-TaggedMetrics.cxx](examples/2-TaggedMetrics.cxx).
 
@@ -106,14 +110,14 @@ Metric{10, "name", Verbosity::Prod}
 Metrics need to match backends verbosity in order to be sent, eg. backend with `/info` verbosity will accept `Info` and `Prod` metrics only.
 
 ### Sending more than one metric
-In order to send more than one metric in a packet group them into vector:
+In order to send more than one metric group them into vector:
 ```cpp
-monitoring->send(std::vector<Metric>&& metrics);
+monitoring->send({{1, "name"}, {2, "name"}});
 ```
 
 ### Buffering metrics
 In order to avoid sending each metric separately, metrics can be temporary stored in the buffer and flushed at the most convenient moment.
-This feature can be operated with following two methods:
+This feature can be controlled with following two methods:
 ```cpp
 monitoring->enableBuffering(const std::size_t maxSize)
 ...
@@ -125,26 +129,28 @@ monitoring->flushBuffer();
 See how it works in the example: [examples/10-Buffering.cxx](examples/10-Buffering.cxx).
 
 ### Calculating derived values
-The module can calculate derived value. To do so, use optional `DerivedMetricMode mode` parameter of `send` method:
+This feature can calculate derived values. To do so, use optional `DerivedMetricMode mode` parameter of `send` method:
 ```
 send(Metric&& metric, [DerivedMetricMode mode])
 ```
 
-Three modes are available:
-  + `DerivedMetricMode::NONE` - no action,
-  + `DerivedMetricMode::RATE` - rate between two following value,
-  + `DerivedMetricMode::INCREMENT` - total value while providing rate (opposite to rate)
+Two modes are available:
+  + `DerivedMetricMode::RATE` - rate between two following values,
+  + `DerivedMetricMode::INCREMENT` - sum of all passed values.
 
-The derived value is generated only from first value of the metric and it is added to the same metric with the value name suffixed with `_rate`, `_increment` accordingly.
+The derived value is generated only from the first value of the metric and it is added to the same metric with the value name suffixed with `_rate`, `_increment` accordingly.
 
 See how it works in the example: [examples/4-RateDerivedMetric.cxx](examples/4-RateDerivedMetric.cxx).
 
 ### Global tags
-Global tags are added to each metric. Two tags: `hostname` and `name` (process name) are set as global by the library.
+Global tags are added to each metric sent using given monitoring instance. Two tags: `hostname` and `name` (process name) are set as global by default.
 
 You can add your own global tag by calling `addGlobalTag(std::string_view key, std::string_view value)` or `addGlobalTag(tags::Key, tags::Value)`.
 
 ### Process monitoring
+
+This feature provides basic performance status of the process. Note that is runs in separate thread (without mutex).
+
 ```cpp
 enableProcessMonitoring([interval in seconds]);
 ```
@@ -160,7 +166,7 @@ The following metrics are generated every interval:
 The prefix (`[METRIC]`) can be changed using query component.
 
 ### Regex verbosity policy
-Overwrite metric verbosities using regex expression:
+Overwrite metric verbosity using regex expression:
 ```
 Metric::setVerbosityPolicy(Verbosity verbosity, const std::regex& regex)
 ```
