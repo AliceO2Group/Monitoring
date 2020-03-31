@@ -52,89 +52,73 @@ inline int ApMonBackend::convertTimestamp(const std::chrono::time_point<std::chr
 
 void ApMonBackend::addGlobalTag(std::string_view /*name*/, std::string_view value)
 {
-  if (!entity.empty())
-    entity += ".";
-  entity += value;
+  if (!mEntity.empty()) {
+    mEntity += ",";
+  }
+  mEntity += value;
 }
 
-void ApMonBackend::send(std::vector<Metric>&& metrics)
+void ApMonBackend::send(const Metric& metric)
 {
-  int noMetrics = metrics.size();
+  std::string name = metric.getName();
+  std::string entity = mEntity;
+  for (const auto& [key, value] : metric.getTags()) {
+    entity += ',';
+    entity += tags::GetValue(value);
+  }
+
+  int valueSize = metric.getValuesSize();
   char **paramNames, **paramValues;
   int* valueTypes;
-  paramNames = (char**)std::malloc(noMetrics * sizeof(char*));
-  paramValues = (char**)std::malloc(noMetrics * sizeof(char*));
-  valueTypes = (int*)std::malloc(noMetrics * sizeof(int));
+  paramNames = (char**)std::malloc(valueSize * sizeof(char*));
+  paramValues = (char**)std::malloc(valueSize * sizeof(char*));
+  valueTypes = (int*)std::malloc(valueSize * sizeof(int));
   // the scope of values must be the same as sendTimedParameters method
   int intValue;
   double doubleValue;
   std::string stringValue;
 
-  for (int i = 0; i < noMetrics; i++) {
-    paramNames[i] = const_cast<char*>(metrics[i].getName().c_str());
+  auto& values = metric.getValues();
+      
+  for (int i = 0; i < valueSize; i++) {
+    paramNames[i] = const_cast<char*>(values[i].first.c_str());
     std::visit(overloaded{
-                 [&](int value) {
-                   valueTypes[i] = XDR_INT32;
-                   intValue = value;
-                   paramValues[i] = reinterpret_cast<char*>(&intValue);
-                 },
-                 [&](double value) {
-                   valueTypes[i] = XDR_REAL64;
-                   doubleValue = value;
-                   paramValues[i] = reinterpret_cast<char*>(&doubleValue);
-                 },
-                 [&](const std::string& value) {
-                   valueTypes[i] = XDR_STRING;
-                   stringValue = value;
-                   paramValues[i] = const_cast<char*>(stringValue.c_str());
-                 },
-                 [&](uint64_t value) {
-                   valueTypes[i] = XDR_REAL64;
-                   doubleValue = static_cast<double>(value);
-                   paramValues[i] = reinterpret_cast<char*>(&doubleValue);
-                 },
-               },
-               metrics[i].getValue());
+      [&](int value) {
+        valueTypes[i] = XDR_INT32;
+        intValue = value;
+        paramValues[i] = reinterpret_cast<char*>(&intValue);
+      },
+      [&](double value) {
+        valueTypes[i] = XDR_REAL64;
+        doubleValue = value;
+        paramValues[i] = reinterpret_cast<char*>(&doubleValue);
+      },
+      [&](const std::string& value) {
+        valueTypes[i] = XDR_STRING;
+        stringValue = value;
+        paramValues[i] = const_cast<char*>(stringValue.c_str());
+      },
+      [&](uint64_t value) {
+        valueTypes[i] = XDR_REAL64;
+        doubleValue = static_cast<double>(value);
+        paramValues[i] = reinterpret_cast<char*>(&doubleValue);
+      },
+    }, values[i].second);
   }
 
-  mApMon->sendTimedParameters(const_cast<char*>(entity.c_str()), const_cast<char*>(entity.c_str()),
-                              noMetrics, paramNames, valueTypes, paramValues, convertTimestamp(metrics[0].getTimestamp()));
+  mApMon->sendTimedParameters(const_cast<char*>(name.c_str()), const_cast<char*>(entity.c_str()),
+                              valueSize, paramNames, valueTypes, paramValues, convertTimestamp(metric.getTimestamp()));
 
   std::free(paramNames);
   std::free(paramValues);
   std::free(valueTypes);
 }
 
-void ApMonBackend::send(const Metric& metric)
+void ApMonBackend::send(std::vector<Metric>&& metrics)
 {
-  std::string name = metric.getName();
-
-  for (const auto& [key, value] : metric.getTags()) {
-    name += ',';
-    name += tags::TAG_KEY[key];
-    name += "=";
-    name += tags::GetValue(value);
+  for (auto& metric : metrics) {
+    send(metric);
   }
-
-  std::visit(overloaded{
-               [this, &metric](int value) {
-                 mApMon->sendTimedParameter(const_cast<char*>(entity.c_str()), const_cast<char*>(entity.c_str()),
-                                            const_cast<char*>(metric.getName().c_str()), XDR_INT32, reinterpret_cast<char*>(&value), convertTimestamp(metric.getTimestamp()));
-               },
-               [this, &metric](double value) {
-                 mApMon->sendTimedParameter(const_cast<char*>(entity.c_str()), const_cast<char*>(entity.c_str()),
-                                            const_cast<char*>(metric.getName().c_str()), XDR_REAL64, reinterpret_cast<char*>(&value), convertTimestamp(metric.getTimestamp()));
-               },
-               [this, &metric](const std::string& value) {
-                 mApMon->sendTimedParameter(const_cast<char*>(entity.c_str()), const_cast<char*>(entity.c_str()),
-                                            const_cast<char*>(metric.getName().c_str()), XDR_STRING, const_cast<char*>(value.c_str()), convertTimestamp(metric.getTimestamp()));
-               },
-               [this, &metric](uint64_t value) {
-                 mApMon->sendTimedParameter(const_cast<char*>(entity.c_str()), const_cast<char*>(entity.c_str()),
-                                            const_cast<char*>(metric.getName().c_str()), XDR_REAL64, reinterpret_cast<char*>(&value), convertTimestamp(metric.getTimestamp()));
-               },
-             },
-             metric.getValue());
 }
 
 } // namespace backends

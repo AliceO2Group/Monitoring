@@ -32,6 +32,7 @@ BOOST_AUTO_TEST_CASE(simplySendMetric)
   boost::filesystem::path configPath = boost::filesystem::canonical(".");
   auto monitoring = MonitoringFactory::Get("apmon://" + configPath.string() + "/ApMon.conf");
   monitoring->send({10, "myCrazyMetric"});
+  monitoring->send(Metric{20, "myCrazyMetric"}.addValue(6, "another_value"));
 }
 
 } // namespace Test
