@@ -193,7 +193,6 @@ void Monitoring::send(Metric&& metric, DerivedMetricMode mode)
   if (mode != DerivedMetricMode::NONE) {
     try {
       mDerivedHandler->process(metric, mode);
-      transmit(std::move(metric));
     } catch (MonitoringException& e) {
       MonLogger::Get() << e.what() << MonLogger::End();
     }
