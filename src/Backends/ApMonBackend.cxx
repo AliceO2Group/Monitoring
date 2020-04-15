@@ -64,6 +64,8 @@ void ApMonBackend::send(const Metric& metric)
   std::string entity = mEntity;
   for (const auto& [key, value] : metric.getTags()) {
     entity += ',';
+    entity += tags::TAG_KEY[key];
+    entity += '=';
     entity += tags::GetValue(value);
   }
 
