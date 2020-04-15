@@ -1,6 +1,5 @@
 #include "../include/Monitoring/Metric.h"
 #include <chrono>
-#include <thread>
 
 #define BOOST_TEST_MODULE Test Monitoring Metric
 #define BOOST_TEST_DYN_LINK
