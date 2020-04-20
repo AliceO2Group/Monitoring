@@ -32,6 +32,13 @@ BOOST_AUTO_TEST_CASE(simplySendMetric2)
   monitoring->send(Metric{10, "myCrazyMetric"});
 }
 
+BOOST_AUTO_TEST_CASE(InfluxDbv2)
+{
+  MonitoringFactory::Get("influxdbv2://localhost:9999?org=YOUR_ORG&bucket=YOUR_BUCKET&token=AUTH_TOKEN");
+  MonitoringFactory::Get("influxdbv2://localhost:9999?org=YOUR_ORG&token=AUTH_TOKEN&bucket=YOUR_BUCKET");
+  MonitoringFactory::Get("influxdbv2://localhost:9999?token=AUTH_TOKEN&org=YOUR_ORG&bucket=YOUR_BUCKET");
+}
+
 } // namespace Test
 } // namespace monitoring
 } // namespace o2
