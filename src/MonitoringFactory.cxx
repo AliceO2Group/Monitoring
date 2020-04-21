@@ -82,10 +82,10 @@ std::unique_ptr<Backend> getInfluxDbv2(http::url uri)
   if (tokenEnd < query.length() && query.at(tokenEnd) == '&') tokenEnd++;
   if (tokenStart > 0 && query.at(tokenStart-1) == '&') tokenStart--;
   query.erase(tokenStart, tokenEnd - tokenStart);
+  std::cout << uri.url << std::endl;
 
   std::string headers = "Authorization: Token " + token;
-  auto transport = std::make_unique<transports::UDP>(uri.host, uri.port);
-  //auto transport = std::make_unique<transports::HTTP>(uri.host + uri.port + path + query, headers);
+  auto transport = std::make_unique<transports::HTTP>("http://" + uri.host + ':' + std::to_string(uri.port) + path + '?' + query, headers);
   return std::make_unique<backends::InfluxDB>(std::move(transport));
 #else
   throw std::runtime_error("HTTP transport is not enabled");
