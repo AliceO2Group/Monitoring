@@ -60,11 +60,11 @@ std::unique_ptr<Backend> getStdOut(http::url uri)
   }
 }
 
+/// Extracts token from header add sets it as addition HTTP header
 /// http://localhost:9999/?org=YOUR_ORG&bucket=YOUR_BUCKET&token=AUTH_TOKEN
 /// ->
 /// http://localhost:9999/api/v2/write?org=YOUR_ORG&bucket=YOUR_BUCKET
 /// --header "Authorization: Token YOURAUTHTOKEN"
-/// --data-raw "mem,host=host1 used_percent=23.43234543 1556896326"
 std::unique_ptr<Backend> getInfluxDbv2(http::url uri)
 {
 #ifdef O2_MONITORING_WITH_CURL
@@ -82,10 +82,9 @@ std::unique_ptr<Backend> getInfluxDbv2(http::url uri)
   if (tokenEnd < query.length() && query.at(tokenEnd) == '&') tokenEnd++;
   if (tokenStart > 0 && query.at(tokenStart-1) == '&') tokenStart--;
   query.erase(tokenStart, tokenEnd - tokenStart);
-  std::cout << uri.url << std::endl;
 
-  std::string headers = "Authorization: Token " + token;
-  auto transport = std::make_unique<transports::HTTP>("http://" + uri.host + ':' + std::to_string(uri.port) + path + '?' + query, headers);
+  auto transport = std::make_unique<transports::HTTP>("http://" + uri.host + ':' + std::to_string(uri.port) + path + '?' + query);
+  transport->addHeader("Authorization: Token " + token);
   return std::make_unique<backends::InfluxDB>(std::move(transport));
 #else
   throw std::runtime_error("HTTP transport is not enabled");

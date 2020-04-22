@@ -48,6 +48,7 @@ See the table below to find `URI`s for supported backends:
 | InfluxDB     | Unix socket | `influxdb-unix`        | -           | `info`            |
 | InfluxDB     | StdOut      | `influxdb-stdout`      | -           | `info`            |
 | InfluxDB     | Kafka       | `influxdb-kafka`       | Kafka topic | `info`            |
+| InfluxDB 2.x | HTTP        | `influxdbv2`           | `org=ORG&bucket=BUCKET&token=TOKEN` | `info` |
 | ApMon        | UDP         | `apmon`                | -           | `info`            |
 | StdOut       | -           | `stdout`, `infologger` | [Prefix]    | `debug`           |
 
@@ -62,7 +63,7 @@ A metric consist of 5 parameters:
 | Parameter name | Type                             | Required | Default                 |
 | -------------- |:--------------------------------:|:--------:| -----------------------:|
 | name           | string                           | yes      | -                       |
-| values          | map&lt;string, int/double/string/uint64_t&gt; | no/1      | -                       |
+| values         | map&lt;string, int/double/string/uint64_t&gt; | no/1      | -                       |
 | timestamp      | time_point&lt;system_clock&gt;   | no       | current time            |
 | verbosity      | Enum (Debug/Info/Prod)           | no       | Verbosity::Info         |
 | tags           | map             | no       | host and process names  |
