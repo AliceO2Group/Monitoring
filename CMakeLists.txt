@@ -57,6 +57,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 find_package(Boost REQUIRED COMPONENTS unit_test_framework program_options system filesystem)
 find_package(Git QUIET)
 find_package(ApMon MODULE)
+find_package(CURL MODULE)
 find_package(RdKafka CONFIG)
 
 ####################################
@@ -105,11 +106,12 @@ add_library(Monitoring SHARED
   src/Exceptions/MonitoringException.cxx
   $<$<BOOL:${ApMon_FOUND}>:src/Backends/ApMonBackend.cxx>
   $<$<BOOL:${RdKafka_FOUND}>:src/Transports/Kafka.cxx>
+  $<$<BOOL:${CURL_FOUND}>:src/Transports/HTTP.cxx>
 )
 
 target_include_directories(Monitoring
-  PUBLIC 
-    $<INSTALL_INTERFACE:include>    
+  PUBLIC
+    $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
@@ -127,6 +129,7 @@ target_link_libraries(Monitoring
     pthread
     $<$<BOOL:${ApMon_FOUND}>:ApMon::ApMon>
     $<$<BOOL:${RdKafka_FOUND}>:RdKafka::rdkafka++>
+    $<$<BOOL:${CURL_FOUND}>:CURL::libcurl>
 )
 
 # Handle ApMon optional dependency
@@ -136,6 +139,10 @@ endif()
 
 if(RdKafka_FOUND)
    message(STATUS "  Compiling Kafka transport")
+endif()
+
+if(CURL_FOUND)
+   message(STATUS "  Compiling HTTP transport/InfluxDB 2.x backend")
 endif()
 
 # Detect operating system
@@ -155,6 +162,7 @@ target_compile_definitions(Monitoring
     $<$<BOOL:${LINUX}>:O2_MONITORING_OS_LINUX>
     $<$<BOOL:${ApMon_FOUND}>:O2_MONITORING_WITH_APPMON>
     $<$<BOOL:${RdKafka_FOUND}>:O2_MONITORING_WITH_KAFKA>
+    $<$<BOOL:${CURL_FOUND}>:O2_MONITORING_WITH_CURL>
   )
 
 # Use C++17
@@ -217,7 +225,7 @@ foreach (test ${TEST_SRCS})
 
   add_executable(${test_name} ${test})
   target_link_libraries(${test_name}
-    PRIVATE 
+    PRIVATE
       Monitoring Boost::unit_test_framework Boost::filesystem
   )
   add_test(NAME ${test_name} COMMAND ${test_name})

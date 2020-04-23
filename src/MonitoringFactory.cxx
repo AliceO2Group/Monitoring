@@ -36,6 +36,10 @@
 #include "Transports/Kafka.h"
 #endif
 
+#ifdef O2_MONITORING_WITH_CURL
+#include "Transports/HTTP.h"
+#endif
+
 namespace o2
 {
 /// ALICE O2 Monitoring system
@@ -54,6 +58,37 @@ std::unique_ptr<Backend> getStdOut(http::url uri)
   } else {
     return std::make_unique<backends::StdOut>();
   }
+}
+
+/// Extracts token from header add sets it as addition HTTP header
+/// http://localhost:9999/?org=YOUR_ORG&bucket=YOUR_BUCKET&token=AUTH_TOKEN
+/// ->
+/// http://localhost:9999/api/v2/write?org=YOUR_ORG&bucket=YOUR_BUCKET
+/// --header "Authorization: Token YOURAUTHTOKEN"
+std::unique_ptr<Backend> getInfluxDbv2(http::url uri)
+{
+#ifdef O2_MONITORING_WITH_CURL
+  std::string tokenLabel = "token=";
+  std::string path = "/api/v2/write";
+  std::string query = uri.search;
+
+  auto tokenStart = query.find(tokenLabel);
+  auto tokenEnd = query.find('&', tokenStart);
+  if (tokenEnd == std::string::npos) {
+    tokenEnd = query.length();
+  }
+  std::string token = query.substr(tokenStart + tokenLabel.length(), tokenEnd-(tokenStart + tokenLabel.length()));
+  // make sure ampersand is removed
+  if (tokenEnd < query.length() && query.at(tokenEnd) == '&') tokenEnd++;
+  if (tokenStart > 0 && query.at(tokenStart-1) == '&') tokenStart--;
+  query.erase(tokenStart, tokenEnd - tokenStart);
+
+  auto transport = std::make_unique<transports::HTTP>("http://" + uri.host + ':' + std::to_string(uri.port) + path + '?' + query);
+  transport->addHeader("Authorization: Token " + token);
+  return std::make_unique<backends::InfluxDB>(std::move(transport));
+#else
+  throw std::runtime_error("HTTP transport is not enabled");
+#endif
 }
 
 std::unique_ptr<Backend> getInfluxDb(http::url uri)
@@ -129,6 +164,7 @@ std::unique_ptr<Backend> MonitoringFactory::GetBackend(std::string& url)
     {"influxdb-unix", getInfluxDb},
     {"influxdb-stdout", getInfluxDb},
     {"influxdb-kafka", getInfluxDb},
+    {"influxdbv2", getInfluxDbv2},
     {"apmon", getApMon},
     {"no-op", getNoop}
   };
