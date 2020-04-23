@@ -59,6 +59,11 @@ BOOST_AUTO_TEST_CASE(InfluxDbv2)
   auto monitoring = MonitoringFactory::Get("influxdbv2://localhost:9999?org=cern&bucket=test&token=TOKEN");
 }
 
+BOOST_AUTO_TEST_CASE(InfluxDbv2)
+{
+  auto monitoring = MonitoringFactory::Get("influxdbv2://localhost:9999?org=cern&bucket=test&token=TOKEN");
+}
+
 } // namespace Test
 } // namespace monitoring
 } // namespace o2
