@@ -19,7 +19,6 @@ namespace monitoring
 {
 namespace Test
 {
-
 BOOST_AUTO_TEST_CASE(simplySendMetric)
 {
   auto monitoring = MonitoringFactory::Get("influxdb-udp://localhost:1000");
@@ -30,6 +29,11 @@ BOOST_AUTO_TEST_CASE(simplySendMetric2)
 {
   auto monitoring = MonitoringFactory::Get("influxdb-stdout://");
   monitoring->send(Metric{10, "myCrazyMetric"});
+}
+
+BOOST_AUTO_TEST_CASE(InfluxDbv2)
+{
+  auto monitoring = MonitoringFactory::Get("influxdbv2://localhost:9999?org=cern&bucket=test&token=TOKEN");
 }
 
 } // namespace Test
