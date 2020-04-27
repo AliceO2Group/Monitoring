@@ -65,8 +65,8 @@ void StdOut::send(std::vector<Metric>&& metrics)
 
 void StdOut::send(const Metric& metric)
 {
-  mStream << "[" << mPrefix << "] "  << metric.getName();
   for (auto& value : metric.getValues()) {
+    mStream << "[" << mPrefix << "] "  << metric.getName();
     auto stringValue = std::visit(overloaded{
       [](const std::string& value) -> std::string { return value; },
       [](auto value) -> std::string { return std::to_string(value); }
@@ -74,15 +74,14 @@ void StdOut::send(const Metric& metric)
     if (metric.getValuesSize() == 1) {
       mStream << ",0 " << stringValue;
     } else {
-      mStream << ' ' << value.first << '=' << stringValue;
+      mStream << ",0 " << value.first << '=' << stringValue;
     }
+    mStream << ' ' << convertTimestamp(metric.getTimestamp()) << ' ' << tagString;
+    for (const auto& [key, value] : metric.getTags()) {
+      mStream << ',' << tags::TAG_KEY[key] << "=" << tags::GetValue(value);
+    }
+    mStream << '\n';
   }
-  mStream << ' ' << convertTimestamp(metric.getTimestamp()) << ' ' << tagString;
-
-  for (const auto& [key, value] : metric.getTags()) {
-    mStream << ',' << tags::TAG_KEY[key] << "=" << tags::GetValue(value);
-  }
-  mStream << '\n';
 }
 
 } // namespace backends
