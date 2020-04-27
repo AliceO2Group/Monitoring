@@ -111,6 +111,46 @@ BOOST_AUTO_TEST_CASE(tags)
   BOOST_CHECK_EQUAL(sum, 45);
 }
 
+BOOST_AUTO_TEST_CASE(retrieveIntType)
+{
+  int value = 10;
+  std::string name("metric name");
+  Metric metricInstance(value, name);
+
+  BOOST_CHECK_EQUAL(std::get<int>(metricInstance.getFirstValue().second), 10);
+  BOOST_CHECK_EQUAL(metricInstance.getFirstValueType(), 0);
+}
+
+BOOST_AUTO_TEST_CASE(retrieveDoubleType)
+{
+  double value = 1.11;
+  std::string name("metric name");
+  Metric metricInstance(value, name);
+
+  BOOST_CHECK_EQUAL(std::get<double>(metricInstance.getFirstValue().second), 1.11);
+  BOOST_CHECK_EQUAL(metricInstance.getFirstValueType(), 2);
+}
+
+BOOST_AUTO_TEST_CASE(retrieveStringType)
+{
+  std::string value = "testString";
+  std::string name("metric name");
+  Metric metricInstance(value, name);
+
+  BOOST_CHECK_EQUAL(std::get<std::string>(metricInstance.getFirstValue().second), "testString");
+  BOOST_CHECK_EQUAL(metricInstance.getFirstValueType(), 1);
+}
+
+BOOST_AUTO_TEST_CASE(retrieveUnsignedLongLongType)
+{
+  uint64_t value = 10000000000000LL;
+  std::string name("metric name");
+  Metric metricInstance(value, name);
+
+  BOOST_CHECK_EQUAL(std::get<uint64_t>(metricInstance.getFirstValue().second), 10000000000000LL);
+  BOOST_CHECK_EQUAL(metricInstance.getFirstValueType(), 3);
+}
+
 BOOST_AUTO_TEST_CASE(regexVerbosityPolicy)
 {
   Metric::setVerbosityPolicy(Verbosity::Prod, std::regex("myMetric", std::regex::optimize));
