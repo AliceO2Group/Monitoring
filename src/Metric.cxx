@@ -159,6 +159,18 @@ std::size_t Metric::getValuesSize() const noexcept
   return mValues.size();
 }
 
+int Metric::getFirstValueType() const
+{
+  if (std::holds_alternative<int>(mValues.front().second))
+    return 0;
+  else if (std::holds_alternative<std::string>(mValues.front().second))
+    return 1;
+  else if (std::holds_alternative<double>(mValues.front().second))
+    return 2;
+  else
+    return 3;
+}
+
 bool Metric::includeTimestamp = true;
 Verbosity Metric::DefaultVerbosity = Verbosity::Info;
 std::map<std::underlying_type<Verbosity>::type, std::regex> Metric::mRegexPolicy;

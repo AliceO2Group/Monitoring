@@ -72,7 +72,7 @@ void StdOut::send(const Metric& metric)
       [](auto value) -> std::string { return std::to_string(value); }
     }, value.second);
     if (metric.getValuesSize() == 1) {
-      mStream << ",0 " << stringValue;
+      mStream << ',' << metric.getFirstValueType() << ' ' << stringValue;
     } else {
       mStream << ' ' << value.first << '=' << stringValue;
     }

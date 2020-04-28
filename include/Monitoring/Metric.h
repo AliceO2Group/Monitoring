@@ -143,6 +143,9 @@ class Metric
   /// Whether timestamp should be included or not
   static bool includeTimestamp;
 
+  /// This is required for backward compability with boost::variant and old StdOut format
+  int getFirstValueType() const;
+
  protected:
   /// Allow DerivedMetrics access to setTags
   friend class o2::monitoring::DerivedMetrics;
