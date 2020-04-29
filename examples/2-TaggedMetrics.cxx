@@ -22,6 +22,6 @@ int main()
   // 10 is the value
   // myMetric is the name of the metric
   // then add predefined tag
-  monitoring->send(Metric{10, "myMetric"}.addTag(tags::Key::Detector, tags::Value::TPC));
-  monitoring->send(Metric{10, "myMetric"}.addTag(tags::Key::CRU, 123));
+  monitoring->send(Metric{10, "myMetric"}.addTag(tags::Key::Detector, tags::Value::ACO));
+  monitoring->send(Metric{10, "myMetric"}.addTag(tags::Key::CRU, 0));
 }
