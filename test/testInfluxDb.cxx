@@ -28,7 +28,7 @@ BOOST_AUTO_TEST_CASE(simplySendMetric)
 
 BOOST_AUTO_TEST_CASE(simplySendMetric2)
 {
-  using std::string_literals::operator""s;
+  using namespace std::string_literals;
   auto monitoring = MonitoringFactory::Get("influxdb-stdout://");
   monitoring->send(Metric{"card"}
     .addValue(40.217773, "temperature")
