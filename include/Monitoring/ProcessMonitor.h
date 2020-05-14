@@ -43,11 +43,8 @@ class ProcessMonitor
   /// Default destructor
   ~ProcessMonitor() = default;
 
-  /// Retrieves memory usage (%)
-  Metric getMemoryUsage();
-
-  /// Retrieves CPU usage (%) and number of context switches during the interval
-  std::vector<Metric> getCpuAndContexts();
+  /// Return performance metrics
+  Metric getPerformanceMetrics();
 
  private:
   /// PIDs that are monitored
@@ -64,6 +61,12 @@ class ProcessMonitor
 
   /// Timestamp when process monitoring was executed last time
   std::chrono::high_resolution_clock::time_point mTimeLastRun;
+
+  /// Retrieves memory usage (%)
+  double getMemoryUsage();
+
+  /// Retrieves CPU usage (%) and number of context switches during the interval
+  Metric getCpuAndContexts();
 };
 
 } // namespace monitoring

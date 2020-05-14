@@ -134,35 +134,12 @@ void Monitoring::pushLoop()
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
   while (mMonitorRunning) {
     if (mProcessMonitoringInterval != 0 && (loopCount % (mProcessMonitoringInterval * 10)) == 0) {
-      transmit(mProcessMonitor->getCpuAndContexts());
-#ifdef O2_MONITORING_OS_LINUX
-      transmit(mProcessMonitor->getMemoryUsage());
-#endif
+      transmit(mProcessMonitor->getPerformanceMetrics());
     }
-
-    /*if (mAutoPushInterval != 0 && (loopCount % (mAutoPushInterval * 10)) == 0) {
-      std::vector<Metric> metrics;
-      for (auto metric : mPushStore) {
-        metric.resetTimestamp();
-        metrics.push_back(metric);
-      }
-      transmit(std::move(metrics));
-    }*/
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
     (loopCount >= 600) ? loopCount = 0 : loopCount++;
   }
 }
-
-/*ComplexMetric& Monitoring::getAutoPushMetric(std::string name, unsigned int interval)
-{
-  if (!mMonitorRunning) {
-    mMonitorRunning = true;
-    mMonitorThread = std::thread(&Monitoring::pushLoop, this);
-    mAutoPushInterval = interval;
-  }
-  mPushStore.emplace_back(std::variant<int, std::string, double, uint64_t>{}, name);
-  return mPushStore.back();
-}*/
 
 void Monitoring::transmit(std::vector<Metric>&& metrics)
 {
