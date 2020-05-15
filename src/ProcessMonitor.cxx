@@ -77,7 +77,7 @@ Metric ProcessMonitor::getCpuAndContexts()
   double fractionCpuUsed = (currentUsage.ru_utime.tv_sec * 1000000.0 + currentUsage.ru_utime.tv_usec - (mPreviousGetrUsage.ru_utime.tv_sec * 1000000.0 + mPreviousGetrUsage.ru_utime.tv_usec) + currentUsage.ru_stime.tv_sec * 1000000.0 + currentUsage.ru_stime.tv_usec - (mPreviousGetrUsage.ru_stime.tv_sec * 1000000.0 + mPreviousGetrUsage.ru_stime.tv_usec)) / timePassed;
 
   Metric metric{"processPerformance"};
-  metric.addValue(static_cast<double>(std::round(fractionCpuUsed * 100.0 * 100.0) / 100.0), "cpu_user_pct");
+  metric.addValue(static_cast<double>(std::round(fractionCpuUsed * 100.0 * 100.0) / 100.0), "cpu_used_pct");
   metric.addValue(static_cast<uint64_t>(currentUsage.ru_nivcsw - mPreviousGetrUsage.ru_nivcsw), "involuntary_context_switches");
 
   mTimeLastRun = timeNow;

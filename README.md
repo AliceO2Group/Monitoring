@@ -137,7 +137,7 @@ The derived value is generated only from the first value of the metric and it is
 See how it works in the example: [examples/4-RateDerivedMetric.cxx](examples/4-RateDerivedMetric.cxx).
 
 ### Global tags
-Global tags are added to each metric sent using given monitoring instance. Two tags: `hostname` and `name` (process name) are set as global by default.
+Global tags are added to each metric sent using given monitoring instance. `hostname` is set as global by default.
 
 You can add your own global tag by calling `addGlobalTag(std::string_view key, std::string_view value)` or `addGlobalTag(tags::Key, tags::Value)`.
 
@@ -148,10 +148,10 @@ This feature provides basic performance status of the process. Note that is runs
 ```cpp
 enableProcessMonitoring([interval in seconds]);
 ```
-The following metrics are generated every interval:
-  + **cpuUsedPercentage** - percentage of a core usage over time interval
-  + **involuntaryContextSwitches** - involuntary context switches over time interval
-  + **memoryUsagePercentage** - ratio of the process's resident set size  to the physical memory on the machine, expressed as a percentage (Linux only)
+The `processPerformance` metric is generated every interval with following values:
+  + **cpu_used_pct** - percentage of a core usage over time interval
+  + **involuntary_context_switches** - involuntary context switches over time interval
+  + **memory_used_pct** - ratio of the process's resident set size  to the physical memory on the machine, expressed as a percentage (Linux only)
 
 ### StdOut backend output format
 ```
