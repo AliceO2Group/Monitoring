@@ -113,7 +113,6 @@ void Monitoring::addBackend(std::unique_ptr<Backend> backend)
 {
   ProcessDetails processDetails{};
   backend->addGlobalTag("hostname", processDetails.getHostname());
-  backend->addGlobalTag("name", processDetails.getProcessName());
   mBackends.push_back(std::move(backend));
 }
 
