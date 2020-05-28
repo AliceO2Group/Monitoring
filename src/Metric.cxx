@@ -87,7 +87,7 @@ Metric&& Metric::addValue(const std::variant<int, std::string, double, uint64_t>
   return std::move(*this);
 }
 
-Metric::Metric(const std::string& name, Verbosity verbosity) : mName(name), mTimestamp(Metric::getCurrentTimestamp()), mVerbosity(verbosity)
+Metric::Metric(const std::string& name, Verbosity verbosity, const std::chrono::time_point<std::chrono::system_clock>& timestamp) : mName(name), mTimestamp(timestamp), mVerbosity(verbosity)
 {
   overwriteVerbosity();
 }

@@ -59,7 +59,7 @@ class Metric
 
   /// Constructor that  does not require any value to be specified, .addValue needs to be used
   /// \param name             metric name
-  Metric(const std::string& name, Verbosity verbosity = Metric::DefaultVerbosity);
+  Metric(const std::string& name, Verbosity verbosity = Metric::DefaultVerbosity, const std::chrono::time_point<std::chrono::system_clock>& timestamp = Metric::getCurrentTimestamp());
 
   /// Adds additional int value to metric
   /// \param value
