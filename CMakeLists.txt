@@ -181,6 +181,7 @@ set(EXAMPLES
   examples/5-Benchmark.cxx
   examples/6-Increment.cxx
   examples/7-InternalBenchamrk.cxx
+  examples/8-DbFiller.cxx
   examples/10-Buffering.cxx
 )
 
@@ -195,6 +196,7 @@ foreach (example ${EXAMPLES})
 endforeach()
 
 set_target_properties(5-Benchmark PROPERTIES OUTPUT_NAME "o2-monitoring-benchmark")
+set_target_properties(8-DbFiller PROPERTIES OUTPUT_NAME "o2-monitoring-dbfiller")
 
 ####################################
 # Tests
@@ -238,7 +240,7 @@ endforeach()
 ####################################
 
 # Install library
-install(TARGETS Monitoring 5-Benchmark
+install(TARGETS Monitoring 5-Benchmark 8-DbFiller
   EXPORT MonitoringTargets
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
