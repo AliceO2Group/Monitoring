@@ -161,14 +161,17 @@ std::size_t Metric::getValuesSize() const noexcept
 
 int Metric::getFirstValueType() const
 {
-  if (std::holds_alternative<int>(mValues.front().second))
-    return 0;
-  else if (std::holds_alternative<std::string>(mValues.front().second))
-    return 1;
-  else if (std::holds_alternative<double>(mValues.front().second))
-    return 2;
-  else
-    return 3;
+  if (std::holds_alternative<int>(mValues.front().second)) {
+    return MetricType::INT;
+  } else if (std::holds_alternative<std::string>(mValues.front().second)) {
+    return MetricType::STRING;
+  } else if (std::holds_alternative<double>(mValues.front().second)) {
+    return MetricType::DOUBLE;
+  } else if (std::holds_alternative<uint64_t>(mValues.front().second)) {
+    return MetricType::UINT64_T;
+  } else {
+    return MetricType::UNKNOWN;
+  }
 }
 
 bool Metric::includeTimestamp = true;

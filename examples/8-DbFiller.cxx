@@ -44,14 +44,15 @@ int main(int argc, char* argv[])
     for (int i = 1; i <= vm["measurements"].as<int>(); i++) {
       for (int k = 1; k <= vm["flps"].as<int>(); k++) {
         auto metric = Metric{"metric" + std::to_string(i), Metric::DefaultVerbosity, since}
-          .addValue(doubleDist(mt), "double")
-          .addValue(intDist(mt), "int")
-          .addValue(std::rand() % 2, "onOff")
-          .addTag(tags::Key::FLP, k);
+                        .addValue(doubleDist(mt), "double")
+                        .addValue(intDist(mt), "int")
+                        .addValue(std::rand() % 2, "onOff")
+                        .addTag(tags::Key::FLP, k);
         monitoring->send(std::move(metric));
         std::this_thread::sleep_for(std::chrono::microseconds(1));
       }
     }
-    if (since > now) break;
+    if (since > now)
+      break;
   }
 }

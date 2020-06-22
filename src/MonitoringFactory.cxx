@@ -77,10 +77,12 @@ std::unique_ptr<Backend> getInfluxDbv2(http::url uri)
   if (tokenEnd == std::string::npos) {
     tokenEnd = query.length();
   }
-  std::string token = query.substr(tokenStart + tokenLabel.length(), tokenEnd-(tokenStart + tokenLabel.length()));
+  std::string token = query.substr(tokenStart + tokenLabel.length(), tokenEnd - (tokenStart + tokenLabel.length()));
   // make sure ampersand is removed
-  if (tokenEnd < query.length() && query.at(tokenEnd) == '&') tokenEnd++;
-  if (tokenStart > 0 && query.at(tokenStart-1) == '&') tokenStart--;
+  if (tokenEnd < query.length() && query.at(tokenEnd) == '&')
+    tokenEnd++;
+  if (tokenStart > 0 && query.at(tokenStart - 1) == '&')
+    tokenStart--;
   query.erase(tokenStart, tokenEnd - tokenStart);
 
   auto transport = std::make_unique<transports::HTTP>("http://" + uri.host + ':' + std::to_string(uri.port) + path + '?' + query);
@@ -166,8 +168,7 @@ std::unique_ptr<Backend> MonitoringFactory::GetBackend(std::string& url)
     {"influxdb-kafka", getInfluxDb},
     {"influxdbv2", getInfluxDbv2},
     {"apmon", getApMon},
-    {"no-op", getNoop}
-  };
+    {"no-op", getNoop}};
 
   http::url parsedUrl = http::ParseHttpUrl(url);
   if (parsedUrl.protocol.empty()) {

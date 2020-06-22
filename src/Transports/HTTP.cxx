@@ -28,7 +28,7 @@ HTTP::HTTP(const std::string& url)
   curl_easy_setopt(mCurl, CURLOPT_POST, 1);
   curl_easy_setopt(mCurl, CURLOPT_TCP_KEEPIDLE, 120L);
   curl_easy_setopt(mCurl, CURLOPT_TCP_KEEPINTVL, 60L);
-  FILE *devnull = fopen("/dev/null", "w+");
+  FILE* devnull = fopen("/dev/null", "w+");
   curl_easy_setopt(mCurl, CURLOPT_WRITEDATA, devnull);
 
   MonLogger::Get() << "HTTP transport initialized (" << url << ")" << MonLogger::End();
@@ -44,7 +44,7 @@ HTTP::~HTTP()
 void HTTP::addHeader(const std::string& header)
 {
   mHeaders = curl_slist_append(mHeaders, header.c_str());
-  curl_easy_setopt(mCurl,  CURLOPT_HTTPHEADER, mHeaders);
+  curl_easy_setopt(mCurl, CURLOPT_HTTPHEADER, mHeaders);
 }
 
 void HTTP::send(std::string&& post)
@@ -52,7 +52,7 @@ void HTTP::send(std::string&& post)
   CURLcode response;
   long responseCode;
   curl_easy_setopt(mCurl, CURLOPT_POSTFIELDS, post.c_str());
-  curl_easy_setopt(mCurl, CURLOPT_POSTFIELDSIZE, (long) post.length());
+  curl_easy_setopt(mCurl, CURLOPT_POSTFIELDSIZE, (long)post.length());
   response = curl_easy_perform(mCurl);
   curl_easy_getinfo(mCurl, CURLINFO_RESPONSE_CODE, &responseCode);
   if (response != CURLE_OK) {

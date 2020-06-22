@@ -87,9 +87,9 @@ void DerivedMetrics::process(Metric& metric, DerivedMetricMode mode)
 
        // handle situation when a new run starts
        auto isZero = std::visit(overloaded{
-         [](auto arg) { return arg == 0; },
-         [](const std::string& arg) { return arg == ""; }
-       }, current);
+                                  [](auto arg) { return arg == 0; },
+                                  [](const std::string& arg) { return arg == ""; }},
+                                current);
        if (rate < 0 && isZero) {
          rate = 0;
        }

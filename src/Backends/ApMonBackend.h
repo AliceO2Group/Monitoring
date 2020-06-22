@@ -68,7 +68,7 @@ class ApMonBackend final : public Backend
   int convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp);
 
   std::unique_ptr<ApMon> mApMon; ///< ApMon object
-  std::string mEntity;            ///< MonALISA entity, created out of global tags
+  std::string mEntity;           ///< MonALISA entity, created out of global tags
 };
 
 } // namespace backends

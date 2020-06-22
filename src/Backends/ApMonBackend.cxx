@@ -81,31 +81,32 @@ void ApMonBackend::send(const Metric& metric)
   std::string stringValue;
 
   auto& values = metric.getValues();
-      
+
   for (int i = 0; i < valueSize; i++) {
     paramNames[i] = const_cast<char*>(values[i].first.c_str());
     std::visit(overloaded{
-      [&](int value) {
-        valueTypes[i] = XDR_INT32;
-        intValue = value;
-        paramValues[i] = reinterpret_cast<char*>(&intValue);
-      },
-      [&](double value) {
-        valueTypes[i] = XDR_REAL64;
-        doubleValue = value;
-        paramValues[i] = reinterpret_cast<char*>(&doubleValue);
-      },
-      [&](const std::string& value) {
-        valueTypes[i] = XDR_STRING;
-        stringValue = value;
-        paramValues[i] = const_cast<char*>(stringValue.c_str());
-      },
-      [&](uint64_t value) {
-        valueTypes[i] = XDR_REAL64;
-        doubleValue = static_cast<double>(value);
-        paramValues[i] = reinterpret_cast<char*>(&doubleValue);
-      },
-    }, values[i].second);
+                 [&](int value) {
+                   valueTypes[i] = XDR_INT32;
+                   intValue = value;
+                   paramValues[i] = reinterpret_cast<char*>(&intValue);
+                 },
+                 [&](double value) {
+                   valueTypes[i] = XDR_REAL64;
+                   doubleValue = value;
+                   paramValues[i] = reinterpret_cast<char*>(&doubleValue);
+                 },
+                 [&](const std::string& value) {
+                   valueTypes[i] = XDR_STRING;
+                   stringValue = value;
+                   paramValues[i] = const_cast<char*>(stringValue.c_str());
+                 },
+                 [&](uint64_t value) {
+                   valueTypes[i] = XDR_REAL64;
+                   doubleValue = static_cast<double>(value);
+                   paramValues[i] = reinterpret_cast<char*>(&doubleValue);
+                 },
+               },
+               values[i].second);
   }
 
   mApMon->sendTimedParameters(const_cast<char*>(name.c_str()), const_cast<char*>(entity.c_str()),

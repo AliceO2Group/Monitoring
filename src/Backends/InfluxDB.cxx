@@ -92,12 +92,12 @@ std::string InfluxDB::toInfluxLineProtocol(const Metric& metric)
   for (const auto& [name, value] : metric.getValues()) {
     convert << name << '=';
     std::visit(overloaded{
-               [&convert](uint64_t value) { convert << value << 'i'; },
-               [&convert](int value) { convert << value << 'i'; },
-               [&convert](double value) { convert << value; },
-               [&convert](const std::string& value) { convert << '"' << value << '"'; },
-             },  
-             value);
+                 [&convert](uint64_t value) { convert << value << 'i'; },
+                 [&convert](int value) { convert << value << 'i'; },
+                 [&convert](double value) { convert << value; },
+                 [&convert](const std::string& value) { convert << '"' << value << '"'; },
+               },
+               value);
     convert << ',';
   }
   convert.seekp(-1, std::ios_base::end);

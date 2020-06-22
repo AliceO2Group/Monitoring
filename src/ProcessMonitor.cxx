@@ -11,6 +11,7 @@
 #include <cmath>
 #include <fstream>
 #include <utility>
+#include <numeric>
 
 namespace o2
 {
@@ -21,20 +22,17 @@ namespace monitoring
 ProcessMonitor::ProcessMonitor()
 {
   mPid = static_cast<unsigned int>(::getpid());
-  getrusage(RUSAGE_SELF, &mPreviousGetrUsage);
   mTimeLastRun = std::chrono::high_resolution_clock::now();
+  getrusage(RUSAGE_SELF, &mPreviousGetrUsage);
 #ifdef O2_MONITORING_OS_LINUX
   setTotalMemory();
 #endif
 }
 
-Metric ProcessMonitor::getPerformanceMetrics()
+void ProcessMonitor::init()
 {
-  auto metric = getCpuAndContexts();
-#ifdef O2_MONITORING_OS_LINUX
-  metric.addValue(getMemoryUsage(), "memory_pct");
-#endif
-  return metric;
+  mTimeLastRun = std::chrono::high_resolution_clock::now();
+  getrusage(RUSAGE_SELF, &mPreviousGetrUsage);
 }
 
 void ProcessMonitor::setTotalMemory()
@@ -42,47 +40,117 @@ void ProcessMonitor::setTotalMemory()
   std::ifstream memInfo("/proc/meminfo");
   std::string totalString;
   std::getline(memInfo, totalString);
-  std::istringstream iss(totalString);
-  std::vector<std::string> tokens{std::istream_iterator<std::string>{iss},
-                                  std::istream_iterator<std::string>{}};
-  mTotalMemory = std::stoi(tokens[1]);
+  mTotalMemory = splitStatusLineAndRetriveValue(totalString);
 }
 
-double ProcessMonitor::getMemoryUsage()
+std::vector<Metric> ProcessMonitor::getMemoryUsage()
 {
+  std::vector<Metric> metrics;
   std::ifstream statusStream("/proc/self/status");
   std::string rssString;
   rssString.reserve(50);
 
-  // Scan for VmRSS
-  for (int i = 0; i < 18; i++) {
+  // Scan for VmSize
+  for (unsigned i = 0; i < VM_SIZE_INDEX; ++i) {
     std::getline(statusStream, rssString);
   }
-  std::istringstream iss(rssString);
-  std::vector<std::string> tokens{std::istream_iterator<std::string>{iss},
-                                  std::istream_iterator<std::string>{}};
-  return (std::stod(tokens[1]) * 100) / mTotalMemory;
+  auto vmSize = splitStatusLineAndRetriveValue(rssString);
+  mVmSizeMeasurements.push_back(vmSize);
+
+  metrics.emplace_back((vmSize * 100) / mTotalMemory, metricsNames[MEMORY_USAGE_PERCENTAGE]);
+  metrics.emplace_back(vmSize, metricsNames[VIRTUAL_MEMORY_SIZE]);
+
+  // Scan for VmRSS
+  for (unsigned i = 0; i < VM_RSS_INDEX - VM_SIZE_INDEX; ++i) {
+    std::getline(statusStream, rssString);
+  }
+
+  auto vmRSS = splitStatusLineAndRetriveValue(rssString);
+  metrics.emplace_back(vmRSS, metricsNames[RESIDENT_SET_SIZE]);
+  mVmRssMeasurements.push_back(vmRSS);
+
+  return metrics;
 }
 
-Metric ProcessMonitor::getCpuAndContexts()
+std::vector<Metric> ProcessMonitor::getCpuAndContexts()
 {
+  std::vector<Metric> metrics;
   struct rusage currentUsage;
   getrusage(RUSAGE_SELF, &currentUsage);
   auto timeNow = std::chrono::high_resolution_clock::now();
   double timePassed = std::chrono::duration_cast<std::chrono::microseconds>(timeNow - mTimeLastRun).count();
   if (timePassed < 950) {
     MonLogger::Get() << "[WARN] Do not invoke Process Monitor more frequent then every 1s" << MonLogger::End();
-    return {"processPerformance"};
+    metrics.emplace_back("processPerformance");
+    return metrics;
   }
-  double fractionCpuUsed = (currentUsage.ru_utime.tv_sec * 1000000.0 + currentUsage.ru_utime.tv_usec - (mPreviousGetrUsage.ru_utime.tv_sec * 1000000.0 + mPreviousGetrUsage.ru_utime.tv_usec) + currentUsage.ru_stime.tv_sec * 1000000.0 + currentUsage.ru_stime.tv_usec - (mPreviousGetrUsage.ru_stime.tv_sec * 1000000.0 + mPreviousGetrUsage.ru_stime.tv_usec)) / timePassed;
 
-  Metric metric{"processPerformance"};
-  metric.addValue(static_cast<double>(std::round(fractionCpuUsed * 100.0 * 100.0) / 100.0), "cpu_used_pct");
-  metric.addValue(static_cast<uint64_t>(currentUsage.ru_nivcsw - mPreviousGetrUsage.ru_nivcsw), "involuntary_context_switches");
+  uint64_t cpuUsedInMicroSeconds = currentUsage.ru_utime.tv_sec * 1000000.0 + currentUsage.ru_utime.tv_usec - (mPreviousGetrUsage.ru_utime.tv_sec * 1000000.0 + mPreviousGetrUsage.ru_utime.tv_usec) + currentUsage.ru_stime.tv_sec * 1000000.0 + currentUsage.ru_stime.tv_usec - (mPreviousGetrUsage.ru_stime.tv_sec * 1000000.0 + mPreviousGetrUsage.ru_stime.tv_usec);
+  double fractionCpuUsed = cpuUsedInMicroSeconds / timePassed;
+
+  double cpuUsedPerctange = std::round(fractionCpuUsed * 100.0 * 100.0) / 100.0;
+  mCpuPerctange.push_back(cpuUsedPerctange);
+  mCpuMicroSeconds.push_back(cpuUsedInMicroSeconds);
+
+  metrics.emplace_back(Metric{cpuUsedPerctange, metricsNames[CPU_USED_PERCENTAGE]});
+  metrics.emplace_back(Metric{
+    static_cast<uint64_t>(currentUsage.ru_nivcsw - mPreviousGetrUsage.ru_nivcsw), metricsNames[INVOLUNTARY_CONTEXT_SWITCHING]});
+  metrics.emplace_back(cpuUsedInMicroSeconds, metricsNames[CPU_USED_ABSOLUTE]);
 
   mTimeLastRun = timeNow;
   mPreviousGetrUsage = currentUsage;
-  return metric;
+  return metrics;
+}
+
+double ProcessMonitor::splitStatusLineAndRetriveValue(const std::string& line) const
+{
+  std::istringstream iss(line);
+  std::vector<std::string> tokens{std::istream_iterator<std::string>{iss},
+                                  std::istream_iterator<std::string>{}};
+  return std::stod(tokens[1]);
+}
+
+std::vector<Metric> ProcessMonitor::getPerformanceMetrics()
+{
+  auto metrics = getCpuAndContexts();
+#ifdef O2_MONITORING_OS_LINUX
+  auto memoryMetrics = getMemoryUsage();
+  std::move(memoryMetrics.begin(), memoryMetrics.end(), std::back_inserter(metrics));
+#endif
+  return metrics;
+}
+
+std::vector<Metric> ProcessMonitor::makeLastMeasurementAndGetMetrics()
+{
+  std::vector<Metric> metrics;
+  getCpuAndContexts();
+#ifdef O2_MONITORING_OS_LINUX
+  getMemoryUsage();
+
+  auto avgVmRSS = std::accumulate(mVmRssMeasurements.begin(), mVmRssMeasurements.end(), 0.0) /
+                  mVmRssMeasurements.size();
+
+  metrics.emplace_back(avgVmRSS, metricsNames[AVG_RESIDENT_SET_SIZE]);
+
+  auto avgVmSize = std::accumulate(mVmSizeMeasurements.begin(), mVmSizeMeasurements.end(), 0.0) /
+                   mVmSizeMeasurements.size();
+  metrics.emplace_back(avgVmSize, metricsNames[AVG_VIRTUAL_MEMORY_SIZE]);
+#endif
+
+  auto avgCpuUsage = std::accumulate(mCpuPerctange.begin(), mCpuPerctange.end(), 0.0) /
+                     mCpuPerctange.size();
+  uint64_t accumulationOfCpuTimeConsumption = std::accumulate(mCpuMicroSeconds.begin(),
+                                                              mCpuMicroSeconds.end(), 0UL);
+
+  metrics.emplace_back(avgCpuUsage, metricsNames[AVG_CPU_USED_PERCENTAGE]);
+  metrics.emplace_back(accumulationOfCpuTimeConsumption, metricsNames[ACCUMULATED_CPU_TIME]);
+
+  return metrics;
+}
+
+std::vector<std::string> ProcessMonitor::getAvailableMetricsNames()
+{
+  return {std::begin(metricsNames), std::end(metricsNames)};
 }
 
 } // namespace monitoring

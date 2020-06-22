@@ -118,7 +118,7 @@ BOOST_AUTO_TEST_CASE(retrieveIntType)
   Metric metricInstance(value, name);
 
   BOOST_CHECK_EQUAL(std::get<int>(metricInstance.getFirstValue().second), 10);
-  BOOST_CHECK_EQUAL(metricInstance.getFirstValueType(), 0);
+  BOOST_CHECK_EQUAL(metricInstance.getFirstValueType(), MetricType::INT);
 }
 
 BOOST_AUTO_TEST_CASE(retrieveDoubleType)
@@ -127,8 +127,8 @@ BOOST_AUTO_TEST_CASE(retrieveDoubleType)
   std::string name("metric name");
   Metric metricInstance(value, name);
 
-  BOOST_CHECK_EQUAL(std::get<double>(metricInstance.getFirstValue().second), 1.11);
-  BOOST_CHECK_EQUAL(metricInstance.getFirstValueType(), 2);
+  BOOST_CHECK_EQUAL(std::get<double>(metricInstance.getFirstValue().second), value);
+  BOOST_CHECK_EQUAL(metricInstance.getFirstValueType(), MetricType::DOUBLE);
 }
 
 BOOST_AUTO_TEST_CASE(retrieveStringType)
@@ -137,8 +137,8 @@ BOOST_AUTO_TEST_CASE(retrieveStringType)
   std::string name("metric name");
   Metric metricInstance(value, name);
 
-  BOOST_CHECK_EQUAL(std::get<std::string>(metricInstance.getFirstValue().second), "testString");
-  BOOST_CHECK_EQUAL(metricInstance.getFirstValueType(), 1);
+  BOOST_CHECK_EQUAL(std::get<std::string>(metricInstance.getFirstValue().second), value);
+  BOOST_CHECK_EQUAL(metricInstance.getFirstValueType(), MetricType::STRING);
 }
 
 BOOST_AUTO_TEST_CASE(retrieveUnsignedLongLongType)
@@ -147,8 +147,8 @@ BOOST_AUTO_TEST_CASE(retrieveUnsignedLongLongType)
   std::string name("metric name");
   Metric metricInstance(value, name);
 
-  BOOST_CHECK_EQUAL(std::get<uint64_t>(metricInstance.getFirstValue().second), 10000000000000LL);
-  BOOST_CHECK_EQUAL(metricInstance.getFirstValueType(), 3);
+  BOOST_CHECK_EQUAL(std::get<uint64_t>(metricInstance.getFirstValue().second), value);
+  BOOST_CHECK_EQUAL(metricInstance.getFirstValueType(), MetricType::UINT64_T);
 }
 
 BOOST_AUTO_TEST_CASE(regexVerbosityPolicy)

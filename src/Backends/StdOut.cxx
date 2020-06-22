@@ -65,12 +65,12 @@ void StdOut::send(std::vector<Metric>&& metrics)
 
 void StdOut::send(const Metric& metric)
 {
-  mStream << "[" << mPrefix << "] "  << metric.getName();
+  mStream << "[" << mPrefix << "] " << metric.getName();
   for (auto& value : metric.getValues()) {
     auto stringValue = std::visit(overloaded{
-      [](const std::string& value) -> std::string { return value; },
-      [](auto value) -> std::string { return std::to_string(value); }
-    }, value.second);
+                                    [](const std::string& value) -> std::string { return value; },
+                                    [](auto value) -> std::string { return std::to_string(value); }},
+                                  value.second);
     if (metric.getValuesSize() == 1) {
       mStream << ',' << metric.getFirstValueType() << ' ' << stringValue;
     } else {

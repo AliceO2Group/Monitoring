@@ -56,10 +56,9 @@ int main(int argc, char* argv[])
     for (int j = 1; j <= count; j++) {
       for (int i = 1; i <= measurements; i++) {
         monitoring->send(Metric{"measurement" + std::to_string(i)}
-          .addValue(doubleDist(mt), "doubleMetric")
-          .addValue(intDist(mt), "intMetric")
-          .addValue(std::rand() % 2, "onOffMetric")
-        );
+                           .addValue(doubleDist(mt), "doubleMetric")
+                           .addValue(intDist(mt), "intMetric")
+                           .addValue(std::rand() % 2, "onOffMetric"));
         std::this_thread::sleep_for(std::chrono::microseconds(sleep));
       }
       if (!vm.count("count"))
@@ -70,8 +69,8 @@ int main(int argc, char* argv[])
     for (int j = 1; j <= count; j++) {
       auto timestamp = Metric::getCurrentTimestamp();
       uint64_t nowTimestamp = std::chrono::duration_cast<std::chrono::nanoseconds>(
-           timestamp.time_since_epoch())
-          .count();
+                                timestamp.time_since_epoch())
+                                .count();
       monitoring->send({nowTimestamp, "latency"});
       std::this_thread::sleep_for(std::chrono::microseconds(sleep));
       if (!vm.count("count"))

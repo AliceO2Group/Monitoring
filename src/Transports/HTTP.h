@@ -25,26 +25,27 @@ namespace transports
 /// Allows to push string formatted metrics as HTTP POST requests via cURL
 class HTTP : public TransportInterface
 {
-  public:
-    /// Constructor
-    /// \param url          URL of HTTP server endpoint
-    HTTP(const std::string& url);
+ public:
+  /// Constructor
+  /// \param url          URL of HTTP server endpoint
+  HTTP(const std::string& url);
 
-    /// Destructor
-    ~HTTP();
+  /// Destructor
+  ~HTTP();
 
-    /// Sends metric via HTTP POST
-    /// \param post       r-value reference string formatted metric
-    void send(std::string&& post);
+  /// Sends metric via HTTP POST
+  /// \param post       r-value reference string formatted metric
+  void send(std::string&& post);
 
-    /// Adds custom HTTP header
-    void addHeader(const std::string& header);
-  private:
-    /// CURL pointers
-    CURL *mCurl;
+  /// Adds custom HTTP header
+  void addHeader(const std::string& header);
 
-    /// HTTP headers struct
-    struct curl_slist *mHeaders;
+ private:
+  /// CURL pointers
+  CURL* mCurl;
+
+  /// HTTP headers struct
+  struct curl_slist* mHeaders;
 };
 
 } // namespace transports

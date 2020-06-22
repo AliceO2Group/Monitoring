@@ -35,6 +35,13 @@ BOOST_AUTO_TEST_CASE(monitorProcess)
   std::this_thread::sleep_for(std::chrono::milliseconds(2100));
 }
 
+BOOST_AUTO_TEST_CASE(monitorProcessMetricName)
+{
+  auto vec = o2::monitoring::ProcessMonitor::getAvailableMetricsNames();
+  BOOST_CHECK_EQUAL(vec.size(), o2::monitoring::ProcessMonitor::AVAILABLE_METRICS_SIZE);
+  BOOST_CHECK_EQUAL(vec[o2::monitoring::ProcessMonitor::AVG_CPU_USED_PERCENTAGE], "averageCpuUsedPercentage");
+}
+
 } // namespace Test
 } // namespace monitoring
 } // namespace o2

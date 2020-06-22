@@ -29,7 +29,8 @@ enum class Verbosity : short { Prod,
 enum MetricType { INT = 0,
                   STRING = 1,
                   DOUBLE = 2,
-                  UINT64_T = 3 };
+                  UINT64_T = 3,
+                  UNKNOWN };
 
 class DerivedMetrics;
 
