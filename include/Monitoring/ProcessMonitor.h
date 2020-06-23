@@ -37,36 +37,72 @@ class ProcessMonitor
   friend class Monitoring;
 
  public:
+  enum {
+    MEMORY_USAGE_PERCENTAGE = 0,
+    VIRTUAL_MEMORY_SIZE,
+    RESIDENT_SET_SIZE,
+    CPU_USED_PERCENTAGE,
+    INVOLUNTARY_CONTEXT_SWITCHING,
+    CPU_USED_ABSOLUTE,
+    AVG_RESIDENT_SET_SIZE,
+    AVG_VIRTUAL_MEMORY_SIZE,
+    AVG_CPU_USED_PERCENTAGE,
+    ACCUMULATED_CPU_TIME,
+    AVAILABLE_METRICS_SIZE
+  };
+
+  static std::vector<std::string> getAvailableMetricsNames();
+  std::vector<Metric> getPerformanceMetrics();
+
+ public:
   /// Prepares externam software commands (ps)
   ProcessMonitor();
 
   /// Default destructor
   ~ProcessMonitor() = default;
 
-  /// Return performance metrics
-  Metric getPerformanceMetrics();
+  void init();
 
  private:
+  double splitStatusLineAndRetriveValue(const std::string& line) const;
+
+  /// Retrievs total memory size from /proc/meminfo
+  void setTotalMemory();
+
+ private:
+  static constexpr const char* metricsNames[] = {"memoryUsagePercentage", "virtualMemorySize", "residentSetSize",
+                                                 "cpuUsedPercentage", "involuntaryContextSwitches", "cpuUsedAbsolute",
+                                                 "averageResidentSetSize", "averageVirtualMemorySize", "averageCpuUsedPercentage",
+                                                 "cpuTimeConsumedByProcess"};
+
+  static constexpr unsigned int VM_SIZE_INDEX = 18;
+  static constexpr unsigned int VM_RSS_INDEX = 22;
+
   /// PIDs that are monitored
   unsigned int mPid;
 
   /// Total memory size
   unsigned int mTotalMemory;
 
-  /// Retrievs total memory size from /proc/meminfo
-  void setTotalMemory();
-
   /// 'getrusage' values from last execution
   struct rusage mPreviousGetrUsage;
+
+  ///each measurement will be saved to compute average/accumulation usage
+  std::vector<double> mVmSizeMeasurements;
+  std::vector<double> mVmRssMeasurements;
+  std::vector<uint64_t> mCpuMicroSeconds;
+  std::vector<double> mCpuPerctange;
 
   /// Timestamp when process monitoring was executed last time
   std::chrono::high_resolution_clock::time_point mTimeLastRun;
 
-  /// Retrieves memory usage (%)
-  double getMemoryUsage();
+  /// Retrieves virtual memory and resident set size usage
+  std::vector<Metric> getMemoryUsage();
 
   /// Retrieves CPU usage (%) and number of context switches during the interval
-  Metric getCpuAndContexts();
+  std::vector<Metric> getCpuAndContexts();
+
+  std::vector<Metric> makeLastMeasurementAndGetMetrics();
 };
 
 } // namespace monitoring
