@@ -151,9 +151,9 @@ enableProcessMonitoring([interval in seconds]);
 ```
 Following metrics are generated every time interval:
 CPU measurements:
-  + **cpuUsedPercentage** - percentage of a core usage (kernel + user mode) over time interval
-  + **involuntaryContextSwitches** - involuntary context switches over time interval
-  + **cpuUsedAbsolute** - amount of time spent on process execution (in user and kernel mode) over time interval (expressed in microseconds)
+ + **cpuUsedPercentage** - percentage of a core usage (kernel + user mode) over time interval
+ + **involuntaryContextSwitches** - involuntary context switches over time interval
+ + **cpuUsedAbsolute** - amount of time spent on process execution (in user and kernel mode) over time interval (expressed in microseconds)
 
 Memory measurements: (Linux only)
  + **memoryUsagePercentage** - ratio of the process's virtual memory to memory available on the machine
@@ -162,8 +162,8 @@ Memory measurements: (Linux only)
 
 Additional metrics are generated at the end of process execution:
 CPU measurements:
-  + **cpuTimeConsumedByProcess** - total amount of time spent on process execution (in user and kernel mode) (expressed in microseconds)
-  + **averageCpuUsedPercentage** - average percentage of a core usage over time interval
+ + **cpuTimeConsumedByProcess** - total amount of time spent on process execution (in user and kernel mode) (expressed in microseconds)
+ + **averageCpuUsedPercentage** - average percentage of a core usage over time interval
 
 Memory measurements: (Linux only)
  + **averageResidentSetSize** - average resident set size used by process (expressed in kB)
