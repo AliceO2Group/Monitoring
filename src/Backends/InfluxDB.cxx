@@ -63,6 +63,8 @@ void InfluxDB::send(std::vector<Metric>&& metrics)
     influxMetrics += toInfluxLineProtocol(metric);
     influxMetrics += "\n";
   }
+  //remove last \n
+  influxMetrics.pop_back();
 
   try {
     mTransport->send(std::move(influxMetrics));
