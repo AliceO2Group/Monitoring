@@ -64,7 +64,8 @@ void InfluxDB::send(std::vector<Metric>&& metrics)
     influxMetrics += "\n";
   }
   //remove last \n
-  if (influxMetrics.size() > 0 ) influxMetrics.pop_back();
+  if (influxMetrics.size() > 0) influxMetrics.pop_back();
+
 
   try {
     mTransport->send(std::move(influxMetrics));
