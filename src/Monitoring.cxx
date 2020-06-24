@@ -83,6 +83,7 @@ void Monitoring::enableProcessMonitoring(const unsigned int interval)
 {
   mProcessMonitoringInterval = interval;
   if (!mMonitorRunning) {
+    mProcessMonitor->init();
     mMonitorRunning = true;
     mMonitorThread = std::thread(&Monitoring::pushLoop, this);
   }
@@ -121,6 +122,7 @@ Monitoring::~Monitoring()
   mMonitorRunning = false;
   if (mMonitorThread.joinable()) {
     mMonitorThread.join();
+    transmit(mProcessMonitor->makeLastMeasurementAndGetMetrics());
   }
   if (mBuffering) {
     flushBuffer();

@@ -149,10 +149,25 @@ This feature provides basic performance status of the process. Note that is runs
 ```cpp
 enableProcessMonitoring([interval in seconds]);
 ```
-The `processPerformance` metric is generated every interval with following values:
-  + **cpu_used_pct** - percentage of a core usage over time interval
-  + **involuntary_context_switches** - involuntary context switches over time interval
-  + **memory_used_pct** - ratio of the process's resident set size  to the physical memory on the machine, expressed as a percentage (Linux only)
+Following metrics are generated every time interval:
+CPU measurements:
+ + **cpuUsedPercentage** - percentage of a core usage (kernel + user mode) over time interval
+ + **involuntaryContextSwitches** - involuntary context switches over time interval
+ + **cpuUsedAbsolute** - amount of time spent on process execution (in user and kernel mode) over time interval (expressed in microseconds)
+
+Memory measurements: (Linux only)
+ + **memoryUsagePercentage** - ratio of the process's virtual memory to memory available on the machine
+ + **virtualMemorySize** - virtual memory reserved by process (expressed in kB)
+ + **residentSetSize** - resident set size reserved by process (expressed in kB)
+
+Additional metrics are generated at the end of process execution:
+CPU measurements:
+ + **cpuTimeConsumedByProcess** - total amount of time spent on process execution (in user and kernel mode) (expressed in microseconds)
+ + **averageCpuUsedPercentage** - average percentage of a core usage over time interval
+
+Memory measurements: (Linux only)
+ + **averageResidentSetSize** - average resident set size used by process (expressed in kB)
+ + **averageVirtualMemorySize** - average virtual memory used by process (expressed in kB)
 
 ### StdOut backend output format
 ```
