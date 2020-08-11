@@ -74,7 +74,7 @@ std::vector<Metric> ProcessMonitor::getMemoryUsage()
 
 Metric ProcessMonitor::getPss()
 {
-  std::ifstream statusStream("/proc/" + std::to_string(mPid) + "/smaps");
+  std::ifstream statusStream("/proc/self/smaps");
   double pssTotal = 0;
   std::string pssString;
 
