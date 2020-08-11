@@ -99,6 +99,9 @@ class ProcessMonitor
   /// Retrieves virtual memory and resident set size usage
   std::vector<Metric> getMemoryUsage();
 
+  /// Retrieves proportional set size
+  Metric getPss();
+
   /// Retrieves CPU usage (%) and number of context switches during the interval
   std::vector<Metric> getCpuAndContexts();
 
