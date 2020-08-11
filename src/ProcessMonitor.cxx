@@ -72,6 +72,20 @@ std::vector<Metric> ProcessMonitor::getMemoryUsage()
   return metrics;
 }
 
+Metric ProcessMonitor::getPss()
+{
+  std::ifstream statusStream("/proc/" + std::to_string(mPid) + "/smaps");
+  double pssTotal = 0;
+  std::string pssString;
+
+  while (std::getline(statusStream, pssString)) {
+    if (pssString.rfind("Pss:", 0) == 0) {
+      pssTotal += splitStatusLineAndRetriveValue(pssString);
+    }
+  }
+  return {pssTotal, "pss"};
+}
+
 std::vector<Metric> ProcessMonitor::getCpuAndContexts()
 {
   std::vector<Metric> metrics;
@@ -116,6 +130,7 @@ std::vector<Metric> ProcessMonitor::getPerformanceMetrics()
 #ifdef O2_MONITORING_OS_LINUX
   auto memoryMetrics = getMemoryUsage();
   std::move(memoryMetrics.begin(), memoryMetrics.end(), std::back_inserter(metrics));
+  metrics.emplace_back(getPss());
 #endif
   return metrics;
 }
