@@ -42,7 +42,9 @@ enum class Key : unsigned short int {
   Run,
   ID,
   Type,
-  CRORC
+  CRORC,
+  SerialId,
+  Endpoint
 };
 
 /// Tag keys array
@@ -59,7 +61,9 @@ static constexpr std::array<std::string_view, 13> TAG_KEY = {
   "run"sv,
   "id"sv,
   "type"sv,
-  "CRORC"sv
+  "CRORC"sv,
+  "serialId"sv,
+  "endpoint"sv
 };
 
 // Tag values
