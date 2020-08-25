@@ -48,7 +48,7 @@ enum class Key : unsigned short int {
 };
 
 /// Tag keys array
-static constexpr std::array<std::string_view, 13> TAG_KEY = {
+static constexpr std::array<std::string_view, 15> TAG_KEY = {
   "hostname"sv,
   "rolenane"sv,
   "name"sv,
