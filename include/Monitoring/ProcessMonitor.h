@@ -48,6 +48,7 @@ class ProcessMonitor
     AVG_VIRTUAL_MEMORY_SIZE,
     AVG_CPU_USED_PERCENTAGE,
     ACCUMULATED_CPU_TIME,
+    PSS,
     AVAILABLE_METRICS_SIZE
   };
 
@@ -73,7 +74,7 @@ class ProcessMonitor
   static constexpr const char* metricsNames[] = {"memoryUsagePercentage", "virtualMemorySize", "residentSetSize",
                                                  "cpuUsedPercentage", "involuntaryContextSwitches", "cpuUsedAbsolute",
                                                  "averageResidentSetSize", "averageVirtualMemorySize", "averageCpuUsedPercentage",
-                                                 "cpuTimeConsumedByProcess"};
+                                                 "cpuTimeConsumedByProcess", "proportionalSetSize"};
 
   static constexpr unsigned int VM_SIZE_INDEX = 18;
   static constexpr unsigned int VM_RSS_INDEX = 22;
