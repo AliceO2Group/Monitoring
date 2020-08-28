@@ -83,7 +83,7 @@ Metric ProcessMonitor::getPss()
       pssTotal += splitStatusLineAndRetriveValue(pssString);
     }
   }
-  return {pssTotal, "pss"};
+  return {pssTotal, metricsNames[PSS]};
 }
 
 std::vector<Metric> ProcessMonitor::getCpuAndContexts()
