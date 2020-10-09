@@ -40,7 +40,7 @@ inline unsigned long StdOut::convertTimestamp(const std::chrono::time_point<std:
     .count();
 }
 
-StdOut::StdOut(const std::string& prefix) : mStream(std::cout), mPrefix(prefix)
+StdOut::StdOut(const std::string& prefix) : mStream(), mPrefix(prefix)
 {
   setVerbosisty(Verbosity::Debug);
   MonLogger::Get() << "StdOut backend initialized" << MonLogger::End();
@@ -83,6 +83,7 @@ void StdOut::send(const Metric& metric)
     mStream << ',' << tags::TAG_KEY[key] << "=" << tags::GetValue(value);
   }
   mStream << '\n';
+  std::cout << mStream.str();
 }
 
 } // namespace backends
