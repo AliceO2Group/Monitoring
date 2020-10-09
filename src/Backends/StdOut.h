@@ -18,6 +18,7 @@
 
 #include "Monitoring/Backend.h"
 #include <string>
+#include <sstream>
 
 namespace o2
 {
@@ -53,7 +54,7 @@ class StdOut final : public Backend
 
  private:
   /// Metric stream
-  std::ostream& mStream;
+  std::ostringstream mStream;
 
   /// Converts timestamp to unsigned long (miliseconds from epoch)
   /// \param timestamp    timestamp in std::chrono::time_point format
