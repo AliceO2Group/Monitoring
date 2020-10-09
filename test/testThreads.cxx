@@ -18,7 +18,7 @@ using namespace o2::monitoring;
 BOOST_AUTO_TEST_CASE(retrieveOtherParams)
 {
   std::array<std::thread, 4> threads;
-  for (auto &thread : threads) {
+  for (auto& thread : threads) {
     thread = std::thread([] {
       for (int i = 0; i < 20; i++) {
         auto monitoring = MonitoringFactory::Get("stdout://");
@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_CASE(retrieveOtherParams)
     });
   }
 
-  for (auto &thread : threads) {
+  for (auto& thread : threads) {
     thread.join();
   }
 }
