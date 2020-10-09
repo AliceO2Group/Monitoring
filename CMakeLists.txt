@@ -214,6 +214,7 @@ set(TEST_SRCS
   test/testInfluxDb.cxx
   test/testNoop.cxx
   test/testRegexMatch.cxx
+  test/testThreads.cxx
 )
 
 if(ApMon_FOUND)
