@@ -40,7 +40,7 @@ inline unsigned long StdOut::convertTimestamp(const std::chrono::time_point<std:
     .count();
 }
 
-StdOut::StdOut(const std::string& prefix) : mStream(), mPrefix(prefix)
+StdOut::StdOut(const std::string& prefix) : mPrefix(prefix)
 {
   setVerbosisty(Verbosity::Debug);
   MonLogger::Get() << "StdOut backend initialized" << MonLogger::End();
@@ -65,6 +65,7 @@ void StdOut::send(std::vector<Metric>&& metrics)
 
 void StdOut::send(const Metric& metric)
 {
+  std::ostringstream mStream;
   mStream << "[" << mPrefix << "] "  << metric.getName();
   for (auto& value : metric.getValues()) {
     auto stringValue = std::visit(overloaded{
