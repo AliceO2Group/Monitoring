@@ -53,9 +53,6 @@ class StdOut final : public Backend
   void addGlobalTag(std::string_view name, std::string_view value) override;
 
  private:
-  /// Metric stream
-  std::ostringstream mStream;
-
   /// Converts timestamp to unsigned long (miliseconds from epoch)
   /// \param timestamp    timestamp in std::chrono::time_point format
   /// \return             timestamp as unsigned long (miliseconds from epoch)
