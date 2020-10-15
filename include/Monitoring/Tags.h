@@ -150,11 +150,12 @@ static constexpr std::array<std::string_view, 39> TAG_VALUE = {{
   "monitoring"sv, // 36
   "CRORC"sv,   // 37
   "ACO"sv      // 38
+  "NEGATIVE"sv // 39
 }};
 
 static constexpr std::string_view GetValue(const int value)
 {
-  return value > 0 ? TAG_VALUE[value] : std::to_string(0 - value);
+  return value > 0 ? TAG_VALUE[value] : TAG_VALUE[39];
 }
 
 } // namespace tags
