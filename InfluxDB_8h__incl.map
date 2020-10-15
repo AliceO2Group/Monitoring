@@ -1,0 +1,7 @@
+<map id="/home/travis/build/AliceO2Group/Monitoring/src/Backends/InfluxDB.h" name="/home/travis/build/AliceO2Group/Monitoring/src/Backends/InfluxDB.h">
+<area shape="rect" id="node2" href="$Backend_8h.html" title="Monitoring/Backend.h" alt="" coords="241,109,389,136"/>
+<area shape="rect" id="node11" href="$TransportInterface_8h.html" title="../Transports/TransportInterface.h" alt="" coords="486,109,704,136"/>
+<area shape="rect" id="node12" href="$MonLogger_8h.html" title="../MonLogger.h" alt="" coords="728,109,838,136"/>
+<area shape="rect" id="node5" href="$Metric_8h.html" title="Monitoring/Metric.h" alt="" coords="227,184,360,211"/>
+<area shape="rect" id="node10" href="$Tags_8h.html" title="Tags.h" alt="" coords="409,259,472,285"/>
+</map>

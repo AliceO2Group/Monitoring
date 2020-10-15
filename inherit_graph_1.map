@@ -1,0 +1,7 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classo2_1_1monitoring_1_1Backend.html" title="Backend pure virtual interface. " alt="" coords="5,111,168,138"/>
+<area shape="rect" id="node2" href="$classo2_1_1monitoring_1_1backends_1_1ApMonBackend.html" title="Backend that uses AppMon (MonALISA) " alt="" coords="216,5,384,47"/>
+<area shape="rect" id="node3" href="$classo2_1_1monitoring_1_1backends_1_1InfluxDB.html" title="Backend that sends metrics to InfluxDB time&#45;series databse. " alt="" coords="216,71,384,112"/>
+<area shape="rect" id="node4" href="$classo2_1_1monitoring_1_1backends_1_1Noop.html" title="No&#45;op backend. " alt="" coords="216,136,384,177"/>
+<area shape="rect" id="node5" href="$classo2_1_1monitoring_1_1backends_1_1StdOut.html" title="Prints metrics to standard output via std::cout. " alt="" coords="216,201,384,243"/>
+</map>

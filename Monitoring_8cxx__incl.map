@@ -1,0 +1,11 @@
+<map id="/home/travis/build/AliceO2Group/Monitoring/src/Monitoring.cxx" name="/home/travis/build/AliceO2Group/Monitoring/src/Monitoring.cxx">
+<area shape="rect" id="node2" href="$Monitoring_8h.html" title="Monitoring/Monitoring.h" alt="" coords="956,109,1113,136"/>
+<area shape="rect" id="node23" href="$MonitoringException_8h.html" title="Exceptions/MonitoringException.h" alt="" coords="203,109,423,136"/>
+<area shape="rect" id="node27" href="$MonLogger_8h.html" title="MonLogger.h" alt="" coords="2095,184,2193,211"/>
+<area shape="rect" id="node29" href="$ProcessDetails_8h.html" title="ProcessDetails.h" alt="" coords="5,109,128,136"/>
+<area shape="rect" id="node13" href="$Backend_8h.html" title="Monitoring/Backend.h" alt="" coords="1203,184,1351,211"/>
+<area shape="rect" id="node18" href="$DerivedMetrics_8h.html" title="Monitoring/DerivedMetrics.h" alt="" coords="942,184,1127,211"/>
+<area shape="rect" id="node19" href="$ProcessMonitor_8h.html" title="Monitoring/ProcessMonitor.h" alt="" coords="1427,184,1615,211"/>
+<area shape="rect" id="node14" href="$Metric_8h.html" title="Monitoring/Metric.h" alt="" coords="1164,259,1297,285"/>
+<area shape="rect" id="node17" href="$Tags_8h.html" title="Tags.h" alt="" coords="1334,333,1397,360"/>
+</map>

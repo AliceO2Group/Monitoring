@@ -1,0 +1,8 @@
+<map id="o2::monitoring::transports::TransportInterface" name="o2::monitoring::transports::TransportInterface">
+<area shape="rect" id="node2" href="$classo2_1_1monitoring_1_1transports_1_1HTTP.html" title="HTTP POST transport. " alt="" coords="5,175,176,311"/>
+<area shape="rect" id="node3" href="$classo2_1_1monitoring_1_1transports_1_1Kafka.html" title="Transport that sends string formatted metrics via Kafka. " alt="" coords="200,182,371,303"/>
+<area shape="rect" id="node4" href="$classo2_1_1monitoring_1_1transports_1_1StdOut.html" title="Transport that sends string formatted metrics via StdOut. " alt="" coords="395,175,565,311"/>
+<area shape="rect" id="node5" href="$classo2_1_1monitoring_1_1transports_1_1TCP.html" title="Transport that sends string formatted metrics via TCP. " alt="" coords="589,189,795,296"/>
+<area shape="rect" id="node6" href="$classo2_1_1monitoring_1_1transports_1_1UDP.html" title="Transport that sends string formatted metrics via UDP. " alt="" coords="819,189,1026,296"/>
+<area shape="rect" id="node7" href="$classo2_1_1monitoring_1_1transports_1_1Unix.html" title="Transport that sends string formatted metrics via Unix datagram socket. " alt="" coords="1051,182,1221,303"/>
+</map>

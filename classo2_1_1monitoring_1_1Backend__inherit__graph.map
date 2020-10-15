@@ -1,0 +1,6 @@
+<map id="o2::monitoring::Backend" name="o2::monitoring::Backend">
+<area shape="rect" id="node2" href="$classo2_1_1monitoring_1_1backends_1_1ApMonBackend.html" title="Backend that uses AppMon (MonALISA) " alt="" coords="5,233,173,384"/>
+<area shape="rect" id="node3" href="$classo2_1_1monitoring_1_1backends_1_1InfluxDB.html" title="Backend that sends metrics to InfluxDB time&#45;series databse. " alt="" coords="197,219,365,399"/>
+<area shape="rect" id="node4" href="$classo2_1_1monitoring_1_1backends_1_1Noop.html" title="No&#45;op backend. " alt="" coords="389,233,557,384"/>
+<area shape="rect" id="node5" href="$classo2_1_1monitoring_1_1backends_1_1StdOut.html" title="Prints metrics to standard output via std::cout. " alt="" coords="581,233,749,384"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="/home/travis/build/AliceO2Group/Monitoring/src/Exceptions/MonitoringException.h" name="/home/travis/build/AliceO2Group/Monitoring/src/Exceptions/MonitoringException.h">
+<area shape="rect" id="node2" href="$ApMonBackend_8cxx.html" title="/home/travis/build\l/AliceO2Group/Monitoring\l/src/Backends/ApMonBackend.cxx" alt="" coords="5,109,232,165"/>
+<area shape="rect" id="node3" href="$InfluxDB_8cxx.html" title="/home/travis/build\l/AliceO2Group/Monitoring\l/src/Backends/InfluxDB.cxx" alt="" coords="256,109,443,165"/>
+<area shape="rect" id="node4" href="$DerivedMetrics_8cxx.html" title="/home/travis/build\l/AliceO2Group/Monitoring\l/src/DerivedMetrics.cxx" alt="" coords="467,109,637,165"/>
+<area shape="rect" id="node5" href="$MonitoringException_8cxx.html" title="/home/travis/build\l/AliceO2Group/Monitoring\l/src/Exceptions/MonitoringException.cxx" alt="" coords="662,109,922,165"/>
+<area shape="rect" id="node6" href="$Monitoring_8cxx.html" title="/home/travis/build\l/AliceO2Group/Monitoring\l/src/Monitoring.cxx" alt="" coords="947,109,1117,165"/>
+<area shape="rect" id="node7" href="$HTTP_8cxx.html" title="/home/travis/build\l/AliceO2Group/Monitoring\l/src/Transports/HTTP.cxx" alt="" coords="1142,109,1317,165"/>
+<area shape="rect" id="node8" href="$TCP_8cxx.html" title="/home/travis/build\l/AliceO2Group/Monitoring\l/src/Transports/TCP.cxx" alt="" coords="1341,109,1512,165"/>
+</map>

@@ -1,0 +1,35 @@
+digraph "/home/travis/build/AliceO2Group/Monitoring/src/MonLogger.h"
+{
+ // INTERACTIVE_SVG=YES
+  bgcolor="transparent";
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  Node1 [label="/home/travis/build\l/AliceO2Group/Monitoring\l/src/MonLogger.h",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black"];
+  Node1 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="/home/travis/build\l/AliceO2Group/Monitoring\l/src/Backends/ApMonBackend.cxx",height=0.2,width=0.4,color="black",URL="$ApMonBackend_8cxx.html"];
+  Node1 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="/home/travis/build\l/AliceO2Group/Monitoring\l/src/Backends/InfluxDB.h",height=0.2,width=0.4,color="black",URL="$InfluxDB_8h.html"];
+  Node3 -> Node4 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="/home/travis/build\l/AliceO2Group/Monitoring\l/src/Backends/InfluxDB.cxx",height=0.2,width=0.4,color="black",URL="$InfluxDB_8cxx.html"];
+  Node3 -> Node5 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="/home/travis/build\l/AliceO2Group/Monitoring\l/src/MonitoringFactory.cxx",height=0.2,width=0.4,color="black",URL="$MonitoringFactory_8cxx.html"];
+  Node1 -> Node6 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="/home/travis/build\l/AliceO2Group/Monitoring\l/src/Backends/StdOut.cxx",height=0.2,width=0.4,color="grey75"];
+  Node1 -> Node7 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node7 [label="/home/travis/build\l/AliceO2Group/Monitoring\l/src/Exceptions/MonitoringException.cxx",height=0.2,width=0.4,color="black",URL="$MonitoringException_8cxx.html"];
+  Node1 -> Node8 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node8 [label="/home/travis/build\l/AliceO2Group/Monitoring\l/src/Monitoring.cxx",height=0.2,width=0.4,color="black",URL="$Monitoring_8cxx.html"];
+  Node1 -> Node5 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node1 -> Node9 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node9 [label="/home/travis/build\l/AliceO2Group/Monitoring\l/src/ProcessMonitor.cxx",height=0.2,width=0.4,color="black",URL="$ProcessMonitor_8cxx.html"];
+  Node1 -> Node10 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node10 [label="/home/travis/build\l/AliceO2Group/Monitoring\l/src/Transports/HTTP.cxx",height=0.2,width=0.4,color="black",URL="$HTTP_8cxx.html"];
+  Node1 -> Node11 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node11 [label="/home/travis/build\l/AliceO2Group/Monitoring\l/src/Transports/Kafka.cxx",height=0.2,width=0.4,color="black",URL="$Kafka_8cxx.html"];
+  Node1 -> Node12 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node12 [label="/home/travis/build\l/AliceO2Group/Monitoring\l/src/Transports/TCP.cxx",height=0.2,width=0.4,color="black",URL="$TCP_8cxx.html"];
+  Node1 -> Node13 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node13 [label="/home/travis/build\l/AliceO2Group/Monitoring\l/src/Transports/UDP.cxx",height=0.2,width=0.4,color="black",URL="$UDP_8cxx.html"];
+  Node1 -> Node14 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node14 [label="/home/travis/build\l/AliceO2Group/Monitoring\l/src/Transports/Unix.cxx",height=0.2,width=0.4,color="black",URL="$Unix_8cxx.html"];
+}

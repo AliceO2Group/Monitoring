@@ -1,0 +1,18 @@
+<map id="/home/travis/build/AliceO2Group/Monitoring/src/MonitoringFactory.cxx" name="/home/travis/build/AliceO2Group/Monitoring/src/MonitoringFactory.cxx">
+<area shape="rect" id="node2" href="$MonitoringFactory_8h.html" title="Monitoring/MonitoringFactory.h" alt="" coords="1094,109,1295,136"/>
+<area shape="rect" id="node26" href="$MonLogger_8h.html" title="MonLogger.h" alt="" coords="707,259,805,285"/>
+<area shape="rect" id="node28" href="$UriParser_8h_source.html" title="UriParser/UriParser.h" alt="" coords="509,259,656,285"/>
+<area shape="rect" id="node30" href="$Backends_2StdOut_8h_source.html" title="Backends/StdOut.h" alt="" coords="1163,184,1299,211"/>
+<area shape="rect" id="node32" href="$Noop_8h.html" title="Backends/Noop.h" alt="" coords="1337,184,1463,211"/>
+<area shape="rect" id="node33" href="$InfluxDB_8h.html" title="Backends/InfluxDB.h" alt="" coords="952,184,1099,211"/>
+<area shape="rect" id="node35" href="$UDP_8h.html" title="Transports/UDP.h" alt="" coords="99,333,227,360"/>
+<area shape="rect" id="node38" href="$Unix_8h.html" title="Transports/Unix.h" alt="" coords="302,333,429,360"/>
+<area shape="rect" id="node39" href="$Transports_2StdOut_8h_source.html" title="Transports/StdOut.h" alt="" coords="881,333,1021,360"/>
+<area shape="rect" id="node3" href="$Monitoring_8h.html" title="Monitoring/Monitoring.h" alt="" coords="1871,184,2028,211"/>
+<area shape="rect" id="node14" href="$Backend_8h.html" title="Monitoring/Backend.h" alt="" coords="1333,259,1481,285"/>
+<area shape="rect" id="node19" href="$DerivedMetrics_8h.html" title="Monitoring/DerivedMetrics.h" alt="" coords="2013,259,2198,285"/>
+<area shape="rect" id="node20" href="$ProcessMonitor_8h.html" title="Monitoring/ProcessMonitor.h" alt="" coords="1607,259,1795,285"/>
+<area shape="rect" id="node15" href="$Metric_8h.html" title="Monitoring/Metric.h" alt="" coords="1635,333,1768,360"/>
+<area shape="rect" id="node18" href="$Tags_8h.html" title="Tags.h" alt="" coords="1566,408,1629,435"/>
+<area shape="rect" id="node34" href="$TransportInterface_8h.html" title="../Transports/TransportInterface.h" alt="" coords="734,408,951,435"/>
+</map>

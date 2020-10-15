@@ -1,0 +1,26 @@
+<map id="/home/travis/build/AliceO2Group/Monitoring/include/Monitoring/Tags.h" name="/home/travis/build/AliceO2Group/Monitoring/include/Monitoring/Tags.h">
+<area shape="rect" id="node2" href="$Metric_8h.html" title="/home/travis/build\l/AliceO2Group/Monitoring\l/include/Monitoring/Metric.h" alt="" coords="2044,109,2227,165"/>
+<area shape="rect" id="node3" href="$Backend_8h.html" title="/home/travis/build\l/AliceO2Group/Monitoring\l/include/Monitoring/Backend.h" alt="" coords="747,213,945,269"/>
+<area shape="rect" id="node31" href="$DerivedMetrics_8h.html" title="/home/travis/build\l/AliceO2Group/Monitoring\l/include/Monitoring/DerivedMetrics.h" alt="" coords="2018,213,2253,269"/>
+<area shape="rect" id="node34" href="$ProcessMonitor_8h.html" title="/home/travis/build\l/AliceO2Group/Monitoring\l/include/Monitoring/ProcessMonitor.h" alt="" coords="1757,213,1994,269"/>
+<area shape="rect" id="node36" href="$Metric_8cxx.html" title="/home/travis/build\l/AliceO2Group/Monitoring\l/src/Metric.cxx" alt="" coords="2277,213,2447,269"/>
+<area shape="rect" id="node4" href="$Monitoring_8h.html" title="/home/travis/build\l/AliceO2Group/Monitoring\l/include/Monitoring/Monitoring.h" alt="" coords="1631,317,1837,373"/>
+<area shape="rect" id="node23" href="$ApMonBackend_8h.html" title="/home/travis/build\l/AliceO2Group/Monitoring\l/src/Backends/ApMonBackend.h" alt="" coords="850,317,1063,373"/>
+<area shape="rect" id="node25" href="$InfluxDB_8h.html" title="/home/travis/build\l/AliceO2Group/Monitoring\l/src/Backends/InfluxDB.h" alt="" coords="455,317,627,373"/>
+<area shape="rect" id="node27" href="$Noop_8h.html" title="/home/travis/build\l/AliceO2Group/Monitoring\l/src/Backends/Noop.h" alt="" coords="131,317,302,373"/>
+<area shape="rect" id="node29" href="$Backends_2StdOut_8h_source.html" title="/home/travis/build\l/AliceO2Group/Monitoring\l/src/Backends/StdOut.h" alt="" coords="651,317,822,373"/>
+<area shape="rect" id="node5" href="$MonitoringFactory_8h.html" title="/home/travis/build\l/AliceO2Group/Monitoring\l/include/Monitoring/Monitoring\lFactory.h" alt="" coords="1449,421,1643,492"/>
+<area shape="rect" id="node22" href="$Monitoring_8cxx.html" title="/home/travis/build\l/AliceO2Group/Monitoring\l/src/Monitoring.cxx" alt="" coords="1667,429,1838,485"/>
+<area shape="rect" id="node6" href="$1-Basic_8cxx.html" title="/home/travis/build\l/AliceO2Group/Monitoring\l/examples/1&#45;Basic.cxx" alt="" coords="1866,540,2037,596"/>
+<area shape="rect" id="node7" href="$10-Buffering_8cxx.html" title="/home/travis/build\l/AliceO2Group/Monitoring\l/examples/10&#45;Buffering.cxx" alt="" coords="2061,540,2242,596"/>
+<area shape="rect" id="node8" href="$2-TaggedMetrics_8cxx.html" title="/home/travis/build\l/AliceO2Group/Monitoring\l/examples/2&#45;TaggedMetrics.cxx" alt="" coords="2266,540,2474,596"/>
+<area shape="rect" id="node10" href="$4-RateDerivedMetric_8cxx.html" title="/home/travis/build\l/AliceO2Group/Monitoring\l/examples/4&#45;RateDerivedMetric.cxx" alt="" coords="2700,540,2931,596"/>
+<area shape="rect" id="node11" href="$5-Benchmark_8cxx.html" title="/home/travis/build\l/AliceO2Group/Monitoring\l/examples/5&#45;Benchmark.cxx" alt="" coords="2955,540,3143,596"/>
+<area shape="rect" id="node12" href="$6-Increment_8cxx.html" title="/home/travis/build\l/AliceO2Group/Monitoring\l/examples/6&#45;Increment.cxx" alt="" coords="207,540,387,596"/>
+<area shape="rect" id="node14" href="$8-DbFiller_8cxx.html" title="/home/travis/build\l/AliceO2Group/Monitoring\l/examples/8&#45;DbFiller.cxx" alt="" coords="666,540,837,596"/>
+<area shape="rect" id="node15" href="$MonitoringFactory_8cxx.html" title="/home/travis/build\l/AliceO2Group/Monitoring\l/src/MonitoringFactory.cxx" alt="" coords="5,540,183,596"/>
+<area shape="rect" id="node24" href="$ApMonBackend_8cxx.html" title="/home/travis/build\l/AliceO2Group/Monitoring\l/src/Backends/ApMonBackend.cxx" alt="" coords="846,429,1073,485"/>
+<area shape="rect" id="node26" href="$InfluxDB_8cxx.html" title="/home/travis/build\l/AliceO2Group/Monitoring\l/src/Backends/InfluxDB.cxx" alt="" coords="326,429,513,485"/>
+<area shape="rect" id="node32" href="$DerivedMetrics_8cxx.html" title="/home/travis/build\l/AliceO2Group/Monitoring\l/src/DerivedMetrics.cxx" alt="" coords="2302,317,2473,373"/>
+<area shape="rect" id="node35" href="$ProcessMonitor_8cxx.html" title="/home/travis/build\l/AliceO2Group/Monitoring\l/src/ProcessMonitor.cxx" alt="" coords="1913,317,2083,373"/>
+</map>
