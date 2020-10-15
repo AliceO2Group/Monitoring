@@ -154,7 +154,7 @@ static constexpr std::array<std::string_view, 39> TAG_VALUE = {{
 
 static constexpr std::string_view GetValue(const int value)
 {
-  return value > 0 ? TAG_VALUE[value] : std::to_string(0 - value);
+  return TAG_VALUE[value];
 }
 
 } // namespace tags
