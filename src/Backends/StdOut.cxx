@@ -40,7 +40,7 @@ inline unsigned long StdOut::convertTimestamp(const std::chrono::time_point<std:
     .count();
 }
 
-StdOut::StdOut(const std::string& prefix) : mStream(), mPrefix(prefix)
+StdOut::StdOut(const std::string& prefix) : mPrefix(prefix)
 {
   setVerbosisty(Verbosity::Debug);
   MonLogger::Get() << "StdOut backend initialized" << MonLogger::End();
@@ -65,25 +65,27 @@ void StdOut::send(std::vector<Metric>&& metrics)
 
 void StdOut::send(const Metric& metric)
 {
-  mStream << "[" << mPrefix << "] "  << metric.getName();
+  std::ostringstream convert;
+  convert << "[" << mPrefix << "] "  << metric.getName();
   for (auto& value : metric.getValues()) {
     auto stringValue = std::visit(overloaded{
       [](const std::string& value) -> std::string { return value; },
       [](auto value) -> std::string { return std::to_string(value); }
     }, value.second);
     if (metric.getValuesSize() == 1) {
-      mStream << ',' << metric.getFirstValueType() << ' ' << stringValue;
+      convert << ',' << metric.getFirstValueType() << ' ' << stringValue;
     } else {
-      mStream << ' ' << value.first << '=' << stringValue;
+      convert << ' ' << value.first << '=' << stringValue;
     }
   }
-  mStream << ' ' << convertTimestamp(metric.getTimestamp()) << ' ' << tagString;
+  convert << ' ' << convertTimestamp(metric.getTimestamp()) << ' ' << tagString;
 
   for (const auto& [key, value] : metric.getTags()) {
-    mStream << ',' << tags::TAG_KEY[key] << "=" << tags::GetValue(value);
+    convert << ',' << tags::TAG_KEY[key] << "=";
+    (value > 0) ? convert << tags::GetValue(value) : convert << (0 - value);
   }
-  mStream << '\n';
-  std::cout << mStream.str();
+  convert << '\n';
+  std::cout << convert.str();
 }
 
 } // namespace backends

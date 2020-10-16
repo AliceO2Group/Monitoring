@@ -66,7 +66,7 @@ void ApMonBackend::send(const Metric& metric)
     entity += ',';
     entity += tags::TAG_KEY[key];
     entity += '=';
-    entity += tags::GetValue(value);
+    (value > 0) ? entity += tags::GetValue(value) : entity += std::to_string(0 - value);
   }
 
   int valueSize = metric.getValuesSize();
