@@ -42,7 +42,8 @@ class ProcessMonitor
     VIRTUAL_MEMORY_SIZE,
     RESIDENT_SET_SIZE,
     CPU_USED_PERCENTAGE,
-    INVOLUNTARY_CONTEXT_SWITCHING,
+    INVOLUNTARY_CONTEXT_SWITCHES,
+    VOLUNTARY_CONTEXT_SWITCHES,
     CPU_USED_ABSOLUTE,
     AVG_RESIDENT_SET_SIZE,
     AVG_VIRTUAL_MEMORY_SIZE,
@@ -72,7 +73,7 @@ class ProcessMonitor
 
  private:
   static constexpr const char* metricsNames[] = {"memoryUsagePercentage", "virtualMemorySize", "residentSetSize",
-                                                 "cpuUsedPercentage", "involuntaryContextSwitches", "cpuUsedAbsolute",
+                                                 "cpuUsedPercentage", "involuntaryContextSwitches", "voluntaryContextSwitches", "cpuUsedAbsolute",
                                                  "averageResidentSetSize", "averageVirtualMemorySize", "averageCpuUsedPercentage",
                                                  "cpuTimeConsumedByProcess", "proportionalSetSize"};
 
