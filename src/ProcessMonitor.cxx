@@ -108,7 +108,9 @@ std::vector<Metric> ProcessMonitor::getCpuAndContexts()
 
   metrics.emplace_back(Metric{cpuUsedPerctange, metricsNames[CPU_USED_PERCENTAGE]});
   metrics.emplace_back(Metric{
-    static_cast<uint64_t>(currentUsage.ru_nivcsw - mPreviousGetrUsage.ru_nivcsw), metricsNames[INVOLUNTARY_CONTEXT_SWITCHING]});
+    static_cast<uint64_t>(currentUsage.ru_nivcsw - mPreviousGetrUsage.ru_nivcsw), metricsNames[INVOLUNTARY_CONTEXT_SWITCHES]});
+  metrics.emplace_back(Metric{
+    static_cast<uint64_t>(currentUsage.ru_nvcsw - mPreviousGetrUsage.ru_nvcsw), metricsNames[VOLUNTARY_CONTEXT_SWITCHES]});
   metrics.emplace_back(cpuUsedInMicroSeconds, metricsNames[CPU_USED_ABSOLUTE]);
 
   mTimeLastRun = timeNow;
