@@ -183,3 +183,5 @@ Metric::setVerbosityPolicy(Verbosity verbosity, const std::regex& regex)
 
 ## System monitoring, server-side backends installation and configuration
 This guide explains manual installation. For `ansible` deployment see [AliceO2Group/system-configuration](https://gitlab.cern.ch/AliceO2Group/system-configuration/tree/master/ansible) gitlab repo.
+
+PLEASE DO NOT MERGE THIS PULL REQUEST
