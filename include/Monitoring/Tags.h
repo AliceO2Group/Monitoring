@@ -106,11 +106,12 @@ enum class Value : unsigned short int {
   PerRun,        // 35
   Monitoring,    // 36
   CRORC,         // 37
-  ACO            // 38
+  ACO,           // 38
+  Analysis       // 39
 };
 
 // Tag value array
-static constexpr std::array<std::string_view, 39> TAG_VALUE = {{
+static constexpr std::array<std::string_view, 40> TAG_VALUE = {{
   "Null"sv,
   "AD"sv,      // 1
   "CPV"sv,     // 2
@@ -149,7 +150,8 @@ static constexpr std::array<std::string_view, 39> TAG_VALUE = {{
   "prun"sv,    // 35
   "monitoring"sv, // 36
   "CRORC"sv,   // 37
-  "ACO"sv      // 38
+  "ACO"sv,     // 38
+  "Analysis"sv // 39
 }};
 
 static constexpr std::string_view GetValue(const int value)
