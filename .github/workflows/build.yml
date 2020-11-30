@@ -17,4 +17,4 @@ jobs:
     - name: Build project
       run: cd build && make -j
     - name: Test
-      run: cd build && make test
+      run: ./build/bin/testInfluxDb
