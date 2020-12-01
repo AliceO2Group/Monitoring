@@ -18,3 +18,15 @@ jobs:
       run: cd build && make -j
     - name: Test
       run: cd build && make test
+  macos:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install boost
+      run: brew install boost
+    - name: Run CMake
+      run: mkdir build && cd build && cmake ..
+    - name: Build project
+      run: cd build && make -j
+    - name: Test
+      run: cd build && make test
