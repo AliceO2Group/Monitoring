@@ -1,0 +1,43 @@
+name: Build and test
+
+on: [pull_request]
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install boost, curl and lcov
+      run: |
+        sudo apt-get update
+        sudo apt-get install -yq libcurl4-openssl-dev libboost-system1.65-dev libboost-filesystem1.65-dev libboost-test1.65-dev libboost-program-options1.65-dev lcov
+    - name: Run CMake
+      run: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Debug
+    - name: Build project
+      run: cd build && make -j
+    - name: Test
+      run: cd build && make test
+    - name: Generate codecov report
+      run: |
+        cd build
+        set -x
+        lcov --directory . --capture --output-file coverage.info
+        lcov --remove coverage.info '/opt/*' '/usr/*' --output-file coverage.info
+        lcov --list coverage.info
+    - uses: codecov/codecov-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        file: build/coverage.info
+        fail_ci_if_error: true
+  macos:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install boost
+      run: brew install boost
+    - name: Run CMake
+      run: mkdir build && cd build && cmake ..
+    - name: Build project
+      run: cd build && make -j
+    - name: Test
+      run: cd build && make test
