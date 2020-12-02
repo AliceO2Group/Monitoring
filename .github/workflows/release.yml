@@ -5,23 +5,23 @@ on:
     types: [published]
 
 jobs:
-  bump_alidist:
-    runs-on: ubuntu-18.04
+  alidist:
+    runs-on: ubuntu-latest
     steps:
-      - run: curl -L https://github.com/github/hub/releases/download/v2.12.7/hub-linux-amd64-2.12.7.tgz | tar xz
-      - run: |
-          git config --global user.email ${{ secrets.GH_EMAIL }}
-          git config --global user.name ${{ secrets.GH_USERNAME }}
-      - run: git clone git://github.com/${{ secrets.ORG }}/alidist
-      - run: |
-          cd alidist
-          CURRENT_VERSION=`cat monitoring.sh | grep "tag:" | awk '{print $2}'`
-          sed -i "s/${CURRENT_VERSION}/${GITHUB_REF##*/}/g" monitoring.sh
-      - run: |
-          cd alidist
-          git add .
-          git commit -m "Bump monitoring to ${GITHUB_REF##*/}"
-          git push "https://${{ secrets.GH_TOKEN }}@github.com/${{ secrets.ORG }}/alidist" HEAD:refs/heads/monitoring-${GITHUB_REF##*/} -f > /dev/null 2>&1
-      - run: |
-          cd alidist
-          GITHUB_TOKEN=${{ secrets.GH_TOKEN }} ../hub-linux-amd64-2.12.7/bin/hub pull-request -h monitoring-${GITHUB_REF##*/} -b master -m "Bump monitoring to ${GITHUB_REF##*/}"
+    - uses: actions/checkout@v2
+      with:
+        repository: 'alisw/alidist'
+    - name: Change version in recipe
+      run: |
+        set +x
+        CURRENT_VERSION=`cat monitoring.sh | grep "tag:" | awk '{print $2}'`
+        sed -i "s/${CURRENT_VERSION}/${{ github.event.release.tag_name }}/g" monitoring.sh
+    - name: Create PR in alidist
+      uses: peter-evans/create-pull-request@v3
+      with:
+        token: ${{ secrets.PAT }}
+        commit-message: Bump monitoring
+        author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
+        branch: monitoring-${{ github.event.release.tag_name }}
+        body: Auto-generated PR for the following release ${{ github.event.release.html_url }}
+        title: Bump monitoring to ${{ github.event.release.tag_name }}
