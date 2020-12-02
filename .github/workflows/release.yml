@@ -6,22 +6,23 @@ on:
 
 jobs:
   bump_alidist:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
-      - run: curl -L https://github.com/github/hub/releases/download/v2.12.7/hub-linux-amd64-2.12.7.tgz | tar xz
-      - run: |
-          git config --global user.email ${{ secrets.GH_EMAIL }}
-          git config --global user.name ${{ secrets.GH_USERNAME }}
-      - run: git clone git://github.com/${{ secrets.ORG }}/alidist
-      - run: |
-          cd alidist
+     - uses: actions/checkout@v2
+       repository: 'alisw/alidist'
+      - name: Change version in recipe
+        run: |
+          set +x
           CURRENT_VERSION=`cat monitoring.sh | grep "tag:" | awk '{print $2}'`
           sed -i "s/${CURRENT_VERSION}/${GITHUB_REF##*/}/g" monitoring.sh
-      - run: |
-          cd alidist
+      - name: Add and push commit
+        run: |
+          set +x
+          git config --global user.email ${{ secrets.GH_EMAIL }}
+          git config --global user.name ${{ secrets.GH_USERNAME }}
           git add .
           git commit -m "Bump monitoring to ${GITHUB_REF##*/}"
-          git push "https://${{ secrets.GH_TOKEN }}@github.com/${{ secrets.ORG }}/alidist" HEAD:refs/heads/monitoring-${GITHUB_REF##*/} -f > /dev/null 2>&1
-      - run: |
-          cd alidist
-          GITHUB_TOKEN=${{ secrets.GH_TOKEN }} ../hub-linux-amd64-2.12.7/bin/hub pull-request -h monitoring-${GITHUB_REF##*/} -b master -m "Bump monitoring to ${GITHUB_REF##*/}"
+          git push "https://${{ secrets.GH_TOKEN }}@github.com/${{ secrets.ORG }}/alidist" HEAD:refs/heads/monitoring-${GITHUB_REF##*/}
+      - run: hub pull-request -h monitoring-${GITHUB_REF##*/} -b master -m "Bump monitoring to ${GITHUB_REF##*/}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
