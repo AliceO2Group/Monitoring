@@ -87,7 +87,7 @@ std::vector<Metric> ProcessMonitor::getSmaps()
     if (smapsString.rfind("Private_Clean:", 0) == 0) {
       cleanTotal += splitStatusLineAndRetriveValue(smapsString);
     }
-    if (smapsString.rfind("Private_Dirty::", 0) == 0) {
+    if (smapsString.rfind("Private_Dirty:", 0) == 0) {
       dirtyTotal += splitStatusLineAndRetriveValue(smapsString);
     }
   }
