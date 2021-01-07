@@ -72,18 +72,26 @@ std::vector<Metric> ProcessMonitor::getMemoryUsage()
   return metrics;
 }
 
-Metric ProcessMonitor::getPss()
+std::vector<Metric> ProcessMonitor::getSmaps()
 {
   std::ifstream statusStream("/proc/self/smaps");
   double pssTotal = 0;
-  std::string pssString;
+  double cleanTotal = 0;
+  double dirtyTotal = 0;
+  std::string smapsString;
 
-  while (std::getline(statusStream, pssString)) {
-    if (pssString.rfind("Pss:", 0) == 0) {
-      pssTotal += splitStatusLineAndRetriveValue(pssString);
+  while (std::getline(statusStream, smapsString)) {
+    if (smapsString.rfind("Pss:", 0) == 0) {
+      pssTotal += splitStatusLineAndRetriveValue(smapsString);
+    }
+    if (smapsString.rfind("Private_Clean:", 0) == 0) {
+      cleanTotal += splitStatusLineAndRetriveValue(smapsString);
+    }
+    if (smapsString.rfind("Private_Dirty:", 0) == 0) {
+      dirtyTotal += splitStatusLineAndRetriveValue(smapsString);
     }
   }
-  return {pssTotal, metricsNames[PSS]};
+  return {{pssTotal, metricsNames[PSS]}, {cleanTotal, metricsNames[PRIVATE_CLEAN]}, {dirtyTotal, metricsNames[PRIVATE_DIRTY]}};
 }
 
 std::vector<Metric> ProcessMonitor::getCpuAndContexts()
@@ -132,7 +140,8 @@ std::vector<Metric> ProcessMonitor::getPerformanceMetrics()
 #ifdef O2_MONITORING_OS_LINUX
   auto memoryMetrics = getMemoryUsage();
   std::move(memoryMetrics.begin(), memoryMetrics.end(), std::back_inserter(metrics));
-  metrics.emplace_back(getPss());
+  auto smapMetrics = getSmaps();
+  std::move(smapMetrics.begin(), smapMetrics.end(), std::back_inserter(metrics));
 #endif
   return metrics;
 }

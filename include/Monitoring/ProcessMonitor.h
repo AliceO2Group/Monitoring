@@ -50,6 +50,8 @@ class ProcessMonitor
     AVG_CPU_USED_PERCENTAGE,
     ACCUMULATED_CPU_TIME,
     PSS,
+    PRIVATE_CLEAN,
+    PRIVATE_DIRTY,
     AVAILABLE_METRICS_SIZE
   };
 
@@ -75,7 +77,7 @@ class ProcessMonitor
   static constexpr const char* metricsNames[] = {"memoryUsagePercentage", "virtualMemorySize", "residentSetSize",
                                                  "cpuUsedPercentage", "involuntaryContextSwitches", "voluntaryContextSwitches", "cpuUsedAbsolute",
                                                  "averageResidentSetSize", "averageVirtualMemorySize", "averageCpuUsedPercentage",
-                                                 "cpuTimeConsumedByProcess", "proportionalSetSize"};
+                                                 "cpuTimeConsumedByProcess", "proportionalSetSize", "memPrivateClean", "memPrivateDirty"};
 
   static constexpr unsigned int VM_SIZE_INDEX = 18;
   static constexpr unsigned int VM_RSS_INDEX = 22;
@@ -101,8 +103,8 @@ class ProcessMonitor
   /// Retrieves virtual memory and resident set size usage
   std::vector<Metric> getMemoryUsage();
 
-  /// Retrieves proportional set size
-  Metric getPss();
+  /// Retrieves memory maping metrics
+  std::vector<Metric> getSmaps();
 
   /// Retrieves CPU usage (%) and number of context switches during the interval
   std::vector<Metric> getCpuAndContexts();
