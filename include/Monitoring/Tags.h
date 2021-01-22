@@ -116,7 +116,7 @@ enum class Value : unsigned short int {
 };
 
 // Tag value array
-static constexpr std::array<std::string_view, 40> TAG_VALUE = {{
+static constexpr std::array<std::string_view, 45> TAG_VALUE = {{
   "Null"sv,
   "AD"sv,      // 1
   "CPV"sv,     // 2
