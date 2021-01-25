@@ -16,7 +16,6 @@
 #include "Monitoring/MonitoringFactory.h"
 #include "Exceptions/MonitoringException.h"
 #include <functional>
-#include <stdexcept>
 #include <boost/algorithm/string.hpp>
 #include "MonLogger.h"
 #include "UriParser/UriParser.h"
