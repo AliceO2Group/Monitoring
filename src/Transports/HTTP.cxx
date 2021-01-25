@@ -56,10 +56,10 @@ void HTTP::send(std::string&& post)
   response = curl_easy_perform(mCurl);
   curl_easy_getinfo(mCurl, CURLINFO_RESPONSE_CODE, &responseCode);
   if (response != CURLE_OK) {
-    MonLogger::Get() << "HTTP Tranport " << curl_easy_strerror(response) << MonLogger::End();
+    MonLogger::Get(Severity::Warn) << "HTTP Tranport " << curl_easy_strerror(response) << MonLogger::End();
   }
   if (responseCode < 200 || responseCode > 206) {
-    MonLogger::Get() << "HTTP Transport: Response code : " << std::to_string(responseCode) << MonLogger::End();
+    MonLogger::Get(Severity::Warn) << "HTTP Transport: Response code : " << std::to_string(responseCode) << MonLogger::End();
   }
 }
 

@@ -50,7 +50,7 @@ void TCP::send(std::string&& message)
   try {
     mSocket.send(boost::asio::buffer(message));
   } catch (const boost::system::system_error& e) {
-    MonLogger::Get() << "TCP send: " << e.what() << MonLogger::End();
+    MonLogger::Get(Severity::Error) << "TCP / " << e.what() << MonLogger::End();
   }
 }
 

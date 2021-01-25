@@ -66,19 +66,12 @@ void InfluxDB::send(std::vector<Metric>&& metrics)
   //remove last \n
   if (influxMetrics.size() > 0) influxMetrics.pop_back();
 
-
-  try {
-    mTransport->send(std::move(influxMetrics));
-  } catch (MonitoringException&) {
-  }
+  mTransport->send(std::move(influxMetrics));
 }
 
 void InfluxDB::send(const Metric& metric)
 {
-  try {
-    mTransport->send(toInfluxLineProtocol(metric));
-  } catch (MonitoringException&) {
-  }
+  mTransport->send(toInfluxLineProtocol(metric));
 }
 
 std::string InfluxDB::toInfluxLineProtocol(const Metric& metric)

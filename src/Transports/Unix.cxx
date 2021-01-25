@@ -34,7 +34,11 @@ Unix::Unix(const std::string& socketPath) : mSocket(mIoService), mEndpoint(socke
 
 void Unix::send(std::string&& message)
 {
-  mSocket.send_to(boost::asio::buffer(message, message.size()), mEndpoint);
+  try {
+    mSocket.send_to(boost::asio::buffer(message, message.size()), mEndpoint);
+  } catch (const boost::system::system_error& e) {
+    MonLogger::Get(Severity::Error) << "Unix socket / " << e.what() << MonLogger::End();
+  }
 }
 #endif // defined(BOOST_ASIO_HAS_LOCAL_SOCKETS)
 } // namespace transports

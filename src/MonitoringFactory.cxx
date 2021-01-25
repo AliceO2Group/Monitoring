@@ -14,8 +14,8 @@
 ///
 
 #include "Monitoring/MonitoringFactory.h"
+#include "Exceptions/MonitoringException.h"
 #include <functional>
-#include <stdexcept>
 #include <boost/algorithm/string.hpp>
 #include "MonLogger.h"
 #include "UriParser/UriParser.h"
@@ -87,7 +87,7 @@ std::unique_ptr<Backend> getInfluxDbv2(http::url uri)
   transport->addHeader("Authorization: Token " + token);
   return std::make_unique<backends::InfluxDB>(std::move(transport));
 #else
-  throw std::runtime_error("HTTP transport is not enabled");
+  throw MonitoringException("Factory", "HTTP transport is not enabled");
 #endif
 }
 
@@ -120,10 +120,10 @@ std::unique_ptr<Backend> getInfluxDb(http::url uri)
     auto transport = std::make_unique<transports::Kafka>(uri.host, uri.port, uri.search);
     return std::make_unique<backends::InfluxDB>(std::move(transport));
 #else
-    throw std::runtime_error("Kafka transport is not enabled");
+    throw MonitoringException("Factory", "Kafka transport is not enabled");
 #endif
   }
-  throw std::runtime_error("InfluxDB transport not supported: " + uri.protocol);
+  throw MonitoringException("Factory", "InfluxDB transport not supported: " + uri.protocol);
 }
 
 #ifdef O2_MONITORING_WITH_APPMON
@@ -134,7 +134,7 @@ std::unique_ptr<Backend> getApMon(http::url uri)
 #else
 std::unique_ptr<Backend> getApMon(http::url /*uri*/)
 {
-  throw std::runtime_error("ApMon backend is not enabled");
+  throw MonitoringException("Factory", "ApMon backend is not enabled");
 }
 #endif
 
@@ -171,19 +171,22 @@ std::unique_ptr<Backend> MonitoringFactory::GetBackend(std::string& url)
 
   http::url parsedUrl = http::ParseHttpUrl(url);
   if (parsedUrl.protocol.empty()) {
-    throw std::runtime_error("Ill-formed URI");
+    throw MonitoringException("Factory", "Ill-formed URI");
   }
 
   auto iterator = map.find(parsedUrl.protocol);
   if (iterator == map.end()) {
-    throw std::runtime_error("Unrecognized backend " + parsedUrl.protocol);
+    throw MonitoringException("Factory", "Unrecognized backend " + parsedUrl.protocol);
   }
-
-  auto backend = iterator->second(parsedUrl);
-  if (!parsedUrl.path.empty() && parsedUrl.path != "/") {
-    SetVerbosity(parsedUrl.path.substr(parsedUrl.path.rfind("/")), backend);
+  try {
+    auto backend = iterator->second(parsedUrl);
+    if (!parsedUrl.path.empty() && parsedUrl.path != "/") {
+      SetVerbosity(parsedUrl.path.substr(parsedUrl.path.rfind("/")), backend);
+    }
+    return backend;
+  } catch (...) {
+    throw MonitoringException("Factory", "Unable to create backend " + parsedUrl.url);
   }
-  return backend;
 }
 
 std::unique_ptr<Monitoring> MonitoringFactory::Get(std::string urlsString)
