@@ -77,14 +77,14 @@ class MonLogger
   void setDate()
   {
     auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-    mStream << std::put_time(std::localtime(&now), "%Y-%m-%d %X") << "\t";
+    mStream << std::put_time(std::localtime(&now), "%Y-%m-%d %X") << "\t" << "Monitoring" << "\t";
   }
 
   /// Sets log color based on severity
   /// \param severity - log severity
   void setSeverity(Severity severity)
   {
-    mStream << "\033[1;" << static_cast<int>(severity) << "m";
+    mStream << "\033[0;" << static_cast<int>(severity) << "m";
   }
 
   /// Delete copy and move constructors

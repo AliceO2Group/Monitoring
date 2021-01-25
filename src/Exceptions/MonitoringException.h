@@ -30,7 +30,6 @@ class MonitoringException : public std::exception
 {
  public:
   MonitoringException(const std::string& source, const std::string& message);
-  MonitoringException(int code, const std::string& source, const std::string& message);
   ~MonitoringException() = default;
   const char* what() const throw();
 
