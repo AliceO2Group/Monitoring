@@ -22,11 +22,10 @@ namespace monitoring
 ProcessMonitor::ProcessMonitor()
 {
   mPid = static_cast<unsigned int>(::getpid());
-  mTimeLastRun = std::chrono::high_resolution_clock::now();
-  getrusage(RUSAGE_SELF, &mPreviousGetrUsage);
 #ifdef O2_MONITORING_OS_LINUX
   setTotalMemory();
 #endif
+  init();
 }
 
 void ProcessMonitor::init()

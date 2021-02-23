@@ -149,6 +149,12 @@ This feature provides basic performance status of the process. Note that is runs
 ```cpp
 enableProcessMonitoring([interval in seconds]);
 ```
+
+As an alternative, without a need of a new thread, user can manually trigger:
+```
+pushProcessMonitoringMetrics()
+```
+
 Following metrics are generated every time interval:
 CPU measurements:
  + **cpuUsedPercentage** - percentage of a core usage (kernel + user mode) over time interval
