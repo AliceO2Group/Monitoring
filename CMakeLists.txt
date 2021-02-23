@@ -182,6 +182,7 @@ set(EXAMPLES
   examples/6-Increment.cxx
   examples/7-InternalBenchamrk.cxx
   examples/8-DbFiller.cxx
+  examples/9-ProcessMonitoring.cxx
   examples/10-Buffering.cxx
 )
 
