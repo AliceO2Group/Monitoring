@@ -102,7 +102,7 @@ std::vector<Metric> ProcessMonitor::getCpuAndContexts()
   auto timeNow = std::chrono::high_resolution_clock::now();
   double timePassed = std::chrono::duration_cast<std::chrono::microseconds>(timeNow - mTimeLastRun).count();
   if (timePassed < 950) {
-    MonLogger::Get() << "[WARN] Do not invoke Process Monitor more frequent then every 1s" << MonLogger::End();
+    MonLogger::Get(Severity::Warn) << "Do not invoke Process Monitor more frequent then every 1s" << MonLogger::End();
     metrics.emplace_back("processPerformance");
     return metrics;
   }

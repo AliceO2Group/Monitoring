@@ -39,7 +39,7 @@ overloaded(Ts...)->overloaded<Ts...>;
 InfluxDB::InfluxDB(std::unique_ptr<transports::TransportInterface> transport)
   : mTransport(std::move(transport))
 {
-  MonLogger::Get() << "InfluxDB backend initialized" << MonLogger::End();
+  MonLogger::Get(Severity::Info) << "InfluxDB backend initialized" << MonLogger::End();
 }
 
 inline unsigned long InfluxDB::convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp)
