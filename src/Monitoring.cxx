@@ -90,7 +90,7 @@ void Monitoring::enableProcessMonitoring(const unsigned int interval)
 #ifdef O2_MONITORING_OS_LINUX
   MonLogger::Get() << "Process Monitor : Automatic updates enabled" << MonLogger::End();
 #else
-  MonLogger::Get() << "!! Process Monitor : Limited metrics available" << MonLogger::End();
+  MonLogger::Get() << "Process Monitor : Limited metrics available" << MonLogger::End();
 #endif
 }
 

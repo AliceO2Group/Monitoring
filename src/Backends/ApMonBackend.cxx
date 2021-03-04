@@ -39,7 +39,7 @@ ApMonBackend::ApMonBackend(const std::string& path)
 {
   try {
     mApMon = std::make_unique<ApMon>(const_cast<char*>(path.c_str()));
-    MonLogger::Get() << "ApMon backend initialized" << MonLogger::End();
+    MonLogger::Get(Severity::Info) << "ApMon backend initialized" << MonLogger::End();
   } catch (std::runtime_error& e) {
     throw MonitoringException("ApMonBackend initialization", std::string(e.what()));
   }

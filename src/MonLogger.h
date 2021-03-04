@@ -29,7 +29,8 @@ namespace monitoring
 /// List of possible log severities
 enum class Severity { Error = 31,
                       Warn = 33,
-                      Info = 49 };
+                      Info = 49,
+                      Debug = 50};
 
 /// Simple Monitoring logging class
 class MonLogger
@@ -41,7 +42,9 @@ class MonLogger
   template <typename T>
   MonLogger& operator<<(const T& log)
   {
-    mStream << log;
+    if (MonLogger::globalSeverity >= severity) {
+      mStream << log;
+    }
     return *this;
   }
 
@@ -49,11 +52,11 @@ class MonLogger
   /// Returns Logger instance with current date and given severity
   /// \param severity - severity level
   /// \return - logger instance
-  static MonLogger& Get(Severity severity = Severity::Info)
+  static MonLogger& Get(Severity severity = Severity::Debug)
   {
     static MonLogger loggerInstance;
+    loggerInstance.instanceSeverity(severity);
     loggerInstance.setDate();
-    loggerInstance.setSeverity(severity);
     return loggerInstance;
   }
 
@@ -64,7 +67,13 @@ class MonLogger
     return "\033[0m\n";
   }
 
+  /// Currently set severity
+  const Severity globalSeverity = Severity::Info;
+
  private:
+  /// Instance severity
+  Severity severity;
+
   /// Log stream
   std::ostream& mStream;
 
@@ -77,14 +86,15 @@ class MonLogger
   void setDate()
   {
     auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-    mStream << std::put_time(std::localtime(&now), "%Y-%m-%d %X") << "\t" << "Monitoring" << "\t";
+    *this << std::put_time(std::localtime(&now), "%Y-%m-%d %X") << "\t" << "Monitoring" << "\t";
   }
 
   /// Sets log color based on severity
   /// \param severity - log severity
-  void setSeverity(Severity severity)
+  void instanceSeverity(Severity desiredSeverity)
   {
-    mStream << "\033[0;" << static_cast<int>(severity) << "m";
+    severity = desiredSeverity;
+    *this << "\033[0;" << static_cast<int>(severity) << "m";
   }
 
   /// Delete copy and move constructors
