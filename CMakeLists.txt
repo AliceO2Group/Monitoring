@@ -61,28 +61,34 @@ find_package(CURL MODULE)
 find_package(RdKafka CONFIG)
 
 ####################################
+# Set OUTPUT vars
+####################################
+
+set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib")
+set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
+set(INCLUDE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/include")
+
+####################################
 # Handle RPATH
 ####################################
 include(GNUInstallDirs)
 
-# Build targets with install rpath on Mac to dramatically speed up installation
+# Use relative RPATHs
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}" isSystemDir)
-if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-  if("${isSystemDir}" STREQUAL "-1")
+if("${isSystemDir}" STREQUAL "-1")
+  if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     set(CMAKE_INSTALL_RPATH "@loader_path/../${CMAKE_INSTALL_LIBDIR}")
   endif()
-  set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+  if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    set(CMAKE_INSTALL_RPATH "$ORIGIN/../${CMAKE_INSTALL_LIBDIR}")
+  endif()
 endif()
 unset(isSystemDir)
 
 ####################################
 # Library
 ####################################
-
-set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib")
-set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
-set(INCLUDE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/include")
 
 # Backends
 message(STATUS "Backends")
