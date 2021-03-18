@@ -59,6 +59,7 @@ find_package(Git QUIET)
 find_package(ApMon MODULE)
 find_package(CURL MODULE)
 find_package(RdKafka CONFIG)
+find_package(FairLogger CONFIG)
 
 ####################################
 # Handle RPATH
@@ -84,6 +85,10 @@ set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib")
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
 set(INCLUDE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/include")
 
+# FairLogger
+if (FairLogger_FOUND)
+  message(STATUS "Using FairLogger")
+endif()
 # Backends
 message(STATUS "Backends")
 message(STATUS "  Compiling StdCout backend")
@@ -130,6 +135,7 @@ target_link_libraries(Monitoring
     $<$<BOOL:${ApMon_FOUND}>:ApMon::ApMon>
     $<$<BOOL:${RdKafka_FOUND}>:RdKafka::rdkafka++>
     $<$<BOOL:${CURL_FOUND}>:CURL::libcurl>
+    $<$<BOOL:${FairLogger_FOUND}>:FairLogger::FairLogger>
 )
 
 # Handle ApMon optional dependency
@@ -163,6 +169,7 @@ target_compile_definitions(Monitoring
     $<$<BOOL:${ApMon_FOUND}>:O2_MONITORING_WITH_APPMON>
     $<$<BOOL:${RdKafka_FOUND}>:O2_MONITORING_WITH_KAFKA>
     $<$<BOOL:${CURL_FOUND}>:O2_MONITORING_WITH_CURL>
+    $<$<BOOL:${CURL_FOUND}>:O2_MONITORING_WITH_FAIRLOGGER>
   )
 
 # Use C++17

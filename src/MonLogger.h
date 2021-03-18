@@ -19,6 +19,7 @@
 #include <chrono>
 #include <iomanip>
 #include <iostream>
+#include <fairlogger/Logger.h>
 
 namespace o2
 {
@@ -42,9 +43,13 @@ class MonLogger
   template <typename T>
   MonLogger& operator<<(const T& log)
   {
-    if (MonLogger::globalSeverity >= severity) {
-      mStream << log;
+#ifdef O2_MONITORING_WITH_FAIRLOGGER
+    fair::Logger(fair::Severity::INFO, MSG_ORIGIN) << log;
+#else
+    if (MonLogger::internalSeverity >= severity) {
+      std::cout << log;
     }
+#endif
     return *this;
   }
 
@@ -64,23 +69,22 @@ class MonLogger
   /// return - string with color termination and new line
   static auto End() -> decltype("\033[0m\n")
   {
+#ifdef O2_MONITORING_WITH_FAIRLOGGER
+    return {};
+#else
     return "\033[0m\n";
+#endif
+
   }
 
   /// Currently set severity
-  const Severity globalSeverity = Severity::Info;
+  const Severity internalSeverity = Severity::Info;
 
  private:
   /// Instance severity
   Severity severity;
 
-  /// Log stream
-  std::ostream& mStream;
-
-  /// Sets cout as a log stream
-  MonLogger(std::ostream& oStream = std::cout) : mStream(oStream)
-  {
-  }
+  MonLogger() = default;
 
   /// Appends current datetime to log stream
   void setDate()
@@ -94,7 +98,9 @@ class MonLogger
   void instanceSeverity(Severity desiredSeverity)
   {
     severity = desiredSeverity;
+#ifndef O2_MONITORING_WITH_FAIRLOGGER
     *this << "\033[0;" << static_cast<int>(severity) << "m";
+#endif
   }
 
   /// Delete copy and move constructors
