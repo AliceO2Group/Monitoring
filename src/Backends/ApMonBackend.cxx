@@ -68,7 +68,7 @@ void ApMonBackend::send(const Metric& metric)
     entity += '=';
     (value > 0) ? entity += tags::GetValue(value) : entity += std::to_string(0 - value);
   }
-  if (mRunNumber != 0) convert << ",run=" << mRunNumber;
+  if (mRunNumber != 0) entity += (",run=" + std::to_string(mRunNumber));
 
   int valueSize = metric.getValuesSize();
   char **paramNames, **paramValues;
