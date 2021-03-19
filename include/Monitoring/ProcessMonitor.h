@@ -57,8 +57,8 @@ class ProcessMonitor
 
   static std::vector<std::string> getAvailableMetricsNames();
   std::vector<Metric> getPerformanceMetrics();
+  std::vector<Metric> makeLastMeasurementAndGetMetrics();
 
- public:
   /// Prepares externam software commands (ps)
   ProcessMonitor();
 
@@ -73,7 +73,6 @@ class ProcessMonitor
   /// Retrievs total memory size from /proc/meminfo
   void setTotalMemory();
 
- private:
   static constexpr const char* metricsNames[] = {"memoryUsagePercentage", "virtualMemorySize", "residentSetSize",
                                                  "cpuUsedPercentage", "involuntaryContextSwitches", "voluntaryContextSwitches", "cpuUsedAbsolute",
                                                  "averageResidentSetSize", "averageVirtualMemorySize", "averageCpuUsedPercentage",
@@ -108,8 +107,6 @@ class ProcessMonitor
 
   /// Retrieves CPU usage (%) and number of context switches during the interval
   std::vector<Metric> getCpuAndContexts();
-
-  std::vector<Metric> makeLastMeasurementAndGetMetrics();
 };
 
 } // namespace monitoring

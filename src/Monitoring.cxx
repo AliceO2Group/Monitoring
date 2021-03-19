@@ -178,6 +178,11 @@ void Monitoring::send(Metric&& metric, DerivedMetricMode mode)
   transmit(std::move(metric));
 }
 
+void Monitoring::pushProcessMonitoringMetrics()
+{
+  transmit(mProcessMonitor->getPerformanceMetrics());
+}
+
 inline bool Monitoring::matchVerbosity(Verbosity backend, Verbosity metric)
 {
   return (static_cast<std::underlying_type<Verbosity>::type>(backend) >= static_cast<std::underlying_type<Verbosity>::type>(metric));
