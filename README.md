@@ -80,6 +80,7 @@ Metric{"name"}.addValue(10, "value")
 ```
 
 #### Tags
+1. Metric tags
 Each metric can be tagged with any number of [predefined tags](include/Monitoring/Tags.h).
 In order to do so use `addTag(tags::Key, tags::Value)` or `addTag(tags::Key, unsigned short)` methods. The latter method allows assigning numeric value to a tag.
 
@@ -88,6 +89,15 @@ Metric{10, "name"}.addTag(tags::Key::Subsystem, tags::Value::QC)
 ```
 
 See the example: [examples/2-TaggedMetrics.cxx](examples/2-TaggedMetrics.cxx).
+
+2. Global tags
+Global tags are added to each metric sent eg. `hostname` tag is added by default by the library.
+
+You can add your own global tag by calling `addGlobalTag(std::string_view key, std::string_view value)` or `addGlobalTag(tags::Key, tags::Value)` on Monitoring object.
+
+3. Run number
+Run number is special case of a global tag, its value can be overwritten at any time, therefore it benefits simplified handling: `setRunNumber(uint32_t)`
+
 
 ### Sending metric
 Pass metric object to `send` method as l-value reference:
@@ -136,11 +146,6 @@ Two modes are available:
 The derived value is generated only from the first value of the metric and it is added to the same metric with the value name suffixed with `_rate`, `_increment` accordingly.
 
 See how it works in the example: [examples/4-RateDerivedMetric.cxx](examples/4-RateDerivedMetric.cxx).
-
-### Global tags
-Global tags are added to each metric sent using given monitoring instance. `hostname` is set as global by default.
-
-You can add your own global tag by calling `addGlobalTag(std::string_view key, std::string_view value)` or `addGlobalTag(tags::Key, tags::Value)`.
 
 ### Process monitoring
 

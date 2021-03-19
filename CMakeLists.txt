@@ -17,7 +17,7 @@ endif()
 
 # Define project
 project(Monitoring
-  VERSION 3.6.0
+  VERSION 3.7.0
   DESCRIPTION "O2 Monitoring library"
   LANGUAGES CXX
 )
@@ -188,6 +188,7 @@ set(EXAMPLES
   examples/6-Increment.cxx
   examples/7-InternalBenchamrk.cxx
   examples/8-DbFiller.cxx
+  examples/9-RunNumber.cxx
   examples/10-Buffering.cxx
 )
 
