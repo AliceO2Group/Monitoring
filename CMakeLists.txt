@@ -188,6 +188,7 @@ set(EXAMPLES
   examples/6-Increment.cxx
   examples/7-InternalBenchamrk.cxx
   examples/8-DbFiller.cxx
+  examples/9-RunNumber.cxx
   examples/10-Buffering.cxx
 )
 

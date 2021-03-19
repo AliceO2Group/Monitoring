@@ -85,6 +85,7 @@ std::string InfluxDB::toInfluxLineProtocol(const Metric& metric)
     convert << "," << tags::TAG_KEY[key] << "=";
     (value > 0) ? convert << tags::GetValue(value) : convert << (0 - value);
   }
+  if (mRunNumber != 0) convert << ",run=" << mRunNumber;
   convert << ' ';
   for (const auto& [name, value] : metric.getValues()) {
     convert << name << '=';

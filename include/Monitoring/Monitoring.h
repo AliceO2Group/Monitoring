@@ -88,11 +88,9 @@ class Monitoring
   /// \param value            tag value
   void addGlobalTag(tags::Key key, tags::Value value);
 
-  /// Returns a metric which will be periodically sent to backends
-  /// \param name 		metric name
-  /// \return 		periodically send metric
-  //ComplexMetric& getAutoPushMetric(std::string name, unsigned int interval = 1);
-
+  /// Sets run number
+  /// \param name run  run number
+  void setRunNumber(uint32_t run);
  private:
   /// Sends multiple (not related to each other) metrics
   /// \param metrics  vector of metrics

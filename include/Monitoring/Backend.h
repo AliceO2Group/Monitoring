@@ -35,10 +35,21 @@ class Backend
  private:
   /// Verbosity level
   Verbosity verbosityLevel;
+protected:
+  /// Run number
+  uint32_t mRunNumber;
 
  public:
   /// Default constructor
-  Backend() { verbosityLevel = Verbosity::Info; }
+  Backend() {
+    mRunNumber = 0;
+    verbosityLevel = Verbosity::Info;
+  }
+
+  /// Run number setter
+  void setRunNumber(uint32_t runNumber) {
+    mRunNumber = runNumber;
+  }
 
   /// Default destructor
   virtual ~Backend() = default;

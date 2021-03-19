@@ -110,6 +110,13 @@ void Monitoring::addGlobalTag(tags::Key key, tags::Value value)
   }
 }
 
+void Monitoring::setRunNumber(uint32_t run)
+{
+  for (auto& backend : mBackends) {
+    backend->setRunNumber(run);
+  }
+}
+
 void Monitoring::addBackend(std::unique_ptr<Backend> backend)
 {
   ProcessDetails processDetails{};

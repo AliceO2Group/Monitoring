@@ -84,6 +84,7 @@ void StdOut::send(const Metric& metric)
     convert << ',' << tags::TAG_KEY[key] << "=";
     (value > 0) ? convert << tags::GetValue(value) : convert << (0 - value);
   }
+  if (mRunNumber != 0) convert << ",run=" << mRunNumber;
   convert << '\n';
   std::cout << convert.str();
 }
