@@ -96,7 +96,7 @@ Global tags are added to each metric sent eg. `hostname` tag is added by default
 You can add your own global tag by calling `addGlobalTag(std::string_view key, std::string_view value)` or `addGlobalTag(tags::Key, tags::Value)` on Monitoring object.
 
 3. Run number
-Run number is special case of a global tag, its value can be overwritten at any time, therefore it benefits simplified handling: `setRunNumber(uint32_t)`
+Run number is special case of a global tag, its value can be overwritten at any time, therefore it benefits simplified handling: `setRunNumber(uint32_t)`. Value `0` is unique and means no run number is set.
 
 
 ### Sending metric
