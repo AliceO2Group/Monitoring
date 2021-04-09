@@ -61,9 +61,7 @@ class MonLogger
   {
     static MonLogger loggerInstance;
     loggerInstance.setSeverity(desiredSeverity);
-#ifndef O2_MONITORING_WITH_INFOLOGGER
-    loggerInstance.internalLogHeader();
-#endif
+    loggerInstance.logHeader();
     return loggerInstance;
   }
 
@@ -85,8 +83,21 @@ class MonLogger
   /// Log stream
 #ifdef O2_MONITORING_WITH_INFOLOGGER
   InfoLogger mStream;
+  void logHeader()
+  {
+    InfoLoggerContext context;
+    context.setField(InfoLoggerContext::FieldName::System, "Monitoring");
+    context.setField(InfoLoggerContext::FieldName::Facility, "Library");
+    mStream.setContext(context);
+  }
 #else
   std::ostream& mStream = std::cout;
+  void logHeader()
+  {
+    *this << "\033[0;" << static_cast<int>(severity) << "m";
+    auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    *this << std::put_time(std::localtime(&now), "%Y-%m-%d %X") << "\t" << "Monitoring" << "\t";
+  }
 #endif
 
   /// Sets cout as a log stream
@@ -96,14 +107,6 @@ class MonLogger
   void setSeverity(Severity desiredSeverity)
   {
     severity = desiredSeverity;
-  }
-
-  /// Appends severity and current datetime to log stream
-  void internalLogHeader()
-  {
-    *this << "\033[0;" << static_cast<int>(severity) << "m";
-    auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-    *this << std::put_time(std::localtime(&now), "%Y-%m-%d %X") << "\t" << "Monitoring" << "\t";
   }
 
   /// Delete copy and move constructors
