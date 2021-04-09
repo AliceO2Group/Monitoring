@@ -30,7 +30,7 @@ namespace transports
 Unix::Unix(const std::string& socketPath) : mSocket(mIoService), mEndpoint(socketPath)
 {
   if (!boost::filesystem::exists(socketPath)) {
-    MonLogger::Get(Severity::Error) << "Unix sockes path is invalid: " << socketPath << MonLogger::End();
+    MonLogger::Get(Severity::Error) << "Unix socket path is invalid: " << socketPath << MonLogger::End();
   } else {
     mSocket.open();
     MonLogger::Get(Severity::Info) << "Unix socket transport initialized (" << socketPath << ")" << MonLogger::End();
