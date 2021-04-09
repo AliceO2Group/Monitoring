@@ -17,7 +17,7 @@ endif()
 
 # Define project
 project(Monitoring
-  VERSION 3.7.1
+  VERSION 3.8.0
   DESCRIPTION "O2 Monitoring library"
   LANGUAGES CXX
 )
@@ -59,6 +59,7 @@ find_package(Git QUIET)
 find_package(ApMon MODULE)
 find_package(CURL MODULE)
 find_package(RdKafka CONFIG)
+find_package(InfoLogger CONFIG)
 
 ####################################
 # Set OUTPUT vars
@@ -137,6 +138,7 @@ target_link_libraries(Monitoring
     $<$<BOOL:${ApMon_FOUND}>:ApMon::ApMon>
     $<$<BOOL:${RdKafka_FOUND}>:RdKafka::rdkafka++>
     $<$<BOOL:${CURL_FOUND}>:CURL::libcurl>
+    $<$<BOOL:${InfoLogger_FOUND}>:AliceO2::InfoLogger>
 )
 
 # Handle ApMon optional dependency
@@ -170,6 +172,7 @@ target_compile_definitions(Monitoring
     $<$<BOOL:${ApMon_FOUND}>:O2_MONITORING_WITH_APPMON>
     $<$<BOOL:${RdKafka_FOUND}>:O2_MONITORING_WITH_KAFKA>
     $<$<BOOL:${CURL_FOUND}>:O2_MONITORING_WITH_CURL>
+    $<$<BOOL:${InfoLogger_FOUND}>:O2_MONITORING_WITH_INFOLOGGER>
   )
 
 # Use C++17

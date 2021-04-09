@@ -20,6 +20,11 @@
 #include <iomanip>
 #include <iostream>
 
+#ifdef O2_MONITORING_WITH_INFOLOGGER
+#include <InfoLogger/InfoLogger.hxx>
+using namespace AliceO2::InfoLogger;
+#endif
+
 namespace o2
 {
 /// ALICE O2 Monitoring system
@@ -52,20 +57,21 @@ class MonLogger
   /// Returns Logger instance with current date and given severity
   /// \param severity - severity level
   /// \return - logger instance
-  static MonLogger& Get(Severity severity = Severity::Debug)
+  static MonLogger& Get(Severity desiredSeverity = Severity::Debug)
   {
     static MonLogger loggerInstance;
-    loggerInstance.instanceSeverity(severity);
-    loggerInstance.setDate();
+    loggerInstance.setSeverity(desiredSeverity);
+    loggerInstance.logHeader();
     return loggerInstance;
   }
 
   /// Terminates log line
   /// return - string with color termination and new line
-  static auto End() -> decltype("\033[0m\n")
-  {
-    return "\033[0m\n";
-  }
+#ifdef O2_MONITORING_WITH_INFOLOGGER
+  static auto End() -> decltype(InfoLogger::endm) { return InfoLogger::endm; }
+#else
+  static auto End() -> decltype("\033[0m\n") { return "\033[0m\n"; }
+#endif
 
   /// Currently set severity
   const Severity LogSeverity = Severity::Info;
@@ -75,26 +81,32 @@ class MonLogger
   Severity severity;
 
   /// Log stream
-  std::ostream& mStream;
-
-  /// Sets cout as a log stream
-  MonLogger(std::ostream& oStream = std::cout) : mStream(oStream)
+#ifdef O2_MONITORING_WITH_INFOLOGGER
+  InfoLogger mStream;
+  void logHeader()
   {
+    InfoLoggerContext context;
+    context.setField(InfoLoggerContext::FieldName::System, "Monitoring");
+    context.setField(InfoLoggerContext::FieldName::Facility, "Library");
+    mStream.setContext(context);
   }
-
-  /// Appends current datetime to log stream
-  void setDate()
+#else
+  std::ostream& mStream = std::cout;
+  void logHeader()
   {
+    *this << "\033[0;" << static_cast<int>(severity) << "m";
     auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     *this << std::put_time(std::localtime(&now), "%Y-%m-%d %X") << "\t" << "Monitoring" << "\t";
   }
+#endif
 
-  /// Sets log color based on severity
-  /// \param severity - log severity
-  void instanceSeverity(Severity desiredSeverity)
+  /// Sets cout as a log stream
+  MonLogger() = default;
+
+  /// Stream severity setter
+  void setSeverity(Severity desiredSeverity)
   {
     severity = desiredSeverity;
-    *this << "\033[0;" << static_cast<int>(severity) << "m";
   }
 
   /// Delete copy and move constructors
