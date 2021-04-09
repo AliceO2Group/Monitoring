@@ -15,6 +15,7 @@
 
 #include "Unix.h"
 #include <string>
+#include <boost/filesystem.hpp>
 #include "../MonLogger.h"
 
 namespace o2
@@ -28,8 +29,12 @@ namespace transports
 #if defined(BOOST_ASIO_HAS_LOCAL_SOCKETS)
 Unix::Unix(const std::string& socketPath) : mSocket(mIoService), mEndpoint(socketPath)
 {
-  mSocket.open();
-  MonLogger::Get() << "Unix socket transport initialized (" << socketPath << ")" << MonLogger::End();
+  if (!boost::filesystem::exists(socketPath)) {
+    MonLogger::Get(Severity::Error) << "Unix sockes path is invalid: " << socketPath << MonLogger::End();
+  } else {
+    mSocket.open();
+    MonLogger::Get(Severity::Info) << "Unix socket transport initialized (" << socketPath << ")" << MonLogger::End();
+  }
 }
 
 void Unix::send(std::string&& message)
@@ -37,7 +42,7 @@ void Unix::send(std::string&& message)
   try {
     mSocket.send_to(boost::asio::buffer(message, message.size()), mEndpoint);
   } catch (const boost::system::system_error& e) {
-    MonLogger::Get(Severity::Error) << "Unix socket / " << e.what() << MonLogger::End();
+    MonLogger::Get() << "Unix socket / " << e.what() << MonLogger::End();
   }
 }
 #endif // defined(BOOST_ASIO_HAS_LOCAL_SOCKETS)

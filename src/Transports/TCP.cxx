@@ -43,6 +43,7 @@ TCP::TCP(const std::string& hostname, int port) : mSocket(mIoService)
   if (error) {
     throw MonitoringException("TCP connection", error.message());
   }
+  MonLogger::Get(Severity::Info) << "TCP transport initialized (" << hostname << ":" << port << ")" << MonLogger::End();
 }
 
 void TCP::send(std::string&& message)
@@ -50,7 +51,7 @@ void TCP::send(std::string&& message)
   try {
     mSocket.send(boost::asio::buffer(message));
   } catch (const boost::system::system_error& e) {
-    MonLogger::Get(Severity::Error) << "TCP / " << e.what() << MonLogger::End();
+    MonLogger::Get() << "TCP / " << e.what() << MonLogger::End();
   }
 }
 

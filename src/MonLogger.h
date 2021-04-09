@@ -42,7 +42,7 @@ class MonLogger
   template <typename T>
   MonLogger& operator<<(const T& log)
   {
-    if (MonLogger::globalSeverity >= severity) {
+    if (MonLogger::LogSeverity >= severity) {
       mStream << log;
     }
     return *this;
@@ -68,7 +68,7 @@ class MonLogger
   }
 
   /// Currently set severity
-  const Severity globalSeverity = Severity::Info;
+  const Severity LogSeverity = Severity::Info;
 
  private:
   /// Instance severity

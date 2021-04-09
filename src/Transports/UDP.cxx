@@ -32,7 +32,7 @@ UDP::UDP(const std::string& hostname, int port) : mSocket(mIoService, boost::asi
   boost::asio::ip::udp::resolver::query query(boost::asio::ip::udp::v4(), hostname, std::to_string(port));
   boost::asio::ip::udp::resolver::iterator resolverInerator = resolver.resolve(query);
   mEndpoint = *resolverInerator;
-  MonLogger::Get() << "UDP transport initialized (" << hostname << ":" << port << ")" << MonLogger::End();
+  MonLogger::Get(Severity::Info) << "UDP transport initialized (" << hostname << ":" << port << ")" << MonLogger::End();
 }
 
 void UDP::send(std::string&& message)
