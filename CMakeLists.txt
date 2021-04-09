@@ -17,7 +17,7 @@ endif()
 
 # Define project
 project(Monitoring
-  VERSION 3.7.1
+  VERSION 3.8.0
   DESCRIPTION "O2 Monitoring library"
   LANGUAGES CXX
 )
