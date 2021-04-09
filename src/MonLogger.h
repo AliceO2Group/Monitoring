@@ -20,6 +20,11 @@
 #include <iomanip>
 #include <iostream>
 
+#ifdef O2_MONITORING_WITH_INFOLOGGER
+#include <InfoLogger/InfoLogger.hxx>
+using namespace AliceO2::InfoLogger;
+#endif
+
 namespace o2
 {
 /// ALICE O2 Monitoring system
@@ -52,20 +57,23 @@ class MonLogger
   /// Returns Logger instance with current date and given severity
   /// \param severity - severity level
   /// \return - logger instance
-  static MonLogger& Get(Severity severity = Severity::Debug)
+  static MonLogger& Get(Severity desiredSeverity = Severity::Debug)
   {
     static MonLogger loggerInstance;
-    loggerInstance.instanceSeverity(severity);
-    loggerInstance.setDate();
+    loggerInstance.setSeverity(desiredSeverity);
+#ifndef O2_MONITORING_WITH_INFOLOGGER
+    loggerInstance.internalLogHeader();
+#endif
     return loggerInstance;
   }
 
   /// Terminates log line
   /// return - string with color termination and new line
-  static auto End() -> decltype("\033[0m\n")
-  {
-    return "\033[0m\n";
-  }
+#ifdef O2_MONITORING_WITH_INFOLOGGER
+  static auto End() -> decltype(InfoLogger::endm) { return InfoLogger::endm; }
+#else
+  static auto End() -> decltype("\033[0m\n") { return "\033[0m\n"; }
+#endif
 
   /// Currently set severity
   const Severity LogSeverity = Severity::Info;
@@ -75,26 +83,27 @@ class MonLogger
   Severity severity;
 
   /// Log stream
-  std::ostream& mStream;
+#ifdef O2_MONITORING_WITH_INFOLOGGER
+  InfoLogger mStream;
+#else
+  std::ostream& mStream = std::cout;
+#endif
 
   /// Sets cout as a log stream
-  MonLogger(std::ostream& oStream = std::cout) : mStream(oStream)
-  {
-  }
+  MonLogger() = default;
 
-  /// Appends current datetime to log stream
-  void setDate()
-  {
-    auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-    *this << std::put_time(std::localtime(&now), "%Y-%m-%d %X") << "\t" << "Monitoring" << "\t";
-  }
-
-  /// Sets log color based on severity
-  /// \param severity - log severity
-  void instanceSeverity(Severity desiredSeverity)
+  /// Stream severity setter
+  void setSeverity(Severity desiredSeverity)
   {
     severity = desiredSeverity;
+  }
+
+  /// Appends severity and current datetime to log stream
+  void internalLogHeader()
+  {
     *this << "\033[0;" << static_cast<int>(severity) << "m";
+    auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    *this << std::put_time(std::localtime(&now), "%Y-%m-%d %X") << "\t" << "Monitoring" << "\t";
   }
 
   /// Delete copy and move constructors
