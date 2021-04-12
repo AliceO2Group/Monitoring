@@ -13,7 +13,6 @@
 #include "../src/VariantVisitorAdd.h"
 #include "../src/VariantVisitorRate.h"
 #include <chrono>
-#include <thread>
 #include <vector>
 #include <iostream>
 
