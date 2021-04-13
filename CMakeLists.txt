@@ -55,7 +55,6 @@ endif()
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 find_package(Boost REQUIRED COMPONENTS unit_test_framework program_options system filesystem)
-find_package(Git QUIET)
 find_package(ApMon MODULE)
 find_package(CURL MODULE)
 find_package(RdKafka CONFIG)
@@ -216,15 +215,14 @@ set_target_properties(8-DbFiller PROPERTIES OUTPUT_NAME "o2-monitoring-dbfiller"
 enable_testing()
 
 set(TEST_SRCS
-  test/testMonitoring.cxx
   test/testMonitoringFactory.cxx
   test/testDerived.cxx
   test/testMetric.cxx
   test/testProcessDetails.cxx
   test/testProcessMonitor.cxx
-  test/testInfluxDb.cxx
-  test/testNoop.cxx
   test/testRegexMatch.cxx
+  test/testStdoutBackends.cxx
+  test/testVerbosity.cxx
 )
 
 if(ApMon_FOUND)

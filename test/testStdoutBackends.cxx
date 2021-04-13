@@ -8,7 +8,7 @@
 // granted to it by virtue of its status as an Intergovernmental Organization
 // or submit itself to any jurisdiction.
 
-#define BOOST_TEST_MODULE Test Monitoring InfluxDB
+#define BOOST_TEST_MODULE Monitoring StdoutBackends
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 #include "Monitoring/MonitoringFactory.h"
@@ -19,13 +19,8 @@ namespace monitoring
 {
 namespace Test
 {
-BOOST_AUTO_TEST_CASE(simplySendMetric)
-{
-  auto monitoring = MonitoringFactory::Get("influxdb-udp://localhost:1000");
-  monitoring->send(Metric{10, "myCrazyMetric"});
-}
 
-BOOST_AUTO_TEST_CASE(simplySendMetric2)
+BOOST_AUTO_TEST_CASE(parseInfluxDBStdOutDataPoints)
 {
   using namespace std::string_literals;
   auto monitoring = MonitoringFactory::Get("influxdb-stdout://");
@@ -63,11 +58,6 @@ BOOST_AUTO_TEST_CASE(simplySendMetric2)
   BOOST_CHECK(expected2.compare(coutRedirect.str()));
 
   std::cout.rdbuf(coutBuffer);
-}
-
-BOOST_AUTO_TEST_CASE(InfluxDbv2)
-{
-  auto monitoring = MonitoringFactory::Get("influxdbv2://localhost:9999?org=cern&bucket=test&token=TOKEN");
 }
 
 } // namespace Test
