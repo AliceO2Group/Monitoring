@@ -221,7 +221,7 @@ set(TEST_SRCS
   test/testProcessDetails.cxx
   test/testProcessMonitor.cxx
   test/testRegexMatch.cxx
-  test/testStdoutBackends.cxx
+  test/testMonitoring.cxx
   test/testVerbosity.cxx
 )
 
