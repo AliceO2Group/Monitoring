@@ -15,7 +15,7 @@ namespace Test
 
 using namespace o2::monitoring;
 
-BOOST_AUTO_TEST_CASE(retrieveOtherParams)
+BOOST_AUTO_TEST_CASE(runLibraryInMultipleThreads)
 {
   std::array<std::thread, 4> threads;
   for (auto& thread : threads) {
