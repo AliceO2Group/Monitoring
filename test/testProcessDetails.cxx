@@ -35,13 +35,6 @@ BOOST_AUTO_TEST_CASE(checkProcessName)
   BOOST_CHECK(referenceProcessName == processDetails.getProcessName());
 }
 
-BOOST_AUTO_TEST_CASE(checkHostname)
-{
-  const std::regex hostnameRE("^(?!-)[A-Za-z0-9-]+([\\-\\.]{1}[a-z0-9]+)*\\.[A-Za-z]{2,6}$");
-  std::string hostname = processDetails.getHostname();
-  BOOST_CHECK(regex_match(hostname, hostnameRE));
-}
-
 } // namespace Test
 } // namespace monitoring
 } // namespace o2
