@@ -41,9 +41,6 @@ BOOST_AUTO_TEST_CASE(verbosity)
   auto influxDebug = Monitoring::GetBackend(influxDebugUrl);
   BOOST_CHECK_EQUAL(static_cast<std::underlying_type<Verbosity>::type>(influxDebug->getVerbosity()), 2);
 
-  std::string influxUnixUrl = "influxdb-unix://127.0.0.1:1234/?db=test";
-  auto influxHttp = Monitoring::GetBackend(influxUnixUrl);
-
   std::string ilProdUrl = "stdout:///info";
   auto ilProd = Monitoring::GetBackend(ilProdUrl);
   BOOST_CHECK_EQUAL(static_cast<std::underlying_type<Verbosity>::type>(ilProd->getVerbosity()), 1);
