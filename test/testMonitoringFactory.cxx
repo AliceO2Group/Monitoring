@@ -11,10 +11,12 @@
 #include <chrono>
 #include <vector>
 
-#define BOOST_TEST_MODULE TestMonitoringVerbosityy
+#define BOOST_TEST_MODULE Monitoring Factory
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/filesystem/path.hpp>
+#include <boost/filesystem/operations.hpp>
 
 #include "../include/Monitoring/MonitoringFactory.h"
 
@@ -27,24 +29,39 @@ namespace Test
 
 using Monitoring = o2::monitoring::MonitoringFactory;
 
-BOOST_AUTO_TEST_CASE(verbosity)
+BOOST_AUTO_TEST_CASE(influxdbUdp)
 {
-  std::string ilUrl = "stdout://";
-  auto il = Monitoring::GetBackend(ilUrl);
-  BOOST_CHECK_EQUAL(static_cast<std::underlying_type<Verbosity>::type>(il->getVerbosity()), 2);
-
-  std::string influxUrl = "influxdb-udp://127.0.0.1:1234";
-  auto influx = Monitoring::GetBackend(influxUrl);
-  BOOST_CHECK_EQUAL(static_cast<std::underlying_type<Verbosity>::type>(influx->getVerbosity()), 1);
-
-  std::string influxDebugUrl = "influxdb-udp://127.0.0.1:1234/debug";
-  auto influxDebug = Monitoring::GetBackend(influxDebugUrl);
-  BOOST_CHECK_EQUAL(static_cast<std::underlying_type<Verbosity>::type>(influxDebug->getVerbosity()), 2);
-
-  std::string ilProdUrl = "stdout:///info";
-  auto ilProd = Monitoring::GetBackend(ilProdUrl);
-  BOOST_CHECK_EQUAL(static_cast<std::underlying_type<Verbosity>::type>(ilProd->getVerbosity()), 1);
+  MonitoringFactory::Get("influxdb-udp://localhost:1000");
 }
+
+BOOST_AUTO_TEST_CASE(InfluxDbv2)
+{
+  MonitoringFactory::Get("influxdbv2://localhost:9999?org=cern&bucket=test&token=TOKEN");
+}
+
+BOOST_AUTO_TEST_CASE(StdOut)
+{
+  MonitoringFactory::Get("stdout://");
+}
+
+BOOST_AUTO_TEST_CASE(Noop)
+{
+  MonitoringFactory::Get("no-op://");
+}
+
+BOOST_AUTO_TEST_CASE(InfluxDbUnix)
+{
+  MonitoringFactory::Get("influxdb-unix:///tmp/unix.sock");
+}
+
+#ifdef O2_MONITORING_WITH_APPMON
+BOOST_AUTO_TEST_CASE(ApMon)
+{
+  boost::filesystem::path configPath = boost::filesystem::canonical(".");
+  auto Monitoring = MonitoringFactory::Get("apmon://" + configPath.string() + "/ApMon.conf");
+  monitoring->send({10, "myCrazyMetric"});
+}
+#endif
 
 } // namespace Test
 } // namespace monitoring

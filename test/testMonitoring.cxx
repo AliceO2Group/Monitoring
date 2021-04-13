@@ -8,15 +8,12 @@
 // granted to it by virtue of its status as an Intergovernmental Organization
 // or submit itself to any jurisdiction.
 
-#include <chrono>
-#include <vector>
-
-#define BOOST_TEST_MODULE Test Monitoring Colletor
+#define BOOST_TEST_MODULE Monitoring Interface
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
-#include <boost/lexical_cast.hpp>
+#include "Monitoring/MonitoringFactory.h"
 
-#include "../include/Monitoring/MonitoringFactory.h"
+using namespace std::string_literals;
 
 namespace o2
 {
@@ -25,39 +22,97 @@ namespace monitoring
 namespace Test
 {
 
-using Monitoring = o2::monitoring::MonitoringFactory;
+auto monitoring = MonitoringFactory::Get("influxdb-stdout://");
+std::stringstream coutRedirect;
+std::streambuf* coutBuffer;
 
-BOOST_AUTO_TEST_CASE(createMonitoring)
+void enableRedirect()
 {
-  auto monitoring = Monitoring::Get("stdout://");
+  coutBuffer = std::cout.rdbuf(coutRedirect.rdbuf());
+}
 
-  int intMetric = 10;
-  std::string stringMetric("monitoringString");
-  double doubleMetric = static_cast<double>(rand()) / static_cast<double>(RAND_MAX);
+void disableRedirect()
+{
+  coutRedirect.str(std::string());
+  std::cout.rdbuf(coutBuffer);
+}
 
-  monitoring->addGlobalTag("name", "Readout");
+void removeRandomValues(std::string& metric)
+{
+  metric.erase(metric.rfind(' ')); // remove timestamp
+  auto begHost = metric.find(",hostname");
+  auto endHost = metric.find(",", begHost+1);
+  metric.erase(begHost, endHost-begHost);
+}
+
+BOOST_AUTO_TEST_CASE(parseDataPoints)
+{
+  enableRedirect();
+
+  monitoring->send(Metric{"card"}
+    .addValue(40.217773, "temperature")
+    .addValue(0, "droppedPackets")
+    .addValue(0.768170, "ctpClock")
+    .addValue(240.471130, "localClock")
+    .addValue(0, "totalPacketsPerSecond")
+    .addTag(tags::Key::ID, 3)
+    .addTag(tags::Key::Type, tags::Value::CRU)
+  );
+  std::string expected1 = "card,id=3,type=CRU temperature=40.2178,droppedPackets=0i,ctpClock=0.76817,localClock=240.471,totalPacketsPerSecond=0i";
+  std::string returned1 = coutRedirect.str();
+
+  disableRedirect();
+  removeRandomValues(returned1);
+  BOOST_CHECK(expected1 == returned1);
+
+  enableRedirect();
+  monitoring->send(Metric{"link"}
+    .addValue("GBT/GBT"s, "gbtMode")
+    .addValue("None"s, "loopback")
+    .addValue("TTC:CTP"s, "gbtMux")
+    .addValue("Continuous"s, "datapathMode")
+    .addValue("Disabled"s,  "datapath")
+    .addValue(181.370575, "rxFreq")
+    .addValue(196.250259, "txFreq")
+    .addValue(0, "status")
+    .addValue(657.400024, "opticalPower")
+    .addTag(tags::Key::CRU, 3)
+    .addTag(tags::Key::ID, 3)
+  );
+  std::string expected2 = R"(link,CRU=3,id=3 gbtMode="GBT/GBT",loopback="None",gbtMux="TTC:CTP",datapathMode="Continuous",datapath="Disabled",rxFreq=181.371,txFreq=196.25,status=0i,opticalPower=657.4)";
+  std::string returned2 = coutRedirect.str();
+  disableRedirect();
+  removeRandomValues(returned2);
+  BOOST_CHECK(expected2 == returned2);
+}
+
+BOOST_AUTO_TEST_CASE(testSettingRun)
+{
+  enableRedirect();
+
+  monitoring->setRunNumber(1234);
+  monitoring->send(Metric{4321, "test"});
+  std::string expected = "test,run=1234 value=4321i";
+  std::string returned = coutRedirect.str();
+
+  disableRedirect();
+  removeRandomValues(returned);
+  BOOST_CHECK(expected == returned);
+}
+
+BOOST_AUTO_TEST_CASE(testGlobalTags)
+{
+  enableRedirect();
+
+  monitoring->addGlobalTag("custom_name", "Monitoring");
   monitoring->addGlobalTag(tags::Key::Name, tags::Value::Readout);
+  monitoring->send(Metric{4321, "test"});
+  std::string expected = "test,custom_name=Monitoring,name=Readout,run=1234 value=4321i";
+  std::string returned = coutRedirect.str();
 
-  monitoring->send({intMetric, "myCrazyMetricI"});
-  monitoring->send({stringMetric, "myCrazyMetricS"});
-  monitoring->send({doubleMetric, "myCrazyMetricD"});
-}
-
-BOOST_AUTO_TEST_CASE(buffering)
-{
-  auto monitoring = Monitoring::Get("stdout://,influxdb-udp://localhost:1234");
-  monitoring->enableBuffering(10);
-  for (int i = 0; i < 25; i++) {
-    monitoring->send({10, "myMetricInt"});
-  }
-  monitoring->flushBuffer();
-}
-
-BOOST_AUTO_TEST_CASE(testSymbols)
-{
-  BOOST_WARN_MESSAGE(!BOOST_IS_DEFINED(O2_MONITORING_WITH_APPMON), "ApMon Backend disabled");
-  BOOST_WARN_MESSAGE(BOOST_IS_DEFINED(O2_MONITORING_OS_LINUX), "Linux OS detected");
-  BOOST_WARN_MESSAGE(BOOST_IS_DEFINED(O2_MONITORING_OS_MAC), "Mac OS detected");
+  disableRedirect();
+  removeRandomValues(returned);
+  BOOST_CHECK(expected == returned);
 }
 
 } // namespace Test

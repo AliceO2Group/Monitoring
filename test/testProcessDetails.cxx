@@ -21,13 +21,17 @@ namespace monitoring
 namespace Test
 {
 
-BOOST_AUTO_TEST_CASE(createProcessDetails)
+o2::monitoring::ProcessDetails processDetails;
+
+BOOST_AUTO_TEST_CASE(checkPid)
 {
-  o2::monitoring::ProcessDetails processDetails;
-  auto pid = processDetails.getPid();
-  BOOST_CHECK(pid > 1);
-  processDetails.getProcessName();
-  processDetails.getHostname();
+  BOOST_CHECK(processDetails.getPid() > 1);
+}
+
+BOOST_AUTO_TEST_CASE(checkProcessName)
+{
+  std::string referenceProcessName = "testProcessDetails";
+  BOOST_CHECK(referenceProcessName == processDetails.getProcessName());
 }
 
 } // namespace Test

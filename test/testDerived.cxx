@@ -16,7 +16,7 @@
 #include <vector>
 #include <iostream>
 
-#define BOOST_TEST_MODULE Test Monitoring DerivedMetrics
+#define BOOST_TEST_MODULE Monitoring DerivedMetrics
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
