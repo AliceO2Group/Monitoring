@@ -57,8 +57,8 @@ BOOST_AUTO_TEST_CASE(monitorProcess)
     BOOST_CHECK(std::find(names.begin(), names.end(), line.substr(0, line.find(','))) != names.end());
     countMetrics++;
   }
-  std::cout << countMetrics << std::endl;
-  BOOST_CHECK(countMetrics > 5);
+  // On linux 14 and macOS 6
+  BOOST_CHECK(countMetrics == 14 || countMetrics == 6);
 }
 
 BOOST_AUTO_TEST_CASE(monitorProcessMetricName)
