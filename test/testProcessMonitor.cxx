@@ -22,17 +22,43 @@ namespace monitoring
 namespace Test
 {
 
-BOOST_AUTO_TEST_CASE(createProcessMonitor)
+std::stringstream coutRedirect;
+std::streambuf* coutBuffer;
+
+void enableRedirect()
 {
-  o2::monitoring::ProcessMonitor processMonitor;
-  processMonitor.getPerformanceMetrics();
+  coutBuffer = std::cout.rdbuf(coutRedirect.rdbuf());
 }
+
+void disableRedirect()
+{
+  coutRedirect.str(std::string());
+  std::cout.rdbuf(coutBuffer);
+}
+
 
 BOOST_AUTO_TEST_CASE(monitorProcess)
 {
-  auto monitoring = o2::monitoring::MonitoringFactory::Get("stdout://");
-  monitoring->enableProcessMonitoring(1);
-  std::this_thread::sleep_for(std::chrono::milliseconds(2100));
+  std::array<std::string, 14> names = {"memoryUsagePercentage", "virtualMemorySize", "residentSetSize",
+                                       "cpuUsedPercentage", "involuntaryContextSwitches", "voluntaryContextSwitches", "cpuUsedAbsolute",
+                                       "averageResidentSetSize", "averageVirtualMemorySize", "averageCpuUsedPercentage",
+                                       "cpuTimeConsumedByProcess", "proportionalSetSize", "memoryPrivateClean", "memoryPrivateDirty"};
+  {
+    auto monitoring = o2::monitoring::MonitoringFactory::Get("influxdb-stdout://");
+    monitoring->enableProcessMonitoring(1);
+    enableRedirect();
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+  }
+
+  std::istringstream returned(coutRedirect.str());
+  disableRedirect();
+  unsigned short int countMetrics = 0;
+  for (std::string line; std::getline(returned, line); ) {
+    BOOST_CHECK(std::find(names.begin(), names.end(), line.substr(0, line.find(','))) != names.end());
+    countMetrics++;
+  }
+  // On linux 14 and macOS 6
+  BOOST_CHECK(countMetrics == 14 || countMetrics == 6);
 }
 
 BOOST_AUTO_TEST_CASE(monitorProcessMetricName)
