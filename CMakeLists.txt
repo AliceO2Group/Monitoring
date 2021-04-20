@@ -25,6 +25,11 @@ project(Monitoring
 # Documentation dir
 add_subdirectory(doc)
 
+# simplified build mode for doc only
+if(ONLYDOC)
+  return()
+endif()
+
 # Add compiler flags for warnings and debug symbols
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra -DBOOST_SYSTEM_NO_DEPRECATED -DBOOST_ERROR_CODE_HEADER_ONLY")
 
