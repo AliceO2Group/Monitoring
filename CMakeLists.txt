@@ -231,7 +231,6 @@ set(TEST_SRCS
 )
 
 if(ApMon_FOUND)
-  list(APPEND TEST_SRCS test/testApMon.cxx)
   configure_file(test/ApMon.conf ${CMAKE_CURRENT_BINARY_DIR}/ApMon.conf COPYONLY)
 endif()
 
