@@ -49,11 +49,6 @@ BOOST_AUTO_TEST_CASE(Noop)
   MonitoringFactory::Get("no-op://");
 }
 
-BOOST_AUTO_TEST_CASE(InfluxDbUnix)
-{
-  MonitoringFactory::Get("influxdb-unix:///tmp/unix.sock");
-}
-
 #ifdef O2_MONITORING_WITH_APPMON
 BOOST_AUTO_TEST_CASE(ApMon)
 {
