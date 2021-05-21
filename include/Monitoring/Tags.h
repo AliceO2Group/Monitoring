@@ -110,11 +110,13 @@ enum class Value : unsigned short int {
   StfBuilder,    // 41
   StfSender,     // 42
   TfBuilder,     // 43
-  TfScheduler    // 44
+  TfScheduler,   // 44
+  DataSampling,  // 45
+  Mergers        // 46
 };
 
 // Tag value array
-static constexpr std::array<std::string_view, 45> TAG_VALUE = {{
+static constexpr std::array<std::string_view, 47> TAG_VALUE = {{
   "Null"sv,
   "AD"sv,      // 1
   "CPV"sv,     // 2
@@ -159,7 +161,9 @@ static constexpr std::array<std::string_view, 45> TAG_VALUE = {{
   "StfB"sv,    // 41
   "StfS"sv,    // 42
   "TfB"sv,     // 43
-  "TfS"sv      // 44
+  "TfS"sv,     // 44
+  "DS"sv,      // 45
+  "Mergers"sv  // 46
 }};
 
 static constexpr std::string_view GetValue(const int value)
