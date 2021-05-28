@@ -63,9 +63,9 @@ void Monitoring::flushBuffer()
     for (auto& backend : mBackends) {
       if (matchVerbosity(backend->getVerbosity(), static_cast<Verbosity>(verbosity))) {
         backend->send(std::move(buffer));
-        buffer.clear();
       }
     }
+    buffer.clear();
   }
 }
 
@@ -74,9 +74,9 @@ void Monitoring::flushBuffer(const short index)
   for (auto& backend : mBackends) {
     if (matchVerbosity(backend->getVerbosity(), static_cast<Verbosity>(index))) {
       backend->send(std::move(mStorage[index]));
-      mStorage[index].clear();
     }
   }
+  mStorage[index].clear();
 }
 
 void Monitoring::enableProcessMonitoring(const unsigned int interval)
