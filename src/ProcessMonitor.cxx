@@ -5,7 +5,6 @@
 
 #include "Monitoring/ProcessMonitor.h"
 #include "MonLogger.h"
-#include <boost/algorithm/string/classification.hpp>
 #include <chrono>
 #include <sstream>
 #include <cmath>

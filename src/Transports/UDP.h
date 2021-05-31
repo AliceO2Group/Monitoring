@@ -18,10 +18,7 @@
 
 #include "TransportInterface.h"
 
-#include <boost/array.hpp>
-#include <boost/asio.hpp>
 #include <boost/algorithm/string.hpp>
-#include <chrono>
 #include <string>
 
 namespace o2
