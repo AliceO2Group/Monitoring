@@ -10,7 +10,7 @@ jobs:
     - name: Install boost, curl and lcov
       run: |
         sudo apt-get update
-        sudo apt-get install -yq libcurl4-openssl-dev libboost-system1.71-dev libboost-filesystem1.71-dev libboost-test1.71-dev libboost-program-options1.71-dev lcov
+        sudo apt-get install -yq libcurl4-openssl-dev libboost-system1.71-dev libboost-test1.71-dev libboost-program-options1.71-dev lcov
     - name: Run CMake
       run: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Debug
     - name: Build project
