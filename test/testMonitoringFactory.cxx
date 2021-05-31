@@ -15,8 +15,7 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem/operations.hpp>
+#include <filesystem>
 
 #include "../include/Monitoring/MonitoringFactory.h"
 
@@ -52,7 +51,7 @@ BOOST_AUTO_TEST_CASE(Noop)
 #ifdef O2_MONITORING_WITH_APPMON
 BOOST_AUTO_TEST_CASE(ApMon)
 {
-  boost::filesystem::path configPath = boost::filesystem::canonical(".");
+  std::filesystem::path configPath = std::filesystem::canonical(".");
   auto Monitoring = MonitoringFactory::Get("apmon://" + configPath.string() + "/ApMon.conf");
   monitoring->send({10, "myCrazyMetric"});
 }

@@ -17,7 +17,7 @@ endif()
 
 # Define project
 project(Monitoring
-  VERSION 3.8.5
+  VERSION 3.8.6
   DESCRIPTION "O2 Monitoring library"
   LANGUAGES CXX
 )
@@ -59,7 +59,7 @@ endif()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
-find_package(Boost REQUIRED COMPONENTS unit_test_framework program_options system filesystem)
+find_package(Boost REQUIRED COMPONENTS unit_test_framework program_options system)
 find_package(ApMon MODULE)
 find_package(CURL MODULE)
 find_package(RdKafka CONFIG)
@@ -137,7 +137,6 @@ target_link_libraries(Monitoring
     Boost::boost
   PRIVATE
     Boost::system
-    Boost::filesystem
     pthread
     $<$<BOOL:${ApMon_FOUND}>:ApMon::ApMon>
     $<$<BOOL:${RdKafka_FOUND}>:RdKafka::rdkafka++>
@@ -241,7 +240,7 @@ foreach (test ${TEST_SRCS})
   add_executable(${test_name} ${test})
   target_link_libraries(${test_name}
     PRIVATE
-      Monitoring Boost::unit_test_framework Boost::filesystem
+      Monitoring Boost::unit_test_framework
   )
   add_test(NAME ${test_name} COMMAND ${test_name})
   set_tests_properties(${test_name} PROPERTIES TIMEOUT 60)
