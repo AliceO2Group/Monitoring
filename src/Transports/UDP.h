@@ -18,7 +18,7 @@
 
 #include "TransportInterface.h"
 
-#include <boost/algorithm/string.hpp>
+#include <boost/asio.hpp>
 #include <string>
 
 namespace o2
