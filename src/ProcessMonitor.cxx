@@ -5,6 +5,7 @@
 
 #include "Monitoring/ProcessMonitor.h"
 #include "MonLogger.h"
+#include <unistd.h>
 #include <chrono>
 #include <sstream>
 #include <cmath>
