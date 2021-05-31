@@ -6,7 +6,6 @@
 #include "HTTP.h"
 #include "../MonLogger.h"
 #include "../Exceptions/MonitoringException.h"
-#include <boost/algorithm/string.hpp>
 
 namespace o2
 {

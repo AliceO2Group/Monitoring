@@ -17,7 +17,6 @@
 #define ALICEO2_MONITORING_CORE_PROCESSMONITOR_H
 
 #include <atomic>
-#include <boost/algorithm/string.hpp>
 #include <iostream>
 #include <string>
 #include <vector>
