@@ -29,13 +29,12 @@
 
 #include "Monitoring/Backend.h"
 #include "Monitoring/DerivedMetrics.h"
-#include "Monitoring/ProcessMonitor.h"
 
-namespace o2
-{
 /// ALICE O2 Monitoring system
-namespace monitoring
+namespace o2::monitoring
 {
+
+class ProcessMonitor;
 
 /// \brief Main class that collects metrics from user and dispatches them to selected monitoring backends.
 ///
@@ -143,7 +142,6 @@ class Monitoring
   //std::atomic<unsigned int> mAutoPushInterval;
 };
 
-} // namespace monitoring
 } // namespace o2
 
 #endif // ALICEO2_MONITORING_MONITORING_H

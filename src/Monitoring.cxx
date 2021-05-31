@@ -15,6 +15,7 @@
 
 #include "Monitoring/Monitoring.h"
 #include "Exceptions/MonitoringException.h"
+#include "Monitoring/ProcessMonitor.h"
 
 #include <boost/lexical_cast.hpp>
 #include <chrono>
