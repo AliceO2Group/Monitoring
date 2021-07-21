@@ -12,7 +12,7 @@ int main()
 
   // Configure monitoring
   // Pass string with list of URLs as parameter
-  auto monitoring = MonitoringFactory::Get("stdout://");
+  auto monitoring = MonitoringFactory::Get("influxdbv2://localhost:8086/?bucket=adam&org=adam&token=v0SbCG4TRvHbHk82lckOT-T6iYY5VbGlXqOUnQlyaJNlT43eRnK_U8MllQT2kctwPFNwIqTO3HK4mnmGDCXk9g==");
 
   /// Add global tags
   monitoring->addGlobalTag("name", "test");
