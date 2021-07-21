@@ -54,6 +54,9 @@ void InfluxDB::escape(std::string& escaped)
   boost::replace_all(escaped, ",", "\\,");
   boost::replace_all(escaped, "=", "\\=");
   boost::replace_all(escaped, " ", "\\ ");
+  if (escaped.empty()) {
+    escaped = R"("")";
+  }
 }
 
 void InfluxDB::send(std::vector<Metric>&& metrics)
