@@ -11,6 +11,7 @@ int main()
 {
   // Configure monitoring
   // Pass string with list of URLs as parameter
+  // Set backend verbosities after as URL path
   auto monitoring = MonitoringFactory::Get("stdout:///debug,influxdb-stdout:///prod");
 
   // now send an application specific metric
