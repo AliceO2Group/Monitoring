@@ -61,6 +61,10 @@ void Monitoring::flushBuffer()
     return;
   }
   for (auto& [verbosity, buffer] : mStorage) {
+    if (buffer.empty()) {
+      MonLogger::Get() << "Not flushing empty buffer" << MonLogger::End();
+      continue;
+    }
     for (auto& backend : mBackends) {
       if (matchVerbosity(backend->getVerbosity(), static_cast<Verbosity>(verbosity))) {
         backend->send(std::move(buffer));
@@ -132,9 +136,7 @@ Monitoring::~Monitoring()
     mMonitorThread.join();
     transmit(mProcessMonitor->makeLastMeasurementAndGetMetrics());
   }
-  if (mBuffering) {
-    flushBuffer();
-  }
+  flushBuffer();
 }
 
 void Monitoring::pushLoop()
