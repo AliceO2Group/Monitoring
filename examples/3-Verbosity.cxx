@@ -11,7 +11,7 @@ int main()
 {
   // Configure monitoring
   // Pass string with list of URLs as parameter
-  // Set backend verbosities after as URL path
+  // Set backend verbosities as URL path
   auto monitoring = MonitoringFactory::Get("stdout:///debug,influxdb-stdout:///prod");
 
   monitoring->send({1, "myMetricInfo"}); // By default metric verbosity is set to Info
