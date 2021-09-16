@@ -55,8 +55,12 @@ protected:
   /// Default destructor
   virtual ~Backend() = default;
 
-  /// Set verbosity level
+  /// Set verbosity level (deprecated)
+  [[deprecated("Use setVerbosity() instead")]]
   void setVerbosisty(Verbosity level) { verbosityLevel = level; }
+
+  /// Set verbosity level
+  void setVerbosity(Verbosity level) { verbosityLevel = level; }
 
   /// Get verbosity level
   Verbosity getVerbosity() { return verbosityLevel; }
