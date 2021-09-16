@@ -150,7 +150,7 @@ void MonitoringFactory::SetVerbosity(std::string selected, std::unique_ptr<Backe
   if (found == verbosities.end()) {
     return;
   }
-  backend->setVerbosisty(found->second);
+  backend->setVerbosity(found->second);
   MonLogger::Get() << "...verbosity set to "
                    << static_cast<std::underlying_type<Verbosity>::type>(found->second)
                    << MonLogger::End();

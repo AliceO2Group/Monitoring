@@ -43,7 +43,7 @@ inline unsigned long StdOut::convertTimestamp(const std::chrono::time_point<std:
 
 StdOut::StdOut(const std::string& prefix) : mPrefix(prefix)
 {
-  setVerbosisty(Verbosity::Debug);
+  setVerbosity(Verbosity::Debug);
   MonLogger::Get(Severity::Info) << "StdOut backend initialized" << MonLogger::End();
 }
 
