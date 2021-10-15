@@ -43,7 +43,7 @@ void Unix::send(std::string&& message)
   try {
     mSocket.send_to(boost::asio::buffer(message, message.size()), mEndpoint);
   } catch (const boost::system::system_error& e) {
-    MonLogger::Get() << "Unix socket / " << e.what() << MonLogger::End();
+    MonLogger::Get(Severity::Warn) << "Unix socket / " << e.what() << MonLogger::End();
   }
 }
 #endif // defined(BOOST_ASIO_HAS_LOCAL_SOCKETS)
