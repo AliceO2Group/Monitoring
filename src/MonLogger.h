@@ -83,9 +83,10 @@ class MonLogger
 #endif
 
  private:
+  /// Makes sure Silent messages are muted
   bool mMute = false;
-  /// Log stream
 #ifdef O2_MONITORING_WITH_INFOLOGGER
+  /// InfoLogger log output stream
   InfoLogger mStream;
   void logHeader(Severity severity)
   {
@@ -93,17 +94,14 @@ class MonLogger
     context.setField(InfoLoggerContext::FieldName::System, "Monitoring");
     context.setField(InfoLoggerContext::FieldName::Facility, "Library");
     mStream.setContext(context);
-    if (severity != Severity::Silent) {
-      mStream << static_cast<InfoLogger::Severity>(severity);
-    } else {
-      mMute = true;
-    }
+    (severity == Severity::Silent) ? mMute = true : mStream << static_cast<InfoLogger::Severity>(severity);
   }
 #else
+  /// Ostream log output stream
   std::ostream& mStream = std::cout;
   void logHeader(Severity severity)
   {
-    if (severity == Severity::Silent) { mMute = true; }
+    if (severity == Severity::Silent) { mMute = false; }
     *this << "\033[0;" << static_cast<int>(severity) << "m";
     auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     *this << std::put_time(std::localtime(&now), "%Y-%m-%d %X") << "\t" << "Monitoring" << "\t";
