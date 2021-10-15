@@ -106,7 +106,7 @@ class MonLogger
   std::ostream& mStream = std::cout;
   void logHeader(Severity severity)
   {
-    if (severity == Severity::Silent) { mMute = false; }
+    if (severity == Severity::Silent) { mMute = true; }
     *this << "\033[0;" << static_cast<int>(severity) << "m";
     auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     *this << std::put_time(std::localtime(&now), "%Y-%m-%d %X") << "\t" << "Monitoring" << "\t";
