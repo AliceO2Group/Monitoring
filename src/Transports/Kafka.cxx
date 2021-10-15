@@ -40,7 +40,7 @@ Kafka::Kafka(const std::string& host, unsigned int port, const std::string& topi
 
   producer = RdKafka::Producer::create(conf, errstr);
   if (!producer) {
-    MonLogger::Get(Severity::Error) << "Coult not initialize Kafka transport" << MonLogger::End();
+    MonLogger::Get(Severity::Warn) << "Coult not initialize Kafka transport" << MonLogger::End();
   }
 
   MonLogger::Get(Severity::Info) << "Kafka transport initialized (" << host << ":" << port << "/" << mTopic << ")" << MonLogger::End();
@@ -64,7 +64,7 @@ void Kafka::send(std::string&& message)
     NULL,
     NULL);
   if (resp != RdKafka::ERR_NO_ERROR) {
-    MonLogger::Get() << "Kafka send failed: " << RdKafka::err2str(resp) << MonLogger::End();
+    MonLogger::Get(Severity::Warn) << "Kafka send failed: " << RdKafka::err2str(resp) << MonLogger::End();
   }
   producer->poll(0);
 }
