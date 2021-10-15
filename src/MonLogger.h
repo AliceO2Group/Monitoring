@@ -94,7 +94,12 @@ class MonLogger
     context.setField(InfoLoggerContext::FieldName::System, "Monitoring");
     context.setField(InfoLoggerContext::FieldName::Facility, "Library");
     mStream.setContext(context);
-    (severity == Severity::Silent) ? mMute = true : mStream << static_cast<InfoLogger::Severity>(severity);
+    static InfoLogger::AutoMuteToken wToken({InfoLogger::Severity::Warning, InfoLogger::Level::Support, -1, nullptr, -1}, 2, 30);
+    switch(severity) {
+      case Severity::Silent:  mMute = true; break;
+      case Severity::Warn: mStream << &wToken; break;
+      default: mStream << static_cast<InfoLogger::Severity>(severity); break;
+    }
   }
 #else
   /// Ostream log output stream
