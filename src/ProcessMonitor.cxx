@@ -142,7 +142,7 @@ double ProcessMonitor::splitStatusLineAndRetriveValue(const std::string& line) c
   std::istringstream iss(line);
   std::vector<std::string> tokens{std::istream_iterator<std::string>{iss},
                                   std::istream_iterator<std::string>{}};
-  return std::stod(tokens[1]);
+  return tokens.size() < 2 ? -1.0 : std::stod(tokens.at(1));
 }
 
 std::vector<Metric> ProcessMonitor::getPerformanceMetrics()
