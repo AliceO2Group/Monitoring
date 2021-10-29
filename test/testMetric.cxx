@@ -151,6 +151,24 @@ BOOST_AUTO_TEST_CASE(retrieveUnsignedLongLongType)
   BOOST_CHECK_EQUAL(metricInstance.getFirstValueType(), 3);
 }
 
+BOOST_AUTO_TEST_CASE(increaseMetric)
+{
+  Metric metric = Metric{10, "myMetric"};
+  metric.increaseValue(20);
+  BOOST_CHECK_EQUAL(std::get<int>(metric.getFirstValue().second), 30);
+
+  Metric metric2 = Metric{"myValue"};
+  metric2.addValue(3, "sum");
+  metric2.increaseValue(10, "sum");
+  BOOST_CHECK_EQUAL(std::get<int>(metric2.getFirstValue().second), 13);
+
+  Metric metric3 = Metric{"summed"};
+  for (int i = 0; i < 5; i++) {
+    metric3.increaseValue(i);
+  }
+  BOOST_CHECK_EQUAL(std::get<int>(metric3.getFirstValue().second), 10);
+}
+
 BOOST_AUTO_TEST_CASE(regexVerbosityPolicy)
 {
   Metric::setVerbosityPolicy(Verbosity::Prod, std::regex("myMetric", std::regex::optimize));

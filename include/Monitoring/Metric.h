@@ -97,6 +97,8 @@ class Metric
   /// \param name
   Metric&& addValue(const std::variant<int, std::string, double, uint64_t>& value, const std::string& name);
 
+  Metric&& increaseValue(const std::variant<int, std::string, double, uint64_t>& value, const std::string& name = "value");
+
   /// Default destructor
   ~Metric() = default;
 

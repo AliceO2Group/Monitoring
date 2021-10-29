@@ -10,6 +10,7 @@
 // or submit itself to any jurisdiction.
 
 #include <variant>
+#include "Exceptions/MonitoringException.h"
 
 namespace o2
 {
