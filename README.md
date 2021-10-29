@@ -142,6 +142,7 @@ send(Metric&& metric, [DerivedMetricMode mode])
 Two modes are available:
   + `DerivedMetricMode::RATE` - rate between two following values,
   + `DerivedMetricMode::INCREMENT` - sum of all passed values.
+  + `DerivedMetricMode::SUPPRESS` - suppresses forthcoming metric with same value, this happens until timeout is reached (configurable using `DerivedMetrics::mSuppressTimeout`)
 
 The derived value is generated only from the first value of the metric and it is added to the same metric with the value name suffixed with `_rate`, `_increment` accordingly.
 
