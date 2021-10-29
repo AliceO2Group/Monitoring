@@ -220,6 +220,19 @@ BOOST_AUTO_TEST_CASE(derivedIncrementDouble)
   }
 }
 
+BOOST_AUTO_TEST_CASE(suppress)
+{
+  DerivedMetrics derivedHandler;
+  std::string name("metricInt");
+  Metric metric(3, name);
+  Metric metric2(4, name);
+  BOOST_CHECK(derivedHandler.process(metric, DerivedMetricMode::SUPPRESS));
+  BOOST_CHECK(!derivedHandler.process(metric, DerivedMetricMode::SUPPRESS));
+  BOOST_CHECK(!derivedHandler.process(metric, DerivedMetricMode::SUPPRESS));
+  BOOST_CHECK(derivedHandler.process(metric2, DerivedMetricMode::SUPPRESS));
+  BOOST_CHECK(!derivedHandler.process(metric2, DerivedMetricMode::SUPPRESS));
+}
+
 BOOST_AUTO_TEST_CASE(testBoostVisitor)
 {
   {
