@@ -116,9 +116,11 @@ bool DerivedMetrics::process(Metric& metric, DerivedMetricMode mode)
          mStorage.insert(std::make_pair(key, metric));
          return true;
        }
-       auto current = metric.getFirstValue().second;
-       auto previous = search->second.getFirstValue().second;
-       if (current == previous) {
+       // if same values and timeout not reached -> skip
+       if (metric.getFirstValue().second == search->second.getFirstValue().second
+           && std::chrono::duration_cast<std::chrono::seconds>(
+             metric.getTimestamp() - search->second.getTimestamp()
+           ) < std::chrono::seconds(DerivedMetrics::mSuppressTimeout)) {
          return false;
        }
        mStorage.erase(key);
@@ -132,6 +134,8 @@ bool DerivedMetrics::process(Metric& metric, DerivedMetricMode mode)
   }
   return iterator->second(metric);
 }
+
+std::chrono::seconds DerivedMetrics::mSuppressTimeout{300};
 
 } // namespace monitoring
 } // namespace o2
