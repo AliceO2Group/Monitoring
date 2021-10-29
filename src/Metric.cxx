@@ -15,6 +15,7 @@
 ///
 
 #include "Monitoring/Metric.h"
+#include "VariantVisitorAdd.h"
 
 #include <iostream>
 #include <chrono>
@@ -74,6 +75,20 @@ Metric&& Metric::addValue(uint64_t value, const std::string& name)
 {
   mValues.push_back({name, value});
   return std::move(*this);
+}
+
+Metric&& Metric::increaseValue(const std::variant<int, std::string, double, uint64_t>& value, const std::string& name)
+{
+    auto find = std::find_if(
+      mValues.begin(), mValues.end(),
+      [&](std::pair<std::string, std::variant<int, std::string, double, uint64_t>>& el) { return el.first == name; }
+    );
+    if (find != mValues.end()) {
+      find->second = std::visit(VariantVisitorAdd{}, find->second, value);
+    } else {
+      addValue(value, name);
+    }
+    return std::move(*this);
 }
 
 Metric&& Metric::addValue(std::string value, const std::string& name)
