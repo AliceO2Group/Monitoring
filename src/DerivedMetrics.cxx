@@ -37,9 +37,9 @@ namespace o2
 namespace monitoring
 {
 
-void DerivedMetrics::process(Metric& metric, DerivedMetricMode mode)
+bool DerivedMetrics::process(Metric& metric, DerivedMetricMode mode)
 {
-  const std::map<DerivedMetricMode, std::function<void(Metric&)>> map = {
+  const std::map<DerivedMetricMode, std::function<bool(Metric&)>> map = {
     {DerivedMetricMode::INCREMENT, [this](Metric& metric) {
        auto tags = metric.getTags();
        std::string key = metric.getName();
@@ -57,6 +57,7 @@ void DerivedMetrics::process(Metric& metric, DerivedMetricMode mode)
          metric.addValue(metric.getFirstValue().second, metric.getFirstValue().first + "_increment");
        }
        mStorage.insert(std::make_pair(key, metric));
+       return true;
      }},
     {DerivedMetricMode::RATE, [this](Metric& metric) {
        /// create pseudo unique key
@@ -71,7 +72,7 @@ void DerivedMetrics::process(Metric& metric, DerivedMetricMode mode)
        if (search == mStorage.end()) {
          mStorage.insert(std::make_pair(key, metric));
          metric.addValue((double)0.0, metric.getFirstValue().first + "_rate");
-         return;
+         return true;
        }
 
        auto timestampDifference = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -100,13 +101,41 @@ void DerivedMetrics::process(Metric& metric, DerivedMetricMode mode)
        mStorage.insert(std::make_pair(key, metric));
        // add rate field
        metric.addValue(rate, metric.getFirstValue().first + "_rate");
-     }}};
+       return true;
+    }},
+    {DerivedMetricMode::SUPPRESS, [this](Metric& metric) {
+       auto tags = metric.getTags();
+       std::string key = metric.getName();
+       std::for_each(tags.begin(), tags.end(), [&key](auto const& pair) {
+         key += pair.second;
+       });
+
+       // if no previous values -> store and send
+       auto search = mStorage.find(key);
+       if (search == mStorage.end()) {
+         mStorage.insert(std::make_pair(key, metric));
+         return true;
+       }
+       // if same values and timeout not reached -> skip
+       if (metric.getFirstValue().second == search->second.getFirstValue().second
+           && std::chrono::duration_cast<std::chrono::seconds>(
+             metric.getTimestamp() - search->second.getTimestamp()
+           ) < std::chrono::seconds(DerivedMetrics::mSuppressTimeout)) {
+         return false;
+       }
+       mStorage.erase(key);
+       mStorage.insert(std::make_pair(key, metric));
+       return true;
+     }}
+  };
   auto iterator = map.find(mode);
   if (iterator == map.end()) {
     throw MonitoringException("DerivedMetrics", "Unknown mode");
   }
-  iterator->second(metric);
+  return iterator->second(metric);
 }
+
+std::chrono::seconds DerivedMetrics::mSuppressTimeout{300};
 
 } // namespace monitoring
 } // namespace o2

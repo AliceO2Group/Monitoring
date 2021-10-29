@@ -17,6 +17,7 @@
 #ifndef ALICEO2_MONITORING_CORE_DERIVED_METRICS_H
 #define ALICEO2_MONITORING_CORE_DERIVED_METRICS_H
 
+#include <chrono>
 #include <unordered_map>
 #include <memory>
 #include <string>
@@ -33,7 +34,8 @@ namespace monitoring
 /// Available derived metric modes
 enum class DerivedMetricMode { RATE,
                                INCREMENT,
-                               NONE };
+                               NONE,
+                               SUPPRESS };
 
 /// \brief Enables Calculation of derived metrics
 ///
@@ -48,12 +50,14 @@ class DerivedMetrics
   /// Default destructor
   ~DerivedMetrics() = default;
 
-  /// Metrics store necessary for derived metrics
-  std::unordered_map<std::string, Metric> mStorage;
-
   /// Entry method to DerivedMetrics
   /// Switches over processing modes: rate and increment
-  void process(Metric& metric, DerivedMetricMode mode);
+  bool process(Metric& metric, DerivedMetricMode mode);
+
+  static std::chrono::seconds mSuppressTimeout;
+ private:
+  /// Metrics store necessary for derived metrics
+  std::unordered_map<std::string, Metric> mStorage;
 };
 
 } // namespace monitoring

@@ -220,6 +220,61 @@ BOOST_AUTO_TEST_CASE(derivedIncrementDouble)
   }
 }
 
+BOOST_AUTO_TEST_CASE(suppressSimple)
+{
+  DerivedMetrics derivedHandler;
+  Metric m1{3, "metricInt"};
+  BOOST_CHECK(derivedHandler.process(m1, DerivedMetricMode::SUPPRESS));
+  Metric m2{3, "metricInt"};
+  BOOST_CHECK(!derivedHandler.process(m2, DerivedMetricMode::SUPPRESS));
+  Metric m3{4, "metricInt"};
+  BOOST_CHECK(derivedHandler.process(m3, DerivedMetricMode::SUPPRESS));
+  Metric m4{4, "metricInt"};
+  BOOST_CHECK(!derivedHandler.process(m4, DerivedMetricMode::SUPPRESS));
+}
+
+BOOST_AUTO_TEST_CASE(suppressTag)
+{
+  DerivedMetrics derivedHandler;
+  Metric metric{3, "metricInt"};
+  metric.addTag(o2::monitoring::tags::Key::Subsystem, o2::monitoring::tags::Value::Readout);
+  Metric metric2{3, "metricInt"};
+  metric2.addTag(o2::monitoring::tags::Key::Subsystem, o2::monitoring::tags::Value::DPL);
+  BOOST_CHECK(derivedHandler.process(metric, DerivedMetricMode::SUPPRESS));
+  BOOST_CHECK(derivedHandler.process(metric2, DerivedMetricMode::SUPPRESS));
+  BOOST_CHECK(!derivedHandler.process(metric, DerivedMetricMode::SUPPRESS));
+  BOOST_CHECK(!derivedHandler.process(metric, DerivedMetricMode::SUPPRESS));
+}
+
+BOOST_AUTO_TEST_CASE(suppressTimeout)
+{
+
+  DerivedMetrics::mSuppressTimeout = std::chrono::seconds(200);
+  DerivedMetrics derivedHandler;
+  Metric m1{3, "metricInt"};
+  BOOST_CHECK(derivedHandler.process(m1, DerivedMetricMode::SUPPRESS));
+
+  auto timestamp = std::chrono::system_clock::now();
+  timestamp += std::chrono::seconds(150);
+  Metric m2("metricInt", Metric::DefaultVerbosity, timestamp);
+  m2.addValue(3, "value");
+  BOOST_CHECK(!derivedHandler.process(m2, DerivedMetricMode::SUPPRESS));
+
+  timestamp += std::chrono::seconds(60);
+  Metric m3("metricInt", Metric::DefaultVerbosity, timestamp);
+  m3.addValue(3, "value");
+  BOOST_CHECK(derivedHandler.process(m3, DerivedMetricMode::SUPPRESS));
+
+  timestamp += std::chrono::seconds(60);
+  Metric m4("metricInt", Metric::DefaultVerbosity, timestamp);
+  m4.addValue(3, "value");
+  BOOST_CHECK(!derivedHandler.process(m4, DerivedMetricMode::SUPPRESS));
+
+  Metric m5("metricInt", Metric::DefaultVerbosity, timestamp);
+  m5.addValue(4, "value");
+  BOOST_CHECK(derivedHandler.process(m5, DerivedMetricMode::SUPPRESS));
+}
+
 BOOST_AUTO_TEST_CASE(testBoostVisitor)
 {
   {
