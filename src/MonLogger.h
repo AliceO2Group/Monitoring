@@ -34,16 +34,16 @@ namespace monitoring
 
 /// List of possible log severities
 #ifdef O2_MONITORING_WITH_INFOLOGGER
-enum class Severity { Error = InfoLogger::Severity::Error,
-                      Warn = InfoLogger::Severity::Warning,
-                      Info = InfoLogger::Severity::Info,
-                      Silent = InfoLogger::Severity::Debug};
+enum class Severity { Error = InfoLogger::Severity::Error,  // 69
+                      Warn = InfoLogger::Severity::Warning, // 87
+                      Info = InfoLogger::Severity::Info,    // 73
+                      Debug = InfoLogger::Severity::Debug}; // 68
 
 #else
 enum class Severity { Error = 31,
                       Warn = 33,
                       Info = 49,
-                      Silent = 50};
+                      Debug = 50};
 #endif
 
 
@@ -67,12 +67,15 @@ class MonLogger
   /// Returns Logger instance with current date and given severity
   /// \param severity - severity level
   /// \return - logger instance
-  static MonLogger& Get(Severity severity = Severity::Silent)
+  static MonLogger& Get(Severity severity = Severity::Debug)
   {
     static MonLogger loggerInstance;
     loggerInstance.logHeader(severity);
     return loggerInstance;
   }
+
+  /// Logger severity to be set by the user
+  inline static Severity mLoggerSeverity = Severity::Warn;
 
   /// Terminates log line
   /// return - string with color termination and new line
@@ -83,8 +86,9 @@ class MonLogger
 #endif
 
  private:
-  /// Makes sure Silent messages are muted
+  /// Makes sure Debug messages are muted
   bool mMute = false;
+
 #ifdef O2_MONITORING_WITH_INFOLOGGER
   /// InfoLogger log output stream
   InfoLogger mStream;
@@ -95,8 +99,9 @@ class MonLogger
     context.setField(InfoLoggerContext::FieldName::Facility, "Library");
     mStream.setContext(context);
     static InfoLogger::AutoMuteToken wToken({InfoLogger::Severity::Warning, InfoLogger::Level::Support, -1, nullptr, -1}, 2, 30);
+
+    mMute = (static_cast<int>(severity) < static_cast<int>(mLoggerSeverity)) ? true : false;
     switch(severity) {
-      case Severity::Silent:  mMute = true; break;
       case Severity::Warn: mStream << &wToken; break;
       default: mStream << static_cast<InfoLogger::Severity>(severity); break;
     }
@@ -106,7 +111,7 @@ class MonLogger
   std::ostream& mStream = std::cout;
   void logHeader(Severity severity)
   {
-    if (severity == Severity::Silent) { mMute = true; }
+    mMute = (static_cast<std::underlying_type<Severity>::type>(severity) > static_cast<std::underlying_type<Severity>::type>(mLoggerSeverity)) ? true : false;
     *this << "\033[0;" << static_cast<int>(severity) << "m";
     auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     *this << std::put_time(std::localtime(&now), "%Y-%m-%d %X") << "\t" << "Monitoring" << "\t";

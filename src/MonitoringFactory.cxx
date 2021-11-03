@@ -180,6 +180,9 @@ std::unique_ptr<Backend> MonitoringFactory::GetBackend(std::string& url)
     throw MonitoringException("Factory", "Unrecognized backend " + parsedUrl.protocol);
   }
   try {
+    if (parsedUrl.user == "debug") {
+      MonLogger::mLoggerSeverity = Severity::Debug;
+    }
     auto backend = iterator->second(parsedUrl);
     if (!parsedUrl.path.empty() && parsedUrl.path != "/") {
       SetVerbosity(parsedUrl.path.substr(parsedUrl.path.rfind("/")), backend);
