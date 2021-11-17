@@ -33,7 +33,7 @@ WebSocket::WebSocket(const std::string& hostname, int port, const std::string& t
   auto const results = resolver.resolve(hostname, std::to_string(port));
   boost::asio::connect(mWebSocket.next_layer(), results.begin(), results.end());
   mWebSocket.set_option(beast::websocket::stream_base::decorator(
-    [](beast::websocket::request_type& req) {
+    [&token](beast::websocket::request_type& req) {
       req.set(beast::http::field::authorization, "Bearer " + token);
     }
   ));
