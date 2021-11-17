@@ -73,7 +73,7 @@ endif()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
-find_package(Boost REQUIRED COMPONENTS unit_test_framework program_options system)
+find_package(Boost 1.70 REQUIRED COMPONENTS unit_test_framework program_options system)
 find_package(ApMon MODULE)
 find_package(CURL MODULE)
 find_package(RdKafka CONFIG)
@@ -128,6 +128,7 @@ add_library(Monitoring SHARED
   src/Transports/TCP.cxx
   src/Transports/Unix.cxx
   src/Transports/StdOut.cxx
+  src/Transports/WebSocket.cxx
   src/Exceptions/MonitoringException.cxx
   $<$<BOOL:${ApMon_FOUND}>:src/Backends/ApMonBackend.cxx>
   $<$<BOOL:${RdKafka_FOUND}>:src/Transports/Kafka.cxx>
