@@ -28,6 +28,7 @@
 #include "Transports/UDP.h"
 #include "Transports/Unix.h"
 #include "Transports/StdOut.h"
+#include "Transports/WebSocket.h"
 
 #ifdef O2_MONITORING_WITH_APPMON
 #include "Backends/ApMonBackend.h"
@@ -116,6 +117,17 @@ std::unique_ptr<Backend> getInfluxDb(http::url uri)
     auto transport = std::make_unique<transports::StdOut>();
     return std::make_unique<backends::InfluxDB>(std::move(transport));
   }
+  if (uri.protocol == "ws") {
+    std::string tokenLabel = "token=";
+    auto tokenSearch = uri.search.find(tokenLabel);
+    uri.path.erase(std::remove(uri.path.begin(), uri.path.end(), '/'), uri.path.end());
+    if (tokenSearch == std::string::npos) {
+      throw MonitoringException("Factory", "Grafana token is required for WebSocket backend");
+    }
+    std::string token = uri.search.substr(tokenSearch + tokenLabel.length());
+    auto transport = std::make_unique<transports::WebSocket>(uri.host, uri.port, token, uri.path);
+    return std::make_unique<backends::InfluxDB>(std::move(transport));
+  }
   if (uri.protocol == "kafka") {
 #ifdef O2_MONITORING_WITH_KAFKA
     auto transport = std::make_unique<transports::Kafka>(uri.host, uri.port, uri.search);
@@ -165,6 +177,7 @@ std::unique_ptr<Backend> MonitoringFactory::GetBackend(std::string& url)
     {"influxdb-unix", getInfluxDb},
     {"influxdb-stdout", getInfluxDb},
     {"influxdb-kafka", getInfluxDb},
+    {"influxdb-ws", getInfluxDb},
     {"influxdbv2", getInfluxDbv2},
     {"apmon", getApMon},
     {"no-op", getNoop}

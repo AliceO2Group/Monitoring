@@ -41,13 +41,14 @@ std::unique_ptr<Monitoring> monitoring = MonitoringFactory::Get("backend[-protoc
 
 See the table below to find `URI`s for supported backends:
 
-| Backend name | Transport   | URI backend[-protocol] | URI query   | Default verbosity |
+| Format       | Transport   | URI backend[-protocol] | URI query   | Default verbosity |
 | ------------ |:-----------:|:----------------------:|:-----------:| -----------------:|
-| No-op        | -           | `no-op`                | -           | -                 |
+| -            | -           | `no-op`                | -           | -                 |
 | InfluxDB     | UDP         | `influxdb-udp`         | -           | `info`            |
 | InfluxDB     | Unix socket | `influxdb-unix`        | -           | `info`            |
 | InfluxDB     | StdOut      | `influxdb-stdout`      | -           | `info`            |
 | InfluxDB     | Kafka       | `influxdb-kafka`       | Kafka topic | `info`            |
+| InfluxDB     | WebSocket   | `influxdb-ws`          | `token=TOKEN` | `info`          |
 | InfluxDB 2.x | HTTP        | `influxdbv2`           | `org=ORG&bucket=BUCKET&token=TOKEN` | `info` |
 | ApMon        | UDP         | `apmon`                | -           | `info`            |
 | StdOut       | -           | `stdout`, `infologger` | [Prefix]    | `debug`           |
