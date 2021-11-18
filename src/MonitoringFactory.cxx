@@ -120,11 +120,12 @@ std::unique_ptr<Backend> getInfluxDb(http::url uri)
   if (uri.protocol == "ws") {
     std::string tokenLabel = "token=";
     auto tokenSearch = uri.search.find(tokenLabel);
+    uri.path.erase(std::remove(uri.path.begin(), uri.path.end(), '/'), uri.path.end());
     if (tokenSearch == std::string::npos) {
       throw MonitoringException("Factory", "Grafana token is required for WebSocket backend");
     }
     std::string token = uri.search.substr(tokenSearch + tokenLabel.length());
-    auto transport = std::make_unique<transports::WebSocket>(uri.host, uri.port, token);
+    auto transport = std::make_unique<transports::WebSocket>(uri.host, uri.port, token, uri.path);
     return std::make_unique<backends::InfluxDB>(std::move(transport));
   }
   if (uri.protocol == "kafka") {

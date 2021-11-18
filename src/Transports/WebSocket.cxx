@@ -27,7 +27,7 @@ namespace monitoring
 namespace transports
 {
 
-WebSocket::WebSocket(const std::string& hostname, int port, const std::string& token) : mWebSocket(mIoContext)
+WebSocket::WebSocket(const std::string& hostname, int port, const std::string& token, const std::string& stream) : mWebSocket(mIoContext)
 {
   boost::asio::ip::tcp::resolver resolver{mIoContext};
   auto const results = resolver.resolve(hostname, std::to_string(port));
@@ -37,7 +37,7 @@ WebSocket::WebSocket(const std::string& hostname, int port, const std::string& t
       req.set(beast::http::field::authorization, "Bearer " + token);
     }
   ));
-  mWebSocket.handshake(hostname, "/api/live/push/alice_o2");
+  mWebSocket.handshake(hostname, "/api/live/push/" + stream);
 }
 
 WebSocket::~WebSocket()

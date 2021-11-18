@@ -44,7 +44,8 @@ class WebSocket : public TransportInterface
   /// \param hostname      Grafana host
   /// \param port          Grafana port
   /// \param token         Grafana API token
-  WebSocket(const std::string& hostname, int port, const std::string& token);
+  /// \param stream        Name of WebSocket stream
+  WebSocket(const std::string& hostname, int port, const std::string& token, const std::string& stream = "alice_o2");
 
   /// Gracefull disconnect
   ~WebSocket();
