@@ -17,6 +17,7 @@
 #ifndef ALICEO2_MONITORING_CORE_BACKEND_H
 #define ALICEO2_MONITORING_CORE_BACKEND_H
 
+#include <atomic>
 #include <chrono>
 #include <string>
 #include "Monitoring/Metric.h"
@@ -38,7 +39,7 @@ class Backend
   Verbosity verbosityLevel;
 protected:
   /// Run number
-  uint32_t mRunNumber;
+  std::atomic<uint32_t> mRunNumber;
 
  public:
   /// Default constructor
