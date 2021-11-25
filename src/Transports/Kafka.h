@@ -40,7 +40,7 @@ class Kafka : public TransportInterface
   /// \param hostname      Hostname
   /// \param port          Port number
   /// \param topic 	   Kafka topic
-  Kafka(const std::string& host, unsigned int port, const std::string& topic = "test");
+  Kafka(const std::string& host, unsigned int port, const std::string& topic, bool isProducer = true);
 
   /// Deletes producer
   ~Kafka();
@@ -48,10 +48,11 @@ class Kafka : public TransportInterface
   /// Sends metric via Kafka
   /// \param message   r-value string formated
   void send(std::string&& message) override;
-
+  std::vector<std::string> receive();
  private:
   /// Kafka producer instance
-  RdKafka::Producer* producer;
+  RdKafka::Producer* mProducer;
+  RdKafka::KafkaConsumer* mConsumer;
 
   /// Kafka topic
   std::string mTopic;
