@@ -35,7 +35,8 @@
 #endif
 
 #ifdef O2_MONITORING_WITH_KAFKA
-#include "Transports/Kafka.h"
+#include "Transports/KafkaProducer.h"
+#include "Transports/KafkaConsumer.h"
 #endif
 
 #ifdef O2_MONITORING_WITH_CURL
@@ -130,7 +131,7 @@ std::unique_ptr<Backend> getInfluxDb(http::url uri)
   }
   if (uri.protocol == "kafka") {
 #ifdef O2_MONITORING_WITH_KAFKA
-    auto transport = std::make_unique<transports::Kafka>(uri.host, uri.port, uri.search);
+    auto transport = std::make_unique<transports::KafkaProducer>(uri.host, uri.port, uri.search);
     return std::make_unique<backends::InfluxDB>(std::move(transport));
 #else
     throw MonitoringException("Factory", "Kafka transport is not enabled");
