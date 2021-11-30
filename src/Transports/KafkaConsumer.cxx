@@ -46,40 +46,37 @@ KafkaConsumer::KafkaConsumer(const std::string& host, unsigned int port, const s
 
 std::vector<std::string> KafkaConsumer::receive()
 {
-  int remaining_timeout = 1000;
+  std::vector<std::string> received;
   size_t batch_size = 5;
-  std::vector<std::string> msgs;
-  msgs.reserve(batch_size);
-
+  int remaining_timeout = 1000;
   auto start = std::chrono::high_resolution_clock::now();
 
-  while (msgs.size() < batch_size) {
-    std::unique_ptr<RdKafka::Message> msg{mConsumer->consume(remaining_timeout)};
-    
-    switch (msg->err()) {
+  while (received.size() < batch_size) {
+    std::unique_ptr<RdKafka::Message> message{mConsumer->consume(remaining_timeout)};
+    switch (message->err()) {
     case RdKafka::ERR__TIMED_OUT:
-      return msgs;
-
-    case RdKafka::ERR_NO_ERROR:
-      msgs.push_back(std::string(static_cast<char*>(msg->payload()), msg->len()));
       break;
-
+    case RdKafka::ERR_NO_ERROR:
+      received.push_back(std::string(static_cast<char*>(message->payload()), message->len()));
+      break;
     default:
-      std::cerr << "%% Consumer error: " << msg->errstr() << std::endl;
-      return msgs;
+      std::cerr << "%% Consumer error: " << message->errstr() << std::endl;
+      return received;
     }
     auto now = std::chrono::high_resolution_clock::now();
-    int remaining_timeout = std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count(); 
+    remaining_timeout = std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count();
     if (remaining_timeout > 1000) {
       break;
     }
   }
-
-  return msgs;
+  return received;
 }
 
 KafkaConsumer::~KafkaConsumer()
 {
+  if (mConsumer) {
+    mConsumer->close();
+  }
   delete mConsumer;
 }
 
