@@ -34,6 +34,7 @@ KafkaConsumer::KafkaConsumer(const std::string& host, unsigned int port, const s
   conf->set("bootstrap.servers", host + ":" + std::to_string(port), errstr);
   conf->set("enable.partition.eof", "false", errstr);
   conf->set("group.id", "o2-monitoring-group", errstr);
+  conf->set("auto.offset.reset", "latest", errstr);
 
   mConsumer = RdKafka::KafkaConsumer::create(conf.get(), errstr);
   if (!mConsumer) {
