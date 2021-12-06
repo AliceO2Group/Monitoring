@@ -46,6 +46,9 @@ KafkaProducer::KafkaProducer(const std::string& host, unsigned int port, const s
 
 KafkaProducer::~KafkaProducer()
 {
+  if (mProducer) {
+    mProducer->flush(250);
+  }
   delete mProducer;
 }
 

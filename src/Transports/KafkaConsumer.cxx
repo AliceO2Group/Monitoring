@@ -31,10 +31,15 @@ KafkaConsumer::KafkaConsumer(const std::string& host, unsigned int port, const s
 {
   std::string errstr;
   std::unique_ptr<RdKafka::Conf> conf{RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL)};
-  conf->set("bootstrap.servers", host + ":" + std::to_string(port), errstr);
-  conf->set("enable.partition.eof", "false", errstr);
-  conf->set("group.id", "o2-monitoring-group", errstr);
-  conf->set("auto.offset.reset", "latest", errstr);
+  if (conf->set("bootstrap.servers", host + ":" + std::to_string(port), errstr) != RdKafka::Conf::CONF_OK
+   || conf->set("enable.partition.eof", "false", errstr) != RdKafka::Conf::CONF_OK
+   || conf->set("group.id", "o2-monitoring-group", errstr) != RdKafka::Conf::CONF_OK
+   || conf->set("auto.offset.reset", "latest", errstr) != RdKafka::Conf::CONF_OK
+   || conf->set("heartbeat.interval.ms", "2000", errstr) != RdKafka::Conf::CONF_OK
+   || conf->set("session.timeout.ms", "6000", errstr) != RdKafka::Conf::CONF_OK
+  ) {
+    throw MonitoringException("Kafka Consumer", errstr);
+  }
 
   mConsumer = RdKafka::KafkaConsumer::create(conf.get(), errstr);
   if (!mConsumer) {
