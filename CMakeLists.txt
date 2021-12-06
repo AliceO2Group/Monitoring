@@ -131,7 +131,8 @@ add_library(Monitoring SHARED
   src/Transports/WebSocket.cxx
   src/Exceptions/MonitoringException.cxx
   $<$<BOOL:${ApMon_FOUND}>:src/Backends/ApMonBackend.cxx>
-  $<$<BOOL:${RdKafka_FOUND}>:src/Transports/Kafka.cxx>
+  $<$<BOOL:${RdKafka_FOUND}>:src/Transports/KafkaProducer.cxx>
+  $<$<BOOL:${RdKafka_FOUND}>:src/Transports/KafkaConsumer.cxx>
   $<$<BOOL:${CURL_FOUND}>:src/Transports/HTTP.cxx>
 )
 
@@ -150,11 +151,11 @@ set_target_properties(Monitoring PROPERTIES OUTPUT_NAME "O2Monitoring")
 target_link_libraries(Monitoring
   PUBLIC
     Boost::boost
+    $<$<BOOL:${RdKafka_FOUND}>:RdKafka::rdkafka++>
   PRIVATE
     Boost::system
     pthread
     $<$<BOOL:${ApMon_FOUND}>:ApMon::ApMon>
-    $<$<BOOL:${RdKafka_FOUND}>:RdKafka::rdkafka++>
     $<$<BOOL:${CURL_FOUND}>:CURL::libcurl>
     $<$<BOOL:${InfoLogger_FOUND}>:AliceO2::InfoLogger>
 )
@@ -213,6 +214,10 @@ set(EXAMPLES
   examples/9-RunNumber.cxx
   examples/10-Buffering.cxx
 )
+
+if(RdKafka_FOUND)
+  list(APPEND EXAMPLES "examples/11-KafkaToHttp.cxx")
+endif()
 
 foreach (example ${EXAMPLES})
   get_filename_component(example_name ${example} NAME)

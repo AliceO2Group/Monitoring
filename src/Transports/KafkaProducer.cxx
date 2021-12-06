@@ -10,11 +10,11 @@
 // or submit itself to any jurisdiction.
 
 ///
-/// \file Kafka.cxx
+/// \file KafkaProducer.cxx
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 ///
 
-#include "Kafka.h"
+#include "KafkaProducer.h"
 #include <string>
 #include "../MonLogger.h"
 
@@ -27,35 +27,36 @@ namespace monitoring
 namespace transports
 {
 
-Kafka::Kafka(const std::string& host, unsigned int port, const std::string& topic)
+KafkaProducer::KafkaProducer(const std::string& host, unsigned int port, const std::string& topic) : mTopic(topic)
 {
-  topic.length() > 0 ? mTopic = topic : mTopic = "test";
   std::string errstr;
-  RdKafka::Conf* conf = RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL);
+  std::unique_ptr<RdKafka::Conf> conf{RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL)};
   conf->set("bootstrap.servers", host + ":" + std::to_string(port), errstr);
   conf->set("request.required.acks", "0", errstr);
   conf->set("message.send.max.retries", "0", errstr);
   conf->set("queue.buffering.max.ms", "100", errstr);
   conf->set("batch.num.messages", "1000", errstr);
 
-  producer = RdKafka::Producer::create(conf, errstr);
-  if (!producer) {
-    MonLogger::Get(Severity::Warn) << "Coult not initialize Kafka transport" << MonLogger::End();
+  mProducer = RdKafka::Producer::create(conf.get(), errstr);
+  if (!mProducer) {
+    MonLogger::Get(Severity::Warn) << "Could not initialize Kafka producer" << MonLogger::End();
   }
-
   MonLogger::Get(Severity::Info) << "Kafka transport initialized (" << host << ":" << port << "/" << mTopic << ")" << MonLogger::End();
 }
 
-Kafka::~Kafka()
+KafkaProducer::~KafkaProducer()
 {
-  delete producer;
+  if (mProducer) {
+    mProducer->flush(250);
+  }
+  delete mProducer;
 }
 
-void Kafka::send(std::string&& message)
+void KafkaProducer::send(std::string&& message)
 {
   int32_t partition = RdKafka::Topic::PARTITION_UA;
 
-  RdKafka::ErrorCode resp = producer->produce(
+  RdKafka::ErrorCode resp = mProducer->produce(
     mTopic, partition,
     RdKafka::Producer::RK_MSG_COPY,
     const_cast<char*>(message.c_str()), message.size(),
@@ -66,7 +67,7 @@ void Kafka::send(std::string&& message)
   if (resp != RdKafka::ERR_NO_ERROR) {
     MonLogger::Get(Severity::Warn) << "Kafka send failed: " << RdKafka::err2str(resp) << MonLogger::End();
   }
-  producer->poll(0);
+  mProducer->poll(0);
 }
 
 } // namespace transports

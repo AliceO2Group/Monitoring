@@ -10,7 +10,7 @@
 // or submit itself to any jurisdiction.
 
 ///
-/// \file Kafka.h
+/// \file KafkaConsumer.h
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 ///
 
@@ -33,25 +33,28 @@ namespace transports
 {
 
 /// \brief Transport that sends string formatted metrics via Kafka
-class Kafka : public TransportInterface
+class KafkaConsumer : public TransportInterface
 {
  public:
   /// Creates producer
   /// \param hostname      Hostname
   /// \param port          Port number
   /// \param topic 	   Kafka topic
-  Kafka(const std::string& host, unsigned int port, const std::string& topic = "test");
+  KafkaConsumer(const std::string& host, unsigned int port, const std::string& topic);
 
   /// Deletes producer
-  ~Kafka();
+  ~KafkaConsumer();
+
+  void send(std::string&&/* message*/) override {
+    throw MonitoringException("Transport", "This transport does not implement sending");
+  }
 
   /// Sends metric via Kafka
   /// \param message   r-value string formated
-  void send(std::string&& message) override;
-
+  std::vector<std::string> receive() override;
  private:
   /// Kafka producer instance
-  RdKafka::Producer* producer;
+  RdKafka::KafkaConsumer* mConsumer;
 
   /// Kafka topic
   std::string mTopic;

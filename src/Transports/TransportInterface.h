@@ -17,7 +17,9 @@
 #ifndef ALICEO2_MONITORING_TRANSPORTS_TRANSPORTINTERFACE_H
 #define ALICEO2_MONITORING_TRANSPORTS_TRANSPORTINTERFACE_H
 
+#include "../Exceptions/MonitoringException.h"
 #include <string>
+#include <vector>
 
 namespace o2
 {
@@ -39,6 +41,12 @@ class TransportInterface
   /// Sends metric via given transport
   /// \param message   r-value to string formatted metric
   virtual void send(std::string&& message) = 0;
+
+  /// Receives metric via given transport
+  /// \return    List of messages
+  virtual std::vector<std::string> receive() {
+    throw MonitoringException("Transport", "This transport does not implement receiving metrics");
+  }
 };
 
 } // namespace transports
