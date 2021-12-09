@@ -1,0 +1,45 @@
+///
+/// \file 11-KafkaToHttp.cxx
+/// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
+///
+
+#include "../src/Transports/KafkaConsumer.h"
+#include "../src/Transports/HTTP.h"
+#include "../src/Transports/WebSocket.h"
+
+#include <iostream>
+#include <memory>
+#include <thread>
+#include <boost/algorithm/string/join.hpp>
+#include <boost/program_options.hpp>
+
+using namespace o2::monitoring;
+
+int main(int argc, char* argv[])
+{
+  boost::program_options::options_description desc("Program options");
+  desc.add_options()
+    ("kafka-host", boost::program_options::value<std::string>()->required(), "Kafka broker hostname")
+    ("kafka-topic", boost::program_options::value<std::string>()->required(), "Kafka topic")
+    ("grafana-host", boost::program_options::value<std::string>()->required(), "Grafana hostname")
+    ("grafana-key", boost::program_options::value<std::string>()->required(), "Grafana API key");
+  boost::program_options::variables_map vm;
+  boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
+  boost::program_options::notify(vm);
+
+  auto kafkaConsumer = std::make_unique<transports::KafkaConsumer>(vm["kafka-host"].as<std::string>(), 9092, vm["kafka-topic"].as<std::string>());
+  auto outTransport = std::make_unique<transports::WebSocket>(vm["grafana-host"].as<std::string>(), 3000, vm["grafana-key"].as<std::string>(), "alice_o2");
+  std::thread readThread([&outTransport](){
+      for (;;) {
+        outTransport->read();
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      }
+  });
+  for (;;) {
+    auto metrics = kafkaConsumer->receive();
+    if (!metrics.empty()) {
+        outTransport->send(boost::algorithm::join(metrics, "\n"));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+  }
+}

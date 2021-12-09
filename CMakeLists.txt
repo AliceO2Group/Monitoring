@@ -216,7 +216,7 @@ set(EXAMPLES
 )
 
 if(RdKafka_FOUND)
-  list(APPEND EXAMPLES "examples/11-KafkaToHttp.cxx")
+  list(APPEND EXAMPLES "examples/11-KafkaToWebsocket.cxx")
 endif()
 
 foreach (example ${EXAMPLES})

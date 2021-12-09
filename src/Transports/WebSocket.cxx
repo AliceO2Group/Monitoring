@@ -40,6 +40,11 @@ WebSocket::WebSocket(const std::string& hostname, int port, const std::string& t
   mWebSocket.handshake(hostname, "/api/live/push/" + stream);
 }
 
+void WebSocket::read() {
+  beast::flat_buffer buffer;
+  mWebSocket.read(buffer);
+}
+
 WebSocket::~WebSocket()
 {
   mWebSocket.close(beast::websocket::close_code::normal);
