@@ -39,7 +39,7 @@ KafkaProducer::KafkaProducer(const std::string& host, unsigned int port, const s
 
   mProducer = RdKafka::Producer::create(conf.get(), errstr);
   if (!mProducer) {
-    MonLogger::Get(Severity::Warn) << "Could not initialize Kafka producer" << MonLogger::End();
+    MonLogger::Get(Severity::Error) << "Could not initialize Kafka producer" << MonLogger::End();
   }
   MonLogger::Get(Severity::Info) << "Kafka transport initialized (" << host << ":" << port << "/" << mTopic << ")" << MonLogger::End();
 }

@@ -43,7 +43,7 @@ KafkaConsumer::KafkaConsumer(const std::string& host, unsigned int port, const s
 
   mConsumer = RdKafka::KafkaConsumer::create(conf.get(), errstr);
   if (!mConsumer) {
-    MonLogger::Get(Severity::Warn) << "Could not initialize Kafka consumer" << MonLogger::End();
+    MonLogger::Get(Severity::Error) << "Could not initialize Kafka consumer" << MonLogger::End();
   }
   if (mConsumer->subscribe({mTopic})) {
     MonLogger::Get(Severity::Warn) << "Failed to subscribe to topic" << MonLogger::End();
