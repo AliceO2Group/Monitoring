@@ -30,16 +30,16 @@ int main(int argc, char* argv[])
   auto kafkaConsumer = std::make_unique<transports::KafkaConsumer>(vm["kafka-host"].as<std::string>(), 9092, vm["kafka-topic"].as<std::string>());
   auto outTransport = std::make_unique<transports::WebSocket>(vm["grafana-host"].as<std::string>(), 3000, vm["grafana-key"].as<std::string>(), "alice_o2");
   std::thread readThread([&outTransport](){
-      for (;;) {
-        outTransport->read();
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-      }
+    for (;;) {
+      outTransport->read();
+      std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    }
   });
   for (;;) {
     auto metrics = kafkaConsumer->receive();
     if (!metrics.empty()) {
-        outTransport->send(boost::algorithm::join(metrics, "\n"));
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      outTransport->send(boost::algorithm::join(metrics, "\n"));
     }
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }
 }

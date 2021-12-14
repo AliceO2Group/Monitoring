@@ -231,6 +231,9 @@ endforeach()
 
 set_target_properties(5-Benchmark PROPERTIES OUTPUT_NAME "o2-monitoring-benchmark")
 set_target_properties(8-DbFiller PROPERTIES OUTPUT_NAME "o2-monitoring-dbfiller")
+if(RdKafka_FOUND)
+  set_target_properties(11-KafkaToWebsocket PROPERTIES OUTPUT_NAME "o2-monitoring-kafka-to-grafana")
+endif()
 
 ####################################
 # Tests
@@ -278,6 +281,9 @@ install(TARGETS Monitoring 5-Benchmark 8-DbFiller
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
+if(RdKafka_FOUND)
+  install(TARGETS 11-KafkaToWebsocket)
+endif()
 
 # Create version file
 include(CMakePackageConfigHelpers)
