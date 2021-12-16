@@ -54,6 +54,8 @@ class WebSocket : public TransportInterface
   /// \param message   r-value string formated
   void send(std::string&& message) override;
 
+  /// Read control frames from socket
+  void read();
  private:
   /// IO context
   boost::asio::io_context mIoContext;
