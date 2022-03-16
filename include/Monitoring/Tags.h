@@ -18,6 +18,8 @@
 #define ALICEO2_MONITORING_TAG_H
 
 #include <string>
+#include <string_view>
+#include <array>
 
 namespace o2
 {
