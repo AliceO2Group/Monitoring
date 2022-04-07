@@ -62,7 +62,6 @@ void Monitoring::flushBuffer()
   }
   for (auto& [verbosity, buffer] : mStorage) {
     if (buffer.empty()) {
-      MonLogger::Get() << "Not flushing empty buffer" << MonLogger::End();
       continue;
     }
     for (auto& backend : mBackends) {
