@@ -78,6 +78,7 @@ find_package(ApMon MODULE)
 find_package(CURL MODULE)
 find_package(RdKafka CONFIG)
 find_package(InfoLogger CONFIG)
+find_package(Protobuf CONFIG)
 
 ####################################
 # Set OUTPUT vars
@@ -183,6 +184,10 @@ if (APPLE)
   message(STATUS "Detected macOS: Process monitor disabled")
 endif()
 
+if(Protobuf_FOUND AND RdKafka_FOUND)
+   message(STATUS "Compiling Kafka consumer with protobuf deserializer")
+endif()
+
 # Handle custom compile definitions
 target_compile_definitions(Monitoring
   PRIVATE
@@ -233,6 +238,37 @@ set_target_properties(5-Benchmark PROPERTIES OUTPUT_NAME "o2-monitoring-benchmar
 set_target_properties(8-DbFiller PROPERTIES OUTPUT_NAME "o2-monitoring-dbfiller")
 if(RdKafka_FOUND)
   set_target_properties(11-KafkaToWebsocket PROPERTIES OUTPUT_NAME "o2-monitoring-kafka-to-grafana")
+endif()
+####################################
+# Kafka protobuf deserializer
+####################################
+if(RdKafka_FOUND AND Protobuf_FOUND)
+  set(PROTO_FILE ${CMAKE_CURRENT_SOURCE_DIR}/proto/envs.proto)
+  get_filename_component(PROTO_OUTPUT_NAME ${PROTO_FILE} NAME_WE)
+  get_filename_component(PROTO_FILE_PREFIX ${PROTO_FILE} PATH)
+  set(PROTO_CPP_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PROTO_OUTPUT_NAME}.pb.cc)
+
+  add_custom_command(
+      OUTPUT "${PROTO_CPP_OUTPUT}"
+      COMMAND protobuf::protoc
+      ARGS --proto_path ${PROTO_FILE_PREFIX} --cpp_out ${CMAKE_CURRENT_SOURCE_DIR}/build ${PROTO_FILE}
+      DEPENDS ${PROTO_FILE}
+      COMMENT "Running protoc on ${PROTO_FILE}"
+      VERBATIM)
+
+  add_executable(12-KafkvaToInfluxDb
+    examples/12-KafkaToInfluxDb.cxx
+    ${PROTO_CPP_OUTPUT})
+
+  target_include_directories(12-KafkvaToInfluxDb
+    PRIVATE
+    ${CMAKE_CURRENT_BINARY_DIR})
+
+  target_link_libraries(12-KafkvaToInfluxDb
+    PRIVATE
+    Monitoring
+    Boost::program_options
+    protobuf::libprotobuf)
 endif()
 
 ####################################
