@@ -253,7 +253,7 @@ if(RdKafka_FOUND AND Protobuf_FOUND)
       COMMAND protobuf::protoc
       ARGS --proto_path ${PROTO_FILE_PREFIX} --cpp_out ${CMAKE_CURRENT_SOURCE_DIR}/build ${PROTO_FILE}
       DEPENDS ${PROTO_FILE}
-      COMMENT "Running C++ protocol buffer compiler on ${PROTO_FILE}"
+      COMMENT "Running protoc on ${PROTO_FILE}"
       VERBATIM)
 
   add_executable(12-KafkvaToInfluxDb
