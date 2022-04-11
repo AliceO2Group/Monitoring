@@ -40,7 +40,7 @@ class KafkaConsumer : public TransportInterface
   /// \param hostname      Hostname
   /// \param port          Port number
   /// \param topic 	   Kafka topic
-  KafkaConsumer(const std::string& host, unsigned int port, const std::string& topic);
+  KafkaConsumer(const std::string& host, unsigned int port, const std::vector<std::string>& topic);
 
   /// Deletes producer
   ~KafkaConsumer();
@@ -57,7 +57,7 @@ class KafkaConsumer : public TransportInterface
   RdKafka::KafkaConsumer* mConsumer;
 
   /// Kafka topic
-  std::string mTopic;
+  std::vector<std::string> mTopics;
 };
 
 } // namespace transports

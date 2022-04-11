@@ -54,6 +54,11 @@ class InfluxDB final : public Backend
   /// \param metric    reference to metric object
   void send(const Metric& metric) override;
 
+  /// Sends metric with ID tag
+  /// \param metric    reference to metric object
+  /// \param id        ID tag value
+  void sendWithId(const Metric& metric, const std::string& id);
+
   /// Sends multiple metrics not related to each other
   /// \@param metrics  vector of metrics
   void send(std::vector<Metric>&& metrics) override;
