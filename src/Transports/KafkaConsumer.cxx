@@ -27,7 +27,7 @@ namespace monitoring
 namespace transports
 {
 
-KafkaConsumer::KafkaConsumer(const std::string& host, unsigned int port, const std::string& topic) : mTopic(topic)
+KafkaConsumer::KafkaConsumer(const std::string& host, unsigned int port, const std::vector<std::string>& topics) : mTopics(topics)
 {
   std::string errstr;
   std::unique_ptr<RdKafka::Conf> conf{RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL)};
@@ -45,7 +45,7 @@ KafkaConsumer::KafkaConsumer(const std::string& host, unsigned int port, const s
   if (!mConsumer) {
     MonLogger::Get(Severity::Error) << "Could not initialize Kafka consumer" << MonLogger::End();
   }
-  if (mConsumer->subscribe({mTopic})) {
+  if (mConsumer->subscribe(mTopics)) {
     MonLogger::Get(Severity::Warn) << "Failed to subscribe to topic" << MonLogger::End();
   }
 }

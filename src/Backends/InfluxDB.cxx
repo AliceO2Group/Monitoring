@@ -78,6 +78,13 @@ void InfluxDB::send(const Metric& metric)
   mTransport->send(toInfluxLineProtocol(metric));
 }
 
+void InfluxDB::sendWithId(const Metric& metric, const std::string& id)
+{
+  auto serialized = toInfluxLineProtocol(metric);
+  serialized.insert(serialized.find(',') + 1, "id=" + id);
+  mTransport->send(std::move(serialized));
+}
+
 std::string InfluxDB::toInfluxLineProtocol(const Metric& metric)
 {
   std::stringstream convert;

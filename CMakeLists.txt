@@ -242,7 +242,7 @@ endif()
 ####################################
 # Kafka protobuf deserializer
 ####################################
-if(RdKafka_FOUND AND Protobuf_FOUND)
+if(RdKafka_FOUND AND Protobuf_FOUND AND CURL_FOUND)
   set(PROTO_FILE ${CMAKE_CURRENT_SOURCE_DIR}/proto/envs.proto)
   get_filename_component(PROTO_OUTPUT_NAME ${PROTO_FILE} NAME_WE)
   get_filename_component(PROTO_FILE_PREFIX ${PROTO_FILE} PATH)
