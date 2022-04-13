@@ -24,7 +24,6 @@ using o2::monitoring::MonLogger;
 using namespace std::literals::string_literals;
 
 
-//std::vector<std::string> gActiveEnvs;
 aliceo2::envs::ActiveRunsList gActiveEnvs;
 std::mutex gEnvAccess;
 
@@ -32,8 +31,7 @@ std::mutex gEnvAccess;
 class httpConnection : public std::enable_shared_from_this<httpConnection>
 {
 public:
-  httpConnection(tcp::socket socket) : mSocket(std::move(socket))
-  {}
+  httpConnection(tcp::socket socket) : mSocket(std::move(socket)) {}
 
   // Initiate the asynchronous operations associated with the connection.
   void start() {
