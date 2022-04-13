@@ -3,6 +3,7 @@
 #include <boost/beast/version.hpp>
 #include <boost/asio.hpp>
 #include <boost/program_options.hpp>
+#include <boost/algorithm/string/join.hpp>
 #include <chrono>
 #include <iostream>
 #include <memory>
@@ -14,6 +15,8 @@
 #include "../src/MonLogger.h"
 #include "envs.pb.h"
 
+#define BOOST_BEAST_USE_STD_STRING_VIEW
+
 namespace beast = boost::beast;
 namespace http = beast::http;
 using tcp = boost::asio::ip::tcp;
@@ -21,8 +24,10 @@ using o2::monitoring::MonLogger;
 using namespace std::literals::string_literals;
 
 
-std::vector<std::string> gActiveEnvs;
+//std::vector<std::string> gActiveEnvs;
+aliceo2::envs::ActiveRunsList gActiveEnvs;
 std::mutex gEnvAccess;
+
 
 class httpConnection : public std::enable_shared_from_this<httpConnection>
 {
@@ -48,36 +53,64 @@ private:
     auto self = shared_from_this();
     http::async_read(mSocket, mBuffer, mRequest, [self](beast::error_code ec, std::size_t bytes_transferred) {
       boost::ignore_unused(bytes_transferred);
-      if (!ec) self->process_request();
+      if (!ec) self->processRequest();
     });
   }
 
   // Determine what needs to be done with the request message.
-  void process_request() {
+  void processRequest() {
      mResponse.version(mRequest.version());
      mResponse.keep_alive(false);
      mResponse.result(http::status::ok);
-     create_response();
-     write_response();
+     createResponse();
+     writeResponse();
   }
 
   // Construct a response message based on the program state.
-  void create_response() {
+  void createResponse() {
     std::string jsonPrefix = R"({"results": [{"statement_id": 0, "series": [{"name": "env_active", "columns": ["key", "value"], "values": [)";
     std::string jsonSuffix = R"(]}]}]})";
+    // Handles ""
     if (mRequest.target().find("SHOW+TAG+VALUES+FROM") != std::string::npos) {
       mResponse.set(http::field::content_type, "application/json");
       const std::lock_guard<std::mutex> lock(gEnvAccess);
       std::string envsJson;
-      for (auto& env : gActiveEnvs) {
-        envsJson += "[\"id\", \"" + env + "\"],";
+      for (int i = 0; i < gActiveEnvs.activeruns_size(); i++) {
+        envsJson += "[\"run\", \"" + std::to_string(gActiveEnvs.activeruns(i).runnumber()) + "\"],";
       }
       if (!envsJson.empty()) {
         envsJson.pop_back();
       }
       beast::ostream(mResponse.body()) << jsonPrefix << envsJson << jsonSuffix << '\n';
-    } else if (mRequest.target().find("SELECT last(*) FROM active_runs") != std::string::npos) {
+    // Handles "SELECT last() FROM active_runs WHERE run = $run"
+    } else if (mRequest.target().find("active_runs+WHERE+run") != std::string::npos) {
+      std::string jsonPrefix = R"({"results":[{"statement_id":0,"series":[{"name":"env","columns":["time","Env ID","Run number","Detectors","State"],"values":[)";
+      std::string jsonSuffix = R"(]}]}]})";
       mResponse.set(http::field::content_type, "application/json");
+      std::string runString = std::string(mRequest.target().substr(mRequest.target().find("WHERE+run+%3D+") + 14));
+      uint32_t run;
+      try {
+        run  = static_cast<uint32_t>(std::stoul(runString));
+      } catch(...) {
+        mResponse.set(http::field::content_type, "application/json");
+        beast::ostream(mResponse.body()) << "{}\r\n";
+        return;
+      }
+      const std::lock_guard<std::mutex> lock(gEnvAccess);
+      std::string envsJson;
+      for (int i = 0; i < gActiveEnvs.activeruns_size(); i++) {
+        if (run != gActiveEnvs.activeruns(i).runnumber()) {
+          continue;
+        }
+        auto detectorsProto = gActiveEnvs.activeruns(i).detectors();
+        std::vector<std::string> detectors(detectorsProto.begin(), detectorsProto.end());
+        envsJson += "[" + std::to_string(gActiveEnvs.timestamp()) + ", \""
+                 + gActiveEnvs.activeruns(i).environmentid() + "\", "
+                 + std::to_string(gActiveEnvs.activeruns(i).runnumber()) + ", \""
+                 + boost::algorithm::join(detectors, " ") + "\", \""
+                 + gActiveEnvs.activeruns(i).state() + "\"]";
+      }
+      beast::ostream(mResponse.body()) << jsonPrefix << envsJson << jsonSuffix << '\n';
       
     } else if (mRequest.target().find("SHOW+RETENTION+POLICIES") != std::string::npos) {
       mResponse.set(http::field::content_type, "application/json");
@@ -90,7 +123,7 @@ private:
   }
 
   // Asynchronously transmit the response message.
-  void write_response() {
+  void writeResponse() {
     auto self = shared_from_this();
     mResponse.content_length(mResponse.body().size());
     http::async_write(mSocket, mResponse, [self](beast::error_code ec, std::size_t) {
@@ -126,13 +159,14 @@ void deserializeActiveRuns(const std::string& lastActiveRunMessage)
   activeRuns.ParseFromString(lastActiveRunMessage);
   if (activeRuns.activeruns_size() == 0) {
     MonLogger::Get() << "Empty active runs" << MonLogger::End();;
+  } else {
+    for (int i = 0; i < activeRuns.activeruns_size(); i++) {
+      MonLogger::Get() << "Active run: " << activeRuns.activeruns(i).runnumber() << " ("
+                       << activeRuns.activeruns(i).environmentid() << ")" << MonLogger::End();
+    }
   }
   const std::lock_guard<std::mutex> lock(gEnvAccess);
-  gActiveEnvs.clear();
-  for (int i = 0; i < activeRuns.activeruns_size(); i++) {
-    gActiveEnvs.push_back(activeRuns.activeruns(i).environmentid());
-    MonLogger::Get() << "Active run: " << activeRuns.activeruns(i).environmentid() << MonLogger::End();
-  }
+  gActiveEnvs = activeRuns;
 }
 
 int main(int argc, char* argv[]) {
