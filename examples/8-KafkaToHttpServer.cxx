@@ -109,6 +109,11 @@ void httpServer(tcp::acceptor& acceptor, tcp::socket& socket) {
   acceptor.async_accept(socket, [&](beast::error_code ec) {
     if (!ec) {
      auto connection = std::make_shared<httpConnection>(std::move(socket));
+     connection->addCallback("SHOW+RETENTION+POLICIES",
+     [](http::request<http::dynamic_body>& request, http::response<http::dynamic_body>& response) {
+       response.set(http::field::content_type, "application/json");
+       beast::ostream(response.body()) << "{}\n";
+     });
      connection->addCallback("SHOW+TAG+VALUES+FROM",
      [](http::request<http::dynamic_body>& request, http::response<http::dynamic_body>& response) {
        std::string jsonPrefix = R"({"results": [{"statement_id": 0, "series": [{"name": "env_active", "columns": ["key", "value"], "values": [)";
