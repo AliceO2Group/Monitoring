@@ -215,7 +215,6 @@ set(EXAMPLES
   examples/5-Benchmark.cxx
   examples/6-Increment.cxx
   examples/7-InternalBenchamrk.cxx
-  examples/8-DbFiller.cxx
   examples/9-RunNumber.cxx
   examples/10-Buffering.cxx
 )
@@ -235,12 +234,14 @@ foreach (example ${EXAMPLES})
 endforeach()
 
 set_target_properties(5-Benchmark PROPERTIES OUTPUT_NAME "o2-monitoring-benchmark")
-set_target_properties(8-DbFiller PROPERTIES OUTPUT_NAME "o2-monitoring-dbfiller")
+
 if(RdKafka_FOUND)
   set_target_properties(11-KafkaToWebsocket PROPERTIES OUTPUT_NAME "o2-monitoring-kafka-to-grafana")
 endif()
+
+
 ####################################
-# Kafka protobuf deserializer
+# Generate protobuf
 ####################################
 if(RdKafka_FOUND AND Protobuf_FOUND AND CURL_FOUND)
   set(PROTO_FILE ${CMAKE_CURRENT_SOURCE_DIR}/proto/envs.proto)
@@ -256,19 +257,24 @@ if(RdKafka_FOUND AND Protobuf_FOUND AND CURL_FOUND)
       COMMENT "Running protoc on ${PROTO_FILE}"
       VERBATIM)
 
-  add_executable(12-KafkvaToInfluxDb
+  set(PROTO_EXAMPLES
     examples/12-KafkaToInfluxDb.cxx
-    ${PROTO_CPP_OUTPUT})
-
-  target_include_directories(12-KafkvaToInfluxDb
-    PRIVATE
-    ${CMAKE_CURRENT_BINARY_DIR})
-
-  target_link_libraries(12-KafkvaToInfluxDb
-    PRIVATE
-    Monitoring
-    Boost::program_options
-    protobuf::libprotobuf)
+    examples/8-KafkaToHttpServer.cxx
+  )
+  foreach (example ${PROTO_EXAMPLES})
+    get_filename_component(example_name ${example} NAME)
+    string(REGEX REPLACE ".cxx" "" example_name ${example_name})
+    add_executable(${example_name} ${example} ${PROTO_CPP_OUTPUT})
+    target_link_libraries(${example_name} PRIVATE
+      Monitoring
+      Boost::program_options
+      protobuf::libprotobuf
+    )
+    target_include_directories(${example_name} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+    install(TARGETS ${example_name})
+  endforeach()
+  set_target_properties(8-KafkaToHttpServer PROPERTIES OUTPUT_NAME "o2-monitoring-env-webserver")
+  set_target_properties(12-KafkaToInfluxDb PROPERTIES OUTPUT_NAME "o2-monitoring-kafka-to-influxdb")
 endif()
 
 ####################################
@@ -311,7 +317,7 @@ endforeach()
 ####################################
 
 # Install library
-install(TARGETS Monitoring 5-Benchmark 8-DbFiller
+install(TARGETS Monitoring 5-Benchmark
   EXPORT MonitoringTargets
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
