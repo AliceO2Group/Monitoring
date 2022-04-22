@@ -252,7 +252,7 @@ if(RdKafka_FOUND AND Protobuf_FOUND AND CURL_FOUND)
   add_custom_command(
       OUTPUT "${PROTO_CPP_OUTPUT}"
       COMMAND protobuf::protoc
-      ARGS --proto_path ${PROTO_FILE_PREFIX} --cpp_out ${CMAKE_CURRENT_SOURCE_DIR}/build ${PROTO_FILE}
+      ARGS --proto_path ${PROTO_FILE_PREFIX} --cpp_out ${CMAKE_CURRENT_BINARY_DIR} ${PROTO_FILE}
       DEPENDS ${PROTO_FILE}
       COMMENT "Running protoc on ${PROTO_FILE}"
       VERBATIM)
