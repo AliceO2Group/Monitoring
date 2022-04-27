@@ -191,10 +191,10 @@ int main(int argc, char* argv[]) {
   boost::program_options::variables_map vm; 
   boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
   boost::program_options::notify(vm);
-  unsigned short port = vm["http-port"].as<unsigned int>();
+  unsigned short port = vm["http-port"].as<unsigned short>();
 
   MonLogger::mLoggerSeverity = o2::monitoring::Severity::Debug; 
-
+  std::cout << "Using Kafka instance: " << vm["kafka-host"].as<std::string>() << ":9092 and HTTP server port: " << port << std::endl;
   std::thread webServerThread([&port](){
     auto const address = boost::asio::ip::make_address("0.0.0.0");
     boost::asio::io_context ioc{1};
