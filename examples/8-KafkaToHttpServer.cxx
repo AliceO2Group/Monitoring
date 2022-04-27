@@ -186,17 +186,19 @@ int main(int argc, char* argv[]) {
   boost::program_options::options_description desc("Program options");
   desc.add_options()
     ("kafka-host", boost::program_options::value<std::string>()->required(), "Kafka host")
-    ("kafka-topics", boost::program_options::value<std::vector<std::string>>()->multitoken()->required(), "Kafka topics");
+    ("kafka-topics", boost::program_options::value<std::vector<std::string>>()->multitoken()->required(), "Kafka topics")
+    ("http-port", boost::program_options::value<unsigned short>()->default_value(8086), "HTTP server bind port");
   boost::program_options::variables_map vm; 
   boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
   boost::program_options::notify(vm);
+  unsigned short port = vm["http-port"].as<unsigned int>();
 
   MonLogger::mLoggerSeverity = o2::monitoring::Severity::Debug; 
 
-  std::thread webServerThread([](){
+  std::thread webServerThread([&port](){
     auto const address = boost::asio::ip::make_address("0.0.0.0");
     boost::asio::io_context ioc{1};
-    tcp::acceptor acceptor{ioc, {address, 8086}};
+    tcp::acceptor acceptor{ioc, {address, port}};
     tcp::socket socket{ioc};
     httpServer(acceptor, socket);
     ioc.run();
