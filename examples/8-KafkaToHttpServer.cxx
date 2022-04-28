@@ -5,6 +5,7 @@
 #include <boost/beast/version.hpp>
 #include <boost/asio.hpp>
 #include <boost/program_options.hpp>
+#include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/join.hpp>
 #include <chrono>
 #include <iostream>
@@ -112,7 +113,7 @@ void httpServer(tcp::acceptor& acceptor, tcp::socket& socket) {
        response.set(http::field::content_type, "application/json");
        beast::ostream(response.body()) << "{}\n";
      });
-     connection->addCallback("SHOW+TAG+VALUES+FROM",
+     connection->addCallback("SHOW+TAG+VALUES+FROM+runs",
      [](http::request<http::dynamic_body>& /*request*/, http::response<http::dynamic_body>& response) {
        std::string jsonPrefix = R"({"results": [{"statement_id": 0, "series": [{"name": "env_active", "columns": ["key", "value"], "values": [)";
        std::string jsonSuffix = R"(]}]}]})";
@@ -127,6 +128,34 @@ void httpServer(tcp::acceptor& acceptor, tcp::socket& socket) {
        }
        beast::ostream(response.body()) << jsonPrefix << envsJson << jsonSuffix << '\n';
      });
+     connection->addCallback("SHOW+TAG+VALUES+FROM+detectors",
+     [](http::request<http::dynamic_body>& request, http::response<http::dynamic_body>& response) {
+       std::string jsonPrefix = R"({"results": [{"statement_id": 0, "series": [{"name": "detectors", "columns": ["key", "value"], "values": [)";
+       std::string jsonSuffix = R"(]}]}]})";
+       std::string runString = std::string(request.target().substr(request.target().find("WHERE+run+%3D+") + 14));
+       response.set(http::field::content_type, "application/json");
+       uint32_t run;
+       try {
+         run  = static_cast<uint32_t>(std::stoul(runString));
+       } catch(...) {
+         beast::ostream(response.body()) << "{}\r\n";
+         return;
+       }
+       const std::lock_guard<std::mutex> lock(gEnvAccess);
+       std::string detectorsJson;
+       for (int i = 0; i < gActiveEnvs.activeruns_size(); i++) {
+         if (run != gActiveEnvs.activeruns(i).runnumber()) {
+           continue;
+         }
+         for (int j = 0; j < gActiveEnvs.activeruns(i).detectors_size(); j++) {
+           detectorsJson += "[\"detector\", \"" + boost::algorithm::to_lower_copy(gActiveEnvs.activeruns(i).detectors(j)) + "\"],";
+         }
+         if (!detectorsJson.empty()) {
+           detectorsJson.pop_back();
+         }
+       }
+       beast::ostream(response.body()) << jsonPrefix << detectorsJson << jsonSuffix << '\n';
+     });
      connection->addCallback("active_runs+WHERE+run",
      [](http::request<http::dynamic_body>& request, http::response<http::dynamic_body>& response) {
       std::string jsonPrefix = R"({"results":[{"statement_id":0,"series":[{"name":"env","columns":["time","Env ID","Run number","Detectors","State"],"values":[)";
@@ -137,7 +166,6 @@ void httpServer(tcp::acceptor& acceptor, tcp::socket& socket) {
       try {
         run  = static_cast<uint32_t>(std::stoul(runString));
       } catch(...) {
-        response.set(http::field::content_type, "application/json");
         beast::ostream(response.body()) << "{}\r\n";
         return;
       }
