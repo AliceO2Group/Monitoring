@@ -177,7 +177,7 @@ void httpServer(tcp::acceptor& acceptor, tcp::socket& socket) {
         }
         auto detectorsProto = gActiveEnvs.activeruns(i).detectors();
         std::vector<std::string> detectors(detectorsProto.begin(), detectorsProto.end());
-        envsJson += "[" + std::to_string(gActiveEnvs.timestamp()) + ", \""
+        envsJson += "[" + std::to_string(gActiveEnvs.activeruns(i).enterstatetimestamp()) + ", \""
                  + gActiveEnvs.activeruns(i).environmentid() + "\", "
                  + std::to_string(gActiveEnvs.activeruns(i).runnumber()) + ", \""
                  + boost::algorithm::join(detectors, " ") + "\", \""
