@@ -158,7 +158,7 @@ void httpServer(tcp::acceptor& acceptor, tcp::socket& socket) {
      });
      connection->addCallback("active_runs+WHERE+run",
      [](http::request<http::dynamic_body>& request, http::response<http::dynamic_body>& response) {
-      std::string jsonPrefix = R"({"results":[{"statement_id":0,"series":[{"name":"env","columns":["time","Env ID","Run number","Detectors","State"],"values":[)";
+      std::string jsonPrefix = R"({"results":[{"statement_id":0,"series":[{"name":"env","columns":["time","Env ID","Run number","Detectors","State", "Run type"],"values":[)";
       std::string jsonSuffix = R"(]}]}]})";
       response.set(http::field::content_type, "application/json");
       std::string runString = std::string(request.target().substr(request.target().find("WHERE+run+%3D+") + 14));
@@ -181,7 +181,8 @@ void httpServer(tcp::acceptor& acceptor, tcp::socket& socket) {
                  + gActiveEnvs.activeruns(i).environmentid() + "\", "
                  + std::to_string(gActiveEnvs.activeruns(i).runnumber()) + ", \""
                  + boost::algorithm::join(detectors, " ") + "\", \""
-                 + gActiveEnvs.activeruns(i).state() + "\"]";
+                 + gActiveEnvs.activeruns(i).state() + "\", \""
+                 + gActiveEnvs.activeruns(i).runtype() + "\"]";
       }
       beast::ostream(response.body()) << jsonPrefix << envsJson << jsonSuffix << '\n';
      });
