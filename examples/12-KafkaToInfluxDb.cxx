@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
   boost::program_options::notify(vm);
 
   std::vector<std::string> topics = vm["kafka-topics"].as<std::vector<std::string>>();
-  auto kafkaConsumer = std::make_unique<transports::KafkaConsumer>(vm["kafka-host"].as<std::string>(), 9092, topics);
+  auto kafkaConsumer = std::make_unique<transports::KafkaConsumer>(vm["kafka-host"].as<std::string>() + ":9092", topics, "kafka-to-influxdb");
   auto httpTransport = std::make_unique<transports::HTTP>(
     "http://" + vm["influxdb-host"].as<std::string>() + ":8086/api/v2/write?" +
     "org=" + vm["influxdb-org"].as<std::string>() + "&" +
@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
   httpTransport->addHeader("Authorization: Token " + vm["influxdb-token"].as<std::string>());
   auto influxdbBackend = std::make_unique<backends::InfluxDB>(std::move(httpTransport));
   for (;;) {
-    auto changes = kafkaConsumer->receive();
+    auto changes = kafkaConsumer->pull();
     if (!changes.empty()) {
       for (auto& change : changes) {
         aliceo2::envs::NewStateNotification stateChange;
