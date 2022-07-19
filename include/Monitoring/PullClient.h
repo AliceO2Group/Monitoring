@@ -10,40 +10,35 @@
 // or submit itself to any jurisdiction.
 
 ///
-/// \file TransportInterface.h
+/// \file PullClient.h
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 ///
 
-#ifndef ALICEO2_MONITORING_TRANSPORTS_TRANSPORTINTERFACE_H
-#define ALICEO2_MONITORING_TRANSPORTS_TRANSPORTINTERFACE_H
+#ifndef ALICEO2_MONITORING_CORE_PULLCLIENT_H
+#define ALICEO2_MONITORING_CORE_PULLCLIENT_H
 
-#include <string>
 #include <vector>
+#include <string>
 
 namespace o2
 {
 /// ALICE O2 Monitoring system
 namespace monitoring
 {
-/// Monitoring transports
-namespace transports
-{
 
-/// \brief Transport interface for backends
-class TransportInterface
+/// \brief PullClient pure virtual interface
+///
+/// Interface that allows to send a metric to remote backend.
+/// In addition, default tagset (for all handled metrics) can be created.
+class PullClient
 {
  public:
-  TransportInterface() = default;
-
-  virtual ~TransportInterface() = default;
-
-  /// Sends metric via given transport
-  /// \param message   r-value to string formatted metric
-  virtual void send(std::string&& message) = 0;
+  /// Default destructor
+  virtual ~PullClient() = default;
+  virtual std::vector<std::string> pull() = 0;
 };
 
-} // namespace transports
 } // namespace monitoring
 } // namespace o2
 
-#endif // ALICEO2_MONITORING_TRANSPORTS_TRANSPORTINTERFACE_H
+#endif // ALICEO2_MONITORING_CORE_PULLCLIENT_H

@@ -3,7 +3,7 @@
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 ///
 
-#include "../src/Transports/KafkaConsumer.h"
+#include "Monitoring/MonitoringFactory.h"
 #include "../src/Transports/HTTP.h"
 #include "../src/Transports/WebSocket.h"
 
@@ -27,7 +27,8 @@ int main(int argc, char* argv[])
   boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
   boost::program_options::notify(vm);
 
-  auto kafkaConsumer = std::make_unique<transports::KafkaConsumer>(vm["kafka-host"].as<std::string>(), 9092, std::vector<std::string>{vm["kafka-topics"].as<std::vector<std::string>>()});
+
+  auto kafkaConsumer = MonitoringFactory::GetPullClient(vm["kafka-host"].as<std::string>() + ":9092", std::vector<std::string>{vm["kafka-topics"].as<std::vector<std::string>>()});
   auto outTransport = std::make_unique<transports::WebSocket>(vm["grafana-host"].as<std::string>(), 3000, vm["grafana-key"].as<std::string>(), "alice_o2");
   std::thread readThread([&outTransport](){
     for (;;) {
@@ -36,7 +37,7 @@ int main(int argc, char* argv[])
     }
   });
   for (;;) {
-    auto metrics = kafkaConsumer->receive();
+    auto metrics = kafkaConsumer->pull();
     if (!metrics.empty()) {
       outTransport->send(boost::algorithm::join(metrics, "\n"));
     }

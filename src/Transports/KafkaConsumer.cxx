@@ -17,6 +17,7 @@
 #include "KafkaConsumer.h"
 #include <string>
 #include "../MonLogger.h"
+#include "../Exceptions/MonitoringException.h"
 
 namespace o2
 {
@@ -27,13 +28,13 @@ namespace monitoring
 namespace transports
 {
 
-KafkaConsumer::KafkaConsumer(const std::string& host, unsigned int port, const std::vector<std::string>& topics) : mTopics(topics)
+KafkaConsumer::KafkaConsumer(const std::string& url, const std::vector<std::string>& topics, const std::string& groupId) : mTopics(topics)
 {
   std::string errstr;
   std::unique_ptr<RdKafka::Conf> conf{RdKafka::Conf::create(RdKafka::Conf::CONF_GLOBAL)};
-  if (conf->set("bootstrap.servers", host + ":" + std::to_string(port), errstr) != RdKafka::Conf::CONF_OK
+  if (conf->set("bootstrap.servers", url, errstr) != RdKafka::Conf::CONF_OK
    || conf->set("enable.partition.eof", "false", errstr) != RdKafka::Conf::CONF_OK
-   || conf->set("group.id", "o2-monitoring-group", errstr) != RdKafka::Conf::CONF_OK
+   || conf->set("group.id", groupId, errstr) != RdKafka::Conf::CONF_OK
    || conf->set("auto.offset.reset", "latest", errstr) != RdKafka::Conf::CONF_OK
    || conf->set("heartbeat.interval.ms", "2000", errstr) != RdKafka::Conf::CONF_OK
    || conf->set("session.timeout.ms", "6000", errstr) != RdKafka::Conf::CONF_OK
@@ -50,7 +51,7 @@ KafkaConsumer::KafkaConsumer(const std::string& host, unsigned int port, const s
   }
 }
 
-std::vector<std::string> KafkaConsumer::receive()
+std::vector<std::string> KafkaConsumer::pull()
 {
   std::vector<std::string> received;
   size_t batch_size = 5;

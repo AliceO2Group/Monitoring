@@ -17,7 +17,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include "../include/Monitoring/MonitoringFactory.h"
+#include "Monitoring/MonitoringFactory.h"
 
 namespace o2
 {

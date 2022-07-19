@@ -18,6 +18,7 @@
 #define ALICEO2_MONITORING_FACTORY_H
 
 #include "Monitoring/Monitoring.h"
+#include "Monitoring/PullClient.h"
 
 namespace o2
 {
@@ -42,7 +43,7 @@ class MonitoringFactory
   /// \return		monitoring backend
   /// \throw MonitoringException when backend initialisation failed
   static std::unique_ptr<Backend> GetBackend(std::string& url);
-
+  static std::unique_ptr<PullClient> GetPullClient(const std::string &url, const std::vector<std::string>& topics, const std::string &label = "o2-monitoring-group");
  private:
   /// Private constructor disallows to create instance of Factory
   MonitoringFactory() = default;
