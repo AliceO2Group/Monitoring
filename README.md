@@ -217,6 +217,8 @@ find_package(RdKafka CONFIG REQUIRED)
 find_package(Monitoring CONFIG REQUIRED)
 ```
 
+And then, link against `AliceO2::Monitoring` target.
+
 ### Connect to Monitoring server
 ```cpp
 #include "Monitoring/MonitoringFactory.h"
