@@ -193,10 +193,10 @@ This guide explains manual installation. For `ansible` deployment see [AliceO2Gr
 
 ---
 
-## Getting updates from Monitoring system (!Development only)
+## Receiving metrics from Monitoring system (development instructions)
 
 ### Compile Monitoring library with Kafka backend
-- Install boost
+- Install `boost`
 - Compile `librdkafka`
   ```bash
   git clone -b v1.8.2 https://github.com/edenhill/librdkafka && cd librdkafka
