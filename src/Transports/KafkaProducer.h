@@ -14,8 +14,8 @@
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 ///
 
-#ifndef ALICEO2_MONITORING_TRANSPORTS_KAFKA_H
-#define ALICEO2_MONITORING_TRANSPORTS_KAFKA_H
+#ifndef ALICEO2_MONITORING_TRANSPORTS_KAFKAPRODUCER_H
+#define ALICEO2_MONITORING_TRANSPORTS_KAFKAPRODUCER_H
 
 #include "TransportInterface.h"
 
@@ -60,4 +60,4 @@ class KafkaProducer : public TransportInterface
 } // namespace monitoring
 } // namespace o2
 
-#endif // ALICEO2_MONITORING_TRANSPORTS_KAFKA_H
+#endif // ALICEO2_MONITORING_TRANSPORTS_KAFKAPRODUCER_H

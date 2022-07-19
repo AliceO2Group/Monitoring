@@ -14,10 +14,10 @@
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 ///
 
-#ifndef ALICEO2_MONITORING_TRANSPORTS_KAFKA_H
-#define ALICEO2_MONITORING_TRANSPORTS_KAFKA_H
+#ifndef ALICEO2_MONITORING_TRANSPORTS_KAFKACONSUMER_H
+#define ALICEO2_MONITORING_TRANSPORTS_KAFKACONSUMER_H
 
-#include "TransportInterface.h"
+#include "Monitoring/PullClient.h"
 
 #include <chrono>
 #include <string>
@@ -33,25 +33,21 @@ namespace transports
 {
 
 /// \brief Transport that sends string formatted metrics via Kafka
-class KafkaConsumer : public TransportInterface
+class KafkaConsumer : public PullClient
 {
  public:
   /// Creates producer
-  /// \param hostname      Hostname
-  /// \param port          Port number
-  /// \param topic 	   Kafka topic
-  KafkaConsumer(const std::string& host, unsigned int port, const std::vector<std::string>& topic);
+  /// \param url  Broker URL (host:port)
+  /// \param topics 	   Kafka topics to subscribe to
+  /// \param groupId     Kafka consumer group id
+  KafkaConsumer(const std::string& url, const std::vector<std::string>& topics, const std::string& groupId);
 
   /// Deletes producer
   ~KafkaConsumer();
 
-  void send(std::string&&/* message*/) override {
-    throw MonitoringException("Transport", "This transport does not implement sending");
-  }
-
   /// Sends metric via Kafka
   /// \param message   r-value string formated
-  std::vector<std::string> receive() override;
+  std::vector<std::string> pull() override;
  private:
   /// Kafka producer instance
   RdKafka::KafkaConsumer* mConsumer;
@@ -64,4 +60,4 @@ class KafkaConsumer : public TransportInterface
 } // namespace monitoring
 } // namespace o2
 
-#endif // ALICEO2_MONITORING_TRANSPORTS_KAFKA_H
+#endif // ALICEO2_MONITORING_TRANSPORTS_KAFKACONSUMER_H

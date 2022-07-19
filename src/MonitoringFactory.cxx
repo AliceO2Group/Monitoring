@@ -219,6 +219,15 @@ std::unique_ptr<Monitoring> MonitoringFactory::Get(std::string urlsString)
   }
   return monitoring;
 }
+#ifdef O2_MONITORING_WITH_KAFKA
+std::unique_ptr<PullClient> MonitoringFactory::GetPullClient(const std::string &url, const std::vector<std::string>& topics, const std::string &label) {
+  auto client = std::make_unique<transports::KafkaConsumer>(url, topics, label);
+  return client;
+#else
+std::unique_ptr<PullClient> MonitoringFactory::GetPullClient(const std::string&, const std::vector<std::string>&, const std::string&) {
+  throw MonitoringException("Factory", "Compile library with Kafka");
+#endif
+}
 
 } // namespace monitoring
 } // namespace o2
