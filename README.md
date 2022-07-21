@@ -195,8 +195,11 @@ This guide explains manual installation. For `ansible` deployment see [AliceO2Gr
 
 ## Receiving metrics from Monitoring system (development instructions)
 
+### Requirements
+  - CS8 or CC7 with `devtoolset-9`
+  - Boost >= 1.70
+
 ### Compile Monitoring library with Kafka backend
-- Install `boost`
 - Compile `librdkafka`
   ```bash
   git clone -b v1.8.2 https://github.com/edenhill/librdkafka && cd librdkafka
