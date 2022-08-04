@@ -78,7 +78,7 @@ find_package(ApMon MODULE)
 find_package(CURL MODULE)
 find_package(RdKafka CONFIG)
 find_package(InfoLogger CONFIG)
-find_package(Protobuf CONFIG)
+find_package(Protobuf)
 
 ####################################
 # Set OUTPUT vars
