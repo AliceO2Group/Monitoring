@@ -46,7 +46,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: CMake
-      run: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Debug
+      run: mkdir build && cd build && source /opt/rh/gcc-toolset-10/enable && cmake ..
     - name: Build
       run: cd build && make -j
     - name: Test
