@@ -3,7 +3,7 @@ name: Build and test
 on: [pull_request]
 
 jobs:
-  linux:
+  ubuntu:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -38,6 +38,16 @@ jobs:
     - name: Run CMake
       run: mkdir build && cd build && cmake ..
     - name: Build project
+      run: cd build && make -j
+    - name: Test
+      run: cd build && make test
+  cs8:
+    runs-on: self-hosted
+    steps:
+    - uses: actions/checkout@v2
+    - name: CMake
+      run: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Debug
+    - name: Build
       run: cd build && make -j
     - name: Test
       run: cd build && make test
