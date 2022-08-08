@@ -52,7 +52,7 @@ jobs:
     - name: Test
       run: cd build && make test
   cc7:
-    runs-on: [self-hosted, cs8]
+    runs-on: [self-hosted, cc7]
     steps:
     - uses: actions/checkout@v2
     - name: CMake
