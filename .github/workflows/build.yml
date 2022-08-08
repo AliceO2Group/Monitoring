@@ -3,7 +3,7 @@ name: Build and test
 on: [pull_request]
 
 jobs:
-  linux:
+  ubuntu:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -38,6 +38,26 @@ jobs:
     - name: Run CMake
       run: mkdir build && cd build && cmake ..
     - name: Build project
+      run: cd build && make -j
+    - name: Test
+      run: cd build && make test
+  cs8:
+    runs-on: [self-hosted, cs8]
+    steps:
+    - uses: actions/checkout@v2
+    - name: CMake
+      run: mkdir build && cd build && source /opt/rh/gcc-toolset-10/enable && cmake ..
+    - name: Build
+      run: cd build && make -j
+    - name: Test
+      run: cd build && make test
+  cc7:
+    runs-on: [self-hosted, cc7]
+    steps:
+    - uses: actions/checkout@v2
+    - name: CMake
+      run: mkdir build && cd build && source /opt/rh/devtoolset-9/enable  && cmake3 ..
+    - name: Build
       run: cd build && make -j
     - name: Test
       run: cd build && make test
