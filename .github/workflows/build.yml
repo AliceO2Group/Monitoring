@@ -42,11 +42,21 @@ jobs:
     - name: Test
       run: cd build && make test
   cs8:
-    runs-on: self-hosted
+    runs-on: [self-hosted, cs8]
     steps:
     - uses: actions/checkout@v2
     - name: CMake
       run: mkdir build && cd build && source /opt/rh/gcc-toolset-10/enable && cmake ..
+    - name: Build
+      run: cd build && make -j
+    - name: Test
+      run: cd build && make test
+  cc7:
+    runs-on: [self-hosted, cs8]
+    steps:
+    - uses: actions/checkout@v2
+    - name: CMake
+      run: mkdir build && cd build && source source /opt/rh/devtoolset-9/enable  && cmake3 ..
     - name: Build
       run: cd build && make -j
     - name: Test
