@@ -56,7 +56,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: CMake
-      run: mkdir build && cd build && source source /opt/rh/devtoolset-9/enable  && cmake3 ..
+      run: mkdir build && cd build && source /opt/rh/devtoolset-9/enable  && cmake3 ..
     - name: Build
       run: cd build && make -j
     - name: Test
