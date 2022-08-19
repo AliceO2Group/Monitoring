@@ -2,7 +2,6 @@
 /// \file 12-KafkaToInfluxDb.cxx
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 ///
-
 #include "../src/Transports/KafkaConsumer.h"
 #include "../src/Backends/InfluxDB.h"
 #include "../src/Transports/HTTP.h"
@@ -23,7 +22,6 @@ int main(int argc, char* argv[])
   boost::program_options::options_description desc("Program options");
   desc.add_options()
     ("kafka-host", boost::program_options::value<std::string>()->required(), "Kafka broker hostname")
-    ("kafka-topics", boost::program_options::value<std::vector<std::string>>()->multitoken()->required(), "Kafka topics")
     ("influxdb-host", boost::program_options::value<std::string>()->required(), "InfluxDB hostname")
     ("influxdb-token", boost::program_options::value<std::string>()->required(), "InfluxDB token")
     ("influxdb-org", boost::program_options::value<std::string>()->default_value("cern"), "InfluxDB organisation")
@@ -32,8 +30,8 @@ int main(int argc, char* argv[])
   boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
   boost::program_options::notify(vm);
 
-  std::vector<std::string> topics = vm["kafka-topics"].as<std::vector<std::string>>();
-  auto kafkaConsumer = std::make_unique<transports::KafkaConsumer>(vm["kafka-host"].as<std::string>() + ":9092", topics, "kafka-to-influxdb");
+  std::vector<std::string> topics = {"aliecs.env_leave_state.RUNNING"};
+  auto kafkaConsumer = std::make_unique<transports::KafkaConsumer>(vm["kafka-host"].as<std::string>() + ":9092", topics, "aliecs-run-times");
   auto httpTransport = std::make_unique<transports::HTTP>(
     "http://" + vm["influxdb-host"].as<std::string>() + ":8086/api/v2/write?" +
     "org=" + vm["influxdb-org"].as<std::string>() + "&" +
@@ -50,19 +48,14 @@ int main(int argc, char* argv[])
         if (stateChange.envinfo().state().empty()) {
           continue;
         }
-        std::cout << stateChange.envinfo().environmentid() << " => " << stateChange.envinfo().state()
-                  << " (" << stateChange.envinfo().runnumber() << ")" << std::endl;
-        auto metric = Metric{"env_info"}.addValue(stateChange.envinfo().state(), "state");
-        auto detectorsProto = stateChange.envinfo().detectors();
-        std::vector<std::string> detectors(detectorsProto.begin(), detectorsProto.end());
-        if (detectors.size() > 0) {
-          metric.addValue(boost::algorithm::join(detectors, " "), "detectors");
-        }
+        std::cout << stateChange.envinfo().environmentid() << " (" << stateChange.envinfo().runnumber() << ") stops" << std::endl;
+        auto metric = Metric{"run_times"}
+          .addValue(stateChange.envinfo().enterstatetimestamp(), "sor")
+          .addValue(static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::milliseconds>(Metric::getCurrentTimestamp().time_since_epoch()).count()), "eor");
         int run = stateChange.envinfo().runnumber();
         if (run > 1) {
-          metric.addValue(run, "run");
+          influxdbBackend->sendWithRun(metric, stateChange.envinfo().environmentid(), std::to_string(run));
         }
-        influxdbBackend->sendWithId(metric, stateChange.envinfo().environmentid());
       }
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
