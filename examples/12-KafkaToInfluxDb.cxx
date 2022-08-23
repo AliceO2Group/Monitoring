@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
   boost::program_options::options_description desc("Program options");
   desc.add_options()
     ("kafka-host", boost::program_options::value<std::string>()->required(), "Kafka broker hostname")
-    ("influxdb-host", boost::program_options::value<std::string>()->required(), "InfluxDB hostname")
+    ("influxdb-url", boost::program_options::value<std::string>()->required(), "InfluxDB hostname")
     ("influxdb-token", boost::program_options::value<std::string>()->required(), "InfluxDB token")
     ("influxdb-org", boost::program_options::value<std::string>()->default_value("cern"), "InfluxDB organisation")
     ("influxdb-bucket", boost::program_options::value<std::string>()->default_value("aliecs"), "InfluxDB bucket");
@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
   std::vector<std::string> topics = {"aliecs.env_leave_state.RUNNING"};
   auto kafkaConsumer = std::make_unique<transports::KafkaConsumer>(vm["kafka-host"].as<std::string>() + ":9092", topics, "aliecs-run-times");
   auto httpTransport = std::make_unique<transports::HTTP>(
-    "http://" + vm["influxdb-host"].as<std::string>() + ":8086/api/v2/write?" +
+    vm["influxdb-url"].as<std::string>() + "/api/v2/write?" +
     "org=" + vm["influxdb-org"].as<std::string>() + "&" +
     "bucket=" + vm["influxdb-bucket"].as<std::string>()
   );
