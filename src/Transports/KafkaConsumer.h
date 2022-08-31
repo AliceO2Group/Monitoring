@@ -47,7 +47,7 @@ class KafkaConsumer : public PullClient
 
   /// Sends metric via Kafka
   /// \param message   r-value string formated
-  std::vector<std::string> pull() override;
+  std::vector<std::pair<std::string, std::string>> pull() override;
  private:
   /// Kafka producer instance
   RdKafka::KafkaConsumer* mConsumer;

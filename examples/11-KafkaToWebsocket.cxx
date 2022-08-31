@@ -10,7 +10,6 @@
 #include <iostream>
 #include <memory>
 #include <thread>
-#include <boost/algorithm/string/join.hpp>
 #include <boost/program_options.hpp>
 
 using namespace o2::monitoring;
@@ -38,8 +37,8 @@ int main(int argc, char* argv[])
   });
   for (;;) {
     auto metrics = kafkaConsumer->pull();
-    if (!metrics.empty()) {
-      outTransport->send(boost::algorithm::join(metrics, "\n"));
+    for (auto& metric : metrics) {
+      outTransport->send(std::move(metric.second));
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }

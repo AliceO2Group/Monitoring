@@ -231,12 +231,12 @@ int main(int argc, char* argv[]) {
   });
 
   auto kafkaConsumer = std::make_unique<o2::monitoring::transports::KafkaConsumer>(
-    vm["kafka-host"].as<std::string>() + ":9092", std::vector<std::string>{vm["kafka-topics"].as<std::vector<std::string>>()}, "kafka-aliecs"
+    vm["kafka-host"].as<std::string>() + ":9092", std::vector<std::string>{vm["kafka-topics"].as<std::vector<std::string>>()}, "kafka-aliecs-active-envs"
   );
   for (;;) {
     auto serializedRuns = kafkaConsumer->pull();
     if (!serializedRuns.empty()) {
-      deserializeActiveRuns(serializedRuns.back());
+      deserializeActiveRuns(serializedRuns.back().second);
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
   }

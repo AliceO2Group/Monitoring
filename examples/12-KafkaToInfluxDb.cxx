@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
   boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
   boost::program_options::notify(vm);
 
-  std::vector<std::string> topics = {"aliecs.env_leave_state.RUNNING"};
+  std::vector<std::string> topics = {"aliecs.env_leave_state.RUNNING", "aliecs.env_state.RUNNING"};
   auto kafkaConsumer = std::make_unique<transports::KafkaConsumer>(vm["kafka-host"].as<std::string>() + ":9092", topics, "aliecs-run-times");
   auto httpTransport = std::make_unique<transports::HTTP>(
     vm["influxdb-url"].as<std::string>() + "/api/v2/write?" +
@@ -44,14 +44,17 @@ int main(int argc, char* argv[])
     if (!changes.empty()) {
       for (auto& change : changes) {
         aliceo2::envs::NewStateNotification stateChange;
-        stateChange.ParseFromString(change);
+        stateChange.ParseFromString(change.second);
         if (stateChange.envinfo().state().empty()) {
           continue;
         }
-        std::cout << stateChange.envinfo().environmentid() << " (" << stateChange.envinfo().runnumber() << ") EOR: from " <<stateChange.envinfo().enterstatetimestamp() << " to " << stateChange.timestamp() << std::endl;
-        auto metric = Metric{"run_times"}
-          .addValue(stateChange.envinfo().enterstatetimestamp(), "sor")
-          .addValue(stateChange.timestamp(), "eor");
+        std::cout << stateChange.envinfo().environmentid() << "/" << stateChange.envinfo().runnumber() << "  " << change.first << " SOR: " <<stateChange.envinfo().enterstatetimestamp() << " EOR: " << stateChange.timestamp() << std::endl;
+        auto metric = Metric{"run_times"};
+        if (change.first.find("leave") != std::string::npos) {
+          metric.addValue(stateChange.envinfo().enterstatetimestamp(), "sor").addValue(stateChange.timestamp(), "eor");
+        } else {
+          metric.addValue(stateChange.envinfo().runtype(), "type");
+        }
         int run = stateChange.envinfo().runnumber();
         if (run > 1) {
           influxdbBackend->sendWithRun(metric, stateChange.envinfo().environmentid(), std::to_string(run));
