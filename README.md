@@ -232,7 +232,7 @@ auto client = MonitoringFactory::GetPullClient("kafka-server:9092", topics);
 for (;;) {
   auto metrics = client->pull();
   if (!metrics.empty()) {
-    //  DO SOMETHING !
+    /// metric.first => topic name; metric.second => metric itself
   }
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
 }
