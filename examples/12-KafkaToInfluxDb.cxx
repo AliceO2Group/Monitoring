@@ -51,8 +51,7 @@ int main(int argc, char* argv[])
         std::cout << stateChange.envinfo().environmentid() << " (" << stateChange.envinfo().runnumber() << ") EOR: from " <<stateChange.envinfo().enterstatetimestamp() << " to " << stateChange.timestamp() << std::endl;
         auto metric = Metric{"run_times"}
           .addValue(stateChange.envinfo().enterstatetimestamp(), "sor")
-          .addValue(stateChange.timestamp(), "eor")
-          .addValue(stateChange.envinfo().runtype(), "type");
+          .addValue(stateChange.timestamp(), "eor");
         int run = stateChange.envinfo().runnumber();
         if (run > 1) {
           influxdbBackend->sendWithRun(metric, stateChange.envinfo().environmentid(), std::to_string(run));
