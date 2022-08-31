@@ -45,9 +45,10 @@ class KafkaConsumer : public PullClient
   /// Deletes producer
   ~KafkaConsumer();
 
-  /// Sends metric via Kafka
+  /// Pulls metrics from Kafka
   /// \param message   r-value string formated
-  std::vector<std::string> pull() override;
+  /// \returns Key-Value pair list as topic : metric
+  std::vector<std::pair<std::string, std::string>> pull() override;
  private:
   /// Kafka producer instance
   RdKafka::KafkaConsumer* mConsumer;

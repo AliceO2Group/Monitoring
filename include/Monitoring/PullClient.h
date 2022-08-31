@@ -35,7 +35,7 @@ class PullClient
  public:
   /// Default destructor
   virtual ~PullClient() = default;
-  virtual std::vector<std::string> pull() = 0;
+  virtual std::vector<std::pair<std::string, std::string>> pull() = 0;
 };
 
 } // namespace monitoring

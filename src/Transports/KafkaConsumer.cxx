@@ -51,9 +51,9 @@ KafkaConsumer::KafkaConsumer(const std::string& url, const std::vector<std::stri
   }
 }
 
-std::vector<std::string> KafkaConsumer::pull()
+std::vector<std::pair<std::string, std::string>> KafkaConsumer::pull()
 {
-  std::vector<std::string> received;
+  std::vector<std::pair<std::string, std::string>> received;
   size_t batch_size = 5;
   int remaining_timeout = 1000;
   auto start = std::chrono::high_resolution_clock::now();
@@ -64,7 +64,7 @@ std::vector<std::string> KafkaConsumer::pull()
     case RdKafka::ERR__TIMED_OUT:
       break;
     case RdKafka::ERR_NO_ERROR:
-      received.push_back(std::string(static_cast<char*>(message->payload()), message->len()));
+      received.push_back({message->topic_name(), std::string(static_cast<char*>(message->payload()), message->len())});
       break;
     default:
       std::cerr << "%% Consumer error: " << message->errstr() << std::endl;
