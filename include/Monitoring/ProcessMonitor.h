@@ -78,7 +78,7 @@ class ProcessMonitor
 
  private:
   /// States which measurements are enabled
-  std::map<Monitor, bool> enabledMeasurements;
+  std::array<bool, 3> mEnabledMeasurements;
 
   double splitStatusLineAndRetriveValue(const std::string& line) const;
 

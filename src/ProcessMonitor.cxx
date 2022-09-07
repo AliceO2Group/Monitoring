@@ -44,6 +44,7 @@ ProcessMonitor::ProcessMonitor()
 #ifdef O2_MONITORING_OS_LINUX
   setTotalMemory();
 #endif
+  mEnabledMeasurements.fill(false);
 }
 
 void ProcessMonitor::init()
@@ -54,7 +55,7 @@ void ProcessMonitor::init()
 
 void ProcessMonitor::enable(Monitor measurement)
 {
-  enabledMeasurements.insert(std::make_pair(measurement, true));
+  mEnabledMeasurements[static_cast<short>(measurement)] = true;
 }
 
 void ProcessMonitor::setTotalMemory()
@@ -158,12 +159,21 @@ double ProcessMonitor::splitStatusLineAndRetriveValue(const std::string& line) c
 
 std::vector<Metric> ProcessMonitor::getPerformanceMetrics()
 {
-  auto metrics = getCpuAndContexts();
+  std::vector<Metric> metrics;
+  metrics.reserve(12);
+  if (mEnabledMeasurements.at(static_cast<short>(Monitor::Cpu))) {
+    auto cpuMetrics = getCpuAndContexts();
+    std::move(cpuMetrics.begin(), cpuMetrics.end(), std::back_inserter(metrics));
+  }
 #ifdef O2_MONITORING_OS_LINUX
-  auto memoryMetrics = getMemoryUsage();
-  std::move(memoryMetrics.begin(), memoryMetrics.end(), std::back_inserter(metrics));
-  auto smapMetrics = getSmaps();
-  std::move(smapMetrics.begin(), smapMetrics.end(), std::back_inserter(metrics));
+  if (mEnabledMeasurements.at(static_cast<short>(Monitor::Mem))) {
+    auto memoryMetrics = getMemoryUsage();
+    std::move(memoryMetrics.begin(), memoryMetrics.end(), std::back_inserter(metrics));
+  }
+  if (mEnabledMeasurements.at(static_cast<short>(Monitor::Smaps))) {
+    auto smapMetrics = getSmaps();
+    std::move(smapMetrics.begin(), smapMetrics.end(), std::back_inserter(metrics));
+  }
 #endif
   return metrics;
 }

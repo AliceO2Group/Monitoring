@@ -50,7 +50,7 @@ int main(int argc, char* argv[])
 
   auto monitoring = MonitoringFactory::Get(vm["url"].as<std::string>());
   if (vm["monitor"].as<bool>()) {
-    monitoring->enableProcessMonitoring(1);
+    monitoring->enableProcessMonitoring(1, {Monitor::Smaps, Monitor::Cpu, Monitor::Mem});
   }
   if (vm["multiple"].as<bool>()) {
     for (int j = 1; j <= count; j++) {
