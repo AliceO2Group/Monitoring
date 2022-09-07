@@ -181,28 +181,31 @@ std::vector<Metric> ProcessMonitor::getPerformanceMetrics()
 std::vector<Metric> ProcessMonitor::makeLastMeasurementAndGetMetrics()
 {
   std::vector<Metric> metrics;
-  getCpuAndContexts();
 #ifdef O2_MONITORING_OS_LINUX
-  getMemoryUsage();
+  if (mEnabledMeasurements.at(static_cast<short>(Monitor::Mem))) {
+    getMemoryUsage();
 
-  auto avgVmRSS = std::accumulate(mVmRssMeasurements.begin(), mVmRssMeasurements.end(), 0.0) /
-                  mVmRssMeasurements.size();
+    auto avgVmRSS = std::accumulate(mVmRssMeasurements.begin(), mVmRssMeasurements.end(), 0.0) /
+                    mVmRssMeasurements.size();
 
-  metrics.emplace_back(avgVmRSS, metricsNames[AVG_RESIDENT_SET_SIZE]);
+    metrics.emplace_back(avgVmRSS, metricsNames[AVG_RESIDENT_SET_SIZE]);
 
-  auto avgVmSize = std::accumulate(mVmSizeMeasurements.begin(), mVmSizeMeasurements.end(), 0.0) /
-                   mVmSizeMeasurements.size();
-  metrics.emplace_back(avgVmSize, metricsNames[AVG_VIRTUAL_MEMORY_SIZE]);
+    auto avgVmSize = std::accumulate(mVmSizeMeasurements.begin(), mVmSizeMeasurements.end(), 0.0) /
+                     mVmSizeMeasurements.size();
+    metrics.emplace_back(avgVmSize, metricsNames[AVG_VIRTUAL_MEMORY_SIZE]);
+  }
 #endif
+  if (mEnabledMeasurements.at(static_cast<short>(Monitor::Cpu))) {
+    getCpuAndContexts();
 
-  auto avgCpuUsage = std::accumulate(mCpuPerctange.begin(), mCpuPerctange.end(), 0.0) /
-                     mCpuPerctange.size();
-  uint64_t accumulationOfCpuTimeConsumption = std::accumulate(mCpuMicroSeconds.begin(),
-                                                              mCpuMicroSeconds.end(), 0UL);
+    auto avgCpuUsage = std::accumulate(mCpuPerctange.begin(), mCpuPerctange.end(), 0.0) /
+                       mCpuPerctange.size();
+    uint64_t accumulationOfCpuTimeConsumption = std::accumulate(mCpuMicroSeconds.begin(),
+                                                                mCpuMicroSeconds.end(), 0UL);
 
-  metrics.emplace_back(avgCpuUsage, metricsNames[AVG_CPU_USED_PERCENTAGE]);
-  metrics.emplace_back(accumulationOfCpuTimeConsumption, metricsNames[ACCUMULATED_CPU_TIME]);
-
+    metrics.emplace_back(avgCpuUsage, metricsNames[AVG_CPU_USED_PERCENTAGE]);
+    metrics.emplace_back(accumulationOfCpuTimeConsumption, metricsNames[ACCUMULATED_CPU_TIME]);
+  }
   return metrics;
 }
 

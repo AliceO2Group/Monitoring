@@ -38,7 +38,50 @@ void disableRedirect()
 }
 
 
-BOOST_AUTO_TEST_CASE(monitorProcess)
+
+BOOST_AUTO_TEST_CASE(monitorProcessDefaultCount)
+{
+  {
+    auto monitoring = o2::monitoring::MonitoringFactory::Get("influxdb-stdout://");
+    monitoring->enableProcessMonitoring(1);
+    enableRedirect();
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+  }
+
+  std::istringstream returned(coutRedirect.str());
+  disableRedirect();
+  unsigned short int countMetrics = 0;
+  for (std::string line; std::getline(returned, line); ) {
+    countMetrics++;
+  }
+  // On linux 11 (without Smaps) and macOS 6
+  BOOST_CHECK(countMetrics == 11 || countMetrics == 6);
+}
+
+
+BOOST_AUTO_TEST_CASE(monitorProcessCpuOnly)
+{
+  std::array<std::string, 6> names = {"cpuUsedPercentage", "involuntaryContextSwitches", "voluntaryContextSwitches", "cpuUsedAbsolute",
+                                      "averageCpuUsedPercentage", "cpuTimeConsumedByProcess"};
+  {
+    auto monitoring = o2::monitoring::MonitoringFactory::Get("influxdb-stdout://");
+    monitoring->enableProcessMonitoring(1, {Monitor::Cpu});
+    enableRedirect();
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+  }
+
+  std::istringstream returned(coutRedirect.str());
+  disableRedirect();
+  unsigned short int countMetrics = 0;
+  for (std::string line; std::getline(returned, line); ) {
+    BOOST_CHECK(std::find(names.begin(), names.end(), line.substr(0, line.find(','))) != names.end());
+    countMetrics++;
+  }
+  // On linux and macOS 6
+  BOOST_CHECK_EQUAL(countMetrics, 6);
+}
+
+BOOST_AUTO_TEST_CASE(monitorProcessAll)
 {
   std::array<std::string, 14> names = {"memoryUsagePercentage", "virtualMemorySize", "residentSetSize",
                                        "cpuUsedPercentage", "involuntaryContextSwitches", "voluntaryContextSwitches", "cpuUsedAbsolute",
@@ -46,7 +89,7 @@ BOOST_AUTO_TEST_CASE(monitorProcess)
                                        "cpuTimeConsumedByProcess", "proportionalSetSize", "memoryPrivateClean", "memoryPrivateDirty"};
   {
     auto monitoring = o2::monitoring::MonitoringFactory::Get("influxdb-stdout://");
-    monitoring->enableProcessMonitoring(1);
+    monitoring->enableProcessMonitoring(1, {Monitor::Cpu, Monitor::Smaps, Monitor::Mem});
     enableRedirect();
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
   }
