@@ -151,21 +151,31 @@ See how it works in the example: [examples/4-RateDerivedMetric.cxx](examples/4-R
 
 ### Process monitoring
 
-This feature provides basic performance status of the process. Note that is runs in separate thread (without mutex).
+This feature provides basic performance status of the process. Note that is runs in separate thread.
 
 ```cpp
-enableProcessMonitoring([interval in seconds]);
+enableProcessMonitoring([interval in seconds, {Measurement list}]);
 ```
+List of valid measurement lists:
+- `Monitor::Cpu`
+- `Monitor::Mem`
+- `Monitor::Smaps` - Beware. Enabling this will trigger kernel to run `smaps_account` periodically.
+
 Following metrics are generated every time interval:
-CPU measurements:
+`Monitor::Cpu`:
  + **cpuUsedPercentage** - percentage of a core usage (kernel + user mode) over time interval
  + **involuntaryContextSwitches** - involuntary context switches over time interval
  + **cpuUsedAbsolute** - amount of time spent on process execution (in user and kernel mode) over time interval (expressed in microseconds)
 
-Memory measurements: (Linux only)
+`Monitor::Mem`: (Linux only)
  + **memoryUsagePercentage** - ratio of the process's virtual memory to memory available on the machine
  + **virtualMemorySize** - virtual memory reserved by process (expressed in kB)
  + **residentSetSize** - resident set size reserved by process (expressed in kB)
+
+`Monitor::Smaps`: (Linux only)
++ **proportionalSetSize** - count of pages it has in memory, where each page is divided by the number of processes sharing it
++ **memoryPrivateClean** - unmodified private pages
++ **memoryPrivateDirty** - modified private pages
 
 Additional metrics are generated at the end of process execution:
 CPU measurements:
