@@ -26,10 +26,27 @@ int main(int argc, char* argv[])
   std::uniform_int_distribution<> intDist(1, 100);
 
   boost::program_options::options_description desc("Allowed options");
-  desc.add_options()("sleep", boost::program_options::value<int>(), "Thread sleep in microseconds")("url", boost::program_options::value<std::string>()->required(), "URL to monitoring backend (or list of comma seperated URLs)")("id", boost::program_options::value<std::string>(), "Instance ID")("count", boost::program_options::value<int>(), "Number of loop cycles")("multiple", boost::program_options::bool_switch()->default_value(false), "Sends multiple metrics per measurement")("latency", boost::program_options::bool_switch()->default_value(false), "Sends timestamp as a value")("monitor", boost::program_options::bool_switch()->default_value(false), "Enabled process monitor")("buffer", boost::program_options::value<int>(), "Creates buffr of given size")("measurements", boost::program_options::value<int>(), "Number of different measurements")("flps", boost::program_options::value<int>(), "Number of FLPs (tags)");
+  desc.add_options()
+    ("sleep", boost::program_options::value<int>(), "Thread sleep in microseconds")
+    ("url", boost::program_options::value<std::string>()->required(), "URL to monitoring backend (or comma seperated list)")
+    ("id", boost::program_options::value<std::string>(), "Instance ID")
+    ("count", boost::program_options::value<int>(), "Number of loop cycles")
+    ("multiple", boost::program_options::bool_switch()->default_value(false), "Sends multiple metrics per measurement")
+    ("latency", boost::program_options::bool_switch()->default_value(false), "Sends timestamp as a value")
+    ("monitor", boost::program_options::bool_switch()->default_value(false), "Enabled process monitor")
+    ("buffer", boost::program_options::value<int>(), "Creates buffr of given size")
+    ("measurements", boost::program_options::value<int>(), "Number of different measurements")
+    ("flps", boost::program_options::value<int>(), "Number of FLPs (tags)")
+    ("help,h", "Show usage");
 
   boost::program_options::variables_map vm;
   boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
+
+  if (vm.count("help")) {
+    std::cerr << desc << "\n";
+    return 1;
+  }
+
   boost::program_options::notify(vm);
 
   if (vm.count("flps")) {
