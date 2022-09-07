@@ -52,6 +52,11 @@ void ProcessMonitor::init()
   getrusage(RUSAGE_SELF, &mPreviousGetrUsage);
 }
 
+void ProcessMonitor::enable(Monitor measurement)
+{
+  enabledMeasurements.insert(std::make_pair(measurement, true));
+}
+
 void ProcessMonitor::setTotalMemory()
 {
   std::ifstream memInfo("/proc/meminfo");

@@ -31,6 +31,12 @@ namespace o2
 namespace monitoring
 {
 
+enum class Monitor : short {
+  Cpu,
+  Mem,
+  Smaps
+};
+
 /// Monitors current process and/or other processes running at the same machien
 class ProcessMonitor
 {
@@ -58,22 +64,27 @@ class ProcessMonitor
   static std::vector<std::string> getAvailableMetricsNames();
   std::vector<Metric> getPerformanceMetrics();
 
- public:
-  /// Prepares externam software commands (ps)
+  /// Sets PID and total memory
   ProcessMonitor();
 
   /// Default destructor
   ~ProcessMonitor() = default;
 
+  /// Set initial variables for CPU usage calculations
   void init();
 
+  /// Enable given measurement
+  void enable(Monitor measurement);
+
  private:
+  /// States which measurements are enabled
+  std::map<Monitor, bool> enabledMeasurements;
+
   double splitStatusLineAndRetriveValue(const std::string& line) const;
 
   /// Retrievs total memory size from /proc/meminfo
   void setTotalMemory();
 
- private:
   static constexpr const char* metricsNames[] = {"memoryUsagePercentage", "virtualMemorySize", "residentSetSize",
                                                  "cpuUsedPercentage", "involuntaryContextSwitches", "voluntaryContextSwitches", "cpuUsedAbsolute",
                                                  "averageResidentSetSize", "averageVirtualMemorySize", "averageCpuUsedPercentage",
