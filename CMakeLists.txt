@@ -31,7 +31,7 @@ endif()
 
 # Define project
 project(Monitoring
-  VERSION 3.12.11
+  VERSION 3.13.0
   DESCRIPTION "O2 Monitoring library"
   LANGUAGES CXX
 )
@@ -178,6 +178,20 @@ endif()
 if (UNIX AND NOT APPLE)
   message(STATUS "Detected Linux: Process monitor enabled")
   set(LINUX true)
+  # Detecto CC7 or CS8
+  if(EXISTS "/etc/os-release")
+    file(STRINGS "/etc/os-release" OS_RELEASE)
+    foreach(KV ${OS_RELEASE})
+      if(KV MATCHES "^VERSION=\"8\"")
+        set(CS8 true)
+        message(STATUS "  Detected CS8")
+      endif()
+      if(KV MATCHES "^VERSION=\"7")
+        set(CC7 true)
+        message(STATUS "  Detected CC7")
+      endif()
+    endforeach()
+  endif()
 endif()
 
 if (APPLE)
@@ -193,6 +207,8 @@ target_compile_definitions(Monitoring
   PRIVATE
     $<$<BOOL:${APPLE}>:O2_MONITORING_OS_MAC>
     $<$<BOOL:${LINUX}>:O2_MONITORING_OS_LINUX>
+    $<$<BOOL:${CC7}>:O2_MONITORING_OS_CC7>
+    $<$<BOOL:${CS8}>:O2_MONITORING_OS_CS8>
     $<$<BOOL:${ApMon_FOUND}>:O2_MONITORING_WITH_APPMON>
     $<$<BOOL:${RdKafka_FOUND}>:O2_MONITORING_WITH_KAFKA>
     $<$<BOOL:${CURL_FOUND}>:O2_MONITORING_WITH_CURL>

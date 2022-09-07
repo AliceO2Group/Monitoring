@@ -30,6 +30,12 @@ namespace o2
 namespace monitoring
 {
 
+#ifdef O2_MONITORING_OS_CS8
+static constexpr auto SMAPS_FILE = "/proc/self/smaps_rollup";
+#else
+static constexpr auto SMAPS_FILE = "/proc/self/smaps";
+#endif
+
 ProcessMonitor::ProcessMonitor()
 {
   mPid = static_cast<unsigned int>(::getpid());
@@ -38,12 +44,18 @@ ProcessMonitor::ProcessMonitor()
 #ifdef O2_MONITORING_OS_LINUX
   setTotalMemory();
 #endif
+  mEnabledMeasurements.fill(false);
 }
 
 void ProcessMonitor::init()
 {
   mTimeLastRun = std::chrono::high_resolution_clock::now();
   getrusage(RUSAGE_SELF, &mPreviousGetrUsage);
+}
+
+void ProcessMonitor::enable(Monitor measurement)
+{
+  mEnabledMeasurements[static_cast<short>(measurement)] = true;
 }
 
 void ProcessMonitor::setTotalMemory()
@@ -85,7 +97,7 @@ std::vector<Metric> ProcessMonitor::getMemoryUsage()
 
 std::vector<Metric> ProcessMonitor::getSmaps()
 {
-  std::ifstream statusStream("/proc/self/smaps");
+  std::ifstream statusStream(SMAPS_FILE);
   double pssTotal = 0;
   double cleanTotal = 0;
   double dirtyTotal = 0;
@@ -147,12 +159,21 @@ double ProcessMonitor::splitStatusLineAndRetriveValue(const std::string& line) c
 
 std::vector<Metric> ProcessMonitor::getPerformanceMetrics()
 {
-  auto metrics = getCpuAndContexts();
+  std::vector<Metric> metrics;
+  metrics.reserve(12);
+  if (mEnabledMeasurements.at(static_cast<short>(Monitor::Cpu))) {
+    auto cpuMetrics = getCpuAndContexts();
+    std::move(cpuMetrics.begin(), cpuMetrics.end(), std::back_inserter(metrics));
+  }
 #ifdef O2_MONITORING_OS_LINUX
-  auto memoryMetrics = getMemoryUsage();
-  std::move(memoryMetrics.begin(), memoryMetrics.end(), std::back_inserter(metrics));
-  auto smapMetrics = getSmaps();
-  std::move(smapMetrics.begin(), smapMetrics.end(), std::back_inserter(metrics));
+  if (mEnabledMeasurements.at(static_cast<short>(Monitor::Mem))) {
+    auto memoryMetrics = getMemoryUsage();
+    std::move(memoryMetrics.begin(), memoryMetrics.end(), std::back_inserter(metrics));
+  }
+  if (mEnabledMeasurements.at(static_cast<short>(Monitor::Smaps))) {
+    auto smapMetrics = getSmaps();
+    std::move(smapMetrics.begin(), smapMetrics.end(), std::back_inserter(metrics));
+  }
 #endif
   return metrics;
 }
@@ -160,28 +181,31 @@ std::vector<Metric> ProcessMonitor::getPerformanceMetrics()
 std::vector<Metric> ProcessMonitor::makeLastMeasurementAndGetMetrics()
 {
   std::vector<Metric> metrics;
-  getCpuAndContexts();
 #ifdef O2_MONITORING_OS_LINUX
-  getMemoryUsage();
+  if (mEnabledMeasurements.at(static_cast<short>(Monitor::Mem))) {
+    getMemoryUsage();
 
-  auto avgVmRSS = std::accumulate(mVmRssMeasurements.begin(), mVmRssMeasurements.end(), 0.0) /
-                  mVmRssMeasurements.size();
+    auto avgVmRSS = std::accumulate(mVmRssMeasurements.begin(), mVmRssMeasurements.end(), 0.0) /
+                    mVmRssMeasurements.size();
 
-  metrics.emplace_back(avgVmRSS, metricsNames[AVG_RESIDENT_SET_SIZE]);
+    metrics.emplace_back(avgVmRSS, metricsNames[AVG_RESIDENT_SET_SIZE]);
 
-  auto avgVmSize = std::accumulate(mVmSizeMeasurements.begin(), mVmSizeMeasurements.end(), 0.0) /
-                   mVmSizeMeasurements.size();
-  metrics.emplace_back(avgVmSize, metricsNames[AVG_VIRTUAL_MEMORY_SIZE]);
+    auto avgVmSize = std::accumulate(mVmSizeMeasurements.begin(), mVmSizeMeasurements.end(), 0.0) /
+                     mVmSizeMeasurements.size();
+    metrics.emplace_back(avgVmSize, metricsNames[AVG_VIRTUAL_MEMORY_SIZE]);
+  }
 #endif
+  if (mEnabledMeasurements.at(static_cast<short>(Monitor::Cpu))) {
+    getCpuAndContexts();
 
-  auto avgCpuUsage = std::accumulate(mCpuPerctange.begin(), mCpuPerctange.end(), 0.0) /
-                     mCpuPerctange.size();
-  uint64_t accumulationOfCpuTimeConsumption = std::accumulate(mCpuMicroSeconds.begin(),
-                                                              mCpuMicroSeconds.end(), 0UL);
+    auto avgCpuUsage = std::accumulate(mCpuPerctange.begin(), mCpuPerctange.end(), 0.0) /
+                       mCpuPerctange.size();
+    uint64_t accumulationOfCpuTimeConsumption = std::accumulate(mCpuMicroSeconds.begin(),
+                                                                mCpuMicroSeconds.end(), 0UL);
 
-  metrics.emplace_back(avgCpuUsage, metricsNames[AVG_CPU_USED_PERCENTAGE]);
-  metrics.emplace_back(accumulationOfCpuTimeConsumption, metricsNames[ACCUMULATED_CPU_TIME]);
-
+    metrics.emplace_back(avgCpuUsage, metricsNames[AVG_CPU_USED_PERCENTAGE]);
+    metrics.emplace_back(accumulationOfCpuTimeConsumption, metricsNames[ACCUMULATED_CPU_TIME]);
+  }
   return metrics;
 }
 

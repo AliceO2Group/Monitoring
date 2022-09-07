@@ -40,7 +40,6 @@ Monitoring::Monitoring()
   mDerivedHandler = std::make_unique<DerivedMetrics>();
   mBuffering = false;
   mProcessMonitoringInterval = 0;
-  //mAutoPushInterval = 0;
   mMonitorRunning = false;
 }
 
@@ -83,9 +82,12 @@ void Monitoring::flushBuffer(const short index)
   mStorage[index].clear();
 }
 
-void Monitoring::enableProcessMonitoring(const unsigned int interval)
+void Monitoring::enableProcessMonitoring(const unsigned int interval, std::vector<Monitor> enabledMeasurements)
 {
   mProcessMonitoringInterval = interval;
+  for (const auto& measurement : enabledMeasurements) {
+    mProcessMonitor->enable(measurement);
+  }
   if (!mMonitorRunning) {
     mProcessMonitor->init();
     mMonitorRunning = true;
