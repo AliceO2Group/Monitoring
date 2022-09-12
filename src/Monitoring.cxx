@@ -82,7 +82,7 @@ void Monitoring::flushBuffer(const short index)
   mStorage[index].clear();
 }
 
-void Monitoring::enableProcessMonitoring(const unsigned int interval, std::vector<Measurement> enabledMeasurements)
+void Monitoring::enableProcessMonitoring(const unsigned int interval, std::vector<PmMeasurement> enabledMeasurements)
 {
   mProcessMonitoringInterval = interval;
   for (const auto& measurement : enabledMeasurements) {

@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
 
   auto monitoring = MonitoringFactory::Get(vm["url"].as<std::string>());
   if (vm["monitor"].as<bool>()) {
-    monitoring->enableProcessMonitoring(1, {Measurement::Cpu, Measurement::Mem, Measurement::Smaps});
+    monitoring->enableProcessMonitoring(1, {PmMeasurement::Cpu, PmMeasurement::Mem, PmMeasurement::Smaps});
   }
   if (vm["multiple"].as<bool>()) {
     for (int j = 1; j <= count; j++) {
