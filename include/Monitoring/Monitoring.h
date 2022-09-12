@@ -71,7 +71,7 @@ class Monitoring
   /// Enables process monitoring
   /// \param interval		refresh interval
   /// \param enabledMeasurements vector of monitor measurements, eg. Monitor::Cpu
-  void enableProcessMonitoring(const unsigned int interval = 5, std::vector<Monitor> enabledMeasurements = {Monitor::Cpu, Monitor::Mem});
+  void enableProcessMonitoring(const unsigned int interval = 5, std::vector<Measurement> enabledMeasurements = {Measurement::Cpu, Measurement::Mem});
 
   /// Flushes metric buffer (this can also happen when buffer is full)
   void flushBuffer();

@@ -157,22 +157,22 @@ This feature provides basic performance status of the process. Note that is runs
 enableProcessMonitoring([interval in seconds, {Measurement list}]);
 ```
 List of valid measurement lists:
-- `Monitor::Cpu`
-- `Monitor::Mem`
-- `Monitor::Smaps` - Beware. Enabling this will trigger kernel to run `smaps_account` periodically.
+- `Measurement::Cpu`
+- `Measurement::Mem`
+- `Measurement::Smaps` - Beware. Enabling this will trigger kernel to run `smaps_account` periodically.
 
 Following metrics are generated every time interval:
-`Monitor::Cpu`:
+`Measurement::Cpu`:
  + **cpuUsedPercentage** - percentage of a core usage (kernel + user mode) over time interval
  + **involuntaryContextSwitches** - involuntary context switches over time interval
  + **cpuUsedAbsolute** - amount of time spent on process execution (in user and kernel mode) over time interval (expressed in microseconds)
 
-`Monitor::Mem`: (Linux only)
+`Measurement::Mem`: (Linux only)
  + **memoryUsagePercentage** - ratio of the process's virtual memory to memory available on the machine
  + **virtualMemorySize** - virtual memory reserved by process (expressed in kB)
  + **residentSetSize** - resident set size reserved by process (expressed in kB)
 
-`Monitor::Smaps`: (Linux only)
+`Measurement::Smaps`: (Linux only)
 + **proportionalSetSize** - count of pages it has in memory, where each page is divided by the number of processes sharing it
 + **memoryPrivateClean** - unmodified private pages
 + **memoryPrivateDirty** - modified private pages

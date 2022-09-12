@@ -31,7 +31,7 @@ namespace o2
 namespace monitoring
 {
 
-enum class Monitor : short {
+enum class Measurement : short {
   Cpu,
   Mem,
   Smaps
@@ -74,7 +74,7 @@ class ProcessMonitor
   void init();
 
   /// Enable given measurement
-  void enable(Monitor measurement);
+  void enable(Measurement measurement);
 
  private:
   /// States which measurements are enabled
