@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE(monitorProcessCpuOnly)
                                       "averageCpuUsedPercentage", "cpuTimeConsumedByProcess"};
   {
     auto monitoring = o2::monitoring::MonitoringFactory::Get("influxdb-stdout://");
-    monitoring->enableProcessMonitoring(1, {Monitor::Cpu});
+    monitoring->enableProcessMonitoring(1, {PmMeasurement::Cpu});
     enableRedirect();
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
   }
@@ -89,7 +89,7 @@ BOOST_AUTO_TEST_CASE(monitorProcessAll)
                                        "cpuTimeConsumedByProcess", "proportionalSetSize", "memoryPrivateClean", "memoryPrivateDirty"};
   {
     auto monitoring = o2::monitoring::MonitoringFactory::Get("influxdb-stdout://");
-    monitoring->enableProcessMonitoring(1, {Monitor::Cpu, Monitor::Smaps, Monitor::Mem});
+    monitoring->enableProcessMonitoring(1, {PmMeasurement::Cpu, PmMeasurement::Smaps, PmMeasurement::Mem});
     enableRedirect();
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
   }

@@ -154,25 +154,25 @@ See how it works in the example: [examples/4-RateDerivedMetric.cxx](examples/4-R
 This feature provides basic performance status of the process. Note that is runs in separate thread.
 
 ```cpp
-enableProcessMonitoring([interval in seconds, {Measurement list}]);
+enableProcessMonitoring([interval in seconds, {PmMeasurement list}]);
 ```
 List of valid measurement lists:
-- `Monitor::Cpu`
-- `Monitor::Mem`
-- `Monitor::Smaps` - Beware. Enabling this will trigger kernel to run `smaps_account` periodically.
+- `PmMeasurement::Cpu`
+- `PmMeasurement::Mem`
+- `PmMeasurement::Smaps` - Beware. Enabling this will trigger kernel to run `smaps_account` periodically.
 
 Following metrics are generated every time interval:
-`Monitor::Cpu`:
+`PmMeasurement::Cpu`:
  + **cpuUsedPercentage** - percentage of a core usage (kernel + user mode) over time interval
  + **involuntaryContextSwitches** - involuntary context switches over time interval
  + **cpuUsedAbsolute** - amount of time spent on process execution (in user and kernel mode) over time interval (expressed in microseconds)
 
-`Monitor::Mem`: (Linux only)
+`PmMeasurement::Mem`: (Linux only)
  + **memoryUsagePercentage** - ratio of the process's virtual memory to memory available on the machine
  + **virtualMemorySize** - virtual memory reserved by process (expressed in kB)
  + **residentSetSize** - resident set size reserved by process (expressed in kB)
 
-`Monitor::Smaps`: (Linux only)
+`PmMeasurement::Smaps`: (Linux only)
 + **proportionalSetSize** - count of pages it has in memory, where each page is divided by the number of processes sharing it
 + **memoryPrivateClean** - unmodified private pages
 + **memoryPrivateDirty** - modified private pages

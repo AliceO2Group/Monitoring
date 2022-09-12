@@ -53,7 +53,7 @@ void ProcessMonitor::init()
   getrusage(RUSAGE_SELF, &mPreviousGetrUsage);
 }
 
-void ProcessMonitor::enable(Monitor measurement)
+void ProcessMonitor::enable(PmMeasurement measurement)
 {
   mEnabledMeasurements[static_cast<short>(measurement)] = true;
 }
@@ -161,16 +161,16 @@ std::vector<Metric> ProcessMonitor::getPerformanceMetrics()
 {
   std::vector<Metric> metrics;
   metrics.reserve(12);
-  if (mEnabledMeasurements.at(static_cast<short>(Monitor::Cpu))) {
+  if (mEnabledMeasurements.at(static_cast<short>(PmMeasurement::Cpu))) {
     auto cpuMetrics = getCpuAndContexts();
     std::move(cpuMetrics.begin(), cpuMetrics.end(), std::back_inserter(metrics));
   }
 #ifdef O2_MONITORING_OS_LINUX
-  if (mEnabledMeasurements.at(static_cast<short>(Monitor::Mem))) {
+  if (mEnabledMeasurements.at(static_cast<short>(PmMeasurement::Mem))) {
     auto memoryMetrics = getMemoryUsage();
     std::move(memoryMetrics.begin(), memoryMetrics.end(), std::back_inserter(metrics));
   }
-  if (mEnabledMeasurements.at(static_cast<short>(Monitor::Smaps))) {
+  if (mEnabledMeasurements.at(static_cast<short>(PmMeasurement::Smaps))) {
     auto smapMetrics = getSmaps();
     std::move(smapMetrics.begin(), smapMetrics.end(), std::back_inserter(metrics));
   }
@@ -182,7 +182,7 @@ std::vector<Metric> ProcessMonitor::makeLastMeasurementAndGetMetrics()
 {
   std::vector<Metric> metrics;
 #ifdef O2_MONITORING_OS_LINUX
-  if (mEnabledMeasurements.at(static_cast<short>(Monitor::Mem))) {
+  if (mEnabledMeasurements.at(static_cast<short>(PmMeasurement::Mem))) {
     getMemoryUsage();
 
     auto avgVmRSS = std::accumulate(mVmRssMeasurements.begin(), mVmRssMeasurements.end(), 0.0) /
@@ -195,7 +195,7 @@ std::vector<Metric> ProcessMonitor::makeLastMeasurementAndGetMetrics()
     metrics.emplace_back(avgVmSize, metricsNames[AVG_VIRTUAL_MEMORY_SIZE]);
   }
 #endif
-  if (mEnabledMeasurements.at(static_cast<short>(Monitor::Cpu))) {
+  if (mEnabledMeasurements.at(static_cast<short>(PmMeasurement::Cpu))) {
     getCpuAndContexts();
 
     auto avgCpuUsage = std::accumulate(mCpuPerctange.begin(), mCpuPerctange.end(), 0.0) /
