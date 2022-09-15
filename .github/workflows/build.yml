@@ -16,7 +16,7 @@ jobs:
     - name: Build project
       run: cd build && make -j
     - name: Test
-      run: cd build && make test
+      run: cd build && ctest --output-on-failure
     - name: Generate codecov report
       run: |
         cd build
@@ -40,7 +40,7 @@ jobs:
     - name: Build project
       run: cd build && make -j
     - name: Test
-      run: cd build && make test
+      run: cd build && ctest --output-on-failure
   cs8:
     runs-on: [self-hosted, cs8]
     steps:
@@ -50,7 +50,7 @@ jobs:
     - name: Build
       run: cd build && make -j
     - name: Test
-      run: cd build && make test
+      run: cd build && ctest --output-on-failure
   cc7:
     runs-on: [self-hosted, cc7]
     steps:
@@ -60,4 +60,4 @@ jobs:
     - name: Build
       run: cd build && make -j
     - name: Test
-      run: cd build && make test
+      run: cd build && ctest3 --output-on-failure
