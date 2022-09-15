@@ -73,6 +73,11 @@ void InfluxDB::send(std::vector<Metric>&& metrics)
   mTransport->send(std::move(influxMetrics));
 }
 
+void InfluxDB::setRunNumber(uint32_t runNumber) {
+  mRunNumber = runNumber;
+  mTransport->setKey(std::to_string(runNumber));
+}
+
 void InfluxDB::send(const Metric& metric)
 {
   mTransport->send(toInfluxLineProtocol(metric));

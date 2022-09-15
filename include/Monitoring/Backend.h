@@ -49,7 +49,7 @@ protected:
   }
 
   /// Run number setter
-  void setRunNumber(uint32_t runNumber) {
+  virtual void setRunNumber(uint32_t runNumber) {
     mRunNumber = runNumber;
   }
 
