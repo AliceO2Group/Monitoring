@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE(monitorProcessDefaultCount)
     countMetrics++;
   }
   // On linux 11 (without Smaps) and macOS 6
-  BOOST_CHECK(countMetrics == 11 || countMetrics == 6);
+  BOOST_CHECK(countMetrics == 14 || countMetrics == 6);
 }
 
 
@@ -83,13 +83,13 @@ BOOST_AUTO_TEST_CASE(monitorProcessCpuOnly)
 
 BOOST_AUTO_TEST_CASE(monitorProcessAll)
 {
-  std::array<std::string, 14> names = {"memoryUsagePercentage", "virtualMemorySize", "residentSetSize",
+  std::array<std::string, 11> names = {"memoryUsagePercentage", "virtualMemorySize", "residentSetSize",
                                        "cpuUsedPercentage", "involuntaryContextSwitches", "voluntaryContextSwitches", "cpuUsedAbsolute",
                                        "averageResidentSetSize", "averageVirtualMemorySize", "averageCpuUsedPercentage",
-                                       "cpuTimeConsumedByProcess", "proportionalSetSize", "memoryPrivateClean", "memoryPrivateDirty"};
+                                       "cpuTimeConsumedByProcess"};
   {
     auto monitoring = o2::monitoring::MonitoringFactory::Get("influxdb-stdout://");
-    monitoring->enableProcessMonitoring(1, {PmMeasurement::Cpu, PmMeasurement::Smaps, PmMeasurement::Mem});
+    monitoring->enableProcessMonitoring(1, {PmMeasurement::Cpu, PmMeasurement::Mem});
     enableRedirect();
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
   }
@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE(monitorProcessAll)
     countMetrics++;
   }
   // On linux 14 and macOS 6
-  BOOST_CHECK(countMetrics == 14 || countMetrics == 6);
+  BOOST_CHECK(countMetrics == 11 || countMetrics == 6);
 }
 
 BOOST_AUTO_TEST_CASE(monitorProcessMetricName)
