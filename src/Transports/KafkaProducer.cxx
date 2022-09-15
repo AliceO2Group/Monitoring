@@ -60,7 +60,7 @@ void KafkaProducer::send(std::string&& message)
     mTopic, partition,
     RdKafka::Producer::RK_MSG_COPY,
     const_cast<char*>(message.c_str()), message.size(),
-    NULL, 0,
+    const_cast<char*>(mKey.c_str()), mKey.size(),
     0,
     NULL,
     NULL);

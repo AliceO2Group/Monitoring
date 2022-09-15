@@ -50,6 +50,10 @@ class InfluxDB final : public Backend
   /// \return  	 timestamp in nanoseconds
   inline unsigned long convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp);
 
+  /// Reimplements setting run number and some transport needs to be notified about that as well
+  /// \param runNumber run number to be set
+  virtual void setRunNumber(uint32_t runNumber) override;
+
   /// Sends metric to InfluxDB instance via one transport
   /// \param metric    reference to metric object
   void send(const Metric& metric) override;

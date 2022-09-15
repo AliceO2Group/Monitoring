@@ -66,6 +66,7 @@ int main(int argc, char* argv[])
   }
 
   auto monitoring = MonitoringFactory::Get(vm["url"].as<std::string>());
+  monitoring->setRunNumber(intDist(mt));
   if (vm["monitor"].as<bool>()) {
     monitoring->enableProcessMonitoring(1, {PmMeasurement::Cpu, PmMeasurement::Mem, PmMeasurement::Smaps});
   }
@@ -102,7 +103,7 @@ int main(int argc, char* argv[])
       for (int i = 1; i <= measurements; i++) {
         for (int k = 1; k <= flps; k++) {
           monitoring->send(Metric{doubleDist(mt), "doubleMetric" + std::to_string(i)}.addTag(tags::Key::FLP, k));
-          monitoring->send(Metric{intDist(mt), "intMetric" + std::to_string(i)}.addTag(tags::Key::FLP, k));
+          monitoring->send(Metric{intDist(mt), "intMetric" + std::to_string(i)}.addTag(tags::Key::FLP, k).addTag(tags::Key::Subsystem, tags::Value::Readout));
           monitoring->send(Metric{std::rand() % 2, "onOffMetric" + std::to_string(i)}.addTag(tags::Key::FLP, k));
           std::this_thread::sleep_for(std::chrono::microseconds(10));
         }

@@ -17,6 +17,7 @@
 #ifndef ALICEO2_MONITORING_TRANSPORTS_TRANSPORTINTERFACE_H
 #define ALICEO2_MONITORING_TRANSPORTS_TRANSPORTINTERFACE_H
 
+#include <atomic>
 #include <string>
 #include <vector>
 
@@ -32,6 +33,12 @@ namespace transports
 /// \brief Transport interface for backends
 class TransportInterface
 {
+ protected:
+  /// Transport record key
+  //  This is needed by some transports to route metrics, eg. Kafka
+  //  This can be set to run number or measurement name and run number
+  std::string mKey;
+
  public:
   TransportInterface() = default;
 
@@ -40,6 +47,11 @@ class TransportInterface
   /// Sends metric via given transport
   /// \param message   r-value to string formatted metric
   virtual void send(std::string&& message) = 0;
+
+  /// Transport record key setter
+  void setKey(const std::string& key) {
+    mKey = key;
+  }
 };
 
 } // namespace transports
