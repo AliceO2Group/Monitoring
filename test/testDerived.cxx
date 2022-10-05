@@ -166,7 +166,7 @@ bool exceptionCheck(const MonitoringException& e)
 {
   if (e.what() == std::string("Not enough values"))
     return true;
-  if (e.what() == std::string("Division by 0"))
+  if (std::string(e.what()).find("Division by 0") != std::string::npos)
     return true;
   return false;
 }

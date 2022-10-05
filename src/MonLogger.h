@@ -98,12 +98,13 @@ class MonLogger
     context.setField(InfoLoggerContext::FieldName::System, "Monitoring");
     context.setField(InfoLoggerContext::FieldName::Facility, "Library");
     mStream.setContext(context);
-    static InfoLogger::AutoMuteToken wToken({InfoLogger::Severity::Warning, InfoLogger::Level::Support, -1, nullptr, -1}, 2, 60);
+    static InfoLogger::AutoMuteToken wToken({InfoLogger::Severity::Warning, InfoLogger::Level::Devel, -1, nullptr, -1}, 2, 60);
 
     mMute = (static_cast<int>(severity) >= static_cast<int>(mLoggerSeverity) || severity == Severity::Error) ? false : true;
-    switch(severity) {
-      case Severity::Warn: mStream << &wToken; break;
-      default: mStream << static_cast<InfoLogger::Severity>(severity); break;
+    if (severity == Severity::Warn) {
+      mStream << &wToken;
+    } else {
+      mStream << InfoLogger::InfoLoggerMessageOption { static_cast<InfoLogger::Severity>(severity), InfoLogger::Level::Devel, -1, __FILE__, __LINE__ };
     }
   }
 #else
