@@ -16,7 +16,7 @@ include(FindPackageHandleStandardArgs)
 
 # find includes
 find_path(ApMon_INCLUDE_DIR ApMon.h
-  HINTS ${APMON_ROOT} /usr/local
+  HINTS ${APMON_ROOT}
   PATH_SUFFIXES include
 )
 
@@ -24,7 +24,7 @@ mark_as_advanced(ApMon_INCLUDE_DIR)
 
 # find library
 find_library(ApMon_LIBRARY NAMES apmoncpp
-  HINTS ${APMON_ROOT} /usr/local
+  HINTS ${APMON_ROOT}
   PATH_SUFFIXES lib lib64
 )
 
