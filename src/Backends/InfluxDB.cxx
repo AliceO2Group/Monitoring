@@ -95,7 +95,10 @@ std::string InfluxDB::toInfluxLineProtocol(const Metric& metric)
   std::stringstream convert;
   std::string name = metric.getName();
   escape(name);
-  convert << name << "," << tagSet;
+  convert << name;
+  if (!tagSet.empty()) {
+     convert << "," << tagSet;
+  }
 
   for (const auto& [key, value] : metric.getTags()) {
     convert << "," << tags::TAG_KEY[key] << "=";
