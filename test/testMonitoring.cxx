@@ -38,13 +38,11 @@ void disableRedirect()
   std::cout.rdbuf(coutBuffer);
 }
 
-void removeRandomValues(std::string& metric)
+void removeTimestamp(std::string& metric)
 {
-  metric.erase(metric.rfind(' ')); // remove timestamp
-  auto begHost = metric.find(",hostname");
-  auto endHost = metric.find(",", begHost+1);
-  metric.erase(begHost, endHost-begHost);
+  metric.erase(metric.rfind(' '));
 }
+
 
 BOOST_AUTO_TEST_CASE(parseDataPoints)
 {
@@ -63,8 +61,8 @@ BOOST_AUTO_TEST_CASE(parseDataPoints)
   std::string returned1 = coutRedirect.str();
 
   disableRedirect();
-  removeRandomValues(returned1);
-  BOOST_CHECK(expected1 == returned1);
+  removeTimestamp(returned1);
+  BOOST_CHECK_EQUAL(expected1, returned1);
 
   enableRedirect();
   monitoring->send(Metric{"link"}
@@ -83,8 +81,8 @@ BOOST_AUTO_TEST_CASE(parseDataPoints)
   std::string expected2 = R"(link,CRU=3,id=3 gbtMode="GBT/GBT",loopback="None",gbtMux="TTC:CTP",datapathMode="Continuous",datapath="Disabled",rxFreq=181.371,txFreq=196.25,status=0i,opticalPower=657.4)";
   std::string returned2 = coutRedirect.str();
   disableRedirect();
-  removeRandomValues(returned2);
-  BOOST_CHECK(expected2 == returned2);
+  removeTimestamp(returned2);
+  BOOST_CHECK_EQUAL(expected2, returned2);
 }
 
 BOOST_AUTO_TEST_CASE(testSettingRun)
@@ -97,8 +95,8 @@ BOOST_AUTO_TEST_CASE(testSettingRun)
   std::string returned = coutRedirect.str();
 
   disableRedirect();
-  removeRandomValues(returned);
-  BOOST_CHECK(expected == returned);
+  removeTimestamp(returned);
+  BOOST_CHECK_EQUAL(expected, returned);
 }
 
 BOOST_AUTO_TEST_CASE(testGlobalTags)
@@ -112,8 +110,21 @@ BOOST_AUTO_TEST_CASE(testGlobalTags)
   std::string returned = coutRedirect.str();
 
   disableRedirect();
-  removeRandomValues(returned);
-  BOOST_CHECK(expected == returned);
+  removeTimestamp(returned);
+  BOOST_CHECK_EQUAL(expected, returned);
+}
+
+BOOST_AUTO_TEST_CASE(addHostnameTag)
+{
+  enableRedirect();
+
+  monitoring->setRunNumber(1234);
+  monitoring->addHostnameTag();
+  monitoring->send(Metric{4321, "test"});
+  std::string returned = coutRedirect.str();
+
+  disableRedirect();
+  BOOST_CHECK(returned.find("hostname=") != std::string::npos);
 }
 
 } // namespace Test

@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_CASE(monitorProcessCpuOnly)
   disableRedirect();
   unsigned short int countMetrics = 0;
   for (std::string line; std::getline(returned, line); ) {
-    BOOST_CHECK(std::find(names.begin(), names.end(), line.substr(0, line.find(','))) != names.end());
+    BOOST_CHECK(std::find(names.begin(), names.end(), line.substr(0, line.find(' '))) != names.end());
     countMetrics++;
   }
   // On linux and macOS 6
@@ -98,7 +98,7 @@ BOOST_AUTO_TEST_CASE(monitorProcessAll)
   disableRedirect();
   unsigned short int countMetrics = 0;
   for (std::string line; std::getline(returned, line); ) {
-    BOOST_CHECK(std::find(names.begin(), names.end(), line.substr(0, line.find(','))) != names.end());
+    BOOST_CHECK(std::find(names.begin(), names.end(), line.substr(0, line.find(' '))) != names.end());
     countMetrics++;
   }
   // On linux 14 and macOS 6

@@ -90,6 +90,9 @@ class Monitoring
   /// \param value            tag value
   void addGlobalTag(tags::Key key, tags::Value value);
 
+  /// Temporary add helper function to add hostname tag as it is not set by default anymore (since 3.15.0)
+  void addHostnameTag();
+
   /// Sets run number
   /// \param name run  run number
   void setRunNumber(uint32_t run);

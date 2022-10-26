@@ -100,6 +100,14 @@ void Monitoring::enableProcessMonitoring(const unsigned int interval, std::vecto
 #endif
 }
 
+void Monitoring::addHostnameTag()
+{
+  ProcessDetails processDetails{};
+  for (auto& backend : mBackends) {
+    backend->addGlobalTag("hostname", processDetails.getHostname());
+  }
+}
+
 void Monitoring::addGlobalTag(std::string_view key, std::string_view value)
 {
   for (auto& backend : mBackends) {
@@ -125,8 +133,6 @@ void Monitoring::setRunNumber(uint32_t run)
 
 void Monitoring::addBackend(std::unique_ptr<Backend> backend)
 {
-  ProcessDetails processDetails{};
-  backend->addGlobalTag("hostname", processDetails.getHostname());
   mBackends.push_back(std::move(backend));
 }
 
