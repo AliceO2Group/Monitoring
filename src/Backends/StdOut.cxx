@@ -44,7 +44,6 @@ inline unsigned long StdOut::convertTimestamp(const std::chrono::time_point<std:
 StdOut::StdOut(const std::string& prefix) : mPrefix(prefix)
 {
   setVerbosity(Verbosity::Debug);
-  MonLogger::Get(Severity::Info) << "StdOut backend initialized" << MonLogger::End();
 }
 
 void StdOut::addGlobalTag(std::string_view name, std::string_view value)
