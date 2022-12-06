@@ -50,7 +50,6 @@ void Monitoring::enableBuffering(const std::size_t size)
   for (std::underlying_type<Verbosity>::type i = 0; i < static_cast<std::underlying_type<Verbosity>::type>(Verbosity::Debug); i++) {
     mStorage[i].reserve(size);
   }
-  MonLogger::Get() << "Buffering enabled (" << mStorage[0].capacity() << ")" << MonLogger::End();
 }
 
 void Monitoring::flushBuffer()
@@ -93,11 +92,6 @@ void Monitoring::enableProcessMonitoring(const unsigned int interval, std::vecto
     mMonitorRunning = true;
     mMonitorThread = std::thread(&Monitoring::pushLoop, this);
   }
-#ifdef O2_MONITORING_OS_LINUX
-  MonLogger::Get() << "Process Monitor : Automatic updates enabled" << MonLogger::End();
-#else
-  MonLogger::Get() << "Process Monitor : Limited metrics available" << MonLogger::End();
-#endif
 }
 
 void Monitoring::addHostnameTag()
