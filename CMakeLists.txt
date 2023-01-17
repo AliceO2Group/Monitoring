@@ -237,6 +237,7 @@ set(EXAMPLES
 
 if(RdKafka_FOUND)
   list(APPEND EXAMPLES "examples/11-KafkaToWebsocket.cxx")
+  list(APPEND EXAMPLES "examples/13-PullClient.cxx")
 endif()
 
 foreach (example ${EXAMPLES})
