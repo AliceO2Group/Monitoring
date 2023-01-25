@@ -12,7 +12,7 @@ int main()
   /// List of topics to subscribe
   std::vector<std::string> topics = {"cru.link_status"};
   /// Connect to server
-  auto client = MonitoringFactory::GetPullClient("adam-kafka:9092", topics);
+  auto client = MonitoringFactory::GetPullClient("adam-kafka:9092", topics, "link-status-consumer");
   for (;;) {
     auto metrics = client->pull();
     if (!metrics.empty()) {
