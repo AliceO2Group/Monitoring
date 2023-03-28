@@ -80,7 +80,7 @@ bool DerivedMetrics::process(Metric& metric, DerivedMetricMode mode)
        int timestampCount = timestampDifference.count();
        // disallow dividing by 0
        if (timestampCount == 0) {
-         throw MonitoringException("DerivedMetrics", "Division by 0 when calculating rate for: " + metric.getFirstValue().first);
+         throw MonitoringException("DerivedMetrics", "Division by 0 when calculating rate for: " + metric.getName() + "/" + metric.getFirstValue().first);
        }
 
        auto current = metric.getFirstValue().second;
