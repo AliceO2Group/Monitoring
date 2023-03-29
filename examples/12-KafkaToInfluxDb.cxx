@@ -48,12 +48,13 @@ int main(int argc, char* argv[])
         if (stateChange.envinfo().state().empty()) {
           continue;
         }
-        std::cout << stateChange.envinfo().environmentid() << "/" << stateChange.envinfo().runnumber() << "  " << change.first << " SOR: " <<stateChange.envinfo().enterstatetimestamp() << " EOR: " << stateChange.timestamp() << std::endl;
         auto metric = Metric{"run_times"};
         if (change.first.find("leave") != std::string::npos) {
-          metric.addValue(stateChange.envinfo().enterstatetimestamp(), "sor").addValue(stateChange.timestamp(), "eor");
+          metric.addValue(stateChange.timestamp(), "eor");
+          std::cout << stateChange.envinfo().environmentid() << "/" << stateChange.envinfo().runnumber() << "  " << change.first << " EOR: " << stateChange.timestamp() << std::endl;
         } else {
-          metric.addValue(stateChange.envinfo().runtype(), "type");
+          metric.addValue(stateChange.envinfo().runtype(), "type").addValue(stateChange.envinfo().enterstatetimestamp(), "sor");
+          std::cout << stateChange.envinfo().environmentid() << "/" << stateChange.envinfo().runnumber() << "  " << change.first << " SOR: " <<stateChange.envinfo().enterstatetimestamp() << std::endl;
         }
         int run = stateChange.envinfo().runnumber();
         if (run > 1) {
