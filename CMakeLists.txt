@@ -276,6 +276,7 @@ if(RdKafka_FOUND AND Protobuf_FOUND AND CURL_FOUND)
 
   set(PROTO_EXAMPLES
     examples/12-KafkaToInfluxDb.cxx
+    examples/14-OrbitId.cxx
     examples/8-KafkaToHttpServer.cxx
   )
   foreach (example ${PROTO_EXAMPLES})
