@@ -17,36 +17,42 @@
 
 using namespace o2::monitoring;
 
-std::map<std::string, uint32_t> detectorRunMap;
+std::map<std::string, unsigned int> detectorRunMap;
 
-std::map<uint32_t, long> referenceOrbitIdMap;
+std::map<unsigned int, std::string> referenceOrbitIdMap;
+
+std::string getValueFromMetric(const std::string& key, const std::string& metric) {
+  auto indexStart = metric.find(key + "=");
+  if (indexStart == std::string::npos) {
+    return {};
+  }
+  auto indexEnd = std::find_if(metric.begin() + indexStart, metric.end(), [](const char& s) { return s == ' ' or s == ','; });
+  return std::string(metric.begin() + indexStart + key.size() + 1, indexEnd);
+}
+
 
 int main(int argc, char* argv[])
 {
   boost::program_options::options_description desc("Program options");
   desc.add_options()
-    ("kafka-host", boost::program_options::value<std::string>()->required(), "Kafka broker hostname")
-    ("influxdb-url", boost::program_options::value<std::string>()->required(), "InfluxDB hostname")
-    ("influxdb-token", boost::program_options::value<std::string>()->required(), "InfluxDB token")
-    ("influxdb-org", boost::program_options::value<std::string>()->default_value("cern"), "InfluxDB organisation")
-    ("influxdb-bucket", boost::program_options::value<std::string>()->default_value("aliecs"), "InfluxDB bucket");
+    ("kafka-host", boost::program_options::value<std::string>()->required(), "Kafka broker hostname");
+    //("influxdb-url", boost::program_options::value<std::string>()->required(), "InfluxDB hostname")
+    //("influxdb-token", boost::program_options::value<std::string>()->required(), "InfluxDB token")
+    //("influxdb-org", boost::program_options::value<std::string>()->default_value("cern"), "InfluxDB organisation")
+    //("influxdb-bucket", boost::program_options::value<std::string>()->default_value("aliecs"), "InfluxDB bucket");
   boost::program_options::variables_map vm;
   boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
   boost::program_options::notify(vm);
 
   std::vector<std::string> topics = {"aliecs.env_list.RUNNING", "cru.link_status"};
   auto kafkaConsumer = std::make_unique<transports::KafkaConsumer>(vm["kafka-host"].as<std::string>() + ":9092", topics, "orbitid");
-  auto httpTransport = std::make_unique<transports::HTTP>(
+  /*auto httpTransport = std::make_unique<transports::HTTP>(
     vm["influxdb-url"].as<std::string>() + "/api/v2/write?" +
     "org=" + vm["influxdb-org"].as<std::string>() + "&" +
     "bucket=" + vm["influxdb-bucket"].as<std::string>()
   );
   httpTransport->addHeader("Authorization: Token " + vm["influxdb-token"].as<std::string>());
-  auto influxdbBackend = std::make_unique<backends::InfluxDB>(std::move(httpTransport));
-  // TODO:
-  // store refrence orbitid
-  // filter orbitid per run (based on list of detectors)
-  // verify if orbitid is different
+  auto influxdbBackend = std::make_unique<backends::InfluxDB>(std::move(httpTransport));*/
   // output metric: orbitIdMismatch,detector=,run=,link=, sorOrbitId=,mismatchedObrbitId=
   for (;;) {
     auto messages = kafkaConsumer->pull();
@@ -60,15 +66,43 @@ int main(int argc, char* argv[])
           for (int i = 0; i < activeRuns.activeruns_size(); i++) {
             auto run = activeRuns.activeruns(i).runnumber();
             for (int j = 0; j < activeRuns.activeruns(i).detectors_size(); j++) {
-              detectorRunMap.at(activeRuns.activeruns(i).detectors(j)) = run;
+              auto detector = activeRuns.activeruns(i).detectors(j);
+              for (auto& c : detector) c = std::tolower(c);
+              detectorRunMap.insert({detector, run});
             }
           }
+          if (detectorRunMap.empty()) {
+            std::cout << "No ongoing runs" << std::endl;
+            referenceOrbitIdMap.clear();
+          }
+          for (const auto &p : detectorRunMap) {
+            std::cout << p.first << " belongs to run " <<  p.second << std::endl;
+          }
+          // if SOR
         // handle link status messages
         } else if (message.first == "cru.link_status") {
-
+          auto detector = getValueFromMetric("detector", message.second);
+          auto orbitId = getValueFromMetric("orbitSor", message.second);
+          if (detector.empty() or orbitId.empty()) {
+            continue;
+          }
+          auto detectorInRun = detectorRunMap.find(detector);
+          if (detectorInRun == detectorRunMap.end()) {
+            continue;
+          }
+          auto referenceOrbit = referenceOrbitIdMap.find(detectorRunMap.at(detector));
+          if (referenceOrbit == referenceOrbitIdMap.end()) {
+            referenceOrbitIdMap.insert({detectorRunMap.at(detector), orbitId});
+            std::cout << "Set reference orbitId for run " << detectorRunMap.at(detector) << ": " << orbitId << std::endl;
+          }
+          auto referenceOrbitId = referenceOrbitIdMap.at(detectorRunMap.at(detector));
+          if (orbitId != referenceOrbitId) {
+            std::cout << "Abnormal condition for " << detector << " expected OrbitID: " << referenceOrbitId << " but got: " << orbitId << std::endl;
+            std::cout << message.second << std::endl;
+          }
         }
       }
     }
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
 }
