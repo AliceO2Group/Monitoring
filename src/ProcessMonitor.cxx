@@ -18,6 +18,7 @@
 #include "MonLogger.h"
 #include <unistd.h>
 #include <chrono>
+#include <iterator>
 #include <sstream>
 #include <cmath>
 #include <fstream>
