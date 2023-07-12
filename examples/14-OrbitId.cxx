@@ -3,7 +3,7 @@
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 ///
 #include "../src/Transports/KafkaConsumer.h"
-#include "../src/Transports/HTTP.h"
+#include "../src/Transports/Unix.h"
 #include "../src/MonLogger.h"
 
 #include <iostream>
@@ -35,23 +35,14 @@ int main(int argc, char* argv[])
 {
   boost::program_options::options_description desc("Program options");
   desc.add_options()
-    ("kafka-host", boost::program_options::value<std::string>()->required(), "Kafka broker hostname")
-    ("influxdb-url", boost::program_options::value<std::string>()->required(), "InfluxDB hostname")
-    ("influxdb-token", boost::program_options::value<std::string>()->required(), "InfluxDB token")
-    ("influxdb-org", boost::program_options::value<std::string>()->default_value("cern"), "InfluxDB organisation")
-    ("influxdb-bucket", boost::program_options::value<std::string>()->default_value("telegraf"), "InfluxDB bucket");
+    ("kafka-host", boost::program_options::value<std::string>()->required(), "Kafka broker hostname");
   boost::program_options::variables_map vm;
   boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
   boost::program_options::notify(vm);
 
   std::vector<std::string> topics = {"aliecs.env_list.RUNNING", "cru.link_status"};
   auto kafkaConsumer = std::make_unique<transports::KafkaConsumer>(vm["kafka-host"].as<std::string>() + ":9092", topics, "orbitid");
-  auto httpTransport = std::make_unique<transports::HTTP>(
-    "http://" + vm["influxdb-url"].as<std::string>() + "/api/v2/write?" +
-    "org=" + vm["influxdb-org"].as<std::string>() + "&" +
-    "bucket=" + vm["influxdb-bucket"].as<std::string>()
-  );
-  httpTransport->addHeader("Authorization: Token " + vm["influxdb-token"].as<std::string>());
+  auto unixSocket = std::make_unique<transports::Unix>("/tmp/telegraf.sock");
   MonLogger::mLoggerSeverity = Severity::Debug;
   for (;;) {
     auto messages = kafkaConsumer->pull();
@@ -108,7 +99,7 @@ int main(int argc, char* argv[])
           if (orbitId != referenceOrbitId) {
              MonLogger::Get() << "Abnormal condition for " << detector << "; expected orbitID: " << referenceOrbitId << " but got: " << orbitId << MonLogger::End();
              std::string outputMetric = message.second.substr(message.second.find(","), message.second.find(" ") - message.second.find(","));
-             httpTransport->send("orbitIdMismatch" + outputMetric + " actual=" + orbitId + " expected=" + referenceOrbitId);
+             unixSocket->send("orbitIdMismatch" + outputMetric + " actual=" + orbitId + " expected=" + referenceOrbitId + "\n\n");
           }
         }
       }
