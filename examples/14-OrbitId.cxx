@@ -46,13 +46,12 @@ int main(int argc, char* argv[])
 
   std::vector<std::string> topics = {"aliecs.env_list.RUNNING", "cru.link_status"};
   auto kafkaConsumer = std::make_unique<transports::KafkaConsumer>(vm["kafka-host"].as<std::string>() + ":9092", topics, "orbitid");
-  /*auto httpTransport = std::make_unique<transports::HTTP>(
+  auto httpTransport = std::make_unique<transports::HTTP>(
     "http://" + vm["influxdb-url"].as<std::string>() + "/api/v2/write?" +
     "org=" + vm["influxdb-org"].as<std::string>() + "&" +
     "bucket=" + vm["influxdb-bucket"].as<std::string>()
-  );*/
-  auto httpTransport = std::make_unique<transports::HTTP>("http://pcald24.cern.ch:8086/api/v2/write?org=cern&bucket=telegraf");
-  //httpTransport->addHeader("Authorization: Token " + vm["influxdb-token"].as<std::string>());
+  );
+  httpTransport->addHeader("Authorization: Token " + vm["influxdb-token"].as<std::string>());
   MonLogger::mLoggerSeverity = Severity::Debug;
   for (;;) {
     auto messages = kafkaConsumer->pull();
@@ -109,7 +108,7 @@ int main(int argc, char* argv[])
           if (orbitId != referenceOrbitId) {
              MonLogger::Get() << "Abnormal condition for " << detector << "; expected orbitID: " << referenceOrbitId << " but got: " << orbitId << MonLogger::End();
              std::string outputMetric = message.second.substr(message.second.find(","), message.second.find(" ") - message.second.find(","));
-             //httpTransport->send("orbitIdMismatch" + outputMetric + " actual=" + orbitId + " expected=" + referenceOrbitId);
+             httpTransport->send("orbitIdMismatch" + outputMetric + " actual=" + orbitId + " expected=" + referenceOrbitId);
           }
         }
       }
