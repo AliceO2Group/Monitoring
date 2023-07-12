@@ -15,6 +15,7 @@
 ///
 
 #include "KafkaProducer.h"
+#include <memory>
 #include <string>
 #include "../MonLogger.h"
 
