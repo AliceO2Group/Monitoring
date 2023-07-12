@@ -15,6 +15,7 @@
 ///
 
 #include "KafkaConsumer.h"
+#include <memory>
 #include <string>
 #include "../MonLogger.h"
 #include "../Exceptions/MonitoringException.h"
