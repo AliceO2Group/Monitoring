@@ -2,9 +2,9 @@
 /// \file 14-OrbitId.cxx
 /// \author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 ///
+
 #include "../src/Transports/KafkaConsumer.h"
 #include "../src/Transports/Unix.h"
-#include "../src/MonLogger.h"
 
 #include <iostream>
 #include <memory>
@@ -43,7 +43,6 @@ int main(int argc, char* argv[])
   std::vector<std::string> topics = {"aliecs.env_list.RUNNING", "cru.link_status"};
   auto kafkaConsumer = std::make_unique<transports::KafkaConsumer>(vm["kafka-host"].as<std::string>() + ":9092", topics, "orbitid");
   auto unixSocket = std::make_unique<transports::Unix>("/tmp/telegraf.sock");
-  MonLogger::mLoggerSeverity = Severity::Debug;
   for (;;) {
     auto messages = kafkaConsumer->pull();
     if (!messages.empty()) {
@@ -62,11 +61,11 @@ int main(int argc, char* argv[])
             }
           }
           if (detectorRunMap.empty()) {
-            MonLogger::Get() << "No ongoing runs" << MonLogger::End();
+            std::cout << "No ongoing runs" << std::endl;
             referenceOrbitIdMap.clear();
           }
           for (const auto &p : detectorRunMap) {
-            MonLogger::Get() << p.first << " belongs to run " <<  p.second << MonLogger::End();
+            std::cout << p.first << " belongs to run " <<  p.second << std::endl;
           }
           // if SOR
         // handle link status messages
@@ -86,6 +85,8 @@ int main(int argc, char* argv[])
           if (status != "1i") {
             continue;
           }
+
+          std::string outputMetric = "orbitIdMismatch" + message.second.substr(message.second.find(","), message.second.find(" ") - message.second.find(",")) + ",run=" + std::to_string(detectorRunMap.at(detector));
           auto referenceOrbit = referenceOrbitIdMap.find(detectorRunMap.at(detector));
           if (referenceOrbit == referenceOrbitIdMap.end()) {
             /// wait for trigger
@@ -93,13 +94,13 @@ int main(int argc, char* argv[])
               continue;
             }
             referenceOrbitIdMap.insert({detectorRunMap.at(detector), orbitId});
-            MonLogger::Get() << "Set reference orbitId for run " << detectorRunMap.at(detector) << ": " << orbitId << MonLogger::End();
+            std::cout << "Set reference orbitId for run " << detectorRunMap.at(detector) << ": " << orbitId << std::endl;
+            unixSocket->send(outputMetric + " reference=" + orbitId);
           }
           auto referenceOrbitId = referenceOrbitIdMap.at(detectorRunMap.at(detector));
           if (orbitId != referenceOrbitId) {
-             MonLogger::Get() << "Abnormal condition for " << detector << "; expected orbitID: " << referenceOrbitId << " but got: " << orbitId << MonLogger::End();
-             std::string outputMetric = message.second.substr(message.second.find(","), message.second.find(" ") - message.second.find(","));
-             unixSocket->send("orbitIdMismatch" + outputMetric + " actual=" + orbitId + " expected=" + referenceOrbitId + "\n\n");
+             std::cout << "Abnormal condition for " << detector << "; expected orbitID: " << referenceOrbitId << " but got: " << orbitId << std::endl;
+             unixSocket->send(outputMetric + " mismatched=" + orbitId);
           }
         }
       }
