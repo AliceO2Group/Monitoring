@@ -31,7 +31,7 @@ endif()
 
 # Define project
 project(Monitoring
-  VERSION 3.15.5
+  VERSION 3.16.0
   DESCRIPTION "O2 Monitoring library"
   LANGUAGES CXX
 )
@@ -276,6 +276,7 @@ if(RdKafka_FOUND AND Protobuf_FOUND AND CURL_FOUND)
 
   set(PROTO_EXAMPLES
     examples/12-KafkaToInfluxDb.cxx
+    examples/14-OrbitId.cxx
     examples/8-KafkaToHttpServer.cxx
   )
   foreach (example ${PROTO_EXAMPLES})
