@@ -31,7 +31,7 @@ endif()
 
 # Define project
 project(Monitoring
-  VERSION 3.16.0
+  VERSION 3.16.1
   DESCRIPTION "O2 Monitoring library"
   LANGUAGES CXX
 )
@@ -293,6 +293,7 @@ if(RdKafka_FOUND AND Protobuf_FOUND AND CURL_FOUND)
   endforeach()
   set_target_properties(8-KafkaToHttpServer PROPERTIES OUTPUT_NAME "o2-monitoring-env-webserver")
   set_target_properties(12-KafkaToInfluxDb PROPERTIES OUTPUT_NAME "o2-monitoring-kafka-to-influxdb")
+  set_target_properties(14-OrbitId PROPERTIES OUTPUT_NAME "o2-monitoring-orbitid")
 endif()
 
 ####################################
@@ -343,6 +344,11 @@ install(TARGETS Monitoring 5-Benchmark
 )
 if(RdKafka_FOUND)
   install(TARGETS 11-KafkaToWebsocket)
+endif()
+
+
+if(RdKafka_FOUND AND Protobuf_FOUND)
+  install(TARGETS 14-OrbitId)
 endif()
 
 # Create version file
