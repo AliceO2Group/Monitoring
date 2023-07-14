@@ -16,13 +16,13 @@
 
 #include "../src/Transports/KafkaConsumer.h"
 #include "envs.pb.h"
-#include "../MonLogger.h"
+#include "../src/MonLogger.h"
 
 namespace beast = boost::beast;
 namespace http = beast::http;
 using tcp = boost::asio::ip::tcp;
 using namespace std::literals::string_literals;
-
+using o2::monitoring::MonLogger;
 
 aliceo2::envs::ActiveRunsList gActiveEnvs;
 std::mutex gEnvAccess;

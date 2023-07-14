@@ -14,7 +14,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include "envs.pb.h"
-#include "../MonLogger.h"
+#include "../src/MonLogger.h"
 
 using namespace o2::monitoring;
 
