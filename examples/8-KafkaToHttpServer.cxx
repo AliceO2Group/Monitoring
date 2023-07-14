@@ -16,6 +16,7 @@
 
 #include "../src/Transports/KafkaConsumer.h"
 #include "envs.pb.h"
+#include "../MonLogger.h"
 
 namespace beast = boost::beast;
 namespace http = beast::http;
@@ -198,11 +199,11 @@ void deserializeActiveRuns(const std::string& lastActiveRunMessage)
   aliceo2::envs::ActiveRunsList activeRuns;
   activeRuns.ParseFromString(lastActiveRunMessage);
   if (activeRuns.activeruns_size() == 0) {
-    std::cout << "Empty active runs" << std::endl;
+    MonLogger::Get() << "Empty active runs" << MonLogger::End();
   } else {
     for (int i = 0; i < activeRuns.activeruns_size(); i++) {
-      std::cout << "Active run: " << activeRuns.activeruns(i).runnumber() << " ("
-                       << activeRuns.activeruns(i).environmentid() << ")" << std::endl;
+      MonLogger::Get() << "Active run: " << activeRuns.activeruns(i).runnumber() << " ("
+                       << activeRuns.activeruns(i).environmentid() << ")" << MonLogger::End();
     }
   }
   const std::lock_guard<std::mutex> lock(gEnvAccess);
@@ -220,7 +221,7 @@ int main(int argc, char* argv[]) {
   boost::program_options::notify(vm);
   unsigned short port = vm["http-port"].as<unsigned short>();
 
-  std::cout << "Using Kafka instance: " << vm["kafka-host"].as<std::string>() << ":9092 and HTTP server port: " << port << std::endl;
+  MonLogger::Get() << "Using Kafka instance: " << vm["kafka-host"].as<std::string>() << ":9092 and HTTP server port: " << port << MonLogger::End();
   std::thread webServerThread([&port](){
     auto const address = boost::asio::ip::make_address("0.0.0.0");
     boost::asio::io_context ioc{1};
