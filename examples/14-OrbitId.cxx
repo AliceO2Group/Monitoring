@@ -85,6 +85,11 @@ int main(int argc, char* argv[])
           if (status != "1i") {
             continue;
           }
+          // Temporary disable 0s
+          // TODO: remove
+          if (orbitId == "0i") {
+            continue;
+          }
 
           std::string outputMetric = "orbitIdMismatch" + message.second.substr(message.second.find(","), message.second.find(" ") - message.second.find(",")) + ",run=" + std::to_string(detectorRunMap.at(detector));
           auto referenceOrbit = referenceOrbitIdMap.find(detectorRunMap.at(detector));
