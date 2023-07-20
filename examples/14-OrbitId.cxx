@@ -76,6 +76,12 @@ int main(int argc, char* argv[])
           if (detector.empty() or orbitId.empty()) {
             continue;
           }
+          // Temporary disregard MCH and MID
+          // TODO: remove
+          if (detector == "mch" || detector == "mid") {
+            continue;
+          }
+
           // if detector is not running
           auto detectorInRun = detectorRunMap.find(detector);
           if (detectorInRun == detectorRunMap.end()) {
