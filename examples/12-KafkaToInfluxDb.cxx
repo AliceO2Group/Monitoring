@@ -14,6 +14,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include "envs.pb.h"
+#include "../src/MonLogger.h"
 
 using namespace o2::monitoring;
 
@@ -51,10 +52,10 @@ int main(int argc, char* argv[])
         auto metric = Metric{"run_times"};
         if (change.first.find("leave") != std::string::npos) {
           metric.addValue(stateChange.timestamp(), "eor");
-          std::cout << stateChange.envinfo().environmentid() << "/" << stateChange.envinfo().runnumber() << "  " << change.first << " EOR: " << stateChange.timestamp() << std::endl;
+          MonLogger::Get() << stateChange.envinfo().environmentid() << "/" << stateChange.envinfo().runnumber() << "  " << change.first << " EOR: " << stateChange.timestamp() << MonLogger::End();
         } else {
           metric.addValue(stateChange.envinfo().runtype(), "type").addValue(stateChange.envinfo().enterstatetimestamp(), "sor");
-          std::cout << stateChange.envinfo().environmentid() << "/" << stateChange.envinfo().runnumber() << "  " << change.first << " SOR: " <<stateChange.envinfo().enterstatetimestamp() << std::endl;
+          MonLogger::Get() << stateChange.envinfo().environmentid() << "/" << stateChange.envinfo().runnumber() << "  " << change.first << " SOR: " <<stateChange.envinfo().enterstatetimestamp() << MonLogger::End();
         }
         int run = stateChange.envinfo().runnumber();
         if (run > 1) {

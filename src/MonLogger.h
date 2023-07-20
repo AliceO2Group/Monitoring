@@ -18,12 +18,13 @@
 #define MONITORING_MONINFOLOGGER_H
 
 #include <chrono>
-#include <iomanip>
-#include <iostream>
 
 #ifdef O2_MONITORING_WITH_INFOLOGGER
 #include <InfoLogger/InfoLogger.hxx>
 using namespace AliceO2::InfoLogger;
+#else
+#include <iostream>
+#include <iomanip>
 #endif
 
 namespace o2

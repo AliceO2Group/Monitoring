@@ -14,6 +14,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include "envs.pb.h"
+#include "../src/MonLogger.h"
 
 using namespace o2::monitoring;
 
@@ -61,11 +62,11 @@ int main(int argc, char* argv[])
             }
           }
           if (detectorRunMap.empty()) {
-            std::cout << "No ongoing runs" << std::endl;
+            MonLogger::Get() << "No ongoing runs" << MonLogger::End();
             referenceOrbitIdMap.clear();
           }
           for (const auto &p : detectorRunMap) {
-            std::cout << p.first << " belongs to run " <<  p.second << std::endl;
+            MonLogger::Get() << p.first << " belongs to run " <<  p.second << MonLogger::End();
           }
           // if SOR
         // handle link status messages
@@ -105,12 +106,12 @@ int main(int argc, char* argv[])
               continue;
             }
             referenceOrbitIdMap.insert({detectorRunMap.at(detector), orbitId});
-            std::cout << "Set reference orbitId for run " << detectorRunMap.at(detector) << ": " << orbitId << std::endl;
+            MonLogger::Get() << "Set reference orbitId for run " << detectorRunMap.at(detector) << ": " << orbitId << MonLogger::End();
             unixSocket->send(outputMetric + " reference=" + orbitId);
           }
           auto referenceOrbitId = referenceOrbitIdMap.at(detectorRunMap.at(detector));
           if (orbitId != referenceOrbitId) {
-             std::cout << "Abnormal condition for " << detector << "; expected orbitID: " << referenceOrbitId << " but got: " << orbitId << std::endl;
+             MonLogger::Get() << "Abnormal condition for " << detector << "; expected orbitID: " << referenceOrbitId << " but got: " << orbitId << MonLogger::End();
              unixSocket->send(outputMetric + " mismatched=" + orbitId);
           }
         }
