@@ -31,6 +31,7 @@ int main(int argc, char* argv[])
   boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
   boost::program_options::notify(vm);
 
+  MonLogger::mLoggerSeverity = Severity::Debug;
   std::vector<std::string> topics = {"aliecs.env_leave_state.RUNNING", "aliecs.env_state.RUNNING"};
   auto kafkaConsumer = std::make_unique<transports::KafkaConsumer>(vm["kafka-host"].as<std::string>() + ":9092", topics, "aliecs-run-times");
   auto httpTransport = std::make_unique<transports::HTTP>(
