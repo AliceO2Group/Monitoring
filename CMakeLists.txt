@@ -287,7 +287,9 @@ if(RdKafka_FOUND AND Protobuf_FOUND AND CURL_FOUND)
       Monitoring
       Boost::program_options
       protobuf::libprotobuf
+      $<$<BOOL:${InfoLogger_FOUND}>:AliceO2::InfoLogger>
     )
+    target_compile_definitions(${example_name} PRIVATE $<$<BOOL:${InfoLogger_FOUND}>:O2_MONITORING_WITH_INFOLOGGER>)
     target_include_directories(${example_name} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
     install(TARGETS ${example_name})
   endforeach()
