@@ -221,6 +221,7 @@ int main(int argc, char* argv[]) {
   boost::program_options::notify(vm);
   unsigned short port = vm["http-port"].as<unsigned short>();
 
+  MonLogger::mLoggerSeverity = o2::monitoring::Severity::Debug;
   MonLogger::Get() << "Using Kafka instance: " << vm["kafka-host"].as<std::string>() << ":9092 and HTTP server port: " << port << MonLogger::End();
   std::thread webServerThread([&port](){
     auto const address = boost::asio::ip::make_address("0.0.0.0");

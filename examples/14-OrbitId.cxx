@@ -41,6 +41,7 @@ int main(int argc, char* argv[])
   boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
   boost::program_options::notify(vm);
 
+  MonLogger::mLoggerSeverity = Severity::Debug;
   std::vector<std::string> topics = {"aliecs.env_list.RUNNING", "cru.link_status"};
   auto kafkaConsumer = std::make_unique<transports::KafkaConsumer>(vm["kafka-host"].as<std::string>() + ":9092", topics, "orbitid");
   auto unixSocket = std::make_unique<transports::Unix>("/tmp/telegraf.sock");
