@@ -104,6 +104,11 @@ int main(int argc, char* argv[])
             continue;
           }
 
+          // Drop wrongly reported values during BAR read (0xFFFFFFFF)
+          if (orbitId == "4294967295i") {
+            continue;
+          }
+
           std::string outputMetric = "orbitIdMismatch" + message.second.substr(message.second.find(","), message.second.find(" ") - message.second.find(",")) + ",run=" + std::to_string(detectorRunMap.at(detector));
           auto referenceOrbit = referenceOrbitIdMap.find(detectorRunMap.at(detector));
           if (referenceOrbit == referenceOrbitIdMap.end()) {
