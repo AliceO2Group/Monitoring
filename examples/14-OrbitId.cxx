@@ -58,6 +58,11 @@ int main(int argc, char* argv[])
             auto run = activeRuns.activeruns(i).runnumber();
             for (int j = 0; j < activeRuns.activeruns(i).detectors_size(); j++) {
               auto detector = activeRuns.activeruns(i).detectors(j);
+              auto runType = activeRuns.activeruns(i).runtype();
+              if (runType.find("calib") != std::string::npos || runType.find("CALIB") != std::string::npos) {
+                MonLogger::Get() << "Skipping calibration run " << run << MonLogger::End();
+                continue;
+              }
               for (auto& c : detector) c = std::tolower(c);
               detectorRunMap.insert({detector, run});
             }
