@@ -79,6 +79,7 @@ find_package(CURL MODULE)
 find_package(RdKafka CONFIG)
 find_package(InfoLogger CONFIG)
 find_package(Protobuf)
+find_package(gRPC CONFIG)
 
 ####################################
 # Set OUTPUT vars
@@ -296,6 +297,48 @@ if(RdKafka_FOUND AND Protobuf_FOUND AND CURL_FOUND)
   set_target_properties(8-KafkaToHttpServer PROPERTIES OUTPUT_NAME "o2-monitoring-env-webserver")
   set_target_properties(12-KafkaToInfluxDb PROPERTIES OUTPUT_NAME "o2-monitoring-kafka-to-influxdb")
   set_target_properties(14-OrbitId PROPERTIES OUTPUT_NAME "o2-monitoring-orbitid")
+endif()
+
+####################################
+# gRPC
+####################################
+if(Protobuf_FOUND AND gRPC_FOUND)
+  set(PROTO_FILE ${CMAKE_CURRENT_SOURCE_DIR}/proto/odc.proto)
+  get_filename_component(PROTO_OUTPUT_NAME ${PROTO_FILE} NAME_WE)
+  get_filename_component(PROTO_FILE_PREFIX ${PROTO_FILE} PATH)
+  set(PROTO_CPP_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PROTO_OUTPUT_NAME}.pb.cc)
+  set(GRPC_CPP_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PROTO_OUTPUT_NAME}.grpc.pb.cc)
+
+  add_custom_command(
+      OUTPUT "${PROTO_CPP_OUTPUT}"
+      COMMAND protobuf::protoc
+      ARGS --proto_path ${PROTO_FILE_PREFIX}
+           --cpp_out ${CMAKE_CURRENT_BINARY_DIR}
+           ${PROTO_OUTPUT_NAME}.proto
+      DEPENDS ${PROTO_FILE}
+      COMMENT "Running protoc on ${PROTO_FILE}"
+      VERBATIM)
+
+  add_custom_command(
+      OUTPUT "${GRPC_CPP_OUTPUT}"
+      COMMAND protobuf::protoc
+      ARGS --proto_path ${PROTO_FILE_PREFIX}
+           --grpc_out=${CMAKE_CURRENT_BINARY_DIR}
+           --plugin=protoc-gen-grpc=$<TARGET_FILE:gRPC::grpc_cpp_plugin>
+           ${PROTO_OUTPUT_NAME}.proto
+      DEPENDS ${PROTO_FILE}
+      COMMENT "Running protoc/gRPC on ${PROTO_FILE}"
+      VERBATIM)
+
+  set(example examples/15-ODC.cxx)
+  get_filename_component(example_name ${example} NAME)
+  string(REGEX REPLACE ".cxx" "" example_name ${example_name})
+  add_executable(${example_name} ${example} ${PROTO_CPP_OUTPUT} ${GRPC_CPP_OUTPUT})
+  target_link_libraries(${example_name} PRIVATE
+      gRPC::grpc++
+      protobuf::libprotobuf
+  )
+  target_include_directories(${example_name} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
 ####################################
