@@ -337,6 +337,7 @@ if(Protobuf_FOUND AND gRPC_FOUND)
   target_link_libraries(${example_name} PRIVATE
       gRPC::grpc++
       protobuf::libprotobuf
+      Boost::program_options
   )
   target_include_directories(${example_name} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 endif()

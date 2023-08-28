@@ -57,8 +57,9 @@ void httpServer(tcp::acceptor& acceptor, tcp::socket& socket) {
       std::string odcStatJson;
       const std::lock_guard<std::mutex> lock(gMapAccess);
       if (gStats.find(id) != gStats.end()) {
-        odcStatJson += "[" + gStats.at(id).State + ", \""
-          + std::to_string(gStats.at(id).EpnCount) + ", \""
+        odcStatJson += "[" + std::to_string(0) + ", \""
+          + gStats.at(id).State + "\", \""
+          + std::to_string(gStats.at(id).EpnCount) + "\", \""
           + std::to_string(gStats.at(id).FailedTasks) + "\"]";
       }
       beast::ostream(response.body()) << jsonPrefix << odcStatJson << jsonSuffix << '\n';
