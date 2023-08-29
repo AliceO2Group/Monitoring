@@ -147,7 +147,6 @@ int main(int argc, char* argv[]) {
   OdcClient client(grpc::CreateChannel(vm["odc-host"].as<std::string>() + ":" + std::to_string(vm["odc-port"].as<unsigned short>()), grpc::InsecureChannelCredentials()));
   for (;;) {
     client.getStatus();
-    std::this_thread::sleep_for(std::chrono::seconds(30));
+    std::this_thread::sleep_for(std::chrono::seconds(15));
   }
 }
-
