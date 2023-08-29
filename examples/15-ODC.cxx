@@ -128,7 +128,7 @@ int main(int argc, char* argv[]) {
   desc.add_options()
     ("odc-host", boost::program_options::value<std::string>()->required(), "ODC hostname")
     ("odc-port", boost::program_options::value<unsigned short>()->required(), "ODC port")
-    ("http-port", boost::program_options::value<unsigned short>()->default_value(8087), "HTTP server bind port");
+    ("http-port", boost::program_options::value<unsigned short>()->default_value(8088), "HTTP server bind port");
   boost::program_options::variables_map vm; 
   boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
   boost::program_options::notify(vm);
