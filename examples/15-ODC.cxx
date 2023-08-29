@@ -9,6 +9,7 @@
 #include "helpers/HttpConnection.h"
 #include <boost/program_options.hpp>
 #include <thread>
+#include <regex>
 #include "../src/MonLogger.h"
 
 using grpc::Channel;
@@ -29,6 +30,10 @@ std::mutex gMapAccess;
 struct OdcStats {
   int EpnCount;
   int FailedTasks;
+  int RecoTasks;
+  int CalibTasks;
+  std::unordered_map<std::string, int> TasksPerCalib;
+  std::unordered_map<std::string, int> FailedTasksPerCalib;
   std::string State;
 };
 
@@ -48,9 +53,27 @@ void httpServer(tcp::acceptor& acceptor, tcp::socket& socket) {
        response.set(http::field::content_type, "application/json");
        beast::ostream(response.body()) << R"({"results":[{"statement_id":0,"series":[{"name":"measurements","columns":["name"],"values":[["odc"]]}]}]}\n)";
      });
+     connection->addCallback("SHOW+TAG+VALUES+FROM+calibs+WHERE+partitionid",
+     [](http::request<http::dynamic_body>& request, http::response<http::dynamic_body>& response) {
+       std::string jsonPrefix = R"({"results": [{"statement_id": 0, "series": [{"name": "odc_calibs", "columns": ["key", "value"], "values": [)";
+       std::string jsonSuffix = R"(]}]}]})";
+       response.set(http::field::content_type, "application/json");
+       std::string calibJson;
+       std::string id = std::string(request.target().substr(request.target().find("WHERE+partitionid+%3D+") + 22));
+       const std::lock_guard<std::mutex> lock(gMapAccess);
+       if (gStats.find(id) != gStats.end()) {
+         for (auto const& calib : gStats.at(id).TasksPerCalib) {
+           calibJson += "[\"calib\", \"" + calib.first + "\"],";
+         }
+       }
+       if (!calibJson.empty()) {
+         calibJson.pop_back();
+       }
+       beast::ostream(response.body()) << jsonPrefix << calibJson << jsonSuffix << '\n';
+     });
      connection->addCallback("odc_status+WHERE+partitionid",
      [](http::request<http::dynamic_body>& request, http::response<http::dynamic_body>& response) {
-      std::string jsonPrefix = R"({"results":[{"statement_id":0,"series":[{"name":"odc","columns":["time","State","EPN count","Failed tasks"],"values":[)";
+      std::string jsonPrefix = R"({"results":[{"statement_id":0,"series":[{"name":"odc","columns":["time","State","EPN count","Failed tasks", "Calib tasks", "Reco tasks"],"values":[)";
       std::string jsonSuffix = R"(]}]}]})";
       response.set(http::field::content_type, "application/json");
       std::string id = std::string(request.target().substr(request.target().find("WHERE+partitionid+%3D+") + 22));
@@ -60,9 +83,37 @@ void httpServer(tcp::acceptor& acceptor, tcp::socket& socket) {
         odcStatJson += "[" + std::to_string(0) + ", \""
           + gStats.at(id).State + "\", \""
           + std::to_string(gStats.at(id).EpnCount) + "\", \""
-          + std::to_string(gStats.at(id).FailedTasks) + "\"]";
+          + std::to_string(gStats.at(id).FailedTasks) + "\", \""
+          + std::to_string(gStats.at(id).CalibTasks) + "\", \""
+          + std::to_string(gStats.at(id).RecoTasks) + "\"]";
       }
       beast::ostream(response.body()) << jsonPrefix << odcStatJson << jsonSuffix << '\n';
+     });
+     connection->addCallback("calib_tasks+WHERE+calib",
+     [](http::request<http::dynamic_body>& request, http::response<http::dynamic_body>& response) {
+      std::string jsonPrefix = R"({"results":[{"statement_id":0,"series":[{"name":"calib_tasks","columns":["time","Total","Failed"],"values":[)";
+      std::string jsonSuffix = R"(]}]}]})";
+      response.set(http::field::content_type, "application/json");
+      std::string calib = std::string(request.target().substr(request.target().find("WHERE+calib+%3D+") + 16));
+      std::string calibTasksJson;
+      const std::lock_guard<std::mutex> lock(gMapAccess);
+      calibTasksJson += "[" + std::to_string(0);
+      for (const auto& run : gStats) {
+        if (run.second.TasksPerCalib.find(calib) != run.second.TasksPerCalib.end()) {
+          calibTasksJson += ", ";
+          calibTasksJson += std::to_string(run.second.TasksPerCalib.at(calib));
+          std::cout << run.second.TasksPerCalib.at(calib) << std::endl;
+          if (run.second.FailedTasksPerCalib.find(calib) != run.second.FailedTasksPerCalib.end()) {
+            calibTasksJson += "," + std::to_string(run.second.FailedTasksPerCalib.at(calib));
+            std::cout << run.second.FailedTasksPerCalib.at(calib) << std::endl;
+          } else {
+            calibTasksJson +=  ",0";
+          }
+        }
+      }
+      calibTasksJson +=  "]";
+      std::cout << calibTasksJson << std::endl;
+      beast::ostream(response.body()) << jsonPrefix << calibTasksJson << jsonSuffix << '\n';
      });
      connection->start();
     }   
@@ -105,11 +156,40 @@ class OdcClient {
       MonLogger::Get() << "State call for " << partitionId << " OK" << MonLogger::End();
       unsigned int failedCount = 0;
       std::unordered_set<std::string> uniqueEpns{};
+      std::unordered_set<std::string> calibCollections{};
+      stats.TasksPerCalib.clear();
+      stats.FailedTasksPerCalib.clear();
+      std::regex rReco("_reco[0-9]+_");
+      std::regex rCalib("_calib[0-9]+_");
       for (int i = 0; i < reply.devices_size(); i++) {
         if (reply.devices(i).state() == "ERROR") {
           failedCount++;
         }
         uniqueEpns.insert(reply.devices(i).host());
+        if (std::regex_search(reply.devices(i).path(), rReco)) {
+          stats.RecoTasks++;
+        }
+        if (std::regex_search(reply.devices(i).path(), rCalib)) {
+          stats.CalibTasks++;
+          auto calibIdx = reply.devices(i).path().find("_calib");
+          auto calib = reply.devices(i).path().substr(calibIdx + 1, reply.devices(i).path().size()-calibIdx-3);
+          auto it = stats.TasksPerCalib.find(calib);
+          if (it != stats.TasksPerCalib.end()) {
+            it->second++;
+          }
+          else {
+            stats.TasksPerCalib.insert({calib, 1});
+          }
+          if (reply.devices(i).state() == "ERROR") {
+            auto it = stats.FailedTasksPerCalib.find(calib);
+            if (it != stats.FailedTasksPerCalib.end()) {
+              it->second++;
+            }
+            else {
+              stats.FailedTasksPerCalib.insert({calib, 1});
+            }
+          }
+        }
       }
       stats.EpnCount = uniqueEpns.size();
       stats.FailedTasks = failedCount;
