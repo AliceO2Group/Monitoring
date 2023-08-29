@@ -340,6 +340,7 @@ if(Protobuf_FOUND AND gRPC_FOUND)
       Boost::program_options
   )
   target_include_directories(${example_name} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+  set_target_properties(15-ODC PROPERTIES OUTPUT_NAME "o2-monitoring-odc")
 endif()
 
 ####################################
@@ -395,6 +396,10 @@ endif()
 
 if(RdKafka_FOUND AND Protobuf_FOUND)
   install(TARGETS 14-OrbitId)
+endif()
+
+if(Protobuf_FOUND AND gRPC_FOUND)
+  install(TARGETS 15-ODC)
 endif()
 
 # Create version file
