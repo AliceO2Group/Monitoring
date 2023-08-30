@@ -30,10 +30,10 @@ std::mutex gMapAccess;
 struct OdcStats {
   int EpnCount;
   int FailedTasks;
-  int RecoTasks;
-  int CalibTasks;
-  std::unordered_map<std::string, int> TasksPerCalib;
-  std::unordered_map<std::string, int> FailedTasksPerCalib;
+  unsigned int RecoTasks;
+  unsigned int CalibTasks;
+  std::unordered_map<std::string, unsigned int> TasksPerCalib;
+  std::unordered_map<std::string, unsigned int> FailedTasksPerCalib;
   std::string State;
 };
 
@@ -112,7 +112,6 @@ void httpServer(tcp::acceptor& acceptor, tcp::socket& socket) {
         }
       }
       calibTasksJson +=  "]";
-      std::cout << calibTasksJson << std::endl;
       beast::ostream(response.body()) << jsonPrefix << calibTasksJson << jsonSuffix << '\n';
      });
      connection->start();
@@ -157,8 +156,8 @@ class OdcClient {
       unsigned int failedCount = 0;
       std::unordered_set<std::string> uniqueEpns{};
       std::unordered_set<std::string> calibCollections{};
-      stats.TasksPerCalib.clear();
-      stats.FailedTasksPerCalib.clear();
+      unsigned int recoTasks = 0;
+      unsigned int calibTasks = 0;
       std::regex rReco("_reco[0-9]+_");
       std::regex rCalib("_calib[0-9]+_");
       for (int i = 0; i < reply.devices_size(); i++) {
@@ -167,10 +166,10 @@ class OdcClient {
         }
         uniqueEpns.insert(reply.devices(i).host());
         if (std::regex_search(reply.devices(i).path(), rReco)) {
-          stats.RecoTasks++;
+          recoTasks++;
         }
         if (std::regex_search(reply.devices(i).path(), rCalib)) {
-          stats.CalibTasks++;
+          calibTasks++;
           auto calibIdx = reply.devices(i).path().find("_calib");
           auto calib = reply.devices(i).path().substr(calibIdx + 1, reply.devices(i).path().size()-calibIdx-3);
           auto it = stats.TasksPerCalib.find(calib);
@@ -191,6 +190,9 @@ class OdcClient {
           }
         }
       }
+      const std::lock_guard<std::mutex> lock(gMapAccess);
+      stats.RecoTasks = recoTasks;
+      stats.CalibTasks = calibTasks;
       stats.EpnCount = uniqueEpns.size();
       stats.FailedTasks = failedCount;
     } else {
