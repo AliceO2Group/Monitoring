@@ -42,7 +42,7 @@ void httpServer(tcp::acceptor& acceptor, tcp::socket& socket) {
          envsJson += "[\"run\", \"" + std::to_string(gActiveEnvs.activeruns(i).runnumber()) + "\"],";
        }
        if (!envsJson.empty()) {
-         envsJson.pop_back();
+         envsJson += "[\"run\", \"0\"]";
        }
        beast::ostream(response.body()) << jsonPrefix << envsJson << jsonSuffix << '\n';
      });

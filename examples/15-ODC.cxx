@@ -34,6 +34,7 @@ struct OdcStats {
   unsigned int CalibTasks;
   std::unordered_map<std::string, unsigned int> TasksPerCalib;
   std::unordered_map<std::string, unsigned int> FailedTasksPerCalib;
+  std::unordered_map<std::string, std::string> CalibNames;
   std::string State;
 };
 
@@ -91,7 +92,7 @@ void httpServer(tcp::acceptor& acceptor, tcp::socket& socket) {
      });
      connection->addCallback("calib_tasks+WHERE+calib",
      [](http::request<http::dynamic_body>& request, http::response<http::dynamic_body>& response) {
-      std::string jsonPrefix = R"({"results":[{"statement_id":0,"series":[{"name":"calib_tasks","columns":["time","Total","Failed"],"values":[)";
+      std::string jsonPrefix = R"({"results":[{"statement_id":0,"series":[{"name":"calib_tasks","columns":["time","Name", "Total","Failed"],"values":[)";
       std::string jsonSuffix = R"(]}]}]})";
       response.set(http::field::content_type, "application/json");
       std::string calib = std::string(request.target().substr(request.target().find("WHERE+calib+%3D+") + 16));
@@ -100,12 +101,15 @@ void httpServer(tcp::acceptor& acceptor, tcp::socket& socket) {
       calibTasksJson += "[" + std::to_string(0);
       for (const auto& run : gStats) {
         if (run.second.TasksPerCalib.find(calib) != run.second.TasksPerCalib.end()) {
-          calibTasksJson += ", ";
+          calibTasksJson += ", \"";
+          if (run.second.CalibNames.find(calib) != run.second.CalibNames.end()) {
+            calibTasksJson += run.second.CalibNames.at(calib) + "\",";
+          } else {
+            calibTasksJson += "<None>\",";
+          }
           calibTasksJson += std::to_string(run.second.TasksPerCalib.at(calib));
-          std::cout << run.second.TasksPerCalib.at(calib) << std::endl;
           if (run.second.FailedTasksPerCalib.find(calib) != run.second.FailedTasksPerCalib.end()) {
             calibTasksJson += "," + std::to_string(run.second.FailedTasksPerCalib.at(calib));
-            std::cout << run.second.FailedTasksPerCalib.at(calib) << std::endl;
           } else {
             calibTasksJson +=  ",0";
           }
@@ -170,8 +174,13 @@ class OdcClient {
         }
         if (std::regex_search(reply.devices(i).path(), rCalib)) {
           calibTasks++;
-          auto calibIdx = reply.devices(i).path().find("_calib");
-          auto calib = reply.devices(i).path().substr(calibIdx + 1, reply.devices(i).path().size()-calibIdx-3);
+          const auto& path = reply.devices(i).path();
+          auto calibIdx = path.find("_calib");
+          auto calib = path.substr(calibIdx + 1, path.size()-calibIdx-3);
+          auto calibName = path.substr(path.find_last_of('/') + 1, calibIdx - path.find_last_of('/') - 1);
+          if (calibName.find("aggregator-proxy-") != std::string::npos) {
+            stats.CalibNames.insert({calib, calibName.substr(calibName.find_last_of('-') + 1)});
+          }
           auto it = stats.TasksPerCalib.find(calib);
           if (it != stats.TasksPerCalib.end()) {
             it->second++;
@@ -225,8 +234,14 @@ int main(int argc, char* argv[]) {
     tcp::socket socket{ioc};
     httpServer(acceptor, socket);
     ioc.run();
-  }); 
-  OdcClient client(grpc::CreateChannel(vm["odc-host"].as<std::string>() + ":" + std::to_string(vm["odc-port"].as<unsigned short>()), grpc::InsecureChannelCredentials()));
+  });
+  grpc::ChannelArguments args;
+  args.SetMaxReceiveMessageSize(20*1024*1024);
+  OdcClient client(grpc::CreateCustomChannel(
+    vm["odc-host"].as<std::string>() + ":" + std::to_string(vm["odc-port"].as<unsigned short>()),
+    grpc::InsecureChannelCredentials(),
+    args
+  ));
   for (;;) {
     client.getStatus();
     std::this_thread::sleep_for(std::chrono::seconds(15));
