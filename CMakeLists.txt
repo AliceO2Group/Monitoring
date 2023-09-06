@@ -303,44 +303,48 @@ endif()
 # gRPC
 ####################################
 if(Protobuf_FOUND AND gRPC_FOUND)
-  set(PROTO_FILE ${CMAKE_CURRENT_SOURCE_DIR}/proto/odc.proto)
-  get_filename_component(PROTO_OUTPUT_NAME ${PROTO_FILE} NAME_WE)
-  get_filename_component(PROTO_FILE_PREFIX ${PROTO_FILE} PATH)
-  set(PROTO_CPP_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PROTO_OUTPUT_NAME}.pb.cc)
-  set(GRPC_CPP_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PROTO_OUTPUT_NAME}.grpc.pb.cc)
+  set(PROTO_FILES ${CMAKE_CURRENT_SOURCE_DIR}/proto/odc.proto ${CMAKE_CURRENT_SOURCE_DIR}/proto/o2control.proto)
+  set(EXAMPLES examples/15-ODC.cxx examples/16-AliECS.cxx)
+  foreach(PROTO_FILE example IN ZIP_LISTS PROTO_FILES EXAMPLES)
+    get_filename_component(PROTO_OUTPUT_NAME ${PROTO_FILE} NAME_WE)
+    get_filename_component(PROTO_FILE_PREFIX ${PROTO_FILE} PATH)
+    set(PROTO_CPP_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PROTO_OUTPUT_NAME}.pb.cc)
+    set(GRPC_CPP_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PROTO_OUTPUT_NAME}.grpc.pb.cc)
 
-  add_custom_command(
-      OUTPUT "${PROTO_CPP_OUTPUT}"
-      COMMAND protobuf::protoc
-      ARGS --proto_path ${PROTO_FILE_PREFIX}
-           --cpp_out ${CMAKE_CURRENT_BINARY_DIR}
-           ${PROTO_OUTPUT_NAME}.proto
-      DEPENDS ${PROTO_FILE}
-      COMMENT "Running protoc on ${PROTO_FILE}"
-      VERBATIM)
+    add_custom_command(
+        OUTPUT "${PROTO_CPP_OUTPUT}"
+        COMMAND protobuf::protoc
+        ARGS --proto_path ${PROTO_FILE_PREFIX}
+             --cpp_out ${CMAKE_CURRENT_BINARY_DIR}
+             ${PROTO_OUTPUT_NAME}.proto
+        DEPENDS ${PROTO_FILE}
+        COMMENT "Running protoc on ${PROTO_FILE}"
+        VERBATIM)
 
-  add_custom_command(
-      OUTPUT "${GRPC_CPP_OUTPUT}"
-      COMMAND protobuf::protoc
-      ARGS --proto_path ${PROTO_FILE_PREFIX}
-           --grpc_out=${CMAKE_CURRENT_BINARY_DIR}
-           --plugin=protoc-gen-grpc=$<TARGET_FILE:gRPC::grpc_cpp_plugin>
-           ${PROTO_OUTPUT_NAME}.proto
-      DEPENDS ${PROTO_FILE}
-      COMMENT "Running protoc/gRPC on ${PROTO_FILE}"
-      VERBATIM)
+    add_custom_command(
+        OUTPUT "${GRPC_CPP_OUTPUT}"
+        COMMAND protobuf::protoc
+        ARGS --proto_path ${PROTO_FILE_PREFIX}
+             --grpc_out=${CMAKE_CURRENT_BINARY_DIR}
+             --plugin=protoc-gen-grpc=$<TARGET_FILE:gRPC::grpc_cpp_plugin>
+             ${PROTO_OUTPUT_NAME}.proto
+        DEPENDS ${PROTO_FILE}
+        COMMENT "Running protoc/gRPC on ${PROTO_FILE}"
+        VERBATIM)
 
-  set(example examples/15-ODC.cxx)
-  get_filename_component(example_name ${example} NAME)
-  string(REGEX REPLACE ".cxx" "" example_name ${example_name})
-  add_executable(${example_name} ${example} ${PROTO_CPP_OUTPUT} ${GRPC_CPP_OUTPUT})
-  target_link_libraries(${example_name} PRIVATE
-      gRPC::grpc++
-      protobuf::libprotobuf
-      Boost::program_options
-  )
-  target_include_directories(${example_name} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+    get_filename_component(example_name ${example} NAME)
+    string(REGEX REPLACE ".cxx" "" example_name ${example_name})
+    add_executable(${example_name} ${example} ${PROTO_CPP_OUTPUT} ${GRPC_CPP_OUTPUT})
+    target_link_libraries(${example_name} PRIVATE
+        Monitoring
+        gRPC::grpc++
+        protobuf::libprotobuf
+        Boost::program_options
+    )
+    target_include_directories(${example_name} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+  endforeach()
   set_target_properties(15-ODC PROPERTIES OUTPUT_NAME "o2-monitoring-odc")
+  set_target_properties(16-AliECS PROPERTIES OUTPUT_NAME "o2-monitoring-aliecs-tasks")
 endif()
 
 ####################################
