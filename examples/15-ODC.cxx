@@ -217,8 +217,7 @@ class OdcClient {
 int main(int argc, char* argv[]) {
   boost::program_options::options_description desc("Program options");
   desc.add_options()
-    ("odc-host", boost::program_options::value<std::string>()->required(), "ODC hostname")
-    ("odc-port", boost::program_options::value<unsigned short>()->required(), "ODC port")
+    ("odc-endpoint", boost::program_options::value<std::string>()->required(), "ODC endpoint")
     ("http-port", boost::program_options::value<unsigned short>()->default_value(8088), "HTTP server bind port");
   boost::program_options::variables_map vm; 
   boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
@@ -226,7 +225,7 @@ int main(int argc, char* argv[]) {
   unsigned short port = vm["http-port"].as<unsigned short>();
 
   MonLogger::mLoggerSeverity = o2::monitoring::Severity::Debug;
-  MonLogger::Get() << "Connected to ODC server: " << vm["odc-host"].as<std::string>() << ":" << vm["odc-port"].as<unsigned short>() << "; serving HTTP on port: " << port << MonLogger::End();
+  MonLogger::Get() << "Connected to ODC server: " << vm["odc-endpoint"].as<std::string>() << "; serving HTTP on port: " << port << MonLogger::End();
   std::thread webServerThread([&port](){
     auto const address = boost::asio::ip::make_address("0.0.0.0");
     boost::asio::io_context ioc{1};
@@ -238,7 +237,7 @@ int main(int argc, char* argv[]) {
   grpc::ChannelArguments args;
   args.SetMaxReceiveMessageSize(20*1024*1024);
   OdcClient client(grpc::CreateCustomChannel(
-    vm["odc-host"].as<std::string>() + ":" + std::to_string(vm["odc-port"].as<unsigned short>()),
+    vm["odc-endpoint"].as<std::string>(),
     grpc::InsecureChannelCredentials(),
     args
   ));
