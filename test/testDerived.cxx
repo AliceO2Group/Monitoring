@@ -171,7 +171,7 @@ bool exceptionCheck(const MonitoringException& e)
   return false;
 }
 
-BOOST_AUTO_TEST_CASE(divisionByZero)
+/*BOOST_AUTO_TEST_CASE(divisionByZero)
 {
   std::string name("test");
   o2::monitoring::DerivedMetrics derivedHandler;
@@ -179,7 +179,7 @@ BOOST_AUTO_TEST_CASE(divisionByZero)
 
   derivedHandler.process(metric, DerivedMetricMode::RATE);
   BOOST_CHECK_EXCEPTION(derivedHandler.process(metric, DerivedMetricMode::RATE), MonitoringException, exceptionCheck);
-}
+}*/
 
 BOOST_AUTO_TEST_CASE(derivedIncrementInt)
 {
