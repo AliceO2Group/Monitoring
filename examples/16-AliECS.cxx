@@ -25,7 +25,7 @@ using namespace o2::monitoring;
 class AliEcsClient {
  public:
   AliEcsClient(std::shared_ptr<Channel> channel) : mStub(o2control::Control::NewStub(channel)) {}
-  void sendRunDetails(const auto& influxBackend) {
+  void sendRunDetails(backends::InfluxDB* const influxBackend) {
     o2control::GetEnvironmentsRequest request;
     request.set_showall(false);
     request.set_showtaskinfos(false);
@@ -80,7 +80,7 @@ int main(int argc, char* argv[]) {
   httpTransport->addHeader("Authorization: Token " + vm["influxdb-token"].as<std::string>());
   auto influxdbBackend = std::make_unique<backends::InfluxDB>(std::move(httpTransport));
   for (;;) {
-    client.sendRunDetails(influxdbBackend);
+    client.sendRunDetails(influxdbBackend.get());
     std::this_thread::sleep_for(std::chrono::seconds(15));
   }
 }
