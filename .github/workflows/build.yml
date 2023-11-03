@@ -41,12 +41,22 @@ jobs:
       run: cd build && make -j
     - name: Test
       run: cd build && ctest --output-on-failure
+  alma9:
+    runs-on: [self-hosted, alma9]
+    steps:
+    - uses: actions/checkout@v2
+    - name: CMake
+      run: mkdir build && cd build && source /opt/rh/gcc-toolset-12/enable && cmake ..
+    - name: Build
+      run: cd build && make -j
+    - name: Test
+      run: cd build && ctest --output-on-failure
   cs8:
     runs-on: [self-hosted, cs8]
     steps:
     - uses: actions/checkout@v2
     - name: CMake
-      run: mkdir build && cd build && source /opt/rh/gcc-toolset-10/enable && cmake ..
+      run: mkdir build && cd build && source /opt/rh/gcc-toolset-12/enable && cmake ..
     - name: Build
       run: cd build && make -j
     - name: Test
