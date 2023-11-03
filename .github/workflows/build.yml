@@ -48,7 +48,7 @@ jobs:
     - name: CMake
       run: mkdir build && cd build && source /opt/rh/gcc-toolset-12/enable && cmake ..
     - name: Build
-      run: cd build && make -j
+      run: cd build && make -j 2
     - name: Test
       run: cd build && ctest --output-on-failure
   cs8:
@@ -58,7 +58,7 @@ jobs:
     - name: CMake
       run: mkdir build && cd build && source /opt/rh/gcc-toolset-12/enable && cmake ..
     - name: Build
-      run: cd build && make -j
+      run: cd build && make -j 2
     - name: Test
       run: cd build && ctest --output-on-failure
   cc7:
@@ -68,6 +68,6 @@ jobs:
     - name: CMake
       run: mkdir build && cd build && source /opt/rh/devtoolset-9/enable  && cmake3 ..
     - name: Build
-      run: cd build && make -j
+      run: cd build && make -j 2
     - name: Test
       run: cd build && ctest3 --output-on-failure
