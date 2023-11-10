@@ -18,6 +18,21 @@
 
 using namespace o2::monitoring;
 
+
+std::string getCreateBucketBody(const std::string& orgId, const int run) {
+  std::stringstream postPayload;
+  postPayload << R"({
+    "orgID": ")" + orgId + R"(",
+    "name": ")" + std::to_string(run) + R"(",
+    "retentionRules": [{
+      "type": "expire",
+      "everySeconds": 86400,
+      "shardGroupDurationSeconds": 86400
+    }]
+  })";
+  return postPayload.str();
+}
+
 int main(int argc, char* argv[])
 {
   boost::program_options::options_description desc("Program options");
@@ -25,6 +40,7 @@ int main(int argc, char* argv[])
     ("kafka-host", boost::program_options::value<std::string>()->required(), "Kafka broker hostname")
     ("influxdb-url", boost::program_options::value<std::string>()->required(), "InfluxDB hostname")
     ("influxdb-token", boost::program_options::value<std::string>()->required(), "InfluxDB token")
+    ("influxdb-id", boost::program_options::value<std::string>(), "InfluxDB organization ID")
     ("influxdb-org", boost::program_options::value<std::string>()->default_value("cern"), "InfluxDB organisation")
     ("influxdb-bucket", boost::program_options::value<std::string>()->default_value("aliecs"), "InfluxDB bucket");
   boost::program_options::variables_map vm;
@@ -41,6 +57,10 @@ int main(int argc, char* argv[])
   );
   httpTransport->addHeader("Authorization: Token " + vm["influxdb-token"].as<std::string>());
   auto influxdbBackend = std::make_unique<backends::InfluxDB>(std::move(httpTransport));
+
+  auto influxBucketApi = std::make_unique<transports::HTTP>(vm["influxdb-url"].as<std::string>() + "/api/v2/buckets");
+  influxBucketApi->addHeader("Authorization: Token " + vm["influxdb-token"].as<std::string>());
+
   for (;;) {
     auto changes = kafkaConsumer->pull();
     if (!changes.empty()) {
@@ -61,6 +81,9 @@ int main(int argc, char* argv[])
         int run = stateChange.envinfo().runnumber();
         if (run > 1) {
           influxdbBackend->sendWithRun(metric, stateChange.envinfo().environmentid(), std::to_string(run));
+          if (vm.count("influxdb-orgid")) {
+            influxBucketApi->send(getCreateBucketBody(vm["influxdb-orgid"].as<std::string>(), stateChange.envinfo().runnumber()));
+          }
         }
       }
     }
