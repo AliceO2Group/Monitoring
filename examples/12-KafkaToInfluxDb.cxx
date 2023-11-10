@@ -82,6 +82,7 @@ int main(int argc, char* argv[])
         if (run > 1) {
           influxdbBackend->sendWithRun(metric, stateChange.envinfo().environmentid(), std::to_string(run));
           if (vm.count("influxdb-orgid")) {
+            MonLogger::Get() << "Request sent to create bucket " << stateChange.envinfo().runnumber() << " on  " << vm["influxdb-url"].as<std::string>() << MonLogger::End();
             influxBucketApi->send(getCreateBucketBody(vm["influxdb-orgid"].as<std::string>(), stateChange.envinfo().runnumber()));
           }
         }
