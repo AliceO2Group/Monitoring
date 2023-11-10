@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
     ("kafka-host", boost::program_options::value<std::string>()->required(), "Kafka broker hostname")
     ("influxdb-url", boost::program_options::value<std::string>()->required(), "InfluxDB hostname")
     ("influxdb-token", boost::program_options::value<std::string>()->required(), "InfluxDB token")
-    ("influxdb-id", boost::program_options::value<std::string>(), "InfluxDB organization ID")
+    ("influxdb-orgid", boost::program_options::value<std::string>(), "InfluxDB organization ID")
     ("influxdb-org", boost::program_options::value<std::string>()->default_value("cern"), "InfluxDB organisation")
     ("influxdb-bucket", boost::program_options::value<std::string>()->default_value("aliecs"), "InfluxDB bucket");
   boost::program_options::variables_map vm;
