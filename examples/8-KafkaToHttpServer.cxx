@@ -1,5 +1,3 @@
-#define BOOST_BEAST_USE_STD_STRING_VIEW
-
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/join.hpp>
