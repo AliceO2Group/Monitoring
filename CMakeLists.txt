@@ -31,7 +31,7 @@ endif()
 
 # Define project
 project(Monitoring
-  VERSION 3.18.0
+  VERSION 3.18.1
   DESCRIPTION "O2 Monitoring library"
   LANGUAGES CXX
 )
@@ -217,7 +217,7 @@ target_compile_definitions(Monitoring
   )
 
 # Use C++17
-target_compile_features(Monitoring PUBLIC cxx_std_20)
+target_compile_features(Monitoring PUBLIC cxx_std_17)
 
 
 ####################################
