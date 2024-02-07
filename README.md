@@ -206,8 +206,8 @@ This guide explains manual installation. For `ansible` deployment see [AliceO2Gr
 ## Receiving metrics from Monitoring system (development instructions)
 
 ### Requirements
-  - RHEL8, RHE9, CS8 or CC7 with `devtoolset-9`
-  - Boost >= 1.70, CMake
+  - RHEL8, CS8 or CC7 with `devtoolset-9`
+  - Boost >= 1.83, CMake
 
 ### Compile Monitoring library with Kafka backend
 
@@ -244,8 +244,8 @@ And then, link against `AliceO2::Monitoring` target.
 #include "Monitoring/MonitoringFactory.h"
 ...
 
-std::vector<std::string> topics = {"topic-to-subscribe"};
-auto client = MonitoringFactory::GetPullClient("kafka-server:9092", topics, "<client-id>");
+std::vector<std::string> topics = {"<topic-to-subscribe>"};
+auto client = MonitoringFactory::GetPullClient("<kafka-server:9092>", topics, "<client-id>");
 for (;;) {
   auto metrics = client->pull();
   if (!metrics.empty()) {
@@ -255,7 +255,10 @@ for (;;) {
 }
 ```
 
-`<client_id>` should be unique, self-explainable string describing the client, eg. `dcs-link-status` or `its-link-status`.
+Run-time parameters:
+- `<topic-to-subscribe>` - List of topics to subscribe
+- `<kafka-server:9092>` - Kafka broker (staging or production)
+- `<client_id>` - unique, self-explainable string describing the client, eg. `dcs-link-status` or `its-link-status`.
 
 ### Data format
 Native data format is [Influx Line Protocol](https://docs.influxdata.com/influxdb/latest/reference/syntax/line-protocol/) but metrics can be converted into any format listed in here: https://docs.influxdata.com/telegraf/latest/data_formats/output/
