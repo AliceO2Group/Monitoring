@@ -206,13 +206,15 @@ This guide explains manual installation. For `ansible` deployment see [AliceO2Gr
 ## Receiving metrics from Monitoring system (development instructions)
 
 ### Requirements
-  - CS8 or CC7 with `devtoolset-9`
-  - Boost >= 1.70
+  - RHEL8, RHE9, CS8 or CC7 with `devtoolset-9`
+  - Boost >= 1.70, CMake
 
 ### Compile Monitoring library with Kafka backend
+
+#### Manually
 - Compile `librdkafka`
   ```bash
-  git clone -b v1.8.2 https://github.com/edenhill/librdkafka && cd librdkafka
+  git clone -b v2.3.0 https://github.com/edenhill/librdkafka && cd librdkafka
   cmake -H. -B./_cmake_build -DENABLE_LZ4_EXT=OFF -DCMAKE_INSTALL_LIBDIR=lib -DRDKAFKA_BUILD_TESTS=OFF -DRDKAFKA_BUILD_EXAMPLES=OFF -DCMAKE_INSTALL_PREFIX=~/librdkafka_install
   cmake --build ./_cmake_build --target install -j
   ```
@@ -222,6 +224,11 @@ This guide explains manual installation. For `ansible` deployment see [AliceO2Gr
   cmake -H. -B./_cmake_build -DRdKafka_DIR=~/librdkafka_install/lib/cmake/RdKafka/ -DCMAKE_INSTALL_PREFIX=~/Monitoring_install
   cmake --build ./_cmake_build --target install -j
   ```
+
+#### aliBuild
+- Modify `monitoring.sh`: add `- librdkafka` to "requires"
+- Compile Monitoring: `aliBuild build Monitoring --defaults o2-dataflow --always-prefer-system`
+- Add `Monitoring` as dependency of your project
 
 ### Look for Monitoring library in your CMake
 As `librdkafka` is optional dependency of Monitoring it is not handled by CMakeConfig, therefore you need:
@@ -238,7 +245,7 @@ And then, link against `AliceO2::Monitoring` target.
 ...
 
 std::vector<std::string> topics = {"topic-to-subscribe"};
-auto client = MonitoringFactory::GetPullClient("kafka-server:9092", topics);
+auto client = MonitoringFactory::GetPullClient("kafka-server:9092", topics, "<client-id>");
 for (;;) {
   auto metrics = client->pull();
   if (!metrics.empty()) {
@@ -247,6 +254,8 @@ for (;;) {
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
 }
 ```
+
+`<client_id>` should be unique, self-explainable string describing the client, eg. `dcs-link-status` or `its-link-status`.
 
 ### Data format
 Native data format is [Influx Line Protocol](https://docs.influxdata.com/influxdb/latest/reference/syntax/line-protocol/) but metrics can be converted into any format listed in here: https://docs.influxdata.com/telegraf/latest/data_formats/output/
