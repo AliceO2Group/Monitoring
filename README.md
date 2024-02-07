@@ -206,7 +206,7 @@ This guide explains manual installation. For `ansible` deployment see [AliceO2Gr
 ## Receiving metrics from Monitoring system (development instructions)
 
 ### Requirements
-  - RHEL8, CS8 or CC7 with `devtoolset-9`
+  - Ubuntu, RHEL9, RHEL8, CS8, macOS, or CC7 with `devtoolset-9`
   - Boost >= 1.83, CMake
 
 ### Compile Monitoring library with Kafka backend
