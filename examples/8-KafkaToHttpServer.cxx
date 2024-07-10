@@ -46,6 +46,23 @@ void httpServer(tcp::acceptor& acceptor, tcp::socket& socket) {
        }
        beast::ostream(response.body()) << jsonPrefix << envsJson << jsonSuffix << '\n';
      });
+     connection->addCallback("SHOW+TAG+VALUES+FROM+envs",
+     [](http::request<http::dynamic_body>& /*request*/, http::response<http::dynamic_body>& response) {
+       std::string jsonPrefix = R"({"results": [{"statement_id": 0, "series": [{"name": "env_active", "columns": ["key", "value"], "values": [)";
+       std::string jsonSuffix = R"(]}]}]})";
+       response.set(http::field::content_type, "application/json");
+       const std::lock_guard<std::mutex> lock(gEnvAccess);
+       std::string envsJson;
+       for (int i = 0; i < gActiveEnvs.activeruns_size(); i++) {
+         envsJson += "[\"env\", \"" + std::to_string(gActiveEnvs.activeruns(i).environmentid()) + "\"],";
+       }
+       if (!envsJson.empty()) {
+         envsJson.pop_back();
+       } else {
+         envsJson += "[\"env\", \"0\"]";
+       }
+       beast::ostream(response.body()) << jsonPrefix << envsJson << jsonSuffix << '\n';
+     });
      connection->addCallback("SHOW+TAG+VALUES+FROM+detectors",
      [](http::request<http::dynamic_body>& request, http::response<http::dynamic_body>& response) {
        std::string jsonPrefix = R"({"results": [{"statement_id": 0, "series": [{"name": "detectors", "columns": ["key", "value"], "values": [)";
