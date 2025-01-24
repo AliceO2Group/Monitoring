@@ -9,7 +9,7 @@ using namespace o2::monitoring;
 
 int main()
 {
-  int ix=0;
+  //int ix=0;
   /// List of topics to subscribe
   std::vector<std::string> topics = {"cru.link_status"};
   /// Connect to server
