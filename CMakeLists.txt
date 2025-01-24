@@ -76,10 +76,19 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 find_package(Boost 1.70 REQUIRED COMPONENTS unit_test_framework program_options system)
 find_package(ApMon MODULE)
 find_package(CURL MODULE)
-find_package(RdKafka CONFIG)
 find_package(InfoLogger CONFIG)
 find_package(Protobuf CONFIG)
 find_package(gRPC CONFIG)
+
+if(RDKAFKA_ROOT)
+    message("RDKAFKA_ROOT set, we enable corresponding libs and binaries")
+    find_library(RDKAFKA_LIB "rdkafka++" REQUIRED PATHS ${RDKAFKA_ROOT}/lib)
+    set(RDKAFKA_INCLUDE "${RDKAFKA_ROOT}/include")
+    set(RdKafka_FOUND true)
+else()
+    message("RDKAFKA_ROOT not set, corresponding libs and binaries won't be built")
+endif()
+
 
 ####################################
 # Set OUTPUT vars
@@ -142,6 +151,7 @@ target_include_directories(Monitoring
   PUBLIC
     $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${RDKAFKA_INCLUDE}>
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
@@ -153,7 +163,8 @@ set_target_properties(Monitoring PROPERTIES OUTPUT_NAME "O2Monitoring")
 target_link_libraries(Monitoring
   PUBLIC
     Boost::boost
-    $<$<BOOL:${RdKafka_FOUND}>:RdKafka::rdkafka++>
+
+    $<$<BOOL:${RdKafka_FOUND}>:${RDKAFKA_LIB}>
   PRIVATE
     Boost::system
     pthread
@@ -169,6 +180,8 @@ endif()
 
 if(RdKafka_FOUND)
    message(STATUS "  Compiling Kafka transport")
+else()
+   message(STATUS "  Kafka not found. Corresponding features disabled.")
 endif()
 
 if(CURL_FOUND)
