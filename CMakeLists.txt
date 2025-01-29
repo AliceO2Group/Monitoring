@@ -31,7 +31,7 @@ endif()
 
 # Define project
 project(Monitoring
-  VERSION 3.18.2
+  VERSION 3.19.1
   DESCRIPTION "O2 Monitoring library"
   LANGUAGES CXX
 )
@@ -90,6 +90,13 @@ if(RDKAFKA_ROOT)
 else()
     message("RDKAFKA_ROOT not set, corresponding libs and binaries won't be built")
 endif()
+
+if(gRPC_FOUND)
+    message("gRPC found, we enable corresponding libs and binaries")
+else()
+    message("gRPC not found, corresponding libs and binaries won't be built")
+endif()
+
 
 ####################################
 # Set OUTPUT vars
