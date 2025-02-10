@@ -91,6 +91,13 @@ else()
     message("RDKAFKA_ROOT not set, corresponding libs and binaries won't be built")
 endif()
 
+if(gRPC_FOUND)
+    message("gRPC found, we enable corresponding libs and binaries")
+else()
+    message("gRPC not found, corresponding libs and binaries won't be built")
+endif()
+
+
 ####################################
 # Set OUTPUT vars
 ####################################
