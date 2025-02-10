@@ -164,13 +164,13 @@ set_target_properties(Monitoring PROPERTIES OUTPUT_NAME "O2Monitoring")
 target_link_libraries(Monitoring
   PUBLIC
     Boost::boost
-    $<$<BOOL:${RdKafka_FOUND}>:${RDKAFKA_LIBS}>
   PRIVATE
     Boost::system
     pthread
     $<$<BOOL:${ApMon_FOUND}>:ApMon::ApMon>
     $<$<BOOL:${CURL_FOUND}>:CURL::libcurl>
     $<$<BOOL:${InfoLogger_FOUND}>:AliceO2::InfoLogger>
+    $<$<BOOL:${RdKafka_FOUND}>:${RDKAFKA_LIBS}>
 )
 
 # Handle ApMon optional dependency
