@@ -99,6 +99,7 @@ void httpServer(tcp::acceptor& acceptor, tcp::socket& socket) {
       std::string calibTasksJson;
       const std::lock_guard<std::mutex> lock(gMapAccess);
       calibTasksJson += "[" + std::to_string(0);
+      int countOk = 0;
       for (const auto& run : gStats) {
         if (run.second.TasksPerCalib.find(calib) != run.second.TasksPerCalib.end()) {
           calibTasksJson += ", \"";
@@ -113,9 +114,14 @@ void httpServer(tcp::acceptor& acceptor, tcp::socket& socket) {
           } else {
             calibTasksJson +=  ",0";
           }
+          countOk++;
         }
       }
       calibTasksJson +=  "]";
+      // workaround to set valid reply if nothing to report
+      if (!countOk) {
+        calibTasksJson =  "[0, \"\", 0, 0]";
+      }
       beast::ostream(response.body()) << jsonPrefix << calibTasksJson << jsonSuffix << '\n';
      });
      connection->start();
