@@ -98,24 +98,89 @@ void httpServer(tcp::acceptor& acceptor, tcp::socket& socket) {
       std::string calib = std::string(request.target().substr(request.target().find("WHERE+calib+%3D+") + 16));
       std::string calibTasksJson;
       const std::lock_guard<std::mutex> lock(gMapAccess);
-      calibTasksJson += "[" + std::to_string(0);
+      calibTasksJson += "[";
       int countOk = 0;
+      bool keepAll = 0;
+      if (!calib.compare(0,3, "All")) {
+        keepAll = 1;
+      }
       for (const auto& run : gStats) {
-        if (run.second.TasksPerCalib.find(calib) != run.second.TasksPerCalib.end()) {
-          calibTasksJson += ", \"";
-          if (run.second.CalibNames.find(calib) != run.second.CalibNames.end()) {
-            calibTasksJson += run.second.CalibNames.at(calib) + "\",";
-          } else {
-            calibTasksJson += "<None>\",";
-          }
-          calibTasksJson += std::to_string(run.second.TasksPerCalib.at(calib));
-          if (run.second.FailedTasksPerCalib.find(calib) != run.second.FailedTasksPerCalib.end()) {
-            calibTasksJson += "," + std::to_string(run.second.FailedTasksPerCalib.at(calib));
-          } else {
-            calibTasksJson +=  ",0";
-          }
-          countOk++;
-        }
+	/*
+	// test code to dump content of gStats items
+	// based on runtime tests, here are the findings:
+	// run.first is the partition Id
+	// run.second is an OdcStats struct
+	// example output with 2 tasks in 2 partitions
+	// 	iterating 2tCTU23Be7j
+	// 	tasks per calib =  1
+	// 	failed tasks per calib =  0
+	// 	calib names = 1
+	// 	task calib4 = 5
+	// 	name calib4 = barrel_tf
+	// 	iterating 2tCWsyiDYm7
+	// 	tasks per calib =  1
+	// 	failed tasks per calib =  0
+	// 	calib names = 0
+	// 	task calib2 = 14
+	//
+	std::cout << "iterating " << run.first << std::endl;
+	std::cout << "tasks per calib =  " << run.second.TasksPerCalib.size() << std::endl;
+	std::cout << "failed tasks per calib =  " << run.second.FailedTasksPerCalib.size() << std::endl;
+	std::cout << "calib names = " << run.second.CalibNames.size() << std::endl;
+	for (const auto& p : run.second.TasksPerCalib) {
+          std::cout << "task " << p.first << " = " <<  p.second << std::endl;
+	}
+	for (const auto& p : run.second.FailedTasksPerCalib) {
+          std::cout << "failed " << p.first << " = " << p.second << std::endl;
+	}
+	for (const auto& p : run.second.CalibNames) {
+          std::cout << "name " << p.first << " = " << p.second << std::endl;
+	}
+       */
+        // iterate over defined calib names, not the ones 
+
+	for(const auto &t: run.second.TasksPerCalib) {
+	  unsigned int timestamp = 0;
+	  std::string name = "<None>";
+	  unsigned int tasksPerCalib = 0;
+	  unsigned int failedTasks = 0;
+
+	  std::string theCalib = t.first;
+	  if (!keepAll && (calib != theCalib)) {
+	    // filter out this element, it does not match queried calib name
+	    continue;
+	  }
+
+	  tasksPerCalib = t.second;
+
+	  // find matching calib name
+	  auto nameIt = run.second.CalibNames.find(theCalib);
+	  if (nameIt != run.second.CalibNames.end()) {
+	    name = (*nameIt).second;
+	  }
+
+	  // find matching calib failedTasks
+	  auto failedIt = run.second.FailedTasksPerCalib.find(theCalib);
+	  if (failedIt != run.second.FailedTasksPerCalib.end()) {
+	    failedTasks = (*failedIt).second;
+	  }
+
+	  // insert task in JSON
+          if (countOk) {
+	    // next vector
+            calibTasksJson += "], [";
+	  }
+	  calibTasksJson +=
+              std::to_string(timestamp)
+	    + ", \""
+	    + name
+	    + "\", "
+	    + std::to_string(tasksPerCalib)
+	    + ", "
+	    + std::to_string(failedTasks);
+
+	  countOk++;
+	}
       }
       calibTasksJson +=  "]";
       // workaround to set valid reply if nothing to report
