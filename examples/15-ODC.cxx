@@ -54,9 +54,9 @@ void httpServer(tcp::acceptor& acceptor, tcp::socket& socket) {
        response.set(http::field::content_type, "application/json");
        beast::ostream(response.body()) << R"({"results":[{"statement_id":0,"series":[{"name":"measurements","columns":["name"],"values":[["odc"]]}]}]}\n)";
      });
-     connection->addCallback("SHOW+TAG+VALUES+FROM+calibs+WHERE+partitionid",
+     connection->addCallback("SHOW+TAG+VALUES+FROM+calibs+WITH+KEY",
      [](http::request<http::dynamic_body>& request, http::response<http::dynamic_body>& response) {
-       std::string jsonPrefix = R"({"results": [{"statement_id": 0, "series": [{"name": "odc_calibs", "columns": ["key", "value"], "values": [)";
+       std::string jsonPrefix = R"({"results": [{"statement_id": 0, "series": [{"name": "odc_calibs", "columns": ["value"], "values": [)";
        std::string jsonSuffix = R"(]}]}]})";
        response.set(http::field::content_type, "application/json");
        std::string calibJson;
@@ -64,7 +64,7 @@ void httpServer(tcp::acceptor& acceptor, tcp::socket& socket) {
        const std::lock_guard<std::mutex> lock(gMapAccess);
        if (gStats.find(id) != gStats.end()) {
          for (auto const& calib : gStats.at(id).TasksPerCalib) {
-           calibJson += "[\"calib\", \"" + calib.first + "\"],";
+           calibJson += "[\"" + calib.first + "\"],";
          }
        }
        if (!calibJson.empty()) {
