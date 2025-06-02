@@ -123,6 +123,27 @@ void deserializeActiveRuns(const std::string& lastActiveRunMessage)
                        << activeRuns.activeruns(i).environmentid() << ")" << MonLogger::End();
     }
   }
+
+  // sort received active runs according to following rules:
+  //  1) runs with more than 2 detectors are listed first
+  //  2) if there are more than 1 run with more than 2 detectors list those with ITS first
+  auto* runsToSort = activeRuns.mutable_activeruns();
+  std::sort(runsToSort->begin(), runsToSort->end(), [](const aliceo2::envs::EnvInfo& a, const aliceo2::envs::EnvInfo& b) {
+    auto hasITS = [](auto&& detectors) {
+      return std::find(detectors.begin(), detectors.end(), "ITS") != detectors.end();
+    };
+
+    if (a.detectors().size() >= 2 && b.detectors().size() >= 2) {
+      if (hasITS(a.detectors())) {
+        return true;
+      }
+      if (hasITS(b.detectors())) {
+        return false;
+      }
+    }
+
+    return a.detectors().size() > b.detectors().size();
+  });
   const std::lock_guard<std::mutex> lock(gEnvAccess);
   gActiveEnvs = activeRuns;
 }
