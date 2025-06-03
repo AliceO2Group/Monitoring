@@ -31,7 +31,7 @@ endif()
 
 # Define project
 project(Monitoring
-  VERSION 3.19.5
+  VERSION 3.19.6
   DESCRIPTION "O2 Monitoring library"
   LANGUAGES CXX
 )
@@ -278,6 +278,17 @@ if(RdKafka_FOUND)
   set_target_properties(11-KafkaToWebsocket PROPERTIES OUTPUT_NAME "o2-monitoring-kafka-to-grafana")
 endif()
 
+
+# executable: o2-monitoring-send
+add_executable(
+  o2-monitoring-send
+  src/sendMetric.cxx
+)
+target_link_libraries(
+  o2-monitoring-send
+  Monitoring
+)
+install(TARGETS o2-monitoring-send)
 
 ####################################
 # Generate protobuf
