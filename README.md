@@ -110,6 +110,8 @@ send(Metric{"throughput"}.addValue(100, "tx").addValue(200, "rx"))
 
 See how it works in the example: [examples/1-Basic.cxx](examples/1-Basic.cxx).
 
+Metrics can also be injected from the command line using the o2-monitoring-send utility (self-documented).
+
 ## Advanced features
 
 ### Metric verbosity
