@@ -9,7 +9,7 @@
 // granted to it by virtue of its status as an Intergovernmental Organization
 // or submit itself to any jurisdiction.
 
-// simple test program used to evaluate overhead of monitoring lib
+// simple command-line program used to send metrics using the monitoring lib
 
 #include <Monitoring/MonitoringFactory.h>
 #include <stdint.h>
@@ -121,6 +121,8 @@ int main(int argc, char** argv)
   catch (...) {
     printf("Undefined exception\n");
   }
+  
+  MonitoringMeric
   
   if (!isOk) {
     printf("Failed to send metric\n");
