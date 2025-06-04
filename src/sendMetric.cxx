@@ -122,8 +122,6 @@ int main(int argc, char** argv)
     printf("Undefined exception\n");
   }
   
-  MonitoringMeric
-  
   if (!isOk) {
     printf("Failed to send metric\n");
     return -1;
