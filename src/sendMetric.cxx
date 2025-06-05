@@ -30,38 +30,37 @@ void print_usage()
   printf("\nExample: o2-monitoring-send -u influxdb-stdout:// -m test.metric -i 12345\n");
 }
 
-
 int main(int argc, char** argv)
 {
 
-  bool verbose = 0; // if set, prints detailed messages
-  
-  std::unique_ptr<Monitoring> monitoringCollector;
-  char option;
+  bool verbose = false; // if set, prints detailed messages
 
-  bool isOk = 1;
-  const char *monitoringURI = nullptr;
-  const char *monitoringValue = nullptr;
-  const char *monitoringMetric = nullptr;
+  std::unique_ptr<Monitoring> monitoringCollector;
+  int option;
+
+  bool isOk = true;
+  const char* monitoringURI = nullptr;
+  const char* monitoringValue = nullptr;
+  const char* monitoringMetric = nullptr;
 
   // read options
   while ((option = getopt(argc, argv, "hvu:i:m:")) != -1) {
     switch (option) {
- 
+
       case 'u': {
         monitoringURI = optarg;
       } break;
-      
+
       case 'i': {
         monitoringValue = optarg;
       } break;
-      
+
       case 'm': {
         monitoringMetric = optarg;
       } break;
-     
+
       case 'v': {
-        verbose = 1;
+        verbose = true;
       } break;
 
       case 'h':
@@ -76,19 +75,19 @@ int main(int argc, char** argv)
 
   if (monitoringURI == nullptr) {
     printf("Unspecified monitoring URI.\n");
-    isOk = 0;
+    isOk = false;
   }
 
   if (monitoringMetric == nullptr) {
     printf("Unspecified monitoring metric.\n");
-    isOk = 0;
+    isOk = false;
   }
 
   if (monitoringValue == nullptr) {
     printf("Unspecified monitoring value.\n");
-    isOk = 0;
+    isOk = false;
   }
-  
+
   if (!isOk) {
     printf("Failed to send metric: bad parameters.\n\n\n");
     print_usage();
@@ -98,7 +97,7 @@ int main(int argc, char** argv)
   // conversions
   int monitoringValueI = atoi(monitoringValue);
 
-  // disable logs from monitoring lib	
+  // disable logs from monitoring lib
   setenv("O2_INFOLOGGER_MODE", "none", 1);
 
   if (verbose) {
@@ -109,19 +108,17 @@ int main(int argc, char** argv)
     printf("\n");
   }
 
-  isOk = 0;
+  isOk = false;
   try {
     monitoringCollector = MonitoringFactory::Get(monitoringURI);
-    monitoringCollector->send({ monitoringValueI, monitoringMetric });
-    isOk = 1;
-  }
-  catch (const std::exception &exc) {
+    monitoringCollector->send({monitoringValueI, monitoringMetric});
+    isOk = true;
+  } catch (const std::exception& exc) {
     printf("Exception: %s\n", exc.what());
-  }
-  catch (...) {
+  } catch (...) {
     printf("Undefined exception\n");
   }
-  
+
   if (!isOk) {
     printf("Failed to send metric\n");
     return -1;
@@ -132,4 +129,3 @@ int main(int argc, char** argv)
   }
   return 0;
 }
-
