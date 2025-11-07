@@ -16,18 +16,16 @@
 # General project definition
 ####################################
 
-CMAKE_MINIMUM_REQUIRED(VERSION 3.5.2 FATAL_ERROR)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.27.1 FATAL_ERROR)
 set(Boost_USE_STATIC_RUNTIME OFF)
 set(Boost_USE_STATIC_LIBS OFF)
 set(BUILD_SHARED_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
+set(O2_MONITORING_KAFKA_ENABLE ON)
+set(O2_MONITORING_CONTROL_ENABLE ON)
 
 # Set cmake policy by version: https://cmake.org/cmake/help/latest/manual/cmake-policies.7.html
-if(${CMAKE_VERSION} VERSION_LESS 3.12)
-    cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
-else()
-    cmake_policy(VERSION 3.12)
-endif()
+cmake_policy(VERSION 3.12)
 
 # Define project
 project(Monitoring
@@ -77,8 +75,12 @@ find_package(Boost 1.70 REQUIRED COMPONENTS unit_test_framework program_options 
 find_package(ApMon MODULE)
 find_package(CURL MODULE)
 find_package(InfoLogger CONFIG)
-find_package(Protobuf CONFIG)
-find_package(gRPC CONFIG)
+if(O2_MONITORING_KAFKA_ENABLE OR O2_MONITORING_CONTROL_ENABLE)
+  find_package(Protobuf CONFIG)
+endif()
+if(O2_MONITORING_CONTROL_ENABLE)
+  find_package(gRPC CONFIG)
+endif()
 
 if(RDKAFKA_ROOT)
     message("RDKAFKA_ROOT set, we enable corresponding libs and binaries")
