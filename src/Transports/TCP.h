@@ -49,7 +49,7 @@ class TCP : public TransportInterface
 
  private:
   /// Boost Asio I/O functionality
-  boost::asio::io_service mIoService;
+  boost::asio::io_context mIoService;
 
   /// TCP socket
   boost::asio::ip::tcp::socket mSocket;
