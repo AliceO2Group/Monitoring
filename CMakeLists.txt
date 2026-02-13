@@ -16,7 +16,7 @@
 # General project definition
 ####################################
 
-CMAKE_MINIMUM_REQUIRED(VERSION 3.27.1 FATAL_ERROR)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.26 FATAL_ERROR)
 set(Boost_USE_STATIC_RUNTIME OFF)
 set(Boost_USE_STATIC_LIBS OFF)
 set(BUILD_SHARED_LIBS ON)
