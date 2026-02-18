@@ -49,7 +49,7 @@ class UDP : public TransportInterface
 
  private:
   /// Boost Asio I/O functionality
-  boost::asio::io_service mIoService;
+  boost::asio::io_context mIoService;
 
   /// UDP socket
   boost::asio::ip::udp::socket mSocket;
