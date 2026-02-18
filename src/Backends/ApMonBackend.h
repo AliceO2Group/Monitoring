@@ -68,8 +68,14 @@ class ApMonBackend final : public Backend
   /// \return 		timestamp as integer (milliseconds from epoch)
   int convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp);
 
+  /// Gets node name
+  /// It looks for environment variable ALIEN_PROC_ID and if it is not set, it uses hostname as node name
+  /// \return node name as string
+  std::string getNodeName();
+
   std::unique_ptr<ApMon> mApMon; ///< ApMon object
   std::string mEntity;            ///< MonALISA entity, created out of global tags
+  inline static constexpr std::string_view mClusterName = "O2Monitoring_Nodes"; ///< MonALISA cluster name
 };
 
 } // namespace backends

@@ -17,6 +17,8 @@
 #include "ApMonBackend.h"
 #include <iostream>
 #include <sstream>
+#include <unistd.h>
+#include <limits.h>
 #include "../MonLogger.h"
 #include "../Exceptions/MonitoringException.h"
 
@@ -59,9 +61,28 @@ void ApMonBackend::addGlobalTag(std::string_view /*name*/, std::string_view valu
   mEntity += value;
 }
 
+std::string ApMonBackend::getNodeName()
+{
+  const char* env_p = std::getenv("ALIEN_PROC_ID");
+  if (env_p) {
+    return std::string(env_p);
+  }
+  
+  char hostname[HOST_NAME_MAX];
+  if (gethostname(hostname, sizeof(hostname)) == 0) {
+    hostname[sizeof(hostname) - 1] = '\0';
+    return std::string(hostname);
+  }
+
+  MonLogger::Get(Severity::Error) << "Failed to get hostname, using 'unknown'" << MonLogger::End();
+  return "unknown";
+}
+
 void ApMonBackend::send(const Metric& metric)
 {
-  std::string name = metric.getName();
+  std::string clusterName(mClusterName);
+  std::string metricName = metric.getName();
+  std::string nodeName = getNodeName();
   std::string entity = mEntity;
   for (const auto& [key, value] : metric.getTags()) {
     entity += ',';
@@ -72,46 +93,59 @@ void ApMonBackend::send(const Metric& metric)
   if (mRunNumber != 0) entity += (",run=" + std::to_string(mRunNumber));
 
   int valueSize = metric.getValuesSize();
+  int totalParams = valueSize * 2; // each metric value has a source parameter
   char **paramNames, **paramValues;
   int* valueTypes;
-  paramNames = (char**)std::malloc(valueSize * sizeof(char*));
-  paramValues = (char**)std::malloc(valueSize * sizeof(char*));
-  valueTypes = (int*)std::malloc(valueSize * sizeof(int));
+  paramNames = (char**)std::malloc(totalParams * sizeof(char*));
+  paramValues = (char**)std::malloc(totalParams * sizeof(char*));
+  valueTypes = (int*)std::malloc(totalParams * sizeof(int));
   // the scope of values must be the same as sendTimedParameters method
   int intValue;
   double doubleValue;
   std::string stringValue;
 
   auto& values = metric.getValues();
+  std::string sourceName = metricName + "_src";
 
-  for (int i = 0; i < valueSize; i++) {
-    paramNames[i] = const_cast<char*>(values[i].first.c_str());
+  for (int i = 0; i < valueSize; ++i) {
+    int metricIdx = i * 2;
+    int sourceIdx = metricIdx + 1;
+    paramNames[metricIdx] = const_cast<char*>(metricName.c_str());
     std::visit(overloaded{
       [&](int value) {
-        valueTypes[i] = XDR_INT32;
+        valueTypes[metricIdx] = XDR_INT32;
         intValue = value;
-        paramValues[i] = reinterpret_cast<char*>(&intValue);
+        paramValues[metricIdx] = reinterpret_cast<char*>(&intValue);
       },
       [&](double value) {
-        valueTypes[i] = XDR_REAL64;
+        valueTypes[metricIdx] = XDR_REAL64;
         doubleValue = value;
-        paramValues[i] = reinterpret_cast<char*>(&doubleValue);
+        paramValues[metricIdx] = reinterpret_cast<char*>(&doubleValue);
       },
       [&](const std::string& value) {
-        valueTypes[i] = XDR_STRING;
+        valueTypes[metricIdx] = XDR_STRING;
         stringValue = value;
-        paramValues[i] = const_cast<char*>(stringValue.c_str());
+        paramValues[metricIdx] = const_cast<char*>(stringValue.c_str());
       },
       [&](uint64_t value) {
-        valueTypes[i] = XDR_REAL64;
+        valueTypes[metricIdx] = XDR_REAL64;
         doubleValue = static_cast<double>(value);
-        paramValues[i] = reinterpret_cast<char*>(&doubleValue);
+        paramValues[metricIdx] = reinterpret_cast<char*>(&doubleValue);
       },
-    }, values[i].second);
+    }, values[metricIdx].second);
+    
+    paramNames[sourceIdx] = const_cast<char*>(sourceName.c_str());
+    valueTypes[sourceIdx] = XDR_STRING;
+    stringValue = entity;
+    paramValues[sourceIdx] = const_cast<char*>(stringValue.c_str());
   }
 
-  mApMon->sendTimedParameters(const_cast<char*>(name.c_str()), const_cast<char*>(entity.c_str()),
-                              valueSize, paramNames, valueTypes, paramValues, convertTimestamp(metric.getTimestamp()));
+  mApMon->sendTimedParameters(
+    const_cast<char*>(clusterName.c_str()),
+    const_cast<char*>(nodeName.c_str()),
+    totalParams, paramNames, valueTypes, paramValues, 
+    convertTimestamp(metric.getTimestamp())
+  );
 
   std::free(paramNames);
   std::free(paramValues);
