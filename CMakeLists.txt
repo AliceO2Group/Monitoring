@@ -71,7 +71,7 @@ endif()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
-find_package(Boost 1.70 REQUIRED COMPONENTS unit_test_framework program_options system)
+find_package(Boost 1.70 REQUIRED COMPONENTS unit_test_framework program_options)
 find_package(ApMon MODULE)
 find_package(CURL MODULE)
 find_package(InfoLogger CONFIG)
@@ -174,7 +174,6 @@ target_link_libraries(Monitoring
   PUBLIC
     Boost::boost
   PRIVATE
-    Boost::system
     pthread
     $<$<BOOL:${ApMon_FOUND}>:ApMon::ApMon>
     $<$<BOOL:${CURL_FOUND}>:CURL::libcurl>
