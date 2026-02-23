@@ -22,6 +22,7 @@
 #include <string>
 #include <chrono>
 #include <memory>
+#include <functional>
 
 namespace o2
 {
@@ -63,6 +64,10 @@ class ApMonBackend final : public Backend
   void addGlobalTag(std::string_view name, std::string_view value) override;
 
  private:
+  /// Sends batch of metrics
+  /// \param metrics  vector of metrics
+  void sendBatch(const std::vector<std::reference_wrapper<const Metric>>& metrics);
+
   /// Converts timestamp to format supported by ApMonBackend
   /// \param timestamp 	timestamp in std::chrono::time_point format
   /// \return 		timestamp as integer (milliseconds from epoch)

@@ -17,8 +17,11 @@
 #include "ApMonBackend.h"
 #include <iostream>
 #include <sstream>
+#include <vector>
+#include <map>
 #include <unistd.h>
 #include <limits.h>
+#include <cstdlib>
 #include "../MonLogger.h"
 #include "../Exceptions/MonitoringException.h"
 
@@ -78,84 +81,108 @@ std::string ApMonBackend::getNodeName()
   return "unknown";
 }
 
-void ApMonBackend::send(const Metric& metric)
+void ApMonBackend::sendBatch(const std::vector<reference_wrapper<const Metric>>& metrics)
 {
   std::string clusterName(mClusterName);
-  std::string metricName = metric.getName();
   std::string nodeName = getNodeName();
-  std::string entity = mEntity;
-  for (const auto& [key, value] : metric.getTags()) {
-    entity += ',';
-    entity += tags::TAG_KEY[key];
-    entity += '=';
-    (value > 0) ? entity += tags::GetValue(value) : entity += std::to_string(0 - value);
+
+  int totalValues = 0;
+  for (const auto& metric : metrics) {
+    totalValues += metric.get().getValuesSize();
   }
-  if (mRunNumber != 0) entity += (",run=" + std::to_string(mRunNumber));
+  const int totalParams = totalValues * 2;
+  std::vector<int> intValues;
+  std::vector<double> doubleValues;
+  std::vector<std::string> stringValues;
+  std::vector<char*> paramNames;
+  std::vector<char*> paramValues;
+  std::vector<int> valueTypes;
 
-  int valueSize = metric.getValuesSize();
-  int totalParams = valueSize * 2; // each metric value has a source parameter
-  char **paramNames, **paramValues;
-  int* valueTypes;
-  paramNames = (char**)std::malloc(totalParams * sizeof(char*));
-  paramValues = (char**)std::malloc(totalParams * sizeof(char*));
-  valueTypes = (int*)std::malloc(totalParams * sizeof(int));
-  // the scope of values must be the same as sendTimedParameters method
-  int intValue;
-  double doubleValue;
-  std::string stringValue;
+  intValues.reserve(totalValues);
+  doubleValues.reserve(totalValues);
+  stringValues.reserve(metrics.size() * 3 + totalValues);
+  paramNames.reserve(totalParams);
+  paramValues.reserve(totalParams);
+  valueTypes.reserve(totalParams);
 
-  auto& values = metric.getValues();
-  std::string sourceName = metricName + "_src";
+  for (const auto& metric : metrics) {
+    std::string entity = mEntity;
+    for (const auto& [key, value] : metric.get().getTags()) {
+      entity += ',';
+      entity += tags::TAG_KEY[key];
+      entity += '=';
+      (value > 0) ? entity += tags::GetValue(value) : entity += std::to_string(0 - value);
+    }
+    if (mRunNumber != 0) entity += (",run=" + std::to_string(mRunNumber));
 
-  for (int i = 0; i < valueSize; ++i) {
-    int metricIdx = i * 2;
-    int sourceIdx = metricIdx + 1;
-    paramNames[metricIdx] = const_cast<char*>(metricName.c_str());
-    std::visit(overloaded{
-      [&](int value) {
-        valueTypes[metricIdx] = XDR_INT32;
-        intValue = value;
-        paramValues[metricIdx] = reinterpret_cast<char*>(&intValue);
-      },
-      [&](double value) {
-        valueTypes[metricIdx] = XDR_REAL64;
-        doubleValue = value;
-        paramValues[metricIdx] = reinterpret_cast<char*>(&doubleValue);
-      },
-      [&](const std::string& value) {
-        valueTypes[metricIdx] = XDR_STRING;
-        stringValue = value;
-        paramValues[metricIdx] = const_cast<char*>(stringValue.c_str());
-      },
-      [&](uint64_t value) {
-        valueTypes[metricIdx] = XDR_REAL64;
-        doubleValue = static_cast<double>(value);
-        paramValues[metricIdx] = reinterpret_cast<char*>(&doubleValue);
-      },
-    }, values[metricIdx].second);
-    
-    paramNames[sourceIdx] = const_cast<char*>(sourceName.c_str());
-    valueTypes[sourceIdx] = XDR_STRING;
-    stringValue = entity;
-    paramValues[sourceIdx] = const_cast<char*>(stringValue.c_str());
+    auto& values = metric.get().getValues();
+    const int valueSize = metric.get().getValuesSize();
+
+    const std::string_view metricName = metric.get().getName();
+    stringValues.emplace_back(metricName);
+    const char* metriNamePtr = stringValues.back().c_str();
+    stringValues.emplace_back(std::string(metricName) + "_src");
+    const char* metriNameSrcPtr = stringValues.back().c_str();
+    stringValues.push_back(std::move(entity));
+    const char* entityPtr = stringValues.back().c_str();
+
+    for (int i = 0; i < valueSize; ++i) {
+      paramNames.push_back(const_cast<char*>(metriNamePtr));
+      std::visit(overloaded{
+        [&](int value) {
+          valueTypes.push_back(XDR_INT32);
+          intValues.push_back(value);
+          paramValues.push_back(reinterpret_cast<char*>(&intValues.back()));
+        },
+        [&](double value) {
+          valueTypes.push_back(XDR_REAL64);
+          doubleValues.push_back(value);
+          paramValues.push_back(reinterpret_cast<char*>(&doubleValues.back()));
+        },
+        [&](const std::string& value) {
+          valueTypes.push_back(XDR_STRING);
+          stringValues.push_back(value);
+          paramValues.push_back(const_cast<char*>(stringValues.back().c_str()));
+        },
+        [&](uint64_t value) {
+          valueTypes.push_back(XDR_REAL64);
+          doubleValues.push_back(static_cast<double>(value));
+          paramValues.push_back(reinterpret_cast<char*>(&doubleValues.back()));
+        },
+      }, values[i].second);
+
+      paramNames.push_back(const_cast<char*>(metriNameSrcPtr));
+      valueTypes.push_back(XDR_STRING);
+      paramValues.push_back(const_cast<char*>(entityPtr));
+    }
   }
 
   mApMon->sendTimedParameters(
     const_cast<char*>(clusterName.c_str()),
     const_cast<char*>(nodeName.c_str()),
-    totalParams, paramNames, valueTypes, paramValues, 
-    convertTimestamp(metric.getTimestamp())
+    totalParams, paramNames.data(), valueTypes.data(), paramValues.data(),
+    convertTimestamp(metrics[0].get().getTimestamp())
   );
+}
 
-  std::free(paramNames);
-  std::free(paramValues);
-  std::free(valueTypes);
+void ApMonBackend::send(const Metric& metric)
+{
+  sendBatch(std::vector<std::reference_wrapper<const Metric>>{std::cref(metric)});
 }
 
 void ApMonBackend::send(std::vector<Metric>&& metrics)
 {
-  for (auto& metric : metrics) {
-    send(metric);
+  if (metrics.empty()) {
+    return;
+  }
+
+  std::map<int, std::vector<std::reference_wrapper<const Metric>>> metricsByTimestamp;
+  for (const auto& metric : metrics) {
+    metricsByTimestamp[convertTimestamp(metric.getTimestamp())].push_back(std::cref(metric));
+  }
+
+  for (const auto& [timestamp, metricsGroup] : metricsByTimestamp) {
+    sendBatch(metricsGroup);
   }
 }
 
