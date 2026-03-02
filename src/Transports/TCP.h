@@ -53,9 +53,6 @@ class TCP : public TransportInterface
 
   /// TCP socket
   boost::asio::ip::tcp::socket mSocket;
-
-  /// TCP endpoint interator
-  boost::asio::ip::tcp::resolver::iterator mEndpoint;
 };
 
 } // namespace transports
