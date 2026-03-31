@@ -22,6 +22,7 @@
 #include <string>
 #include <chrono>
 #include <memory>
+#include <functional>
 
 namespace o2
 {
@@ -63,13 +64,23 @@ class ApMonBackend final : public Backend
   void addGlobalTag(std::string_view name, std::string_view value) override;
 
  private:
+  /// Sends batch of metrics
+  /// \param metrics  vector of metrics
+  void sendBatch(const std::vector<std::reference_wrapper<const Metric>>& metrics);
+
   /// Converts timestamp to format supported by ApMonBackend
   /// \param timestamp 	timestamp in std::chrono::time_point format
   /// \return 		timestamp as integer (milliseconds from epoch)
   int convertTimestamp(const std::chrono::time_point<std::chrono::system_clock>& timestamp);
 
+  /// Gets node name
+  /// It looks for environment variable ALIEN_PROC_ID and if it is not set, it uses hostname as node name
+  /// \return node name as string
+  std::string getNodeName();
+
   std::unique_ptr<ApMon> mApMon; ///< ApMon object
   std::string mEntity;            ///< MonALISA entity, created out of global tags
+  inline static constexpr std::string_view mClusterName = "O2Monitoring_Nodes"; ///< MonALISA cluster name
 };
 
 } // namespace backends
