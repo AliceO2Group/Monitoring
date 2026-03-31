@@ -21,7 +21,14 @@
 
 #include <chrono>
 #include <string>
-#include <librdkafka/rdkafkacpp.h>
+
+// class forward-declaration
+// #include <librdkafka/rdkafkacpp.h>
+// not included here because the header imports some conflicting macros like mem_free
+namespace RdKafka
+{
+class KafkaConsumer;
+}
 
 namespace o2
 {

@@ -19,6 +19,7 @@
 #include <string>
 #include "../MonLogger.h"
 #include "../Exceptions/MonitoringException.h"
+#include <librdkafka/rdkafkacpp.h>
 
 namespace o2
 {
