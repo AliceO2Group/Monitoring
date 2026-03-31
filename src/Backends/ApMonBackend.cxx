@@ -24,6 +24,7 @@
 #include <cstdlib>
 #include "../MonLogger.h"
 #include "../Exceptions/MonitoringException.h"
+#include <ApMon.h>
 
 namespace o2
 {
@@ -186,6 +187,7 @@ void ApMonBackend::send(std::vector<Metric>&& metrics)
   }
 }
 
+ApMonBackend::~ApMonBackend() = default;
 } // namespace backends
 } // namespace monitoring
 } // namespace o2

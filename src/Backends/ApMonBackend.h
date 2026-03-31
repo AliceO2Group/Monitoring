@@ -18,11 +18,15 @@
 #define ALICEO2_MONITORING_BACKENDS_APMONBACKEND_H
 
 #include "Monitoring/Backend.h"
-#include <ApMon.h>
 #include <string>
 #include <chrono>
 #include <memory>
 #include <functional>
+
+// class forward-declaration
+// #include <ApMon.h>
+// not included here because the header imports some conflicting macros like mem_free
+class ApMon;
 
 namespace o2
 {
@@ -47,7 +51,7 @@ class ApMonBackend final : public Backend
   ApMonBackend(const std::string& path);
 
   /// Default destructor
-  ~ApMonBackend() = default;
+  ~ApMonBackend(); // not defaulted here
 
   /// Sends multiple metrics not related to each other
   /// \@param metrics  vector of metrics
