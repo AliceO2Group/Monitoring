@@ -122,10 +122,16 @@ void ApMonBackend::sendBatch(const std::vector<reference_wrapper<const Metric>>&
     const std::string_view metricName = metric.get().getName();
     stringValues.emplace_back(metricName);
     const char* metriNamePtr = stringValues.back().c_str();
-    stringValues.emplace_back(std::string(metricName) + "_src");
-    const char* metriNameSrcPtr = stringValues.back().c_str();
-    stringValues.push_back(std::move(entity));
-    const char* entityPtr = stringValues.back().c_str();
+    bool hasEntity = !entity.empty();
+    const char* metriNameSrcPtr = nullptr;
+    const char* entityPtr = nullptr;
+
+    if (hasEntity) {
+      stringValues.emplace_back(std::string(metricName) + "_src");
+      metriNameSrcPtr = stringValues.back().c_str();
+      stringValues.push_back(std::move(entity));
+      entityPtr = stringValues.back().c_str();
+    }
 
     for (int i = 0; i < valueSize; ++i) {
       paramNames.push_back(const_cast<char*>(metriNamePtr));
@@ -152,16 +158,18 @@ void ApMonBackend::sendBatch(const std::vector<reference_wrapper<const Metric>>&
         },
       }, values[i].second);
 
-      paramNames.push_back(const_cast<char*>(metriNameSrcPtr));
-      valueTypes.push_back(XDR_STRING);
-      paramValues.push_back(const_cast<char*>(entityPtr));
+      if (hasEntity) {
+        paramNames.push_back(const_cast<char*>(metriNameSrcPtr));
+        valueTypes.push_back(XDR_STRING);
+        paramValues.push_back(const_cast<char*>(entityPtr));
+      }
     }
   }
 
   mApMon->sendTimedParameters(
     const_cast<char*>(clusterName.c_str()),
     const_cast<char*>(nodeName.c_str()),
-    totalParams, paramNames.data(), valueTypes.data(), paramValues.data(),
+    static_cast<int>(paramNames.size()), paramNames.data(), valueTypes.data(), paramValues.data(),
     convertTimestamp(metrics[0].get().getTimestamp())
   );
 }
