@@ -24,6 +24,11 @@
 #include <fstream>
 #include <utility>
 #include <numeric>
+#ifdef O2_MONITORING_OS_LINUX
+#include <linux/perf_event.h>
+#include <sys/syscall.h>
+#include <cstring>
+#endif
 
 namespace o2
 {
@@ -37,6 +42,22 @@ static constexpr auto SMAPS_FILE = "/proc/self/smaps_rollup";
 static constexpr auto SMAPS_FILE = "/proc/self/smaps";
 #endif
 
+#ifdef O2_MONITORING_OS_LINUX
+namespace
+{
+struct InstrReadFormat {
+  uint64_t value;
+  uint64_t timeEnabled;
+  uint64_t timeRunning;
+};
+inline long perfEventOpen(struct perf_event_attr* attr, pid_t pid, int cpu,
+                          int group, unsigned long flags)
+{
+  return syscall(__NR_perf_event_open, attr, pid, cpu, group, flags);
+}
+} // namespace
+#endif
+
 ProcessMonitor::ProcessMonitor()
 {
   mPid = static_cast<unsigned int>(::getpid());
@@ -46,6 +67,35 @@ ProcessMonitor::ProcessMonitor()
   setTotalMemory();
 #endif
   mEnabledMeasurements.fill(false);
+  openInstructionCounter();
+}
+
+void ProcessMonitor::openInstructionCounter()
+{
+#ifdef O2_MONITORING_OS_LINUX
+  struct perf_event_attr attr;
+  std::memset(&attr, 0, sizeof(attr));
+  attr.size = sizeof(attr);
+  attr.type = PERF_TYPE_HARDWARE;
+  attr.config = PERF_COUNT_HW_INSTRUCTIONS;
+  attr.disabled = 0;       // count from the moment it is opened
+  attr.exclude_kernel = 1; // user-space only: the relevant signal, and works at perf_event_paranoid <= 2
+  attr.exclude_hv = 1;
+  attr.inherit = 1;        // also count threads spawned afterwards (validated: live + exited threads aggregate)
+  attr.read_format = PERF_FORMAT_TOTAL_TIME_ENABLED | PERF_FORMAT_TOTAL_TIME_RUNNING;
+  // pid 0 = this process (and inherited threads), cpu -1 = any. Best effort: a high
+  // perf_event_paranoid, container seccomp, or a missing PMU simply leaves it disabled.
+  mInstructionsFd = static_cast<int>(perfEventOpen(&attr, 0, -1, -1, 0));
+#endif
+}
+
+ProcessMonitor::~ProcessMonitor()
+{
+#ifdef O2_MONITORING_OS_LINUX
+  if (mInstructionsFd >= 0) {
+    ::close(mInstructionsFd);
+  }
+#endif
 }
 
 void ProcessMonitor::init()
@@ -144,6 +194,22 @@ std::vector<Metric> ProcessMonitor::getCpuAndContexts()
   metrics.emplace_back(Metric{
     static_cast<uint64_t>(currentUsage.ru_nvcsw - mPreviousGetrUsage.ru_nvcsw), metricsNames[VOLUNTARY_CONTEXT_SWITCHES]});
   metrics.emplace_back(cpuUsedInMicroSeconds, metricsNames[CPU_USED_ABSOLUTE]);
+
+#ifdef O2_MONITORING_OS_LINUX
+  if (mInstructionsFd >= 0) {
+    InstrReadFormat rf;
+    if (::read(mInstructionsFd, &rf, sizeof(rf)) == static_cast<ssize_t>(sizeof(rf))) {
+      // Correct for PMU multiplexing: when the counter is not always scheduled,
+      // timeEnabled > timeRunning, so scale the raw value back up to a full-time estimate.
+      double scale = rf.timeRunning ? static_cast<double>(rf.timeEnabled) / rf.timeRunning : 1.0;
+      uint64_t total = static_cast<uint64_t>(rf.value * scale);
+      uint64_t delta = (total >= mPreviousInstructions) ? (total - mPreviousInstructions) : total;
+      mPreviousInstructions = total;
+      // Per-interval retired instructions; summed over the run = total instructions (cf. cpuUsedAbsolute).
+      metrics.emplace_back(delta, metricsNames[CPU_INSTRUCTIONS]);
+    }
+  }
+#endif
 
   mTimeLastRun = timeNow;
   mPreviousGetrUsage = currentUsage;
