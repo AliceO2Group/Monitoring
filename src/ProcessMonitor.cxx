@@ -36,10 +36,10 @@ namespace o2
 namespace monitoring
 {
 
-#ifdef O2_MONITORING_OS_CS8
-static constexpr auto SMAPS_FILE = "/proc/self/smaps_rollup";
-#else
+#ifdef O2_MONITORING_OS_CC7
 static constexpr auto SMAPS_FILE = "/proc/self/smaps";
+#else
+static constexpr auto SMAPS_FILE = "/proc/self/smaps_rollup";
 #endif
 
 #ifdef O2_MONITORING_OS_LINUX

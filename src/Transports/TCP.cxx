@@ -32,14 +32,16 @@ namespace transports
 TCP::TCP(const std::string& hostname, int port) : mSocket(mIoService)
 {
   boost::asio::ip::tcp::resolver resolver(mIoService);
-  boost::asio::ip::tcp::resolver::query query(hostname, std::to_string(port));
-  boost::asio::ip::tcp::resolver::iterator resolverIterator = resolver.resolve(query);
-
-  boost::asio::ip::tcp::resolver::iterator end;
   boost::system::error_code error = boost::asio::error::host_not_found;
-  while (error && resolverIterator != end) {
-    mSocket.close();
-    mSocket.connect(*resolverIterator++, error);
+  auto results = resolver.resolve(hostname, std::to_string(port), error);
+  if (!error) {
+    for (auto it = results.begin();it != results.end();++it) {
+      mSocket.close();
+      mSocket.connect(it->endpoint(), error);
+      if (!error) {
+        break;
+      }
+    }
   }
   if (error) {
     throw MonitoringException("TCP connection", error.message());

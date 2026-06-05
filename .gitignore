@@ -4,3 +4,4 @@
 *~
 .idea
 examples/config.ini
+/cmake-build-debug/

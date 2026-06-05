@@ -1,4 +1,4 @@
-# Copyright 2019-2020 CERN and copyright holders of ALICE O2.
+# Copyright 2019-2024 CERN and copyright holders of ALICE O2.
 # See https://alice-o2.web.cern.ch/copyright for details of the copyright holders.
 # All rights not expressly granted are reserved.
 #
@@ -16,22 +16,20 @@
 # General project definition
 ####################################
 
-CMAKE_MINIMUM_REQUIRED(VERSION 3.5.2 FATAL_ERROR)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.26 FATAL_ERROR)
 set(Boost_USE_STATIC_RUNTIME OFF)
 set(Boost_USE_STATIC_LIBS OFF)
 set(BUILD_SHARED_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
+set(O2_MONITORING_KAFKA_ENABLE ON)
+set(O2_MONITORING_CONTROL_ENABLE ON)
 
 # Set cmake policy by version: https://cmake.org/cmake/help/latest/manual/cmake-policies.7.html
-if(${CMAKE_VERSION} VERSION_LESS 3.12)
-    cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
-else()
-    cmake_policy(VERSION 3.12)
-endif()
+cmake_policy(VERSION 3.12)
 
 # Define project
 project(Monitoring
-  VERSION 3.17.5
+  VERSION 3.19.12
   DESCRIPTION "O2 Monitoring library"
   LANGUAGES CXX
 )
@@ -73,13 +71,34 @@ endif()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
-find_package(Boost 1.70 REQUIRED COMPONENTS unit_test_framework program_options system)
+find_package(Boost 1.70 REQUIRED COMPONENTS unit_test_framework program_options)
 find_package(ApMon MODULE)
 find_package(CURL MODULE)
-find_package(RdKafka CONFIG)
 find_package(InfoLogger CONFIG)
-find_package(Protobuf)
-find_package(gRPC CONFIG)
+if(O2_MONITORING_KAFKA_ENABLE OR O2_MONITORING_CONTROL_ENABLE)
+  find_package(Protobuf CONFIG)
+endif()
+if(O2_MONITORING_CONTROL_ENABLE)
+  find_package(gRPC CONFIG)
+endif()
+
+if(RDKAFKA_ROOT)
+    message("RDKAFKA_ROOT set, we enable corresponding libs and binaries")
+    find_library(RDKAFKA_LIB1 "rdkafka++" REQUIRED PATHS ${RDKAFKA_ROOT}/lib)
+    find_library(RDKAFKA_LIB2 "rdkafka" REQUIRED PATHS ${RDKAFKA_ROOT}/lib)
+    set(RDKAFKA_LIBS  ${RDKAFKA_LIB1} ${RDKAFKA_LIB2})
+    set(RDKAFKA_INCLUDE "${RDKAFKA_ROOT}/include")
+    set(RdKafka_FOUND true)
+else()
+    message("RDKAFKA_ROOT not set, corresponding libs and binaries won't be built")
+endif()
+
+if(gRPC_FOUND)
+    message("gRPC found, we enable corresponding libs and binaries")
+else()
+    message("gRPC not found, corresponding libs and binaries won't be built")
+endif()
+
 
 ####################################
 # Set OUTPUT vars
@@ -142,6 +161,7 @@ target_include_directories(Monitoring
   PUBLIC
     $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${RDKAFKA_INCLUDE}>
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
@@ -153,13 +173,12 @@ set_target_properties(Monitoring PROPERTIES OUTPUT_NAME "O2Monitoring")
 target_link_libraries(Monitoring
   PUBLIC
     Boost::boost
-    $<$<BOOL:${RdKafka_FOUND}>:RdKafka::rdkafka++>
   PRIVATE
-    Boost::system
     pthread
     $<$<BOOL:${ApMon_FOUND}>:ApMon::ApMon>
     $<$<BOOL:${CURL_FOUND}>:CURL::libcurl>
     $<$<BOOL:${InfoLogger_FOUND}>:AliceO2::InfoLogger>
+    $<$<BOOL:${RdKafka_FOUND}>:${RDKAFKA_LIBS}>
 )
 
 # Handle ApMon optional dependency
@@ -247,7 +266,10 @@ foreach (example ${EXAMPLES})
   add_executable(${example_name} ${example})
   target_link_libraries(${example_name}
     PRIVATE
+      pthread
       Monitoring Boost::program_options
+      $<$<BOOL:${CURL_FOUND}>:CURL::libcurl>
+      $<$<BOOL:${RdKafka_FOUND}>:${RDKAFKA_LIBS}>
   )
 endforeach()
 
@@ -257,6 +279,17 @@ if(RdKafka_FOUND)
   set_target_properties(11-KafkaToWebsocket PROPERTIES OUTPUT_NAME "o2-monitoring-kafka-to-grafana")
 endif()
 
+
+# executable: o2-monitoring-send
+add_executable(
+  o2-monitoring-send
+  src/sendMetric.cxx
+)
+target_link_libraries(
+  o2-monitoring-send
+  Monitoring
+)
+install(TARGETS o2-monitoring-send)
 
 ####################################
 # Generate protobuf
@@ -289,6 +322,7 @@ if(RdKafka_FOUND AND Protobuf_FOUND AND CURL_FOUND)
       Boost::program_options
       protobuf::libprotobuf
       $<$<BOOL:${InfoLogger_FOUND}>:AliceO2::InfoLogger>
+      $<$<BOOL:${RdKafka_FOUND}>:${RDKAFKA_LIBS}>
     )
     target_compile_definitions(${example_name} PRIVATE $<$<BOOL:${InfoLogger_FOUND}>:O2_MONITORING_WITH_INFOLOGGER>)
     target_include_directories(${example_name} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})

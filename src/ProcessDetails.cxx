@@ -59,7 +59,7 @@ inline void ProcessDetails::generateProcessName()
 #endif
 
   if (mProcessName.empty()) {
-    mProcessName = "!";
+    mProcessName = "<undefined>";
   } else {
     mProcessName = mProcessName.substr(mProcessName.find_last_of("/") + 1);
   }
