@@ -31,9 +31,7 @@ namespace o2
 namespace monitoring
 {
 
-#ifdef O2_MONITORING_OS_CS8
-static constexpr auto SMAPS_FILE = "/proc/self/smaps_rollup";
-#else
+static constexpr auto SMAPS_ROLLUP_FILE = "/proc/self/smaps_rollup";
 static constexpr auto SMAPS_FILE = "/proc/self/smaps";
 #endif
 
@@ -98,7 +96,9 @@ std::vector<Metric> ProcessMonitor::getMemoryUsage()
 
 std::vector<Metric> ProcessMonitor::getSmaps()
 {
-  std::ifstream statusStream(SMAPS_FILE);
+  static const char* const smapsFile =
+    (::access(SMAPS_ROLLUP_FILE, R_OK) == 0) ? SMAPS_ROLLUP_FILE : SMAPS_FILE;
+  std::ifstream statusStream(smapsFile);
   double pssTotal = 0;
   double cleanTotal = 0;
   double dirtyTotal = 0;
