@@ -9,6 +9,7 @@ using namespace o2::monitoring;
 
 int main()
 {
+  //int ix=0;
   /// List of topics to subscribe
   std::vector<std::string> topics = {"cru.link_status"};
   /// Connect to server
@@ -21,7 +22,9 @@ int main()
         /// metric sample: link,serialId=983,endpoint=1,CRU=1,id=11,type=CRU pciAddress="b0:00.0",status=1i 1673940809860009855
         std::cout << metric.second << std::endl;
       }
+    } else {
+      // wait a bit if no data available
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }
 }

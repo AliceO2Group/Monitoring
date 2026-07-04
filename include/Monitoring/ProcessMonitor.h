@@ -58,6 +58,7 @@ class ProcessMonitor
     PSS,
     PRIVATE_CLEAN,
     PRIVATE_DIRTY,
+    CPU_INSTRUCTIONS,
     AVAILABLE_METRICS_SIZE
   };
 
@@ -67,8 +68,8 @@ class ProcessMonitor
   /// Sets PID and total memory
   ProcessMonitor();
 
-  /// Default destructor
-  ~ProcessMonitor() = default;
+  /// Destructor — closes the instruction counter if open
+  ~ProcessMonitor();
 
   /// Set initial variables for CPU usage calculations
   void init();
@@ -88,7 +89,8 @@ class ProcessMonitor
   static constexpr const char* metricsNames[] = {"memoryUsagePercentage", "virtualMemorySize", "residentSetSize",
                                                  "cpuUsedPercentage", "involuntaryContextSwitches", "voluntaryContextSwitches", "cpuUsedAbsolute",
                                                  "averageResidentSetSize", "averageVirtualMemorySize", "averageCpuUsedPercentage",
-                                                 "cpuTimeConsumedByProcess", "proportionalSetSize", "memoryPrivateClean", "memoryPrivateDirty"};
+                                                 "cpuTimeConsumedByProcess", "proportionalSetSize", "memoryPrivateClean", "memoryPrivateDirty",
+                                                 "cpuInstructions"};
 
   static constexpr unsigned int VM_SIZE_INDEX = 18;
   static constexpr unsigned int VM_RSS_INDEX = 22;
@@ -101,6 +103,14 @@ class ProcessMonitor
 
   /// 'getrusage' values from last execution
   struct rusage mPreviousGetrUsage;
+
+  /// Retired-instructions hardware counter (perf_event_open, Linux only);
+  /// -1 when unavailable (high perf_event_paranoid, container seccomp, or no PMU).
+  int mInstructionsFd = -1;
+  /// Cumulative instruction count at the previous sample, for the per-interval delta
+  uint64_t mPreviousInstructions = 0;
+  /// Best-effort open of the retired-instructions counter (no-op off Linux)
+  void openInstructionCounter();
 
   ///each measurement will be saved to compute average/accumulation usage
   std::vector<double> mVmSizeMeasurements;

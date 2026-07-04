@@ -18,6 +18,7 @@
 #include <memory>
 #include <string>
 #include "../MonLogger.h"
+#include <librdkafka/rdkafkacpp.h>
 
 namespace o2
 {
