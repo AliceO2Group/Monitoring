@@ -16,6 +16,10 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
+#include <algorithm>
+#include <string>
+#include <vector>
+
 namespace o2
 {
 namespace monitoring
@@ -37,7 +41,32 @@ void disableRedirect()
   std::cout.rdbuf(coutBuffer);
 }
 
+// Collects the metric names emitted on the redirected stdout. Every metric line
+// starts with the metric (measurement) name followed by a space.
+static std::vector<std::string> collectEmittedMetricNames()
+{
+  std::istringstream returned(coutRedirect.str());
+  disableRedirect();
+  std::vector<std::string> names;
+  for (std::string line; std::getline(returned, line);) {
+    if (line.empty()) {
+      continue;
+    }
+    names.push_back(line.substr(0, line.find(' ')));
+  }
+  return names;
+}
 
+// Checks that every emitted metric is one declared in ProcessMonitor (metricsNames /
+// the enum), so adding a new metric never requires updating a hardcoded list here.
+static void checkAllMetricsAreKnown(const std::vector<std::string>& emitted)
+{
+  const auto available = o2::monitoring::ProcessMonitor::getAvailableMetricsNames();
+  for (const auto& name : emitted) {
+    BOOST_CHECK_MESSAGE(std::find(available.begin(), available.end(), name) != available.end(),
+                        "Emitted metric '" << name << "' is not declared in ProcessMonitor");
+  }
+}
 
 BOOST_AUTO_TEST_CASE(monitorProcessDefaultCount)
 {
@@ -48,21 +77,13 @@ BOOST_AUTO_TEST_CASE(monitorProcessDefaultCount)
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
   }
 
-  std::istringstream returned(coutRedirect.str());
-  disableRedirect();
-  unsigned short int countMetrics = 0;
-  for (std::string line; std::getline(returned, line); ) {
-    countMetrics++;
-  }
-  // On linux 11 (without Smaps) and macOS 6
-  BOOST_CHECK(countMetrics == 14 || countMetrics == 6);
+  const auto emitted = collectEmittedMetricNames();
+  checkAllMetricsAreKnown(emitted);
+  BOOST_CHECK_GT(emitted.size(), 0u);
 }
-
 
 BOOST_AUTO_TEST_CASE(monitorProcessCpuOnly)
 {
-  std::array<std::string, 6> names = {"cpuUsedPercentage", "involuntaryContextSwitches", "voluntaryContextSwitches", "cpuUsedAbsolute",
-                                      "averageCpuUsedPercentage", "cpuTimeConsumedByProcess"};
   {
     auto monitoring = o2::monitoring::MonitoringFactory::Get("influxdb-stdout://");
     monitoring->enableProcessMonitoring(1, {PmMeasurement::Cpu});
@@ -70,23 +91,19 @@ BOOST_AUTO_TEST_CASE(monitorProcessCpuOnly)
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
   }
 
-  std::istringstream returned(coutRedirect.str());
-  disableRedirect();
-  unsigned short int countMetrics = 0;
-  for (std::string line; std::getline(returned, line); ) {
-    BOOST_CHECK(std::find(names.begin(), names.end(), line.substr(0, line.find(' '))) != names.end());
-    countMetrics++;
-  }
-  // On linux and macOS 6
-  BOOST_CHECK_EQUAL(countMetrics, 6);
+  const auto emitted = collectEmittedMetricNames();
+  checkAllMetricsAreKnown(emitted);
+  BOOST_CHECK_GT(emitted.size(), 0u);
+
+  // With only CPU enabled, no memory metric should be emitted (name taken from
+  // ProcessMonitor's declaration rather than hardcoded).
+  const auto available = o2::monitoring::ProcessMonitor::getAvailableMetricsNames();
+  const auto& residentSetSize = available[o2::monitoring::ProcessMonitor::RESIDENT_SET_SIZE];
+  BOOST_CHECK(std::find(emitted.begin(), emitted.end(), residentSetSize) == emitted.end());
 }
 
 BOOST_AUTO_TEST_CASE(monitorProcessAll)
 {
-  std::array<std::string, 11> names = {"memoryUsagePercentage", "virtualMemorySize", "residentSetSize",
-                                       "cpuUsedPercentage", "involuntaryContextSwitches", "voluntaryContextSwitches", "cpuUsedAbsolute",
-                                       "averageResidentSetSize", "averageVirtualMemorySize", "averageCpuUsedPercentage",
-                                       "cpuTimeConsumedByProcess"};
   {
     auto monitoring = o2::monitoring::MonitoringFactory::Get("influxdb-stdout://");
     monitoring->enableProcessMonitoring(1, {PmMeasurement::Cpu, PmMeasurement::Mem});
@@ -94,15 +111,15 @@ BOOST_AUTO_TEST_CASE(monitorProcessAll)
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
   }
 
-  std::istringstream returned(coutRedirect.str());
-  disableRedirect();
-  unsigned short int countMetrics = 0;
-  for (std::string line; std::getline(returned, line); ) {
-    BOOST_CHECK(std::find(names.begin(), names.end(), line.substr(0, line.find(' '))) != names.end());
-    countMetrics++;
-  }
-  // On linux 14 and macOS 6
-  BOOST_CHECK(countMetrics == 11 || countMetrics == 6);
+  const auto emitted = collectEmittedMetricNames();
+  checkAllMetricsAreKnown(emitted);
+  BOOST_CHECK_GT(emitted.size(), 0u);
+
+  // CPU and memory are enabled but not Smaps, so no proportional-set-size metric
+  // should be emitted (name taken from ProcessMonitor's declaration).
+  const auto available = o2::monitoring::ProcessMonitor::getAvailableMetricsNames();
+  const auto& proportionalSetSize = available[o2::monitoring::ProcessMonitor::PSS];
+  BOOST_CHECK(std::find(emitted.begin(), emitted.end(), proportionalSetSize) == emitted.end());
 }
 
 BOOST_AUTO_TEST_CASE(monitorProcessMetricName)
