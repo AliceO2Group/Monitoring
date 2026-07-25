@@ -60,6 +60,7 @@ ProcessMonitor::ProcessMonitor()
   mPid = static_cast<unsigned int>(::getpid());
   mTimeLastRun = std::chrono::high_resolution_clock::now();
   getrusage(RUSAGE_SELF, &mPreviousGetrUsage);
+  getrusage(RUSAGE_CHILDREN, &mPreviousGetrUsageChildren);
 #ifdef O2_MONITORING_OS_LINUX
   setTotalMemory();
 #endif
@@ -99,6 +100,13 @@ void ProcessMonitor::init()
 {
   mTimeLastRun = std::chrono::high_resolution_clock::now();
   getrusage(RUSAGE_SELF, &mPreviousGetrUsage);
+  getrusage(RUSAGE_CHILDREN, &mPreviousGetrUsageChildren);
+  // The aggregates describe one monitoring period: monitoring that is stopped
+  // and started again reports the new period, not both blended together.
+  mCpuPerctange.clear();
+  mCpuMicroSeconds.clear();
+  mVmSizeMeasurements.clear();
+  mVmRssMeasurements.clear();
 }
 
 void ProcessMonitor::enable(PmMeasurement measurement)
@@ -167,27 +175,41 @@ std::vector<Metric> ProcessMonitor::getSmaps()
   return {{pssTotal, metricsNames[PSS]}, {cleanTotal, metricsNames[PRIVATE_CLEAN]}, {dirtyTotal, metricsNames[PRIVATE_DIRTY]}};
 }
 
-std::vector<Metric> ProcessMonitor::getCpuAndContexts()
+std::vector<Metric> ProcessMonitor::getCpuAndContexts(bool force)
 {
   std::vector<Metric> metrics;
   struct rusage currentUsage;
+  struct rusage currentUsageChildren;
   getrusage(RUSAGE_SELF, &currentUsage);
+  // CPU of reaped children (e.g. an external event generator forked by o2-sim)
+  // is spent outside this process and is invisible to RUSAGE_SELF
+  getrusage(RUSAGE_CHILDREN, &currentUsageChildren);
   auto timeNow = std::chrono::high_resolution_clock::now();
   double timePassed = std::chrono::duration_cast<std::chrono::microseconds>(timeNow - mTimeLastRun).count();
-  if (timePassed < 950) {
+  if (timePassed < 950 && !force) {
     MonLogger::Get(Severity::Warn) << "Do not invoke Process Monitor more frequent then every 1s" << MonLogger::End();
     metrics.emplace_back("processPerformance");
     return metrics;
   }
 
-  uint64_t cpuUsedInMicroSeconds = currentUsage.ru_utime.tv_sec * 1000000.0 + currentUsage.ru_utime.tv_usec - (mPreviousGetrUsage.ru_utime.tv_sec * 1000000.0 + mPreviousGetrUsage.ru_utime.tv_usec) + currentUsage.ru_stime.tv_sec * 1000000.0 + currentUsage.ru_stime.tv_usec - (mPreviousGetrUsage.ru_stime.tv_sec * 1000000.0 + mPreviousGetrUsage.ru_stime.tv_usec);
+  auto micros = [](const timeval& t) { return t.tv_sec * 1000000.0 + t.tv_usec; };
+  auto cpuDelta = [&micros](const struct rusage& now, const struct rusage& before) {
+    return micros(now.ru_utime) - micros(before.ru_utime) + micros(now.ru_stime) - micros(before.ru_stime);
+  };
+  uint64_t cpuUsedInMicroSeconds = cpuDelta(currentUsage, mPreviousGetrUsage) +
+                                   cpuDelta(currentUsageChildren, mPreviousGetrUsageChildren);
   double fractionCpuUsed = cpuUsedInMicroSeconds / timePassed;
 
   double cpuUsedPerctange = std::round(fractionCpuUsed * 100.0 * 100.0) / 100.0;
-  mCpuPerctange.push_back(cpuUsedPerctange);
   mCpuMicroSeconds.push_back(cpuUsedInMicroSeconds);
 
-  metrics.emplace_back(Metric{cpuUsedPerctange, metricsNames[CPU_USED_PERCENTAGE]});
+  // A forced measurement may report CPU accumulated over the whole run but only
+  // made visible at once (children become visible on reap), for which an
+  // instantaneous rate is meaningless: report it as absolute time only.
+  if (!force) {
+    mCpuPerctange.push_back(cpuUsedPerctange);
+    metrics.emplace_back(Metric{cpuUsedPerctange, metricsNames[CPU_USED_PERCENTAGE]});
+  }
   metrics.emplace_back(Metric{
     static_cast<uint64_t>(currentUsage.ru_nivcsw - mPreviousGetrUsage.ru_nivcsw), metricsNames[INVOLUNTARY_CONTEXT_SWITCHES]});
   metrics.emplace_back(Metric{
@@ -212,6 +234,7 @@ std::vector<Metric> ProcessMonitor::getCpuAndContexts()
 
   mTimeLastRun = timeNow;
   mPreviousGetrUsage = currentUsage;
+  mPreviousGetrUsageChildren = currentUsageChildren;
   return metrics;
 }
 
@@ -262,14 +285,21 @@ std::vector<Metric> ProcessMonitor::makeLastMeasurementAndGetMetrics()
   }
 #endif
   if (mEnabledMeasurements.at(static_cast<short>(PmMeasurement::Cpu))) {
-    getCpuAndContexts();
+    // forced: no later call will pick up a delta discarded here
+    auto lastCpuMetrics = getCpuAndContexts(true);
+    std::move(lastCpuMetrics.begin(), lastCpuMetrics.end(), std::back_inserter(metrics));
 
-    auto avgCpuUsage = std::accumulate(mCpuPerctange.begin(), mCpuPerctange.end(), 0.0) /
-                       mCpuPerctange.size();
     uint64_t accumulationOfCpuTimeConsumption = std::accumulate(mCpuMicroSeconds.begin(),
                                                                 mCpuMicroSeconds.end(), 0UL);
 
-    metrics.emplace_back(avgCpuUsage, metricsNames[AVG_CPU_USED_PERCENTAGE]);
+    // Only forced measurements contribute no percentage, so a process that
+    // ends before the first periodic sample has none at all - report no
+    // average rather than a NaN one.
+    if (!mCpuPerctange.empty()) {
+      auto avgCpuUsage = std::accumulate(mCpuPerctange.begin(), mCpuPerctange.end(), 0.0) /
+                         mCpuPerctange.size();
+      metrics.emplace_back(avgCpuUsage, metricsNames[AVG_CPU_USED_PERCENTAGE]);
+    }
     metrics.emplace_back(accumulationOfCpuTimeConsumption, metricsNames[ACCUMULATED_CPU_TIME]);
   }
   return metrics;

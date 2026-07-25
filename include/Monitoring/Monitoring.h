@@ -73,6 +73,10 @@ class Monitoring
   /// \param enabledMeasurements vector of monitor measurements, eg. PmMeasurement::Cpu
   void enableProcessMonitoring(const unsigned int interval = 5, std::vector<PmMeasurement> enabledMeasurements = {PmMeasurement::Cpu, PmMeasurement::Mem, PmMeasurement::Smaps});
 
+  /// Stops process monitoring and transmits the final measurement. Idempotent;
+  /// call explicitly where destructor timing is not guaranteed to be reached.
+  void finalizeProcessMonitoring();
+
   /// Flushes metric buffer (this can also happen when buffer is full)
   void flushBuffer();
 
