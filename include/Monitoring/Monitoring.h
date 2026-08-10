@@ -74,7 +74,8 @@ class Monitoring
   void enableProcessMonitoring(const unsigned int interval = 5, std::vector<PmMeasurement> enabledMeasurements = {PmMeasurement::Cpu, PmMeasurement::Mem, PmMeasurement::Smaps});
 
   /// Stops process monitoring and transmits the final measurement. Idempotent;
-  /// call explicitly where destructor timing is not guaranteed to be reached.
+  /// call it explicitly where destructor timing is not guaranteed, e.g. on a
+  /// DPL device's RUNNING->READY transition.
   void finalizeProcessMonitoring();
 
   /// Flushes metric buffer (this can also happen when buffer is full)

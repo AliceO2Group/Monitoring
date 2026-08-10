@@ -104,6 +104,9 @@ class ProcessMonitor
   /// 'getrusage' values from last execution
   struct rusage mPreviousGetrUsage;
 
+  /// 'getrusage(RUSAGE_CHILDREN)' values from last execution
+  struct rusage mPreviousGetrUsageChildren;
+
   /// Retired-instructions hardware counter (perf_event_open, Linux only);
   /// -1 when unavailable (high perf_event_paranoid, container seccomp, or no PMU).
   int mInstructionsFd = -1;
@@ -111,9 +114,6 @@ class ProcessMonitor
   uint64_t mPreviousInstructions = 0;
   /// Best-effort open of the retired-instructions counter (no-op off Linux)
   void openInstructionCounter();
-
-  /// 'getrusage(RUSAGE_CHILDREN)' values from last execution
-  struct rusage mPreviousGetrUsageChildren;
 
   ///each measurement will be saved to compute average/accumulation usage
   std::vector<double> mVmSizeMeasurements;
@@ -131,8 +131,8 @@ class ProcessMonitor
   std::vector<Metric> getSmaps();
 
   /// Retrieves CPU usage (%) and number of context switches during the interval
-  /// \param force  ignore the 1s minimum interval; for the final measurement,
-  ///               where a skipped delta would be lost rather than deferred
+  /// \param force  ignore the 1s minimum interval and report no percentage;
+  ///               for the final measurement, whose delta no later call would pick up
   std::vector<Metric> getCpuAndContexts(bool force = false);
 
   std::vector<Metric> makeLastMeasurementAndGetMetrics();
