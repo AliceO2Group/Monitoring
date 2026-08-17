@@ -29,7 +29,7 @@ cmake_policy(VERSION 3.12)
 
 # Define project
 project(Monitoring
-  VERSION 3.19.16
+  VERSION 3.19.17
   DESCRIPTION "O2 Monitoring library"
   LANGUAGES CXX
 )
