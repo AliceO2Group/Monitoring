@@ -60,6 +60,7 @@ ProcessMonitor::ProcessMonitor()
   mPid = static_cast<unsigned int>(::getpid());
   mTimeLastRun = std::chrono::high_resolution_clock::now();
   getrusage(RUSAGE_SELF, &mPreviousGetrUsage);
+  getrusage(RUSAGE_CHILDREN, &mPreviousGetrUsageChildren);
 #ifdef O2_MONITORING_OS_LINUX
   setTotalMemory();
 #endif
@@ -99,6 +100,13 @@ void ProcessMonitor::init()
 {
   mTimeLastRun = std::chrono::high_resolution_clock::now();
   getrusage(RUSAGE_SELF, &mPreviousGetrUsage);
+  getrusage(RUSAGE_CHILDREN, &mPreviousGetrUsageChildren);
+  // The aggregates cover one monitoring period: monitoring stopped and started
+  // again reports the new period, not both blended together.
+  mCpuPerctange.clear();
+  mCpuMicroSeconds.clear();
+  mVmSizeMeasurements.clear();
+  mVmRssMeasurements.clear();
 }
 
 void ProcessMonitor::enable(PmMeasurement measurement)
@@ -167,31 +175,45 @@ std::vector<Metric> ProcessMonitor::getSmaps()
   return {{pssTotal, metricsNames[PSS]}, {cleanTotal, metricsNames[PRIVATE_CLEAN]}, {dirtyTotal, metricsNames[PRIVATE_DIRTY]}};
 }
 
-std::vector<Metric> ProcessMonitor::getCpuAndContexts()
+std::vector<Metric> ProcessMonitor::getCpuAndContexts(bool force)
 {
   std::vector<Metric> metrics;
+  // RUSAGE_SELF does not see work done by reaped children (e.g. an external
+  // event generator forked by o2-sim), so every counter below sums the two.
   struct rusage currentUsage;
+  struct rusage currentUsageChildren;
   getrusage(RUSAGE_SELF, &currentUsage);
+  getrusage(RUSAGE_CHILDREN, &currentUsageChildren);
   auto timeNow = std::chrono::high_resolution_clock::now();
   double timePassed = std::chrono::duration_cast<std::chrono::microseconds>(timeNow - mTimeLastRun).count();
-  if (timePassed < 950) {
+  if (timePassed < 950 && !force) {
     MonLogger::Get(Severity::Warn) << "Do not invoke Process Monitor more frequent then every 1s" << MonLogger::End();
     metrics.emplace_back("processPerformance");
     return metrics;
   }
 
-  uint64_t cpuUsedInMicroSeconds = currentUsage.ru_utime.tv_sec * 1000000.0 + currentUsage.ru_utime.tv_usec - (mPreviousGetrUsage.ru_utime.tv_sec * 1000000.0 + mPreviousGetrUsage.ru_utime.tv_usec) + currentUsage.ru_stime.tv_sec * 1000000.0 + currentUsage.ru_stime.tv_usec - (mPreviousGetrUsage.ru_stime.tv_sec * 1000000.0 + mPreviousGetrUsage.ru_stime.tv_usec);
-  double fractionCpuUsed = cpuUsedInMicroSeconds / timePassed;
-
-  double cpuUsedPerctange = std::round(fractionCpuUsed * 100.0 * 100.0) / 100.0;
-  mCpuPerctange.push_back(cpuUsedPerctange);
+  // CPU time (user + system) of one snapshot, in microseconds
+  auto cpuMicros = [](const struct rusage& usage) {
+    return (usage.ru_utime.tv_sec + usage.ru_stime.tv_sec) * 1000000.0 + usage.ru_utime.tv_usec + usage.ru_stime.tv_usec;
+  };
+  uint64_t cpuUsedInMicroSeconds = (cpuMicros(currentUsage) - cpuMicros(mPreviousGetrUsage)) +
+                                   (cpuMicros(currentUsageChildren) - cpuMicros(mPreviousGetrUsageChildren));
   mCpuMicroSeconds.push_back(cpuUsedInMicroSeconds);
 
-  metrics.emplace_back(Metric{cpuUsedPerctange, metricsNames[CPU_USED_PERCENTAGE]});
-  metrics.emplace_back(Metric{
-    static_cast<uint64_t>(currentUsage.ru_nivcsw - mPreviousGetrUsage.ru_nivcsw), metricsNames[INVOLUNTARY_CONTEXT_SWITCHES]});
-  metrics.emplace_back(Metric{
-    static_cast<uint64_t>(currentUsage.ru_nvcsw - mPreviousGetrUsage.ru_nvcsw), metricsNames[VOLUNTARY_CONTEXT_SWITCHES]});
+  // A child's CPU time appears all at once when it is reaped, so the delta of a
+  // forced (final) measurement is not a rate over the interval: absolute time only.
+  if (!force) {
+    double fractionCpuUsed = cpuUsedInMicroSeconds / timePassed;
+    double cpuUsedPerctange = std::round(fractionCpuUsed * 100.0 * 100.0) / 100.0;
+    mCpuPerctange.push_back(cpuUsedPerctange);
+    metrics.emplace_back(Metric{cpuUsedPerctange, metricsNames[CPU_USED_PERCENTAGE]});
+  }
+  uint64_t involuntaryContextSwitches = (currentUsage.ru_nivcsw - mPreviousGetrUsage.ru_nivcsw) +
+                                        (currentUsageChildren.ru_nivcsw - mPreviousGetrUsageChildren.ru_nivcsw);
+  uint64_t voluntaryContextSwitches = (currentUsage.ru_nvcsw - mPreviousGetrUsage.ru_nvcsw) +
+                                      (currentUsageChildren.ru_nvcsw - mPreviousGetrUsageChildren.ru_nvcsw);
+  metrics.emplace_back(Metric{involuntaryContextSwitches, metricsNames[INVOLUNTARY_CONTEXT_SWITCHES]});
+  metrics.emplace_back(Metric{voluntaryContextSwitches, metricsNames[VOLUNTARY_CONTEXT_SWITCHES]});
   metrics.emplace_back(cpuUsedInMicroSeconds, metricsNames[CPU_USED_ABSOLUTE]);
 
 #ifdef O2_MONITORING_OS_LINUX
@@ -212,6 +234,7 @@ std::vector<Metric> ProcessMonitor::getCpuAndContexts()
 
   mTimeLastRun = timeNow;
   mPreviousGetrUsage = currentUsage;
+  mPreviousGetrUsageChildren = currentUsageChildren;
   return metrics;
 }
 
@@ -262,14 +285,20 @@ std::vector<Metric> ProcessMonitor::makeLastMeasurementAndGetMetrics()
   }
 #endif
   if (mEnabledMeasurements.at(static_cast<short>(PmMeasurement::Cpu))) {
-    getCpuAndContexts();
+    // forced: no later call would pick up a delta the rate guard discards here
+    auto lastCpuMetrics = getCpuAndContexts(true);
+    std::move(lastCpuMetrics.begin(), lastCpuMetrics.end(), std::back_inserter(metrics));
 
-    auto avgCpuUsage = std::accumulate(mCpuPerctange.begin(), mCpuPerctange.end(), 0.0) /
-                       mCpuPerctange.size();
+    // A process that ends before the first periodic measurement has no
+    // percentages at all (the forced one contributes none), and averaging an
+    // empty vector would give NaN.
+    if (!mCpuPerctange.empty()) {
+      auto avgCpuUsage = std::accumulate(mCpuPerctange.begin(), mCpuPerctange.end(), 0.0) /
+                         mCpuPerctange.size();
+      metrics.emplace_back(avgCpuUsage, metricsNames[AVG_CPU_USED_PERCENTAGE]);
+    }
     uint64_t accumulationOfCpuTimeConsumption = std::accumulate(mCpuMicroSeconds.begin(),
                                                                 mCpuMicroSeconds.end(), 0UL);
-
-    metrics.emplace_back(avgCpuUsage, metricsNames[AVG_CPU_USED_PERCENTAGE]);
     metrics.emplace_back(accumulationOfCpuTimeConsumption, metricsNames[ACCUMULATED_CPU_TIME]);
   }
   return metrics;

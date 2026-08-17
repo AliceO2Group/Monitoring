@@ -130,13 +130,21 @@ void Monitoring::addBackend(std::unique_ptr<Backend> backend)
   mBackends.push_back(std::move(backend));
 }
 
-Monitoring::~Monitoring()
+void Monitoring::finalizeProcessMonitoring()
 {
+  if (!mMonitorRunning) {
+    return;
+  }
   mMonitorRunning = false;
   if (mMonitorThread.joinable()) {
     mMonitorThread.join();
     transmit(mProcessMonitor->makeLastMeasurementAndGetMetrics());
   }
+}
+
+Monitoring::~Monitoring()
+{
+  finalizeProcessMonitoring();
   flushBuffer();
 }
 
