@@ -172,8 +172,8 @@ std::vector<Metric> ProcessMonitor::getMemoryUsage()
   auto vmSize = splitStatusLineAndRetriveValue(rssString);
   mVmSizeMeasurements.push_back(vmSize);
 
-  metrics.emplace_back((vmSize * 100) / mTotalMemory, metricsNames[MEMORY_USAGE_PERCENTAGE]);
-  metrics.emplace_back(vmSize, metricsNames[VIRTUAL_MEMORY_SIZE]);
+  metrics.emplace_back((vmSize * 100) / mTotalMemory, metricName(MEMORY_USAGE_PERCENTAGE));
+  metrics.emplace_back(vmSize, metricName(VIRTUAL_MEMORY_SIZE));
 
   // Scan for VmRSS
   for (unsigned i = 0; i < VM_RSS_INDEX - VM_SIZE_INDEX; ++i) {
@@ -181,7 +181,7 @@ std::vector<Metric> ProcessMonitor::getMemoryUsage()
   }
 
   auto vmRSS = splitStatusLineAndRetriveValue(rssString);
-  metrics.emplace_back(vmRSS, metricsNames[RESIDENT_SET_SIZE]);
+  metrics.emplace_back(vmRSS, metricName(RESIDENT_SET_SIZE));
   mVmRssMeasurements.push_back(vmRSS);
 
   return metrics;
@@ -208,7 +208,7 @@ std::vector<Metric> ProcessMonitor::getSmaps()
       dirtyTotal += splitStatusLineAndRetriveValue(smapsString);
     }
   }
-  return {{pssTotal, metricsNames[PSS]}, {cleanTotal, metricsNames[PRIVATE_CLEAN]}, {dirtyTotal, metricsNames[PRIVATE_DIRTY]}};
+  return {{pssTotal, metricName(PSS)}, {cleanTotal, metricName(PRIVATE_CLEAN)}, {dirtyTotal, metricName(PRIVATE_DIRTY)}};
 }
 
 std::vector<Metric> ProcessMonitor::getCpuAndContexts(bool force)
@@ -243,22 +243,22 @@ std::vector<Metric> ProcessMonitor::getCpuAndContexts(bool force)
     double fractionCpuUsed = cpuUsedInMicroSeconds / timePassed;
     double cpuUsedPerctange = std::round(fractionCpuUsed * 100.0 * 100.0) / 100.0;
     mCpuPerctange.push_back(cpuUsedPerctange);
-    metrics.emplace_back(Metric{cpuUsedPerctange, metricsNames[CPU_USED_PERCENTAGE]});
+    metrics.emplace_back(Metric{cpuUsedPerctange, metricName(CPU_USED_PERCENTAGE)});
   }
   uint64_t involuntaryContextSwitches = (currentUsage.ru_nivcsw - mPreviousGetrUsage.ru_nivcsw) +
                                         (currentUsageChildren.ru_nivcsw - mPreviousGetrUsageChildren.ru_nivcsw);
   uint64_t voluntaryContextSwitches = (currentUsage.ru_nvcsw - mPreviousGetrUsage.ru_nvcsw) +
                                       (currentUsageChildren.ru_nvcsw - mPreviousGetrUsageChildren.ru_nvcsw);
-  metrics.emplace_back(Metric{involuntaryContextSwitches, metricsNames[INVOLUNTARY_CONTEXT_SWITCHES]});
-  metrics.emplace_back(Metric{voluntaryContextSwitches, metricsNames[VOLUNTARY_CONTEXT_SWITCHES]});
-  metrics.emplace_back(cpuUsedInMicroSeconds, metricsNames[CPU_USED_ABSOLUTE]);
+  metrics.emplace_back(Metric{involuntaryContextSwitches, metricName(INVOLUNTARY_CONTEXT_SWITCHES)});
+  metrics.emplace_back(Metric{voluntaryContextSwitches, metricName(VOLUNTARY_CONTEXT_SWITCHES)});
+  metrics.emplace_back(cpuUsedInMicroSeconds, metricName(CPU_USED_ABSOLUTE));
 
   uint64_t totalInstructions;
   if (readInstructions(totalInstructions)) {
     uint64_t delta = (totalInstructions >= mPreviousInstructions) ? (totalInstructions - mPreviousInstructions) : totalInstructions;
     mPreviousInstructions = totalInstructions;
     // Per-interval retired instructions; summed over the run = total instructions (cf. cpuUsedAbsolute).
-    metrics.emplace_back(delta, metricsNames[CPU_INSTRUCTIONS]);
+    metrics.emplace_back(delta, metricName(CPU_INSTRUCTIONS));
   }
 
   mTimeLastRun = timeNow;
@@ -306,11 +306,11 @@ std::vector<Metric> ProcessMonitor::makeLastMeasurementAndGetMetrics()
     auto avgVmRSS = std::accumulate(mVmRssMeasurements.begin(), mVmRssMeasurements.end(), 0.0) /
                     mVmRssMeasurements.size();
 
-    metrics.emplace_back(avgVmRSS, metricsNames[AVG_RESIDENT_SET_SIZE]);
+    metrics.emplace_back(avgVmRSS, metricName(AVG_RESIDENT_SET_SIZE));
 
     auto avgVmSize = std::accumulate(mVmSizeMeasurements.begin(), mVmSizeMeasurements.end(), 0.0) /
                      mVmSizeMeasurements.size();
-    metrics.emplace_back(avgVmSize, metricsNames[AVG_VIRTUAL_MEMORY_SIZE]);
+    metrics.emplace_back(avgVmSize, metricName(AVG_VIRTUAL_MEMORY_SIZE));
   }
 #endif
   if (mEnabledMeasurements.at(static_cast<short>(PmMeasurement::Cpu))) {
@@ -324,18 +324,46 @@ std::vector<Metric> ProcessMonitor::makeLastMeasurementAndGetMetrics()
     if (!mCpuPerctange.empty()) {
       auto avgCpuUsage = std::accumulate(mCpuPerctange.begin(), mCpuPerctange.end(), 0.0) /
                          mCpuPerctange.size();
-      metrics.emplace_back(avgCpuUsage, metricsNames[AVG_CPU_USED_PERCENTAGE]);
+      metrics.emplace_back(avgCpuUsage, metricName(AVG_CPU_USED_PERCENTAGE));
     }
     uint64_t accumulationOfCpuTimeConsumption = std::accumulate(mCpuMicroSeconds.begin(),
                                                                 mCpuMicroSeconds.end(), 0UL);
-    metrics.emplace_back(accumulationOfCpuTimeConsumption, metricsNames[ACCUMULATED_CPU_TIME]);
+    metrics.emplace_back(accumulationOfCpuTimeConsumption, metricName(ACCUMULATED_CPU_TIME));
   }
   return metrics;
 }
 
 std::vector<std::string> ProcessMonitor::getAvailableMetricsNames()
 {
-  return {std::begin(metricsNames), std::end(metricsNames)};
+  static_assert(std::size(metricsDefinitions) == AVAILABLE_METRICS_SIZE,
+                "metricsDefinitions must have one entry per metric index");
+  std::vector<std::string> names;
+  for (const auto& definition : metricsDefinitions) {
+    names.emplace_back(definition.name);
+  }
+  return names;
+}
+
+std::vector<ProcessMonitor::MetricInfo> ProcessMonitor::getMetricsInfo(PmMeasurement measurement)
+{
+  std::vector<MetricInfo> metrics;
+#ifndef O2_MONITORING_OS_LINUX
+  // only CPU measurements are implemented off Linux, without the instruction counter
+  if (measurement != PmMeasurement::Cpu) {
+    return metrics;
+  }
+#endif
+  for (unsigned int i = 0; i < AVAILABLE_METRICS_SIZE; i++) {
+#ifndef O2_MONITORING_OS_LINUX
+    if (i == CPU_INSTRUCTIONS) {
+      continue;
+    }
+#endif
+    if (metricsDefinitions[i].measurement == measurement) {
+      metrics.push_back({metricsDefinitions[i].name, measurement, metricsDefinitions[i].optional});
+    }
+  }
+  return metrics;
 }
 
 } // namespace monitoring

@@ -63,7 +63,17 @@ class ProcessMonitor
     AVAILABLE_METRICS_SIZE
   };
 
+  /// Description of a metric published by process monitoring
+  struct MetricInfo {
+    std::string name;           ///< metric name
+    PmMeasurement measurement;  ///< measurement producing it
+    bool optional;              ///< may be missing on some systems even when the measurement is enabled (e.g. hardware counter not accessible)
+  };
+
   static std::vector<std::string> getAvailableMetricsNames();
+
+  /// Metrics that the given measurement can publish with this build (empty for measurements not supported on this platform)
+  static std::vector<MetricInfo> getMetricsInfo(PmMeasurement measurement);
   std::vector<Metric> getPerformanceMetrics();
 
   /// Sets PID and total memory
@@ -94,11 +104,32 @@ class ProcessMonitor
   /// Retrievs total memory size from /proc/meminfo
   void setTotalMemory();
 
-  static constexpr const char* metricsNames[] = {"memoryUsagePercentage", "virtualMemorySize", "residentSetSize",
-                                                 "cpuUsedPercentage", "involuntaryContextSwitches", "voluntaryContextSwitches", "cpuUsedAbsolute",
-                                                 "averageResidentSetSize", "averageVirtualMemorySize", "averageCpuUsedPercentage",
-                                                 "cpuTimeConsumedByProcess", "proportionalSetSize", "memoryPrivateClean", "memoryPrivateDirty",
-                                                 "cpuInstructions"};
+  struct MetricDefinition {
+    const char* name;
+    PmMeasurement measurement;
+    bool optional;
+  };
+
+  /// Definition of all metrics, indexed by the enum above
+  static constexpr MetricDefinition metricsDefinitions[] = {
+    {"memoryUsagePercentage", PmMeasurement::Mem, false},
+    {"virtualMemorySize", PmMeasurement::Mem, false},
+    {"residentSetSize", PmMeasurement::Mem, false},
+    {"cpuUsedPercentage", PmMeasurement::Cpu, false},
+    {"involuntaryContextSwitches", PmMeasurement::Cpu, false},
+    {"voluntaryContextSwitches", PmMeasurement::Cpu, false},
+    {"cpuUsedAbsolute", PmMeasurement::Cpu, false},
+    {"averageResidentSetSize", PmMeasurement::Mem, false},
+    {"averageVirtualMemorySize", PmMeasurement::Mem, false},
+    {"averageCpuUsedPercentage", PmMeasurement::Cpu, false},
+    {"cpuTimeConsumedByProcess", PmMeasurement::Cpu, false},
+    {"proportionalSetSize", PmMeasurement::Smaps, false},
+    {"memoryPrivateClean", PmMeasurement::Smaps, false},
+    {"memoryPrivateDirty", PmMeasurement::Smaps, false},
+    {"cpuInstructions", PmMeasurement::Cpu, true}};
+
+  /// Name of the metric at the given index
+  static constexpr const char* metricName(unsigned int index) { return metricsDefinitions[index].name; }
 
   static constexpr unsigned int VM_SIZE_INDEX = 18;
   static constexpr unsigned int VM_RSS_INDEX = 22;

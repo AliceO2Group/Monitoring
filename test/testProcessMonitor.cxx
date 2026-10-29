@@ -16,6 +16,13 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
+#include <chrono>
+#include <functional>
+#include <iostream>
+#include <set>
+#include <sstream>
+#include <thread>
+
 namespace o2
 {
 namespace monitoring
@@ -23,99 +30,91 @@ namespace monitoring
 namespace Test
 {
 
-std::stringstream coutRedirect;
-std::streambuf* coutBuffer;
-
-void enableRedirect()
+/// Runs process monitoring for the given duration, and returns the names of the published metrics.
+/// \param enable  call enabling process monitoring on the monitoring object
+std::vector<std::string> getPublishedMetrics(std::function<void(Monitoring&)> enable, std::chrono::milliseconds duration)
 {
-  coutBuffer = std::cout.rdbuf(coutRedirect.rdbuf());
-}
-
-void disableRedirect()
-{
-  coutRedirect.str(std::string());
-  std::cout.rdbuf(coutBuffer);
-}
-
-
-/*
-   Temporarily disabling test on metrics output
-   because the list of metric that shall be returned in the different scenarios is unknown (depends on system and options).
-   Current test implementation relies on hardcoded duplicated list, which gets wrong when the library is updated with more metrics.
-*/
-/*
-BOOST_AUTO_TEST_CASE(monitorProcessDefaultCount)
-{
+  std::stringstream output;
+  auto coutBuffer = std::cout.rdbuf(output.rdbuf());
   {
-    auto monitoring = o2::monitoring::MonitoringFactory::Get("influxdb-stdout://");
-    monitoring->enableProcessMonitoring(1);
-    enableRedirect();
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    auto monitoring = MonitoringFactory::Get("influxdb-stdout://");
+    enable(*monitoring);
+    std::this_thread::sleep_for(duration);
   }
+  std::cout.rdbuf(coutBuffer);
 
-  std::istringstream returned(coutRedirect.str());
-  disableRedirect();
-  unsigned short int countMetrics = 0;
-  for (std::string line; std::getline(returned, line); ) {
-    countMetrics++;
+  std::vector<std::string> names;
+  for (std::string line; std::getline(output, line);) {
+    names.push_back(line.substr(0, line.find_first_of(" ,")));
   }
-  // On linux 11 (without Smaps) and macOS 6
-  BOOST_CHECK(countMetrics == 14 || countMetrics == 6);
+  return names;
 }
 
+/// Checks published metrics against the ones defined for the given measurements:
+/// all non-optional ones must be there, and nothing else.
+void checkPublishedMetrics(const std::vector<std::string>& published, const std::vector<PmMeasurement>& measurements)
+{
+  std::set<std::string> required;
+  std::set<std::string> allowed;
+  for (const auto& measurement : measurements) {
+    for (const auto& metric : ProcessMonitor::getMetricsInfo(measurement)) {
+      allowed.insert(metric.name);
+      if (!metric.optional) {
+        required.insert(metric.name);
+      }
+    }
+  }
+  std::set<std::string> publishedSet(published.begin(), published.end());
+  for (const auto& name : published) {
+    BOOST_CHECK_MESSAGE(allowed.count(name), "unexpected metric: " << name);
+  }
+  for (const auto& name : required) {
+    BOOST_CHECK_MESSAGE(publishedSet.count(name), "missing metric: " << name);
+  }
+}
+
+// Running slightly more than the 1s interval gives one periodic measurement and the final one,
+// so that all non-optional metrics are published.
+constexpr std::chrono::milliseconds runDuration(1500);
+
+BOOST_AUTO_TEST_CASE(monitorProcessDefault)
+{
+  auto published = getPublishedMetrics([](Monitoring& m) { m.enableProcessMonitoring(1); }, runDuration);
+  checkPublishedMetrics(published, {PmMeasurement::Cpu, PmMeasurement::Mem, PmMeasurement::Smaps});
+}
 
 BOOST_AUTO_TEST_CASE(monitorProcessCpuOnly)
 {
-  std::array<std::string, 6> names = {"cpuUsedPercentage", "involuntaryContextSwitches", "voluntaryContextSwitches", "cpuUsedAbsolute",
-                                      "averageCpuUsedPercentage", "cpuTimeConsumedByProcess"};
-  {
-    auto monitoring = o2::monitoring::MonitoringFactory::Get("influxdb-stdout://");
-    monitoring->enableProcessMonitoring(1, {PmMeasurement::Cpu});
-    enableRedirect();
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
-  }
-
-  std::istringstream returned(coutRedirect.str());
-  disableRedirect();
-  unsigned short int countMetrics = 0;
-  for (std::string line; std::getline(returned, line); ) {
-    BOOST_CHECK(std::find(names.begin(), names.end(), line.substr(0, line.find(' '))) != names.end());
-    countMetrics++;
-  }
-  // On linux and macOS 6
-  BOOST_CHECK_EQUAL(countMetrics, 6);
+  auto published = getPublishedMetrics([](Monitoring& m) { m.enableProcessMonitoring(1, {PmMeasurement::Cpu}); }, runDuration);
+  checkPublishedMetrics(published, {PmMeasurement::Cpu});
 }
 
-BOOST_AUTO_TEST_CASE(monitorProcessAll)
+BOOST_AUTO_TEST_CASE(monitorProcessCpuMem)
 {
-  std::array<std::string, 11> names = {"memoryUsagePercentage", "virtualMemorySize", "residentSetSize",
-                                       "cpuUsedPercentage", "involuntaryContextSwitches", "voluntaryContextSwitches", "cpuUsedAbsolute",
-                                       "averageResidentSetSize", "averageVirtualMemorySize", "averageCpuUsedPercentage",
-                                       "cpuTimeConsumedByProcess"};
-  {
-    auto monitoring = o2::monitoring::MonitoringFactory::Get("influxdb-stdout://");
-    monitoring->enableProcessMonitoring(1, {PmMeasurement::Cpu, PmMeasurement::Mem});
-    enableRedirect();
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
-  }
-
-  std::istringstream returned(coutRedirect.str());
-  disableRedirect();
-  unsigned short int countMetrics = 0;
-  for (std::string line; std::getline(returned, line); ) {
-    BOOST_CHECK(std::find(names.begin(), names.end(), line.substr(0, line.find(' '))) != names.end());
-    countMetrics++;
-  }
-  // On linux 14 and macOS 6
-  BOOST_CHECK(countMetrics == 11 || countMetrics == 6);
+  auto published = getPublishedMetrics([](Monitoring& m) { m.enableProcessMonitoring(1, {PmMeasurement::Cpu, PmMeasurement::Mem}); }, runDuration);
+  checkPublishedMetrics(published, {PmMeasurement::Cpu, PmMeasurement::Mem});
 }
-*/
 
 BOOST_AUTO_TEST_CASE(monitorProcessMetricName)
 {
   auto vec = o2::monitoring::ProcessMonitor::getAvailableMetricsNames();
   BOOST_CHECK_EQUAL(vec.size(), o2::monitoring::ProcessMonitor::AVAILABLE_METRICS_SIZE);
   BOOST_CHECK_EQUAL(vec[o2::monitoring::ProcessMonitor::AVG_CPU_USED_PERCENTAGE], "averageCpuUsedPercentage");
+}
+
+BOOST_AUTO_TEST_CASE(monitorProcessMetricsInfo)
+{
+  // each metric belongs to one measurement, and is one of the available metrics
+  auto available = ProcessMonitor::getAvailableMetricsNames();
+  std::set<std::string> seen;
+  for (auto measurement : {PmMeasurement::Cpu, PmMeasurement::Mem, PmMeasurement::Smaps}) {
+    for (const auto& metric : ProcessMonitor::getMetricsInfo(measurement)) {
+      BOOST_CHECK(metric.measurement == measurement);
+      BOOST_CHECK_MESSAGE(std::find(available.begin(), available.end(), metric.name) != available.end(), "unknown metric: " << metric.name);
+      BOOST_CHECK_MESSAGE(seen.insert(metric.name).second, "metric in several measurements: " << metric.name);
+    }
+  }
+  BOOST_CHECK(!ProcessMonitor::getMetricsInfo(PmMeasurement::Cpu).empty());
 }
 
 } // namespace Test
