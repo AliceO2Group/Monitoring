@@ -253,6 +253,7 @@ set(EXAMPLES
   examples/7-InternalBenchamrk.cxx
   examples/9-RunNumber.cxx
   examples/10-Buffering.cxx
+  examples/17-ProcessMonitorMetrics.cxx
 )
 
 if(RdKafka_FOUND)
