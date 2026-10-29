@@ -85,15 +85,27 @@ void Monitoring::flushBuffer(const short index)
 
 void Monitoring::enableProcessMonitoring(const unsigned int interval, std::vector<PmMeasurement> enabledMeasurements)
 {
+  if (interval == 0) {
+    finalizeProcessMonitoring();
+    return;
+  }
+  std::lock_guard<std::mutex> lifecycleLock(mMonitorLifecycleMutex);
+  std::lock_guard<std::mutex> lock(mMonitorMutex);
+  if (mMonitorRunning) {
+    if (!mProcessMonitor->hasMeasurements(enabledMeasurements)) {
+      MonLogger::Get(Severity::Warn) << "Process monitoring already running, measurements list change ignored" << MonLogger::End();
+    }
+    if (interval != mProcessMonitoringInterval) {
+      mProcessMonitoringInterval = interval;
+      mMonitorCv.notify_all();
+    }
+    return;
+  }
+  mProcessMonitor->setMeasurements(enabledMeasurements);
+  mProcessMonitor->init();
   mProcessMonitoringInterval = interval;
-  for (const auto& measurement : enabledMeasurements) {
-    mProcessMonitor->enable(measurement);
-  }
-  if (!mMonitorRunning) {
-    mProcessMonitor->init();
-    mMonitorRunning = true;
-    mMonitorThread = std::thread(&Monitoring::pushLoop, this);
-  }
+  mMonitorRunning = true;
+  mMonitorThread = std::thread(&Monitoring::pushLoop, this, std::chrono::steady_clock::now());
 }
 
 void Monitoring::addHostnameTag()
@@ -134,10 +146,15 @@ void Monitoring::addBackend(std::unique_ptr<Backend> backend)
 
 void Monitoring::finalizeProcessMonitoring()
 {
-  if (!mMonitorRunning) {
-    return;
+  std::lock_guard<std::mutex> lifecycleLock(mMonitorLifecycleMutex);
+  {
+    std::lock_guard<std::mutex> lock(mMonitorMutex);
+    if (!mMonitorRunning) {
+      return;
+    }
+    mMonitorRunning = false;
   }
-  mMonitorRunning = false;
+  mMonitorCv.notify_all();
   if (mMonitorThread.joinable()) {
     mMonitorThread.join();
     transmit(mProcessMonitor->makeLastMeasurementAndGetMetrics());
@@ -150,16 +167,34 @@ Monitoring::~Monitoring()
   flushBuffer();
 }
 
-void Monitoring::pushLoop()
+void Monitoring::pushLoop(std::chrono::steady_clock::time_point start)
 {
-  unsigned int loopCount = 0;
-  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  std::unique_lock<std::mutex> lock(mMonitorMutex);
+  std::chrono::seconds interval(mProcessMonitoringInterval);
+  // deadlines are incremented from the start of the period, so they do not drift
+  auto next = start + interval;
   while (mMonitorRunning) {
-    if (mProcessMonitoringInterval != 0 && (loopCount % (mProcessMonitoringInterval * 10)) == 0) {
-      transmit(mProcessMonitor->getPerformanceMetrics());
+    bool woken = mMonitorCv.wait_until(lock, next, [&] {
+      return !mMonitorRunning || mProcessMonitoringInterval != interval.count();
+    });
+    if (!mMonitorRunning) {
+      break;
     }
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    (loopCount >= 600) ? loopCount = 0 : loopCount++;
+    if (woken) {
+      // interval changed: next sample one new interval from now
+      interval = std::chrono::seconds(mProcessMonitoringInterval);
+      next = std::chrono::steady_clock::now() + interval;
+      continue;
+    }
+    lock.unlock();
+    transmit(mProcessMonitor->getPerformanceMetrics());
+    lock.lock();
+    next += interval;
+    auto now = std::chrono::steady_clock::now();
+    if (next <= now) {
+      // deadlines missed (e.g. slow backend): skip them, staying on the same time grid
+      next += interval * (1 + (now - next) / interval);
+    }
   }
 }
 

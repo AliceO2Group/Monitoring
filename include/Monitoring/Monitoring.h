@@ -19,6 +19,7 @@
 
 #include <atomic>
 #include <chrono>
+#include <condition_variable>
 #include <map>
 #include <memory>
 #include <mutex>
@@ -70,7 +71,10 @@ class Monitoring
   void send(Metric&& metric, DerivedMetricMode mode = DerivedMetricMode::NONE);
 
   /// Enables process monitoring
-  /// \param interval		refresh interval
+  /// When not running, starts a new measurement period with exactly the given measurements.
+  /// When running, only the interval is updated; the measurements cannot change (a different list is ignored, with a warning).
+  /// An interval of 0 stops process monitoring, as finalizeProcessMonitoring().
+  /// \param interval		refresh interval, in seconds
   /// \param enabledMeasurements vector of monitor measurements, eg. PmMeasurement::Cpu
   void enableProcessMonitoring(const unsigned int interval = 5, std::vector<PmMeasurement> enabledMeasurements = {PmMeasurement::Cpu, PmMeasurement::Mem, PmMeasurement::Smaps});
 
@@ -123,8 +127,15 @@ class Monitoring
   /// Pushes metric to all backends or to the buffer
   void transmit(Metric&& metric);
 
-  /// States whether Process Monitor thread is running
+  /// States whether Process Monitor thread is running (guarded by mMonitorMutex)
   std::atomic<bool> mMonitorRunning;
+
+  /// Serializes start/stop of process monitoring (enableProcessMonitoring, finalizeProcessMonitoring)
+  std::mutex mMonitorLifecycleMutex;
+
+  /// Guards the state shared with the push loop, and wakes it up on stop or interval change
+  std::mutex mMonitorMutex;
+  std::condition_variable mMonitorCv;
 
   /// Process Monitor thread
   std::thread mMonitorThread;
@@ -132,8 +143,8 @@ class Monitoring
   /// Process Monitor object that sends updates about the process itself
   std::unique_ptr<ProcessMonitor> mProcessMonitor;
 
-  /// Push metric loop
-  void pushLoop();
+  /// Push metric loop, sampling every interval from the given start of the measurement period
+  void pushLoop(std::chrono::steady_clock::time_point start);
 
   /// Metric buffer
   std::unordered_map<std::underlying_type<Verbosity>::type, std::vector<Metric>> mStorage;
@@ -150,7 +161,7 @@ class Monitoring
   /// Store for automatically pushed metrics
   //std::deque<ComplexMetric> mPushStore;
 
-  /// Process monitor interval
+  /// Process monitor interval, in seconds (guarded by mMonitorMutex)
   std::atomic<unsigned int> mProcessMonitoringInterval;
 
   /// Automatic metric push interval

@@ -18,6 +18,7 @@
 #define ALICEO2_MONITORING_CORE_PROCESSMONITOR_H
 
 #include <atomic>
+#include <chrono>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -71,7 +72,8 @@ class ProcessMonitor
   /// Destructor — closes the instruction counter if open
   ~ProcessMonitor();
 
-  /// Set initial variables for CPU usage calculations
+  /// Starts a new measurement period: resets the CPU baselines (timestamp, getrusage,
+  /// instruction counter) and clears the values accumulated for the final averages
   void init();
 
   /// Enable given measurement
@@ -80,6 +82,12 @@ class ProcessMonitor
  private:
   /// States which measurements are enabled
   std::array<bool, 3> mEnabledMeasurements;
+
+  /// Enables exactly the given measurements, disabling all others
+  void setMeasurements(const std::vector<PmMeasurement>& measurements);
+
+  /// Whether exactly the given measurements are enabled
+  bool hasMeasurements(const std::vector<PmMeasurement>& measurements) const;
 
   double splitStatusLineAndRetriveValue(const std::string& line) const;
 
@@ -114,6 +122,9 @@ class ProcessMonitor
   uint64_t mPreviousInstructions = 0;
   /// Best-effort open of the retired-instructions counter (no-op off Linux)
   void openInstructionCounter();
+  /// Reads the cumulative instruction count, corrected for PMU multiplexing;
+  /// false when the counter is unavailable
+  bool readInstructions(uint64_t& total);
 
   ///each measurement will be saved to compute average/accumulation usage
   std::vector<double> mVmSizeMeasurements;
@@ -122,7 +133,7 @@ class ProcessMonitor
   std::vector<double> mCpuPerctange;
 
   /// Timestamp when process monitoring was executed last time
-  std::chrono::high_resolution_clock::time_point mTimeLastRun;
+  std::chrono::steady_clock::time_point mTimeLastRun;
 
   /// Retrieves virtual memory and resident set size usage
   std::vector<Metric> getMemoryUsage();

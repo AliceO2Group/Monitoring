@@ -58,14 +58,12 @@ inline long perfEventOpen(struct perf_event_attr* attr, pid_t pid, int cpu,
 ProcessMonitor::ProcessMonitor()
 {
   mPid = static_cast<unsigned int>(::getpid());
-  mTimeLastRun = std::chrono::high_resolution_clock::now();
-  getrusage(RUSAGE_SELF, &mPreviousGetrUsage);
-  getrusage(RUSAGE_CHILDREN, &mPreviousGetrUsageChildren);
 #ifdef O2_MONITORING_OS_LINUX
   setTotalMemory();
 #endif
   mEnabledMeasurements.fill(false);
   openInstructionCounter();
+  init();
 }
 
 void ProcessMonitor::openInstructionCounter()
@@ -87,6 +85,23 @@ void ProcessMonitor::openInstructionCounter()
 #endif
 }
 
+bool ProcessMonitor::readInstructions(uint64_t& total)
+{
+#ifdef O2_MONITORING_OS_LINUX
+  if (mInstructionsFd >= 0) {
+    InstrReadFormat rf;
+    if (::read(mInstructionsFd, &rf, sizeof(rf)) == static_cast<ssize_t>(sizeof(rf))) {
+      // Correct for PMU multiplexing: when the counter is not always scheduled,
+      // timeEnabled > timeRunning, so scale the raw value back up to a full-time estimate.
+      double scale = rf.timeRunning ? static_cast<double>(rf.timeEnabled) / rf.timeRunning : 1.0;
+      total = static_cast<uint64_t>(rf.value * scale);
+      return true;
+    }
+  }
+#endif
+  return false;
+}
+
 ProcessMonitor::~ProcessMonitor()
 {
 #ifdef O2_MONITORING_OS_LINUX
@@ -98,9 +113,12 @@ ProcessMonitor::~ProcessMonitor()
 
 void ProcessMonitor::init()
 {
-  mTimeLastRun = std::chrono::high_resolution_clock::now();
+  mTimeLastRun = std::chrono::steady_clock::now();
   getrusage(RUSAGE_SELF, &mPreviousGetrUsage);
   getrusage(RUSAGE_CHILDREN, &mPreviousGetrUsageChildren);
+  // the counter runs since construction: without this, the first delta would
+  // include instructions from before the period started
+  readInstructions(mPreviousInstructions);
   // The aggregates cover one monitoring period: monitoring stopped and started
   // again reports the new period, not both blended together.
   mCpuPerctange.clear();
@@ -112,6 +130,24 @@ void ProcessMonitor::init()
 void ProcessMonitor::enable(PmMeasurement measurement)
 {
   mEnabledMeasurements[static_cast<short>(measurement)] = true;
+}
+
+void ProcessMonitor::setMeasurements(const std::vector<PmMeasurement>& measurements)
+{
+  mEnabledMeasurements.fill(false);
+  for (const auto& measurement : measurements) {
+    enable(measurement);
+  }
+}
+
+bool ProcessMonitor::hasMeasurements(const std::vector<PmMeasurement>& measurements) const
+{
+  std::array<bool, 3> requested;
+  requested.fill(false);
+  for (const auto& measurement : measurements) {
+    requested[static_cast<short>(measurement)] = true;
+  }
+  return requested == mEnabledMeasurements;
 }
 
 void ProcessMonitor::setTotalMemory()
@@ -184,11 +220,12 @@ std::vector<Metric> ProcessMonitor::getCpuAndContexts(bool force)
   struct rusage currentUsageChildren;
   getrusage(RUSAGE_SELF, &currentUsage);
   getrusage(RUSAGE_CHILDREN, &currentUsageChildren);
-  auto timeNow = std::chrono::high_resolution_clock::now();
+  auto timeNow = std::chrono::steady_clock::now();
   double timePassed = std::chrono::duration_cast<std::chrono::microseconds>(timeNow - mTimeLastRun).count();
-  if (timePassed < 950 && !force) {
-    MonLogger::Get(Severity::Warn) << "Do not invoke Process Monitor more frequent then every 1s" << MonLogger::End();
-    metrics.emplace_back("processPerformance");
+  // Safety net, the push loop never samples faster. The baseline is kept, so
+  // the next measurement covers this interval too.
+  if (timePassed < 950000 && !force) {
+    MonLogger::Get(Severity::Warn) << "Do not invoke Process Monitor more frequently than every 1s" << MonLogger::End();
     return metrics;
   }
 
@@ -216,21 +253,13 @@ std::vector<Metric> ProcessMonitor::getCpuAndContexts(bool force)
   metrics.emplace_back(Metric{voluntaryContextSwitches, metricsNames[VOLUNTARY_CONTEXT_SWITCHES]});
   metrics.emplace_back(cpuUsedInMicroSeconds, metricsNames[CPU_USED_ABSOLUTE]);
 
-#ifdef O2_MONITORING_OS_LINUX
-  if (mInstructionsFd >= 0) {
-    InstrReadFormat rf;
-    if (::read(mInstructionsFd, &rf, sizeof(rf)) == static_cast<ssize_t>(sizeof(rf))) {
-      // Correct for PMU multiplexing: when the counter is not always scheduled,
-      // timeEnabled > timeRunning, so scale the raw value back up to a full-time estimate.
-      double scale = rf.timeRunning ? static_cast<double>(rf.timeEnabled) / rf.timeRunning : 1.0;
-      uint64_t total = static_cast<uint64_t>(rf.value * scale);
-      uint64_t delta = (total >= mPreviousInstructions) ? (total - mPreviousInstructions) : total;
-      mPreviousInstructions = total;
-      // Per-interval retired instructions; summed over the run = total instructions (cf. cpuUsedAbsolute).
-      metrics.emplace_back(delta, metricsNames[CPU_INSTRUCTIONS]);
-    }
+  uint64_t totalInstructions;
+  if (readInstructions(totalInstructions)) {
+    uint64_t delta = (totalInstructions >= mPreviousInstructions) ? (totalInstructions - mPreviousInstructions) : totalInstructions;
+    mPreviousInstructions = totalInstructions;
+    // Per-interval retired instructions; summed over the run = total instructions (cf. cpuUsedAbsolute).
+    metrics.emplace_back(delta, metricsNames[CPU_INSTRUCTIONS]);
   }
-#endif
 
   mTimeLastRun = timeNow;
   mPreviousGetrUsage = currentUsage;
