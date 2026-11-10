@@ -23,7 +23,6 @@
 #include <cmath>
 #include <fstream>
 #include <utility>
-#include <numeric>
 #ifdef O2_MONITORING_OS_LINUX
 #include <linux/perf_event.h>
 #include <sys/syscall.h>
@@ -38,6 +37,15 @@ namespace monitoring
 
 static constexpr auto SMAPS_ROLLUP_FILE = "/proc/self/smaps_rollup";
 static constexpr auto SMAPS_FILE = "/proc/self/smaps";
+
+namespace
+{
+/// CPU time (user + system) of one getrusage snapshot, in microseconds
+double cpuMicros(const struct rusage& usage)
+{
+  return (usage.ru_utime.tv_sec + usage.ru_stime.tv_sec) * 1000000.0 + usage.ru_utime.tv_usec + usage.ru_stime.tv_usec;
+}
+} // namespace
 
 #ifdef O2_MONITORING_OS_LINUX
 namespace
@@ -121,10 +129,12 @@ void ProcessMonitor::init()
   readInstructions(mPreviousInstructions);
   // The aggregates cover one monitoring period: monitoring stopped and started
   // again reports the new period, not both blended together.
-  mCpuPerctange.clear();
-  mCpuMicroSeconds.clear();
-  mVmSizeMeasurements.clear();
-  mVmRssMeasurements.clear();
+  mPeriodStartTime = mTimeLastRun;
+  mPeriodStartUsage = mPreviousGetrUsage;
+  mPeriodStartUsageChildren = mPreviousGetrUsageChildren;
+  mVmSizeSum = 0;
+  mVmRssSum = 0;
+  mMemoryMeasurementsCount = 0;
 }
 
 void ProcessMonitor::enable(PmMeasurement measurement)
@@ -170,7 +180,6 @@ std::vector<Metric> ProcessMonitor::getMemoryUsage()
     std::getline(statusStream, rssString);
   }
   auto vmSize = splitStatusLineAndRetriveValue(rssString);
-  mVmSizeMeasurements.push_back(vmSize);
 
   metrics.emplace_back((vmSize * 100) / mTotalMemory, metricName(MEMORY_USAGE_PERCENTAGE));
   metrics.emplace_back(vmSize, metricName(VIRTUAL_MEMORY_SIZE));
@@ -182,7 +191,10 @@ std::vector<Metric> ProcessMonitor::getMemoryUsage()
 
   auto vmRSS = splitStatusLineAndRetriveValue(rssString);
   metrics.emplace_back(vmRSS, metricName(RESIDENT_SET_SIZE));
-  mVmRssMeasurements.push_back(vmRSS);
+
+  mVmSizeSum += vmSize;
+  mVmRssSum += vmRSS;
+  mMemoryMeasurementsCount++;
 
   return metrics;
 }
@@ -229,20 +241,14 @@ std::vector<Metric> ProcessMonitor::getCpuAndContexts(bool force)
     return metrics;
   }
 
-  // CPU time (user + system) of one snapshot, in microseconds
-  auto cpuMicros = [](const struct rusage& usage) {
-    return (usage.ru_utime.tv_sec + usage.ru_stime.tv_sec) * 1000000.0 + usage.ru_utime.tv_usec + usage.ru_stime.tv_usec;
-  };
   uint64_t cpuUsedInMicroSeconds = (cpuMicros(currentUsage) - cpuMicros(mPreviousGetrUsage)) +
                                    (cpuMicros(currentUsageChildren) - cpuMicros(mPreviousGetrUsageChildren));
-  mCpuMicroSeconds.push_back(cpuUsedInMicroSeconds);
 
   // A child's CPU time appears all at once when it is reaped, so the delta of a
   // forced (final) measurement is not a rate over the interval: absolute time only.
   if (!force) {
     double fractionCpuUsed = cpuUsedInMicroSeconds / timePassed;
     double cpuUsedPerctange = std::round(fractionCpuUsed * 100.0 * 100.0) / 100.0;
-    mCpuPerctange.push_back(cpuUsedPerctange);
     metrics.emplace_back(Metric{cpuUsedPerctange, metricName(CPU_USED_PERCENTAGE)});
   }
   uint64_t involuntaryContextSwitches = (currentUsage.ru_nivcsw - mPreviousGetrUsage.ru_nivcsw) +
@@ -301,16 +307,10 @@ std::vector<Metric> ProcessMonitor::makeLastMeasurementAndGetMetrics()
   std::vector<Metric> metrics;
 #ifdef O2_MONITORING_OS_LINUX
   if (mEnabledMeasurements.at(static_cast<short>(PmMeasurement::Mem))) {
+    // last measurement included in the averages (so at least one)
     getMemoryUsage();
-
-    auto avgVmRSS = std::accumulate(mVmRssMeasurements.begin(), mVmRssMeasurements.end(), 0.0) /
-                    mVmRssMeasurements.size();
-
-    metrics.emplace_back(avgVmRSS, metricName(AVG_RESIDENT_SET_SIZE));
-
-    auto avgVmSize = std::accumulate(mVmSizeMeasurements.begin(), mVmSizeMeasurements.end(), 0.0) /
-                     mVmSizeMeasurements.size();
-    metrics.emplace_back(avgVmSize, metricName(AVG_VIRTUAL_MEMORY_SIZE));
+    metrics.emplace_back(mVmRssSum / mMemoryMeasurementsCount, metricName(AVG_RESIDENT_SET_SIZE));
+    metrics.emplace_back(mVmSizeSum / mMemoryMeasurementsCount, metricName(AVG_VIRTUAL_MEMORY_SIZE));
   }
 #endif
   if (mEnabledMeasurements.at(static_cast<short>(PmMeasurement::Cpu))) {
@@ -318,17 +318,16 @@ std::vector<Metric> ProcessMonitor::makeLastMeasurementAndGetMetrics()
     auto lastCpuMetrics = getCpuAndContexts(true);
     std::move(lastCpuMetrics.begin(), lastCpuMetrics.end(), std::back_inserter(metrics));
 
-    // A process that ends before the first periodic measurement has no
-    // percentages at all (the forced one contributes none), and averaging an
-    // empty vector would give NaN.
-    if (!mCpuPerctange.empty()) {
-      auto avgCpuUsage = std::accumulate(mCpuPerctange.begin(), mCpuPerctange.end(), 0.0) /
-                         mCpuPerctange.size();
+    // Totals over the period, from the counters at its start: the forced
+    // measurement above has set the baseline to the current state.
+    uint64_t periodCpuMicroSeconds = (cpuMicros(mPreviousGetrUsage) - cpuMicros(mPeriodStartUsage)) +
+                                     (cpuMicros(mPreviousGetrUsageChildren) - cpuMicros(mPeriodStartUsageChildren));
+    double periodDuration = std::chrono::duration_cast<std::chrono::microseconds>(mTimeLastRun - mPeriodStartTime).count();
+    if (periodDuration > 0) {
+      double avgCpuUsage = std::round(periodCpuMicroSeconds / periodDuration * 100.0 * 100.0) / 100.0;
       metrics.emplace_back(avgCpuUsage, metricName(AVG_CPU_USED_PERCENTAGE));
     }
-    uint64_t accumulationOfCpuTimeConsumption = std::accumulate(mCpuMicroSeconds.begin(),
-                                                                mCpuMicroSeconds.end(), 0UL);
-    metrics.emplace_back(accumulationOfCpuTimeConsumption, metricName(ACCUMULATED_CPU_TIME));
+    metrics.emplace_back(periodCpuMicroSeconds, metricName(ACCUMULATED_CPU_TIME));
   }
   return metrics;
 }

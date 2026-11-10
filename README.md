@@ -172,7 +172,7 @@ Process monitoring works by measurement periods:
 - Calling it again after a stop starts a new period, with only the given measurements. Nothing from the previous period is carried over.
 
 Following metrics are generated every time interval:
-`PmMeasurement::Cpu`: (including CPU used by the reaped child processes)
+`PmMeasurement::Cpu`: (including CPU used by the child processes, once they are reaped: the whole CPU time of a child is then counted in the interval where it is reaped)
  + **cpuUsedPercentage** - percentage of a core usage (kernel + user mode) over time interval
  + **involuntaryContextSwitches** - involuntary context switches over time interval
  + **voluntaryContextSwitches** - voluntary context switches over time interval
@@ -192,8 +192,15 @@ Following metrics are generated every time interval:
 Additional metrics are generated at the end of the measurement period:
 CPU measurements:
  + **involuntaryContextSwitches**, **voluntaryContextSwitches**, **cpuUsedAbsolute**, **cpuInstructions** - as above, for the last (partial) interval. No cpuUsedPercentage is published for it.
- + **cpuTimeConsumedByProcess** - total amount of time spent on process execution (in user and kernel mode) (expressed in microseconds)
- + **averageCpuUsedPercentage** - average percentage of a core usage over time interval (only if at least one interval was completed)
+ + **cpuTimeConsumedByProcess** - total amount of time spent on process execution (in user and kernel mode) over the measurement period (expressed in microseconds). This is the reference for CPU accounting: it includes all the child processes reaped before the end of the period.
+ + **averageCpuUsedPercentage** - average percentage of a core usage over the measurement period: cpuTimeConsumedByProcess / period duration. It is the number of cores used on average by the whole job, child processes included. It is not an average of the cpuUsedPercentage values (live view, per interval): a child reaped at the end of the period counts in averageCpuUsedPercentage but in none of the cpuUsedPercentage values. Examples, with an interval of 1s:
+
+| Run | cpuUsedPercentage values | averageCpuUsedPercentage |
+|---|---|---|
+| 300ms, idle | none (shorter than one interval) | 0.3% |
+| 3.5s, busy all the time | 99.7, 99.8, 99.9 | 99.8% |
+| 3.5s, busy the first 1.75s | 99.8, 74.9, 0.05 | 50.0% |
+| 3.5s, parent idle, busy child reaped at the end | 0.1, 0.05, 0.05 | 97.0% |
 
 Memory measurements: (Linux only)
  + **averageResidentSetSize** - average resident set size used by process (expressed in kB)

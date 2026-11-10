@@ -157,11 +157,15 @@ class ProcessMonitor
   /// false when the counter is unavailable
   bool readInstructions(uint64_t& total);
 
-  ///each measurement will be saved to compute average/accumulation usage
-  std::vector<double> mVmSizeMeasurements;
-  std::vector<double> mVmRssMeasurements;
-  std::vector<uint64_t> mCpuMicroSeconds;
-  std::vector<double> mCpuPerctange;
+  /// State at the start of the measurement period, for the totals and averages over the period
+  std::chrono::steady_clock::time_point mPeriodStartTime;
+  struct rusage mPeriodStartUsage;
+  struct rusage mPeriodStartUsageChildren;
+
+  /// Sums of the memory measurements of the period, for the averages
+  double mVmSizeSum = 0;
+  double mVmRssSum = 0;
+  unsigned int mMemoryMeasurementsCount = 0;
 
   /// Timestamp when process monitoring was executed last time
   std::chrono::steady_clock::time_point mTimeLastRun;
