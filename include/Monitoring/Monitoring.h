@@ -21,6 +21,7 @@
 #include <chrono>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <thread>
 #include <tuple>
@@ -136,6 +137,9 @@ class Monitoring
 
   /// Metric buffer
   std::unordered_map<std::underlying_type<Verbosity>::type, std::vector<Metric>> mStorage;
+
+  /// Guards mStorage: metrics may be sent from several threads while another one flushes
+  std::mutex mStorageMutex;
 
   /// Flag stating whether metric buffering is enabled
   bool mBuffering;

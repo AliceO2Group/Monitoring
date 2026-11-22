@@ -21,6 +21,7 @@
 #include <chrono>
 #include <iostream>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <utility>
 #include <vector>
@@ -45,6 +46,7 @@ Monitoring::Monitoring()
 
 void Monitoring::enableBuffering(const std::size_t size)
 {
+  std::lock_guard<std::mutex> lock(mStorageMutex);
   mBufferSize = size;
   mBuffering = true;
   for (std::underlying_type<Verbosity>::type i = 0; i < static_cast<std::underlying_type<Verbosity>::type>(Verbosity::Debug); i++) {
@@ -55,30 +57,30 @@ void Monitoring::enableBuffering(const std::size_t size)
 void Monitoring::flushBuffer()
 {
   if (!mBuffering) {
-    MonLogger::Get() << "Cannot flush as buffering is disabled" << MonLogger::End();
     return;
   }
-  for (auto& [verbosity, buffer] : mStorage) {
-    if (buffer.empty()) {
-      continue;
-    }
-    for (auto& backend : mBackends) {
-      if (matchVerbosity(backend->getVerbosity(), static_cast<Verbosity>(verbosity))) {
-        backend->send(std::move(buffer));
-      }
-    }
-    buffer.clear();
+  for (short index = 0; index <= static_cast<short>(Verbosity::Debug); index++) {
+    flushBuffer(index);
   }
 }
 
 void Monitoring::flushBuffer(const short index)
 {
+  // Take the metrics out under the lock and send them without it: other threads may keep sending meanwhile
+  std::vector<Metric> buffer;
+  {
+    std::lock_guard<std::mutex> lock(mStorageMutex);
+    if (mStorage[index].empty()) {
+      return;
+    }
+    buffer.swap(mStorage[index]);
+    mStorage[index].reserve(mBufferSize);
+  }
   for (auto& backend : mBackends) {
     if (matchVerbosity(backend->getVerbosity(), static_cast<Verbosity>(index))) {
-      backend->send(std::move(mStorage[index]));
+      backend->send(std::move(buffer));
     }
   }
-  mStorage[index].clear();
 }
 
 void Monitoring::enableProcessMonitoring(const unsigned int interval, std::vector<PmMeasurement> enabledMeasurements)
@@ -172,10 +174,14 @@ void Monitoring::transmit(Metric&& metric)
 {
   if (mBuffering) {
     auto index = static_cast<std::underlying_type<Verbosity>::type>(metric.getVerbosity());
-    mStorage[index].push_back(std::move(metric));
-    if (mStorage[index].size() >= mBufferSize) {
-      flushBuffer(index);
+    {
+      std::lock_guard<std::mutex> lock(mStorageMutex);
+      mStorage[index].push_back(std::move(metric));
+      if (mStorage[index].size() < mBufferSize) {
+        return;
+      }
     }
+    flushBuffer(index);
   } else {
     for (auto& backend : mBackends) {
       if (matchVerbosity(backend->getVerbosity(), metric.getVerbosity())) {
