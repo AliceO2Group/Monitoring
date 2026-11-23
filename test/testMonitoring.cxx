@@ -13,6 +13,9 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 #include "Monitoring/MonitoringFactory.h"
+#include <array>
+#include <atomic>
+#include <thread>
 
 using namespace std::string_literals;
 
@@ -125,6 +128,50 @@ BOOST_AUTO_TEST_CASE(addHostnameTag)
 
   disableRedirect();
   BOOST_CHECK(returned.find("hostname=") != std::string::npos);
+}
+
+/// Counts the metrics it receives
+class CountingBackend : public Backend
+{
+ public:
+  CountingBackend(std::atomic<std::size_t>& count) : mCount(count) { setVerbosity(Verbosity::Debug); }
+  void send(const Metric&) override { mCount++; }
+  void send(std::vector<Metric>&& metrics) override { mCount += metrics.size(); }
+  void addGlobalTag(std::string_view, std::string_view) override {}
+
+ private:
+  std::atomic<std::size_t>& mCount;
+};
+
+BOOST_AUTO_TEST_CASE(sendFromThreadsWhileFlushing)
+{
+  constexpr int metricsPerThread = 100000;
+  std::array<std::thread, 4> senders;
+  std::atomic<std::size_t> received = 0;
+  {
+    Monitoring buffered;
+    buffered.addBackend(std::make_unique<CountingBackend>(received));
+    buffered.enableBuffering(100);
+    std::atomic<bool> sending = true;
+    std::thread flusher([&] {
+      while (sending) {
+        buffered.flushBuffer();
+      }
+    });
+    for (auto& sender : senders) {
+      sender = std::thread([&] {
+        for (int i = 0; i < metricsPerThread; i++) {
+          buffered.send({i, "threadedMetric"});
+        }
+      });
+    }
+    for (auto& sender : senders) {
+      sender.join();
+    }
+    sending = false;
+    flusher.join();
+  } // the destructor flushes what is left
+  BOOST_CHECK_EQUAL(received, senders.size() * metricsPerThread);
 }
 
 } // namespace Test
