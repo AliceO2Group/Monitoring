@@ -29,7 +29,7 @@ cmake_policy(VERSION 3.12)
 
 # Define project
 project(Monitoring
-  VERSION 3.19.17
+  VERSION 3.19.18
   DESCRIPTION "O2 Monitoring library"
   LANGUAGES CXX
 )
@@ -253,6 +253,7 @@ set(EXAMPLES
   examples/7-InternalBenchamrk.cxx
   examples/9-RunNumber.cxx
   examples/10-Buffering.cxx
+  examples/17-ProcessMonitorMetrics.cxx
 )
 
 if(RdKafka_FOUND)

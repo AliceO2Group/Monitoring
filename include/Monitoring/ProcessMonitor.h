@@ -18,6 +18,7 @@
 #define ALICEO2_MONITORING_CORE_PROCESSMONITOR_H
 
 #include <atomic>
+#include <chrono>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -62,7 +63,17 @@ class ProcessMonitor
     AVAILABLE_METRICS_SIZE
   };
 
+  /// Description of a metric published by process monitoring
+  struct MetricInfo {
+    std::string name;           ///< metric name
+    PmMeasurement measurement;  ///< measurement producing it
+    bool optional;              ///< may be missing on some systems even when the measurement is enabled (e.g. hardware counter not accessible)
+  };
+
   static std::vector<std::string> getAvailableMetricsNames();
+
+  /// Metrics that the given measurement can publish with this build (empty for measurements not supported on this platform)
+  static std::vector<MetricInfo> getMetricsInfo(PmMeasurement measurement);
   std::vector<Metric> getPerformanceMetrics();
 
   /// Sets PID and total memory
@@ -71,7 +82,8 @@ class ProcessMonitor
   /// Destructor — closes the instruction counter if open
   ~ProcessMonitor();
 
-  /// Set initial variables for CPU usage calculations
+  /// Starts a new measurement period: resets the CPU baselines (timestamp, getrusage,
+  /// instruction counter) and clears the values accumulated for the final averages
   void init();
 
   /// Enable given measurement
@@ -81,16 +93,43 @@ class ProcessMonitor
   /// States which measurements are enabled
   std::array<bool, 3> mEnabledMeasurements;
 
+  /// Enables exactly the given measurements, disabling all others
+  void setMeasurements(const std::vector<PmMeasurement>& measurements);
+
+  /// Whether exactly the given measurements are enabled
+  bool hasMeasurements(const std::vector<PmMeasurement>& measurements) const;
+
   double splitStatusLineAndRetriveValue(const std::string& line) const;
 
   /// Retrievs total memory size from /proc/meminfo
   void setTotalMemory();
 
-  static constexpr const char* metricsNames[] = {"memoryUsagePercentage", "virtualMemorySize", "residentSetSize",
-                                                 "cpuUsedPercentage", "involuntaryContextSwitches", "voluntaryContextSwitches", "cpuUsedAbsolute",
-                                                 "averageResidentSetSize", "averageVirtualMemorySize", "averageCpuUsedPercentage",
-                                                 "cpuTimeConsumedByProcess", "proportionalSetSize", "memoryPrivateClean", "memoryPrivateDirty",
-                                                 "cpuInstructions"};
+  struct MetricDefinition {
+    const char* name;
+    PmMeasurement measurement;
+    bool optional;
+  };
+
+  /// Definition of all metrics, indexed by the enum above
+  static constexpr MetricDefinition metricsDefinitions[] = {
+    {"memoryUsagePercentage", PmMeasurement::Mem, false},
+    {"virtualMemorySize", PmMeasurement::Mem, false},
+    {"residentSetSize", PmMeasurement::Mem, false},
+    {"cpuUsedPercentage", PmMeasurement::Cpu, false},
+    {"involuntaryContextSwitches", PmMeasurement::Cpu, false},
+    {"voluntaryContextSwitches", PmMeasurement::Cpu, false},
+    {"cpuUsedAbsolute", PmMeasurement::Cpu, false},
+    {"averageResidentSetSize", PmMeasurement::Mem, false},
+    {"averageVirtualMemorySize", PmMeasurement::Mem, false},
+    {"averageCpuUsedPercentage", PmMeasurement::Cpu, false},
+    {"cpuTimeConsumedByProcess", PmMeasurement::Cpu, false},
+    {"proportionalSetSize", PmMeasurement::Smaps, false},
+    {"memoryPrivateClean", PmMeasurement::Smaps, false},
+    {"memoryPrivateDirty", PmMeasurement::Smaps, false},
+    {"cpuInstructions", PmMeasurement::Cpu, true}};
+
+  /// Name of the metric at the given index
+  static constexpr const char* metricName(unsigned int index) { return metricsDefinitions[index].name; }
 
   static constexpr unsigned int VM_SIZE_INDEX = 18;
   static constexpr unsigned int VM_RSS_INDEX = 22;
@@ -114,15 +153,22 @@ class ProcessMonitor
   uint64_t mPreviousInstructions = 0;
   /// Best-effort open of the retired-instructions counter (no-op off Linux)
   void openInstructionCounter();
+  /// Reads the cumulative instruction count, corrected for PMU multiplexing;
+  /// false when the counter is unavailable
+  bool readInstructions(uint64_t& total);
 
-  ///each measurement will be saved to compute average/accumulation usage
-  std::vector<double> mVmSizeMeasurements;
-  std::vector<double> mVmRssMeasurements;
-  std::vector<uint64_t> mCpuMicroSeconds;
-  std::vector<double> mCpuPerctange;
+  /// State at the start of the measurement period, for the totals and averages over the period
+  std::chrono::steady_clock::time_point mPeriodStartTime;
+  struct rusage mPeriodStartUsage;
+  struct rusage mPeriodStartUsageChildren;
+
+  /// Sums of the memory measurements of the period, for the averages
+  double mVmSizeSum = 0;
+  double mVmRssSum = 0;
+  unsigned int mMemoryMeasurementsCount = 0;
 
   /// Timestamp when process monitoring was executed last time
-  std::chrono::high_resolution_clock::time_point mTimeLastRun;
+  std::chrono::steady_clock::time_point mTimeLastRun;
 
   /// Retrieves virtual memory and resident set size usage
   std::vector<Metric> getMemoryUsage();

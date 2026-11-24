@@ -153,7 +153,7 @@ See how it works in the example: [examples/4-RateDerivedMetric.cxx](examples/4-R
 
 ### Process monitoring
 
-This feature provides basic performance status of the process. Note that is runs in separate thread.
+This feature provides basic performance status of the process. Note that it runs in a separate thread.
 
 ```cpp
 enableProcessMonitoring([interval in seconds, {PmMeasurement list}]);
@@ -163,11 +163,21 @@ List of valid measurement lists:
 - `PmMeasurement::Mem`
 - `PmMeasurement::Smaps` - Beware. Enabling this will trigger kernel to run `smaps_account` periodically.
 
+By default, all measurements are enabled, with an interval of 5 seconds.
+
+Process monitoring works by measurement periods:
+- The first call starts a period: counters are reset, and metrics are published every interval from that time (first publication after one interval).
+- Calling it again while running only changes the interval (next publication one new interval later). The list of measurements can not be changed while running (a different list is ignored, with a warning).
+- Calling it with an interval of 0, or calling `finalizeProcessMonitoring()`, ends the period: the final metrics (see below) are published and monitoring stops. The destructor does the same if monitoring is still running.
+- Calling it again after a stop starts a new period, with only the given measurements. Nothing from the previous period is carried over.
+
 Following metrics are generated every time interval:
-`PmMeasurement::Cpu`:
+`PmMeasurement::Cpu`: (including CPU used by the child processes, once they are reaped: the whole CPU time of a child is then counted in the interval where it is reaped)
  + **cpuUsedPercentage** - percentage of a core usage (kernel + user mode) over time interval
  + **involuntaryContextSwitches** - involuntary context switches over time interval
+ + **voluntaryContextSwitches** - voluntary context switches over time interval
  + **cpuUsedAbsolute** - amount of time spent on process execution (in user and kernel mode) over time interval (expressed in microseconds)
+ + **cpuInstructions** - user-space instructions retired over time interval (Linux only, when the hardware counter is accessible: it depends on `perf_event_paranoid`, containers and virtual machines)
 
 `PmMeasurement::Mem`: (Linux only)
  + **memoryUsagePercentage** - ratio of the process's virtual memory to memory available on the machine
@@ -179,10 +189,18 @@ Following metrics are generated every time interval:
 + **memoryPrivateClean** - unmodified private pages
 + **memoryPrivateDirty** - modified private pages
 
-Additional metrics are generated at the end of process execution:
+Additional metrics are generated at the end of the measurement period:
 CPU measurements:
- + **cpuTimeConsumedByProcess** - total amount of time spent on process execution (in user and kernel mode) (expressed in microseconds)
- + **averageCpuUsedPercentage** - average percentage of a core usage over time interval
+ + **involuntaryContextSwitches**, **voluntaryContextSwitches**, **cpuUsedAbsolute**, **cpuInstructions** - as above, for the last (partial) interval. No cpuUsedPercentage is published for it.
+ + **cpuTimeConsumedByProcess** - total amount of time spent on process execution (in user and kernel mode) over the measurement period (expressed in microseconds). This is the reference for CPU accounting: it includes all the child processes reaped before the end of the period.
+ + **averageCpuUsedPercentage** - average percentage of a core usage over the measurement period: cpuTimeConsumedByProcess / period duration. It is the number of cores used on average by the whole job, child processes included. It is not an average of the cpuUsedPercentage values (live view, per interval): a child reaped at the end of the period counts in averageCpuUsedPercentage but in none of the cpuUsedPercentage values. Examples, with an interval of 1s:
+
+| Run | cpuUsedPercentage values | averageCpuUsedPercentage |
+|---|---|---|
+| 300ms, idle | none (shorter than one interval) | 0.3% |
+| 3.5s, busy all the time | 99.7, 99.8, 99.9 | 99.8% |
+| 3.5s, busy the first 1.75s | 99.8, 74.9, 0.05 | 50.0% |
+| 3.5s, parent idle, busy child reaped at the end | 0.1, 0.05, 0.05 | 97.0% |
 
 Memory measurements: (Linux only)
  + **averageResidentSetSize** - average resident set size used by process (expressed in kB)
