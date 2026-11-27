@@ -107,6 +107,7 @@ bool ProcessMonitor::readInstructions(uint64_t& total)
     }
   }
 #endif
+  total = 0;
   return false;
 }
 
